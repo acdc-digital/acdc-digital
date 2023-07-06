@@ -3,7 +3,7 @@
 <h4>👋    Hi, I am the founder of: @acdc-digital</h4>
 
 
-ACDC.digital is a start-up primarily focused on using data to improve patient relations between the Public and Private citizen classes. As Healthare continues to lag in development behind the privare sectors, our aim is to develop private/ secure/ and innovative applications which can increase the speed of attaining important medical information, as well as increase levels of understanding surrounding:
+ACDC.digital is a start-up primarily focused on using data to improve patient relations between the Public and Private citizen classes within North-America. As Healthare continues to lag in development behind the privare sectors, our aim is to develop private/ secure/ and innovative applications which can increase the speed of attaining important medical information, as well as increase levels of understanding surrounding:
 
 1. Diagnosis 
 2. Translation to Generic medical terms
