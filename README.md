@@ -1,6 +1,6 @@
 # 🏥 💾 Hi there! I'm Matthew! 
  
-<h2>🚀 ACDC.digital: Revolutionizing Healthcare Communication 🚀</h2>
+<h2>🚀 ACDC.digital: Revolutionizing Healthcare Communications 🚀</h2>
 
 **contribute to Medex: https://github.com/acdc-digital/Medex-Public-MITP.git**
 
