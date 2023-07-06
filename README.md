@@ -11,7 +11,7 @@ We are a pioneering company in the healthcare technology sector, leveraging mach
 
 Our commitment to improving patient understanding of their diagnoses is at the heart of everything we do. We are not just a healthcare company; we are data specialists, digital record-keeping experts, and patient advocates. We believe that by making health information more accessible and understandable, we can improve patient outcomes and enhance the overall healthcare experience. 
 
-<h2>🌟 Introducing Medex: Your Personal Health Interpreter 🌟</h2>
+<h2>🌟 Introducing Medex: Your Personal Health Interpreter</h2>
 
 Currently, Open-Source and looking for contributors. 
 
@@ -19,7 +19,7 @@ Medex is the first solution offered by ACDC.digital. It's a revolutionary chat a
 
 But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 💖
 
-<h2>🌈 The Future of ACDC.digital and Medex 🌈</h2>
+<h2>🌈 The Future of ACDC.digital and Medex</h2>
 
 As we look to the future, we see Medex as the first of many tools designed to work in conjunction with each other, improving specific roles and segments within the industry. We envision the development of additional applications:
 
