@@ -31,3 +31,8 @@ As we look to the future, we see Medex as the first of many tools designed to wo
 * 🗂️ HealthConnect: A secure platform that facilitates communication between patients, healthcare providers, and insurance companies, streamlining the healthcare process. It's your personal health assistant, keeping track of appointments, prescriptions, and insurance claims. 📅
 
 We are committed to using the latest technologies for each component of our software and only the best hardware that serves as the engine of our company. This commitment to quality and innovation ensures that we stay at the forefront of the healthcare technology sector. We believe that ACDC.digital and Medex can already revolutionize the way our hospitals communicate and relay health information, improving patient outcomes, and enhancing the overall healthcare experience. We look forward to continue bringing this vision to life. 🤝
+
+
+⚡⚡⚡
+
+![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=acdc-digital&show_icons=true)
