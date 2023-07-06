@@ -24,11 +24,11 @@ But Medex is more than just a chat application. It's a tool that allows patients
 As we look to the future, we see Medex as the first of many tools designed to work in conjunction with each other, improving specific roles and segments within the industry. We envision the development of additional applications:
 
 * 🧬 HealthEd: An educational platform that provides easy-to-understand information about various medical conditions, treatments, and preventive measures. It's like having a medical encyclopedia at your fingertips, but one that speaks your language. 📚
-* 🧑🏻‍⚕️ TheraTalk: A platform that connects patients with therapists and counselors to help them cope with difficult diagnoses. It's a safe space for patients to express their feelings and fears and receive professional help. 💬
-* 🤒 SymptoCheck: An AI-powered tool that helps patients understand their symptoms and potential side-effects of their medications. It's like having a personal doctor available 24/7 to answer your health-related questions. 🩺
-* 🗂️ HealthConnect: A secure platform that facilitates communication between patients, healthcare providers, and insurance companies, streamlining the healthcare process. It's your personal health assistant, keeping track of appointments, prescriptions, and insurance claims. 📅
+* 💬 TheraTalk: A platform that connects patients with therapists and counselors to help them cope with difficult diagnoses. It's a safe space for patients to express their feelings and fears and receive professional help.
+* 🩺 SymptoCheck: An AI-powered tool that helps patients understand their symptoms and potential side-effects of their medications. It's like having a personal doctor available 24/7 to answer your health-related questions.
+* 🗂️ HealthConnect: A secure platform that facilitates communication between patients, healthcare providers, and insurance companies, streamlining the healthcare process. It's your personal health assistant, keeping track of appointments, prescriptions, and insurance claims. 
 
-We are committed to using the latest technologies for each component of our software and only the best hardware that serves as the engine of our company. This commitment to quality and innovation ensures that we stay at the forefront of the healthcare technology sector. We believe that ACDC.digital and Medex can already revolutionize the way our hospitals communicate and relay health information, improving patient outcomes, and enhancing the overall healthcare experience. We look forward to continue bringing this vision to life. 🤝
+📰 We are committed to using the latest technologies for each component of our software and only the best hardware that serves as the engine of our company. This commitment to quality and innovation ensures that we stay at the forefront of the healthcare technology sector. We believe that ACDC.digital and Medex can already revolutionize the way our hospitals communicate and relay health information, improving patient outcomes, and enhancing the overall healthcare experience. We look forward to continue bringing this vision to life. 
 
 
 ⚡⚡⚡
