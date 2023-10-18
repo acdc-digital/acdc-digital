@@ -5,7 +5,7 @@ I'm on my journey to develop real-time healthcare applications that are founded 
 <h2>Project Highlights:</h2>
 <h3>🚀 ACDC.digital: Revolutionizing Healthcare Communications 🚀</h3>
 
-**contribute to Medex: https://github.com/acdc-digital/Medex-Public-MITP.git**
+**contribute to Medex: Contributions are curerntly closed as we continue to shift our focus on generating income related to bringing this project to life.**
 
 👋👋👋
 I am Matthew Simon, the founder of ACDC.digital. I am thrilled to present oppertunities that have the potential to transform the way we understand and communicate with our health information. The mission is simple, yet profound: To empower patients and their families with a clear understanding of their health records, bridging the gap between complex medical jargon and everyday languages.
