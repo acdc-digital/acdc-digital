@@ -1,6 +1,9 @@
 # 🏥 💾 Hi there! I'm Matthew.
- 
-<h2>🚀 ACDC.digital: Revolutionizing Healthcare Communications 🚀</h2>
+
+I'm on my journey to develop real-time healthcare applications that are founded in a patient focus. To do this, I've developed a number of commercial applications which are being served across Atlantic Canada under our corporate profile: ACDC.digital (Atlantic Canada's Digital Consultants). All of our projects will eventually be displayed here. For now, I'm still displaying our heart and soul, and the roof of our cause. 
+
+<h2>Project Highlights:</h2>
+<h3>🚀 ACDC.digital: Revolutionizing Healthcare Communications 🚀</h3>
 
 **contribute to Medex: https://github.com/acdc-digital/Medex-Public-MITP.git**
 
