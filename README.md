@@ -1,37 +1,18 @@
-# 💾 Hi there! I'm Matthew.
+# 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital 
 
-I'm on my journey to develop real-time healthcare applications that are founded in a patient focus. To do this, I've developed a number of commercial applications which are being served across Atlantic Canada under our corporate profile: ACDC.digital (Atlantic Canada's Digital Consultants). All of our projects will eventually be displayed here. For now, I'm still displaying our heart and soul, and the roof of our cause. 
-
-<h2>Project Highlights:</h2>
-<h3>🚀 ACDC.digital: Revolutionizing Healthcare Communications 🚀</h3>
-
-**contribute to Medex: Contributions are curerntly closed as we continue to shift our focus on generating income related to bringing this project to life.**
 
 👋👋👋
-I am Matthew Simon, the founder of ACDC.digital. I am thrilled to present oppertunities that have the potential to transform the way we understand and communicate with our health information. The mission is simple, yet profound: To empower patients and their families with a clear understanding of their health records, bridging the gap between complex medical jargon and everyday languages.
+My developer journey started when my son was born with a terminall illness. I was determined that with AI I could help organize his life, uncover medical insights, and develop solutions that could help family's like mine. This project was initially titled, "Medex" shortform for Medical Executive Assistant, which is an AI personality that can use techniques such as RAg (retrieval generated augmentation) to allow Users to upload their medical documents, and the assistant will be able to organize the information in a more usable format. This journey has had many successes, albeit no working demo to date. Instead, the short-term focus of this project has been developing the Pipeline- which now takes the name of 'Solomon'. Solomon is ACDC.digital's first AI personality, and the backbone in our development of natural language pipelines, agent tasks, and workstation-UI. Solomon is spread thin, being used as the integral cetnre-piece of ACDC.digital, in order to bring systems and programs to life. 
 
-We are a pioneering company in the healthcare technology sector, leveraging machine learning to translate complex medical charts into layman's terms. This unique approach empowers patients and their families to better understand their diagnoses and treatment plans. Our proprietary models integrate various language experts to create a unified strategy for communication, including medical information training, therapeutic strategies, and improved bedside manner for explaining diagnoses without losing context. 
+<h2>Project Highlights:</h2>
+<h3>🩻 Medex: Revolutionizing Healthcare Communications 🩻</h3>
 
-Our commitment to improving patient understanding of their diagnoses is at the heart of everything we do. We are not just a healthcare company; we are data specialists, digital record-keeping experts, and patient advocates. We believe that by making health information more accessible and understandable, we can improve patient outcomes and enhance the overall healthcare experience. 
+**contribute to Medex: Contributions are curerntly closed as we continue to shift our focus on generating income oppertunities with Solomon related to bringing this project to life.**
 
-<h2>🩻 Introducing Medex: Your Personal Health Interpreter 🩻</h2>
+My goal is to transform the way we understand and communicate with our health information. The mission is simple, yet profound: To empower patients and their families with a clear understanding of their health records, bridging the gap between complex medical jargon and everyday languages.
 
-Currently, Open-Source and looking for contributors. 
+Medex is the first solution offered by ACDC.digital. It's a revolutionary chat application where users can upload their medical information and then chat conversationally with their data to understand it better. Medex uses proprietary models for text splitting, embeddings, and vector store & retrieval, utilizing the latest technologies for each component of the software. But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 
 
-Medex is the first solution offered by ACDC.digital. It's a revolutionary chat application where users can upload their medical information and then chat conversationally with their data to understand it better. Medex uses proprietary models for text splitting, embeddings, and vector store & retrieval, utilizing the latest technologies for each component of the software. 📱
-
-But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 
-
-<h2>🩹 The Future of ACDC.digital and Medex  🩹</h2>
-
-As we look to the future, we see Medex as the first of many tools designed to work in conjunction with each other, improving specific roles and segments within the industry. We envision the development of additional applications:
-
-* 🧬 HealthEd: An educational platform that provides easy-to-understand information about various medical conditions, treatments, and preventive measures. It's like having a medical encyclopedia at your fingertips, but one that speaks your language. 
-* 💬 TheraTalk: A platform that connects patients with therapists and counselors to help them cope with difficult diagnoses. It's a safe space for patients to express their feelings and fears and receive professional help.
-* 🩺 SymptoCheck: An AI-powered tool that helps patients understand their symptoms and potential side-effects of their medications. It's like having a personal doctor available 24/7 to answer your health-related questions.
-* 🗂️ HealthConnect: A secure platform that facilitates communication between patients, healthcare providers, and insurance companies, streamlining the healthcare process. It's your personal health assistant, keeping track of appointments, prescriptions, and insurance claims. 
-
-📰 We are committed to using the latest technologies for each component of our software and only the best hardware that serves as the engine of our company. This commitment to quality and innovation ensures that we stay at the forefront of the healthcare technology sector. We believe that ACDC.digital and Medex can already revolutionize the way our hospitals communicate and relay health information, improving patient outcomes, and enhancing the overall healthcare experience. We look forward to continue bringing this vision to life. 
 
 
 ⚡⚡⚡
