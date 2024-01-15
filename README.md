@@ -1,4 +1,4 @@
-# 🏥 💾 Hi there! I'm Matthew.
+# 💾 Hi there! I'm Matthew.
 
 I'm on my journey to develop real-time healthcare applications that are founded in a patient focus. To do this, I've developed a number of commercial applications which are being served across Atlantic Canada under our corporate profile: ACDC.digital (Atlantic Canada's Digital Consultants). All of our projects will eventually be displayed here. For now, I'm still displaying our heart and soul, and the roof of our cause. 
 
