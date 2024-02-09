@@ -7,11 +7,9 @@ My developer journey started when my son was born with a rare terminall illness.
 <h2>Project Highlights:</h2>
 <h3>🩻 Medex: Revolutionizing Healthcare Communications 🩻</h3>
 
-**contribute to Medex: Contributions are curerntly closed as we continue to shift our focus on generating income oppertunities with Solomon related to bringing this project to life.**
-
 My goal is to transform the way we understand and communicate with our health information. The mission is simple, yet profound: To empower patients and their families with a clear understanding of their health records, bridging the gap between complex medical jargon and everyday languages.
 
-Medex is the first solution offered by ACDC.digital. It's a revolutionary chat application where users can upload their medical information and then chat conversationally with their data to understand it better. Medex uses proprietary models for text splitting, embeddings, and vector store & retrieval, utilizing the latest technologies for each component of the software. But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 
+Medex is the first solution offered by ACDC.digital. It's a revolutionary chat application where users can upload their medical information and then chat conversationally with their data in order to understand it better. Medex uses proprietary models for text splitting, embeddings, and vector store & retrieval, utilizing the latest technologies for each component of the software. But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 
 
 
 
