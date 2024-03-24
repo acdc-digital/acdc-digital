@@ -1,4 +1,4 @@
-# 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital 
+# 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital. This is my passion project. 
 
 
 👋👋👋   
