@@ -1,0 +1,97 @@
+{
+  // Material Icon Theme Configuration
+  "material-icon-theme.folders.color": "#42a5f5",
+  "material-icon-theme.files.color": "#90a4ae",
+  "material-icon-theme.folders.theme": "specific",
+  "material-icon-theme.opacity": 1,
+  "material-icon-theme.saturation": 1,
+  
+  // Custom folder associations for your project structure
+  "material-icon-theme.folders.associations": {
+    "app": "src",
+    "components": "components",
+    "convex": "api",
+    "server": "server",
+    "_generated": "tools",
+    "public": "public",
+    ".vscode": "vscode",
+    ".github": "github",
+    ".notes": "docs",
+    ".trunk": "config",
+    "acdc-digital": "app"
+  },
+  
+  // Custom file associations
+  "material-icon-theme.files.associations": {
+    "*.tsx": "react_ts",
+    "*.ts": "typescript",
+    "*.mjs": "javascript",
+    "next.config.ts": "next",
+    "tsconfig.json": "tsconfig",
+    "package.json": "nodejs",
+    "eslint.config.mjs": "eslint",
+    "postcss.config.mjs": "postcss",
+    "README.md": "readme",
+    "globals.css": "css",
+    "layout.tsx": "react_ts",
+    "page.tsx": "react_ts",
+    "schema.ts": "database",
+    "myFunctions.ts": "api"
+  },
+  
+  // Language associations
+  "material-icon-theme.languages.associations": {
+    "typescript": "typescript",
+    "typescriptreact": "react_ts",
+    "javascript": "javascript",
+    "json": "json",
+    "css": "css",
+    "markdown": "readme"
+  },
+  
+  // Custom folder clones with project-specific colors
+  "material-icon-theme.folders.customClones": [
+    {
+      "name": "convex-api",
+      "base": "api",
+      "color": "#ff6b35",
+      "lightColor": "#ff8a65",
+      "folderNames": ["convex"]
+    },
+    {
+      "name": "nextjs-app",
+      "base": "src",
+      "color": "#f44336",
+      "lightColor": "#e53935",
+      "folderNames": ["app"]
+    },
+    {
+      "name": "react-components",
+      "base": "components",
+      "color": "#61dafb",
+      "lightColor": "#0277bd",
+      "folderNames": ["components"]
+    },
+    {
+      "name": "acdc-app",
+      "base": "app",
+      "color": "#f44336",
+      "lightColor": "#e53935",
+      "folderNames": ["acdc-digital"]
+    }
+  ],
+  
+  // Root folder customization
+  "material-icon-theme.rootFolders.associations": {
+    "acdc-digital": "app"
+  },
+  "material-icon-theme.rootFolders.color": "#f44336",
+  
+  // Explorer arrows for better navigation
+  "material-icon-theme.hidesExplorerArrows": false,
+  
+  // Additional VS Code settings for better icon experience
+  "workbench.iconTheme": "material-icon-theme",
+  "explorer.decorations.colors": true,
+  "explorer.decorations.badges": true
+}

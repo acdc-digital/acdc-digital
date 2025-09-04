@@ -1,0 +1,31 @@
+{
+  "instructions": {
+    "file": ".github/copilot-instructions.md",
+    "description": "Convex and Next.js development guidelines for ACDC Digital project"
+  },
+  "rules": [
+    {
+      "pattern": "convex/**/*.ts",
+      "description": "Apply Convex-specific patterns and validators"
+    },
+    {
+      "pattern": "app/**/*.tsx",
+      "description": "Apply Next.js App Router and React patterns"
+    },
+    {
+      "pattern": "components/**/*.tsx", 
+      "description": "Apply React component patterns with Convex integration"
+    },
+    {
+      "pattern": "**/schema.ts",
+      "description": "Apply Convex schema definition patterns"
+    }
+  ],
+  "preferences": {
+    "codeStyle": "typescript-strict",
+    "framework": "nextjs-app-router",
+    "backend": "convex",
+    "linting": "strict",
+    "formatting": "prettier"
+  }
+}
