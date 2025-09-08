@@ -236,16 +236,16 @@ export default function AuraHomepage() {
                   <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full animate-pulse-glow"></div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-lg font-mono font-bold text-primary tracking-wider">AURA</h1>
+                  <h1 className="text-lg font-mono font-bold text-primary tracking-wider">SMNB</h1>
                   <span className="text-xs font-mono text-white/80 border border-white/30 px-1.5 py-0.5 rounded">v2.1</span>
                 </div>
               </div>
               
               {/* Terminal Status Bar */}
-              <div className="hidden lg:flex items-center space-x-4 text-xs font-mono">
+              <div className="hidden lg:flex items-center space-x-2 text-sm font-mono">
                 <div className="flex items-center space-x-1.5">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                  <span className="text-secondary">online</span>
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                  <span className="text-secondary">live</span>
                 </div>
                 <div className="text-quaternary">|</div>
                 <div className="flex items-center space-x-1">
@@ -261,27 +261,27 @@ export default function AuraHomepage() {
             </div>
             
             {/* Terminal Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-0">
               <a href="#platform" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
                 platform
-              </a>
-              <a href="#agents" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
-                agents
               </a>
               <a href="#pricing" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
                 pricing
               </a>
-              <a href="#console" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
-                console
+              <a href="#advertising" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
+                advertising
+              </a>
+              <a href="#commitment" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
+                commitment
+              </a>
+              <a href="#blog" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
+                blog
               </a>
               
               {/* Terminal Actions */}
               <div className="flex items-center space-x-2 ml-6 pl-6">
-                <Button variant="ghost" className="px-3 py-1.5 text-sm font-mono text-secondary border border-transparent rounded hover:border-primary/30 hover:text-primary hover:bg-secondary/20 transition-all duration-200">
-                  sign_in
-                </Button>
                 <Button className="px-4 py-1.5 text-sm font-mono font-bold bg-transparent border border-white text-white rounded hover:bg-white hover:text-black transition-all duration-200">
-                  start_building
+                  get_started
                 </Button>
               </div>
             </nav>
@@ -302,7 +302,7 @@ export default function AuraHomepage() {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center space-x-2 text-xs font-mono">
               <span className="text-white">$</span>
-              <span className="text-gray-300">aura --status</span>
+              <span className="text-gray-300">smnb-platform+ --status</span>
               <span className="text-green-400 font-medium">waitlist</span>
               <span className="text-gray-500 ml-8">join the waitlist for limited public preview...</span>
               <span className="text-white ml-2 animate-pulse">_</span>
