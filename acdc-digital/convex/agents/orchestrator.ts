@@ -54,6 +54,7 @@ export const processUserMessage = action({
       let documentUpdated = false;
 
       console.log(`Processing intent: ${intentResult.intent} for document: ${args.documentId}`);
+      console.log(`Intent confidence: ${intentResult.confidence}, reasoning: ${intentResult.reasoning}`);
 
       switch (intentResult.intent) {
         case "create_document":
@@ -115,8 +116,15 @@ export const processUserMessage = action({
     } catch (error) {
       console.error("Agent orchestrator error:", error);
       
-      // Fallback response
-      const fallbackResponse = `I encountered an error processing your request: ${error}. Please try again.`;
+      // Check if it's an API overload error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      let fallbackResponse = "";
+      
+      if (errorMessage.includes("API_OVERLOADED") || errorMessage.includes("529")) {
+        fallbackResponse = "AI services are temporarily overloaded. I've processed your request with a fallback system. Please try again in a moment for full AI assistance.";
+      } else {
+        fallbackResponse = `I encountered an error processing your request: ${errorMessage}. Please try again.`;
+      }
       
       await ctx.runMutation(api.chatMessages.create, {
         sessionId: args.sessionId,
