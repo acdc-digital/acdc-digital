@@ -30,12 +30,14 @@ export const classifyIntent = internalAction({
     Classify the user's message into one of these intents:
     
     - create_document: User wants to create new content from scratch (e.g., "Write me a guide", "Create a document about", "Generate content for")
-    - edit_document: User wants to modify existing content (e.g., "Make this more formal", "Fix the grammar", "Improve the writing")
-    - append_content: User wants to add content to the end (e.g., "Add a section about", "Include information on", "Append details")
+    - edit_document: User wants to modify existing content (e.g., "Make this more formal", "Fix the grammar", "Improve the writing", "Update the content")
+    - append_content: User wants to add content somewhere in the document (e.g., "Add a section about", "Include information on", "Put alerts at the top", "Insert a paragraph")
     - replace_content: User wants to completely replace content (e.g., "Replace this with", "Rewrite everything", "Start over with")
     - format_content: User wants to change formatting/structure (e.g., "Format this as bullet points", "Make this into a table", "Add headings")
     - clear_document: User wants to clear/reset the document (e.g., "Clear the document", "Delete everything", "Start fresh")
     - general_chat: General conversation, no document action needed (e.g., "How are you?", "What's the weather?", "Tell me a joke")
+
+    IMPORTANT: If the user mentions modifying, adding to, or changing ANY part of "our guide", "the document", "this content", etc., it should be classified as a document editing intent, NOT general_chat.
 
     Respond with a JSON object containing:
     {
@@ -47,6 +49,7 @@ export const classifyIntent = internalAction({
     Examples:
     "Write me a guide for ordering at Subway" -> {"intent": "create_document", "confidence": 0.98, "reasoning": "User explicitly asks to write/create new content"}
     "Add a section about payment methods" -> {"intent": "append_content", "confidence": 0.95, "reasoning": "User wants to add content to existing document"}
+    "Put testing alerts at the top of our guide" -> {"intent": "append_content", "confidence": 0.97, "reasoning": "User wants to add content (alerts) to the existing guide"}
     "Make this more formal" -> {"intent": "edit_document", "confidence": 0.92, "reasoning": "User wants to modify existing content style"}
     "Format this as bullet points" -> {"intent": "format_content", "confidence": 0.96, "reasoning": "User wants to change formatting structure"}
     "How's the weather?" -> {"intent": "general_chat", "confidence": 0.99, "reasoning": "General conversation unrelated to document editing"}`;
@@ -82,13 +85,13 @@ export const classifyIntent = internalAction({
         const message = args.message.toLowerCase();
         if (message.includes("write") || message.includes("create") || message.includes("generate")) {
           return { intent: "create_document", confidence: 0.7 };
-        } else if (message.includes("add") || message.includes("append") || message.includes("include")) {
+        } else if (message.includes("add") || message.includes("append") || message.includes("include") || message.includes("put") || message.includes("insert")) {
           return { intent: "append_content", confidence: 0.7 };
-        } else if (message.includes("edit") || message.includes("modify") || message.includes("change")) {
+        } else if (message.includes("edit") || message.includes("modify") || message.includes("change") || message.includes("update") || message.includes("alter")) {
           return { intent: "edit_document", confidence: 0.7 };
-        } else if (message.includes("format") || message.includes("bullet") || message.includes("heading")) {
+        } else if (message.includes("format") || message.includes("bullet") || message.includes("heading") || message.includes("style")) {
           return { intent: "format_content", confidence: 0.7 };
-        } else if (message.includes("clear") || message.includes("delete") || message.includes("remove")) {
+        } else if (message.includes("clear") || message.includes("delete") || message.includes("remove") || message.includes("erase")) {
           return { intent: "clear_document", confidence: 0.7 };
         } else {
           return { intent: "general_chat", confidence: 0.8 };

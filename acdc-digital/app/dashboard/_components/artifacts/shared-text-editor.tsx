@@ -23,8 +23,22 @@ function ConnectedTiptapEditor({
 }) {
   const documentContent = useQuery(api.sharedDocument.getDocumentContent, { documentId });
   const updateContent = useMutation(api.sharedDocument.updateDocumentContent);
+  
+  // Debug logging for document content changes
+  useEffect(() => {
+    if (documentContent) {
+      console.log("Document content updated from Convex:", {
+        contentLength: documentContent.content.length,
+        updatedAt: new Date(documentContent.updatedAt).toISOString(),
+        contentPreview: documentContent.content.substring(0, 100) + "..."
+      });
+    }
+  }, [documentContent]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [lastSavedContent, setLastSavedContent] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [hasExternalUpdate, setHasExternalUpdate] = useState(false);
 
   // Create Tiptap editor
   const editor = useEditor({
@@ -41,15 +55,38 @@ function ConnectedTiptapEditor({
     onUpdate: ({ editor }) => {
       // Debounced save to database
       const html = editor.getHTML();
-      if (html !== lastSavedContent && isInitialized) {
-        setLastSavedContent(html);
-        // Debounce the save operation
-        const timeoutId = setTimeout(() => {
-          updateContent({ documentId, content: html });
-          console.log("Content saved to database");
+      
+      // Validate content before saving
+      const isValidContent = html &&
+        html.length > 0 &&
+        html !== '<p></p>' &&
+        !html.includes('undefined') &&
+        html !== lastSavedContent;
+      
+      if (isValidContent && isInitialized) {
+        // Clear existing timeout
+        if (saveTimeout) {
+          clearTimeout(saveTimeout);
+        }
+        
+        console.log("Scheduling save for content:", html.substring(0, 50) + "...");
+        
+        // Set new timeout for saving
+        const timeoutId = setTimeout(async () => {
+          setIsSaving(true);
+          try {
+            await updateContent({ documentId, content: html });
+            setLastSavedContent(html);
+            console.log("Content saved to database successfully");
+          } catch (error) {
+            console.error("Failed to save content:", error);
+          } finally {
+            setIsSaving(false);
+            setSaveTimeout(null);
+          }
         }, 1000);
         
-        return () => clearTimeout(timeoutId);
+        setSaveTimeout(timeoutId);
       }
     },
   });
@@ -60,18 +97,54 @@ function ConnectedTiptapEditor({
       const newContent = documentContent.content;
       const currentContent = editor.getHTML();
       
-      console.log("Loading content from database:", newContent);
-      
-      // Only update if content actually changed to avoid cursor jumping
-      if (newContent !== currentContent && newContent !== lastSavedContent) {
+      // Initial load
+      if (!isInitialized) {
+        console.log("Loading initial content from database:", newContent.substring(0, 100) + "...");
         editor.commands.setContent(newContent);
         setLastSavedContent(newContent);
-        if (!isInitialized) {
-          setIsInitialized(true);
+        setIsInitialized(true);
+        return;
+      }
+      
+      // External updates (like AI changes) - only update if content changed externally
+      // and we're not currently saving to avoid overwriting user typing
+      if (newContent !== currentContent &&
+          newContent !== lastSavedContent &&
+          !isSaving &&
+          !saveTimeout) {
+        console.log("Updating editor with external changes:", newContent.substring(0, 100) + "...");
+        
+        // Show external update indicator briefly
+        setHasExternalUpdate(true);
+        setTimeout(() => setHasExternalUpdate(false), 2000);
+        
+        // Preserve cursor position if possible
+        const { from, to } = editor.state.selection;
+        editor.commands.setContent(newContent);
+        
+        // Try to restore cursor position
+        try {
+          if (from <= newContent.length) {
+            editor.commands.setTextSelection({ from, to: Math.min(to, newContent.length) });
+          }
+        } catch {
+          // Cursor restoration failed, that's okay
+          console.log("Could not restore cursor position after external update");
         }
+        
+        setLastSavedContent(newContent);
       }
     }
-  }, [documentContent, editor, lastSavedContent, isInitialized]);
+  }, [documentContent, editor, isInitialized, lastSavedContent, isSaving, saveTimeout]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+    };
+  }, [saveTimeout]);
 
   // Show loading state while waiting for content
   if (!documentContent) {
@@ -95,9 +168,23 @@ function ConnectedTiptapEditor({
       <div className="w-full h-full">
         {/* Document title */}
         <div className="border-b border-[#3e3e42] p-3">
-          <h3 className="text-sm font-medium text-[#cccccc]">
-            {documentContent.title}
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-[#cccccc]">
+              {documentContent.title}
+            </h3>
+            {isSaving && (
+              <div className="flex items-center text-xs text-[#858585]">
+                <div className="w-3 h-3 border border-[#858585] border-t-transparent rounded-full animate-spin mr-2"></div>
+                Saving...
+              </div>
+            )}
+            {hasExternalUpdate && (
+              <div className="flex items-center text-xs text-green-400">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                Updated by AI
+              </div>
+            )}
+          </div>
           <p className="text-xs text-[#858585] mt-1">
             Last updated: {new Date(documentContent.updatedAt).toLocaleString()}
           </p>
