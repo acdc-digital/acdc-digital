@@ -3,4 +3,22 @@ packages:
   - "smnb/smnb"
   - "aura/AURA"
   - "ruuf/ruff"
-  - "tools/*"
+
+# TypeScript workspace configuration for better type resolution
+packageExtensions:
+  # Ensure consistent @types/react across workspace
+  "@clerk/clerk-react":
+    peerDependencies:
+      "@types/react": "*"
+  "@clerk/nextjs":
+    peerDependencies:
+      "@types/react": "*"
+  "@radix-ui/react-slot":
+    peerDependencies:
+      "@types/react": "*"
+  "@radix-ui/react-collapsible":
+    peerDependencies:
+      "@types/react": "*"
+  "@radix-ui/react-tooltip":
+    peerDependencies:
+      "@types/react": "*"
