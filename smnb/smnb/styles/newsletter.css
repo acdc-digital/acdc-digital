@@ -1,0 +1,878 @@
+/**
+ * SMNB Newsletter Design System
+ * Centralized styling configuration for AI-generated newsletters
+ * 
+ * Typography Hierarchy:
+ * - Display: Editorial headlines with impact
+ * - Serif: Traditional newsletter feel for body text
+ * - Sans: Modern, clean UI elements
+ * - Mono: Data, codes, technical content
+ */
+
+/* ============================================
+   FONT IMPORTS
+   ============================================ */
+
+/* Premium Editorial Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================
+   CSS CUSTOM PROPERTIES
+   ============================================ */
+
+:root {
+  /* Font Families */
+  --font-display: 'Playfair Display', 'Libre Baskerville', serif;
+  --font-headline: 'Crimson Text', 'Source Serif 4', serif;
+  --font-body: 'Inter', 'Work Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
+  
+  /* Font Sizes - Fluid Typography */
+  --text-display: clamp(3.5rem, 8vw, 5.5rem);
+  --text-h1: clamp(2rem, 4vw, 2.75rem);
+  --text-h2: clamp(1.75rem, 3.5vw, 2.25rem);
+  --text-h3: clamp(1.5rem, 3vw, 1.875rem);
+  --text-h4: clamp(1.25rem, 2.5vw, 1.5rem);
+  --text-h5: clamp(1.125rem, 2vw, 1.25rem);
+  --text-h6: clamp(1rem, 1.5vw, 1.125rem);
+  --text-body: clamp(1rem, 1.5vw, 1.125rem);
+  --text-small: clamp(0.875rem, 1.25vw, 0.9375rem);
+  
+  /* Line Heights */
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  --leading-loose: 2;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.04em;
+  
+  /* Content Width */
+  --content-width: 65ch;
+  --content-wide: 80ch;
+}
+
+/* Dark mode adjustments */
+.dark {
+  /* Slightly adjust font weights for better readability in dark mode */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+/* ============================================
+   NEWSLETTER TYPOGRAPHY CLASSES
+   ============================================ */
+
+/* Main Display Title - Used for newsletter title */
+.newsletter-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 900;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.dark .newsletter-display {
+  color: #ffffff;
+}
+
+/* H1 - Major Section Headers */
+.newsletter-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: #111827;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.dark .newsletter-h1 {
+  color: #ffffff;
+}
+
+/* H2 - Section Headers */
+.newsletter-h2 {
+  font-family: var(--font-headline);
+  font-size: var(--text-h2);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: #1f2937;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.dark .newsletter-h2 {
+  color: #ffffff;
+}
+
+/* H3 - Subsection Headers */
+.newsletter-h3 {
+  font-family: var(--font-headline);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: #1f2937;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.dark .newsletter-h3 {
+  color: #ffffff;
+}
+
+/* H4 - Minor Headers */
+.newsletter-h4 {
+  font-family: var(--font-body);
+  font-size: var(--text-h4);
+  font-weight: 600;
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wide);
+  color: #374151;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dark .newsletter-h4 {
+  color: #ffffff;
+}
+
+/* H5 - Small Headers */
+.newsletter-h5 {
+  font-family: var(--font-body);
+  font-size: var(--text-h5);
+  font-weight: 500;
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wide);
+  color: #374151;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.dark .newsletter-h5 {
+  color: #ffffff;
+}
+
+/* H6 - Tiny Headers */
+.newsletter-h6 {
+  font-family: var(--font-body);
+  font-size: var(--text-h6);
+  font-weight: 500;
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wider);
+  color: #4b5563;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.dark .newsletter-h6 {
+  color: #ffffff;
+}
+
+/* Body Text */
+.newsletter-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: var(--leading-relaxed);
+  color: #374151;
+  max-width: var(--content-width);
+}
+
+.dark .newsletter-body {
+  color: #d1d5db;
+}
+
+/* Lead Paragraph - First paragraph or summary */
+.newsletter-lead {
+  font-family: var(--font-headline);
+  font-size: clamp(1.125rem, 2vw, 1.375rem);
+  font-weight: 400;
+  line-height: var(--leading-relaxed);
+  color: #374151;
+  margin-bottom: 1.5rem;
+  max-width: var(--content-wide);
+}
+
+.dark .newsletter-lead {
+  color: #d1d5db;
+}
+
+/* ============================================
+   SPECIAL CONTENT BLOCKS
+   ============================================ */
+
+/* Blockquotes - Strategic callouts */
+.newsletter-blockquote {
+  font-family: var(--font-headline);
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  font-style: italic;
+  line-height: var(--leading-relaxed);
+  background-color: #f9fafb;
+  border-left: 4px solid #d1d5db;
+  color: #374151;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  quotes: """ """ "'" "'";
+}
+
+.dark .newsletter-blockquote {
+  background-color: #1f2937;
+  border-left-color: #4b5563;
+  color: #d1d5db;
+}
+
+.newsletter-blockquote::before {
+  content: open-quote;
+  font-size: 1.875rem;
+  color: #9ca3af;
+  margin-right: 0.5rem;
+}
+
+.dark .newsletter-blockquote::before {
+  color: #4b5563;
+}
+
+/* Pull Quotes - Highlighted quotes */
+.newsletter-pullquote {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  line-height: var(--leading-snug);
+  text-align: center;
+  color: #1f2937;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  border-top: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.dark .newsletter-pullquote {
+  color: #ffffff;
+  border-top-color: #374151;
+  border-bottom-color: #374151;
+}
+
+/* Data/Code Blocks */
+.newsletter-code {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: var(--leading-normal);
+  background-color: #f3f4f6;
+  color: #1f2937;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.dark .newsletter-code {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+/* Stats/Metrics Display */
+.newsletter-stat {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #111827;
+}
+
+.dark .newsletter-stat {
+  color: #ffffff;
+}
+
+.newsletter-stat-label {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  color: #4b5563;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.dark .newsletter-stat-label {
+  color: #9ca3af;
+}
+
+/* ============================================
+   CONTENT ENHANCEMENTS
+   ============================================ */
+
+/* Drop Caps for article starts */
+.newsletter-dropcap::first-letter {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  float: left;
+  margin: 0 0.5rem 0 0;
+  color: #111827;
+}
+
+.dark .newsletter-dropcap::first-letter {
+  color: #ffffff;
+}
+
+/* Emphasis Styles */
+.newsletter-emphasis {
+  font-family: var(--font-headline);
+  font-style: italic;
+  color: #1f2937;
+}
+
+.dark .newsletter-emphasis {
+  color: #e5e7eb;
+}
+
+.newsletter-strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .newsletter-strong {
+  color: #ffffff;
+}
+
+/* Lists */
+.newsletter-list {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-relaxed);
+  color: #374151;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-left: 1rem;
+}
+
+.dark .newsletter-list {
+  color: #d1d5db;
+}
+
+.newsletter-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* Ordered Lists with custom numbering */
+.newsletter-list-ordered {
+  counter-reset: list-counter;
+  list-style: none;
+  padding-left: 0;
+}
+
+.newsletter-list-ordered li {
+  counter-increment: list-counter;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.newsletter-list-ordered li::before {
+  content: counter(list-counter);
+  font-family: var(--font-display);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  color: #6b7280;
+}
+
+.dark .newsletter-list-ordered li::before {
+  color: #9ca3af;
+}
+
+/* ============================================
+   DIVIDERS & SPACING
+   ============================================ */
+
+.newsletter-divider {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dark .newsletter-divider {
+  border-top-color: #374151;
+}
+
+.newsletter-divider-thick {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-top: 2px solid #d1d5db;
+}
+
+.dark .newsletter-divider-thick {
+  border-top-color: #4b5563;
+}
+
+.newsletter-divider-dots {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 1.5rem;
+  letter-spacing: 0.5em;
+}
+
+.dark .newsletter-divider-dots {
+  color: #4b5563;
+}
+
+.newsletter-divider-dots::after {
+  content: "• • •";
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 640px) {
+  .newsletter-display,
+  .newsletter-h1,
+  .newsletter-h2 {
+    letter-spacing: var(--tracking-normal);
+  }
+  
+  .newsletter-body {
+    line-height: var(--leading-normal);
+  }
+}
+
+/* ============================================
+   ENHANCED PRINT STYLES FOR NEWSLETTERS
+   ============================================ */
+
+@media print {
+  /* ============================================
+     GLOBAL PRINT OPTIMIZATIONS
+     ============================================ */
+  
+  /* Reset background colors and shadows for ink efficiency */
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Optimize page layout */
+  @page {
+    size: letter portrait;
+    margin: 0.75in 0.5in;
+    
+    /* Add page numbers and newsletter title to header/footer */
+    @top-center {
+      content: "SMNB Newsletter - " attr(data-newsletter-title);
+      font-family: var(--font-body);
+      font-size: 10pt;
+      color: #666;
+    }
+    
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: var(--font-body);
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+  
+  /* ============================================
+     TYPOGRAPHY ADJUSTMENTS
+     ============================================ */
+  
+  /* Optimize font sizes for print (using pt units) */
+  .newsletter-display {
+    font-size: 24pt;
+    line-height: 1.2;
+    margin-bottom: 12pt;
+    page-break-after: avoid;
+  }
+  
+  .newsletter-h1 {
+    font-size: 18pt;
+    margin-top: 18pt;
+    margin-bottom: 9pt;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .newsletter-h2 {
+    font-size: 14pt;
+    margin-top: 14pt;
+    margin-bottom: 7pt;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .newsletter-h3 {
+    font-size: 12pt;
+    margin-top: 12pt;
+    margin-bottom: 6pt;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+  
+  .newsletter-body {
+    font-size: 11pt;
+    line-height: 1.5;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+  }
+  
+  .newsletter-lead {
+    font-size: 12pt;
+    line-height: 1.6;
+    border-bottom: 1pt solid #ddd;
+    padding-bottom: 9pt;
+    margin-bottom: 12pt;
+  }
+  
+  /* ============================================
+     LINK HANDLING
+     ============================================ */
+  
+  /* Show URLs for important links */
+  .newsletter-body a[href]::after,
+  .newsletter-lead a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+    font-weight: normal;
+  }
+  
+  /* Don't show URLs for internal/navigation links */
+  a[href^="#"]::after,
+  a[href^="javascript:"]::after,
+  .newsletter-nav a::after,
+  .newsletter-toc a::after {
+    content: "";
+  }
+  
+  /* Style links distinctly even without color */
+  a {
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  /* ============================================
+     CONTENT BLOCKS
+     ============================================ */
+  
+  /* Blockquotes - ensure they stand out in print */
+  .newsletter-blockquote {
+    border-left: 3pt solid #333;
+    padding-left: 12pt;
+    margin: 18pt 0;
+    page-break-inside: avoid;
+    font-style: italic;
+  }
+  
+  /* Pull quotes - center and emphasize */
+  .newsletter-pullquote {
+    border-top: 2pt solid #000;
+    border-bottom: 2pt solid #000;
+    padding: 12pt 0;
+    margin: 24pt 0;
+    text-align: center;
+    page-break-inside: avoid;
+    font-size: 14pt;
+  }
+  
+  /* Code blocks - add border for definition */
+  .newsletter-code {
+    border: 1pt solid #333;
+    padding: 9pt;
+    font-size: 9pt;
+    page-break-inside: avoid;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  /* Stats - ensure they're prominent */
+  .newsletter-stat {
+    font-size: 28pt;
+    page-break-inside: avoid;
+  }
+  
+  .newsletter-stat-label {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+  
+  /* ============================================
+     IMAGES & MEDIA
+     ============================================ */
+  
+  /* Optimize images for print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+  
+  /* Add image captions and credits */
+  figure {
+    page-break-inside: avoid;
+    margin: 12pt 0;
+  }
+  
+  figcaption {
+    font-size: 9pt;
+    font-style: italic;
+    margin-top: 6pt;
+    page-break-before: avoid;
+  }
+  
+  /* Hide non-essential media elements */
+  video,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: none !important;
+  }
+  
+  /* Replace videos with a notice */
+  .newsletter-video::after {
+    content: "🎥 Video available in digital version at: " attr(data-video-url);
+    display: block;
+    font-size: 9pt;
+    font-style: italic;
+    border: 1pt dashed #666;
+    padding: 6pt;
+    margin: 12pt 0;
+  }
+  
+  /* ============================================
+     LISTS & TABLES
+     ============================================ */
+  
+  /* Ensure lists don't break awkwardly */
+  ul, ol {
+    page-break-inside: avoid;
+  }
+  
+  li {
+    page-break-inside: avoid;
+    orphans: 2;
+    widows: 2;
+  }
+  
+  /* Table printing optimization */
+  table {
+    border-collapse: collapse;
+    page-break-inside: auto;
+    width: 100%;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  td, th {
+    border: 1pt solid #ddd;
+    padding: 6pt;
+    font-size: 10pt;
+  }
+  
+  /* Repeat table headers on each page */
+  thead th {
+    background-color: #f5f5f5 !important;
+    font-weight: bold;
+    text-align: left;
+  }
+  
+  /* ============================================
+     NEWSLETTER-SPECIFIC ELEMENTS
+     ============================================ */
+  
+  /* Newsletter header/masthead */
+  .newsletter-masthead {
+    border-bottom: 3pt solid #000;
+    padding-bottom: 12pt;
+    margin-bottom: 18pt;
+    page-break-after: avoid;
+  }
+  
+  /* Issue number and date */
+  .newsletter-issue-info {
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    margin-bottom: 6pt;
+  }
+  
+  /* Author byline */
+  .newsletter-byline {
+    font-size: 10pt;
+    font-style: italic;
+    margin: 6pt 0;
+    page-break-after: avoid;
+  }
+  
+  /* Article metadata */
+  .newsletter-metadata {
+    font-size: 9pt;
+    color: #666 !important;
+    border-top: 1pt solid #ddd;
+    border-bottom: 1pt solid #ddd;
+    padding: 6pt 0;
+    margin: 12pt 0;
+    page-break-inside: avoid;
+  }
+  
+  /* Table of contents */
+  .newsletter-toc {
+    border: 2pt solid #000;
+    padding: 12pt;
+    margin: 18pt 0;
+    page-break-inside: avoid;
+  }
+  
+  .newsletter-toc-title {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 9pt;
+  }
+  
+  .newsletter-toc-item {
+    font-size: 10pt;
+    line-height: 1.8;
+    border-bottom: 1pt dotted #ccc;
+  }
+  
+  /* ============================================
+     HIDE NON-PRINT ELEMENTS
+     ============================================ */
+  
+  /* Hide interactive and navigation elements */
+  .newsletter-subscribe-form,
+  .newsletter-social-links,
+  .newsletter-navigation,
+  .newsletter-comments,
+  .newsletter-share-buttons,
+  .newsletter-related-articles,
+  .newsletter-advertisement,
+  button,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* ============================================
+     SPECIAL PRINT-ONLY ELEMENTS
+     ============================================ */
+  
+  /* Show print-only content */
+  .print-only {
+    display: block !important;
+  }
+  
+  /* Add QR code placeholder for digital version */
+  .newsletter-qr-code::after {
+    content: "Scan QR code for digital version";
+    display: block;
+    font-size: 9pt;
+    text-align: center;
+    border: 1pt solid #333;
+    padding: 12pt;
+    margin: 18pt 0;
+  }
+  
+  /* Add newsletter website footer */
+  .newsletter-footer::after {
+    content: "Visit us at www.smnb.com for the digital edition";
+    display: block;
+    text-align: center;
+    font-size: 10pt;
+    margin-top: 24pt;
+    padding-top: 12pt;
+    border-top: 2pt solid #000;
+  }
+  
+  /* ============================================
+     MULTICOLUMN LAYOUT FOR PRINT
+     ============================================ */
+  
+  /* Optional: Create newspaper-style columns for body text */
+  .newsletter-article-columns {
+    column-count: 2;
+    column-gap: 18pt;
+    column-rule: 1pt solid #ddd;
+  }
+  
+  .newsletter-article-columns > * {
+    break-inside: avoid-column;
+  }
+  
+  /* Full width for important elements */
+  .newsletter-article-columns .newsletter-h1,
+  .newsletter-article-columns .newsletter-h2,
+  .newsletter-article-columns .newsletter-pullquote,
+  .newsletter-article-columns figure {
+    column-span: all;
+  }
+}
+
+/* ============================================
+   ANIMATION CLASSES (Optional)
+   ============================================ */
+
+.newsletter-fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   PRINT UTILITY CLASSES
+   ============================================ */
+
+/* Force page breaks where needed */
+.page-break-before { page-break-before: always; }
+.page-break-after { page-break-after: always; }
+.avoid-break { page-break-inside: avoid; }
+
+/* Print visibility utilities */
+.screen-only { 
+  @media print { display: none !important; }
+}
+
+.print-only { 
+  display: none;
+  @media print { display: block !important; }
+}

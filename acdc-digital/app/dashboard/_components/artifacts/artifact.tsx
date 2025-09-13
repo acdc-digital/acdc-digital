@@ -22,7 +22,7 @@ export default function Artifact() {
     return (
       <div className="p-6 h-full">
         <div className="flex gap-6 h-full">
-          <div className="flex-1 bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
+          <div className="w-[35%] bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -30,7 +30,7 @@ export default function Artifact() {
               </div>
             </div>
           </div>
-          <div className="flex-1 bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
+          <div className="w-[65%] bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -47,12 +47,12 @@ export default function Artifact() {
     <div className="p-6 h-full">
       <div className="flex gap-6 h-full">
         {/* Chat Interface */}
-        <div className="flex-1 bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
+        <div className="w-[35%] bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
           <ChatInterface documentId={sharedDocumentId} />
         </div>
         
         {/* Shared Text Editor */}
-        <div className="flex-1 bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
+        <div className="w-[65%] bg-[#252526] border border-[#3e3e42] rounded-xl overflow-hidden">
           <SharedTextEditor documentId={sharedDocumentId} />
         </div>
       </div>

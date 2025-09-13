@@ -1,0 +1,25 @@
+{
+  "name": "aura-workspace",
+  "version": "1.0.0",
+  "description": "AURA project monorepo workspace",
+  "private": true,
+  "scripts": {
+    "dev": "cd AURA && pnpm dev",
+    "convex": "cd AURA && pnpm convex",
+    "state": "cd AURA && pnpm state",
+    "structure": "cd AURA && pnpm structure",
+    "build": "pnpm --recursive run build",
+    "install:all": "pnpm install",
+    "clean": "pnpm --parallel --recursive run clean",
+    "cleanup": "cd AURA && node scripts/cleanup-database.js",
+    "lint": "pnpm --parallel --recursive run lint",
+    "test": "pnpm --parallel --recursive run test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

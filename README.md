@@ -1,8 +1,9 @@
 ## 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital.
 
-![Profile views](https://komarev.com/ghpvc/?username=acdc-digital&color=blue&style=flat-square&label=Profile+views) 
+![Profile views](https://komarev.com/ghpvc/?username=acdc-digital&color=blue&style=flat-square&label=Profile+views)
 
 #####
+
 #####
 
 ![React](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=react&logoColor=black)
@@ -12,30 +13,63 @@
 ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat-square&logo=node.js&logoColor=white)  
 ![npm](https://img.shields.io/badge/-npm-CB3837?style=flat-square&logo=npm&logoColor=white)
-![ngrok](https://img.shields.io/badge/-ngrok-14A99B?style=flat-square&logo=ngrok&logoColor=white)   
+![ngrok](https://img.shields.io/badge/-ngrok-14A99B?style=flat-square&logo=ngrok&logoColor=white)  
 ![Git](https://img.shields.io/badge/-Git-F05032?style=flat-square&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
-![Convex](https://img.shields.io/badge/-Convex_DB-F24E1E?style=flat-square&logo=convex&logoColor=white)   
+![Convex](https://img.shields.io/badge/-Convex_DB-F24E1E?style=flat-square&logo=convex&logoColor=white)  
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
 ![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat-square&logo=figma&logoColor=white)
-![Cursor](https://img.shields.io/badge/-Cursor-000000?style=flat-square&logo=cursor&logoColor=white)  
+![GitHub Copilot](https://img.shields.io/badge/-GitHub%20Copilot-000000?style=flat-square&logo=github-copilot&logoColor=white)
 
 ##
 
+👋👋👋
 
-👋👋👋   
-My developer journey started when my son was born with a rare terminall illness. I was determined that with AI I could help organize his life, uncover medical insights, and develop solutions that could help families like mine. This project was initially titled, "Medex" shortform for Medical Executive Assistant, which is an AI personality that can use techniques such as RAG (retrieval generated augmentation) allowing Users to upload their medical documents, and the assistant will be able to organize the information in a more usable format. This journey has had many successes, albeit only a limited working demo to date. Instead, the short-term focus of this project has been developing the Pipeline- which now takes the name of 'Solomon'. Solomon is ACDC.digital's first AI personality, and the backbone in our development of natural language pipelines, agent tasks, and workstation-UI. Solomon is spread thin, being used as the integral cetnre-piece of ACDC.digital, in order to bring systems and programs to life. 
+## 🚀 ACDC.digital - Pioneering AI-Powered Solutions
 
-<h2>Project Highlights:</h2>
-<h3>🩻 Medex: Revolutionizing Healthcare Communications 🩻</h3>
+**Transforming Digital Experiences Through Intelligent Innovation**
 
-My goal is to transform the way we understand and communicate with our health information. The mission is simple, yet profound: To empower patients and their families with a clear understanding of their health records, bridging the gap between complex medical jargon and everyday languages.
+ACDC.digital is a forward-thinking technology company specializing in cutting-edge AI integration, real-time collaborative platforms, and intelligent automation systems. Founded and led by Matthew Simon, we deliver enterprise-grade solutions that bridge the gap between artificial intelligence and practical business applications.
 
-Medex was the inspiration for ACDC.digital. It's was determined to be a revolutionary chat application where users can upload their medical information and then chat conversationally with their data in order to understand it better. Medex uses proprietary models for text splitting, embeddings, and vector store & retrieval, utilizing the latest technologies for each component of the software. But Medex is more than just a chat application. It's a tool that allows patients to take control of their health information. They can choose which information they want to share with others, allowing their support network to understand their health status without any direct communication. This creates a universal understanding of complex diagnoses, empowering the patient's support network to provide the best possible care. 
+### 🏗️ Our Technology Portfolio
 
-Today, Medex has taken a backseat, as our next frontier Front-End Workstation applications (Solomon Desktop Prototype & Solomon Desktop Application) are paving the way for interactive user alignment. I believe this significantly enhance the original mission, by combining the capability of LLMs to organize complex information, with modern UI design that allows for simple modulation of complex and unstructured data. Our objective is to simplify complex data in order to uncover insights that may not have been easily discoverable before - making information available to a wider audience through a broader delivery system that can be personalized to the individual User. 
+**🤖 AI-First Architecture**
+We leverage advanced AI models (Anthropic Claude, OpenAI) with custom agents and intelligent orchestration systems to create responsive, context-aware applications that adapt to user needs in real-time.
+
+**⚡ Real-Time Collaboration Platforms**
+Built on Convex's real-time database infrastructure, our applications provide seamless collaborative experiences with live document editing, instant synchronization, and persistent state management.
+
+**🔄 Intelligent Content Management**
+Our SMNB (Smart News Management Bot) platform demonstrates our expertise in automated content aggregation, intelligent filtering, and AI-powered editorial workflows that scale with modern media demands.
+
+**🎨 Next-Generation User Experiences**
+AURA represents our commitment to sophisticated UI/UX design, featuring advanced text editing capabilities, dynamic theming, and intuitive interfaces that prioritize both functionality and aesthetic excellence.
+
+**🛠️ Advanced Tooling & Automation**
+RUUF showcases our Model Context Protocol (MCP) integration expertise, enabling seamless AI-assisted workflows with robust authentication systems and enterprise-grade security.
+
+### 🎯 Core Competencies
+
+- **Full-Stack TypeScript Development** with Next.js 15+ and modern React patterns
+- **Real-Time Database Architecture** using Convex for scalable, serverless applications
+- **AI Integration & Orchestration** with custom agent frameworks and intelligent routing
+- **Mono-Repo Management** with pnpm workspaces for enterprise-scale codebases
+- **Authentication & Security** implementing Clerk and custom authorization systems
+- **Performance Optimization** with advanced caching, lazy loading, and efficient state management
+
+### 🌟 What Sets Us Apart
+
+**Innovation-Driven Development**: We don't just implement existing solutions—we architect new paradigms for AI-human collaboration, creating tools that anticipate user needs and streamline complex workflows.
+
+**Technical Excellence**: Our commitment to type safety, comprehensive testing, and maintainable code ensures reliable, scalable solutions that grow with your business.
+
+**Real-World Impact**: From automated news curation to collaborative document editing, our applications solve genuine business challenges with measurable efficiency gains.
+
+---
+
+_Building the future of intelligent digital experiences, one innovative solution at a time._
 
 ⚡⚡⚡
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
 import { api } from "@/convex/_generated/api";
@@ -11,6 +11,70 @@ import { ErrorBoundary } from "./ui/ErrorBoundary";
 interface SharedTextEditorProps {
   className?: string;
   documentId: Id<"documents">;
+}
+
+// Content transformation button component
+function ContentTransformButton({
+  type,
+  documentId,
+  currentContent
+}: {
+  type: "newsletter" | "blog" | "analysis" | "social" | "context";
+  documentId: Id<"documents">;
+  currentContent: string;
+}) {
+  const [isTransforming, setIsTransforming] = useState(false);
+  const transformContent = useAction(api.ai.contentTransform.transformContent);
+
+  const handleTransform = async () => {
+    setIsTransforming(true);
+    try {
+      console.log(`Starting ${type} transformation with content:`, currentContent.substring(0, 100) + "...");
+      
+      const result = await transformContent({
+        documentId,
+        contentType: type,
+        currentContent,
+      });
+
+      if (result.success) {
+        console.log(`${type} transformation completed successfully`);
+      } else {
+        console.error(`${type} transformation failed:`, result.error);
+        alert(`Failed to transform content: ${result.error}`);
+      }
+    } catch (error) {
+      console.error(`Error transforming to ${type}:`, error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
+    } finally {
+      setIsTransforming(false);
+    }
+  };
+
+  const labels = {
+    newsletter: "Newsletter",
+    blog: "Blog Post",
+    analysis: "Analysis",
+    social: "Social",
+    context: "Context"
+  };
+
+  return (
+    <button
+      onClick={handleTransform}
+      disabled={isTransforming}
+      className="px-3 py-1 text-xs bg-[#3e3e42] hover:bg-[#4a4a4f] text-[#cccccc] rounded border border-[#5a5a5f] transition-colors disabled:opacity-50"
+    >
+      {isTransforming ? (
+        <div className="flex items-center">
+          <div className="w-3 h-3 border border-[#cccccc] border-t-transparent rounded-full animate-spin mr-1"></div>
+          {labels[type]}...
+        </div>
+      ) : (
+        labels[type]
+      )}
+    </button>
+  );
 }
 
 // Connected Tiptap editor component that syncs with the database
@@ -166,7 +230,7 @@ function ConnectedTiptapEditor({
   return (
     <div className={`${className} overflow-auto bg-[#1e1e1e] text-white`}>
       <div className="w-full h-full">
-        {/* Document title */}
+        {/* Document title and transformation buttons */}
         <div className="border-b border-[#3e3e42] p-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-[#cccccc]">
@@ -188,6 +252,35 @@ function ConnectedTiptapEditor({
           <p className="text-xs text-[#858585] mt-1">
             Last updated: {new Date(documentContent.updatedAt).toLocaleString()}
           </p>
+          
+          {/* Content transformation buttons */}
+          <div className="flex gap-2 mt-3">
+            <ContentTransformButton
+              type="newsletter"
+              documentId={documentId}
+              currentContent={documentContent.content}
+            />
+            <ContentTransformButton
+              type="blog"
+              documentId={documentId}
+              currentContent={documentContent.content}
+            />
+            <ContentTransformButton
+              type="analysis"
+              documentId={documentId}
+              currentContent={documentContent.content}
+            />
+            <ContentTransformButton
+              type="social"
+              documentId={documentId}
+              currentContent={documentContent.content}
+            />
+            <ContentTransformButton
+              type="context"
+              documentId={documentId}
+              currentContent={documentContent.content}
+            />
+          </div>
         </div>
         
         {/* Editor content */}
