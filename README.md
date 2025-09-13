@@ -18,58 +18,42 @@
 ![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github&logoColor=white)
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
-![Convex](https://img.shields.io/badge/-Convex_DB-F24E1E?style=flat-square&logo=convex&logoColor=white)  
+![Convex](https://img.shields.io/badge/-Convex_DB-F24E1E?style=flat-square&logo=database&logoColor=white)  
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
 ![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat-square&logo=figma&logoColor=white)
 ![GitHub Copilot](https://img.shields.io/badge/-GitHub%20Copilot-000000?style=flat-square&logo=github-copilot&logoColor=white)
 
 ##
 
-👋👋👋
 
-## 🚀 ACDC.digital - Pioneering AI-Powered Solutions
 
-**Transforming Digital Experiences Through Intelligent Innovation**
+## ACDC.digital - AI-Driven News Technology
 
-ACDC.digital is a forward-thinking technology company specializing in cutting-edge AI integration, real-time collaborative platforms, and intelligent automation systems. Founded and led by Matthew Simon, we deliver enterprise-grade solutions that bridge the gap between artificial intelligence and practical business applications.
+ACDC.digital develops intelligent news aggregation and content management systems powered by advanced AI models. Our platform combines real-time data processing with automated editorial workflows to deliver scalable news technology solutions.
 
-### 🏗️ Our Technology Portfolio
+**Technology Stack**
 
-**🤖 AI-First Architecture**
-We leverage advanced AI models (Anthropic Claude, OpenAI) with custom agents and intelligent orchestration systems to create responsive, context-aware applications that adapt to user needs in real-time.
+- **AI Integration**: Anthropic Claude and OpenAI models with custom agent orchestration
+- **Real-Time Infrastructure**: Convex database with live synchronization and collaborative editing
+- **Content Processing**: Automated aggregation, intelligent filtering, and AI-powered editorial workflows
+- **Frontend Architecture**: Next.js 15+ with TypeScript, React, and modern UI components
+- **Authentication & Security**: Clerk integration with enterprise-grade authorization systems
 
-**⚡ Real-Time Collaboration Platforms**
-Built on Convex's real-time database infrastructure, our applications provide seamless collaborative experiences with live document editing, instant synchronization, and persistent state management.
+**Platform Components**
 
-**🔄 Intelligent Content Management**
-Our SMNB (Smart News Management Bot) platform demonstrates our expertise in automated content aggregation, intelligent filtering, and AI-powered editorial workflows that scale with modern media demands.
+**SMNB (Smart News Management Bot)**: Automated content aggregation system with Reddit API integration, duplicate detection, and intelligent story threading for scalable news operations.
 
-**🎨 Next-Generation User Experiences**
-AURA represents our commitment to sophisticated UI/UX design, featuring advanced text editing capabilities, dynamic theming, and intuitive interfaces that prioritize both functionality and aesthetic excellence.
+**AURA**: Advanced text editor with AI-assisted formatting, collaborative document editing, and real-time synchronization for editorial teams.
 
-**🛠️ Advanced Tooling & Automation**
-RUUF showcases our Model Context Protocol (MCP) integration expertise, enabling seamless AI-assisted workflows with robust authentication systems and enterprise-grade security.
+**RUUF**: Model Context Protocol integration platform enabling AI-assisted workflows with secure authentication and enterprise deployment capabilities.
 
-### 🎯 Core Competencies
+**Technical Architecture**
 
-- **Full-Stack TypeScript Development** with Next.js 15+ and modern React patterns
-- **Real-Time Database Architecture** using Convex for scalable, serverless applications
-- **AI Integration & Orchestration** with custom agent frameworks and intelligent routing
-- **Mono-Repo Management** with pnpm workspaces for enterprise-scale codebases
-- **Authentication & Security** implementing Clerk and custom authorization systems
-- **Performance Optimization** with advanced caching, lazy loading, and efficient state management
-
-### 🌟 What Sets Us Apart
-
-**Innovation-Driven Development**: We don't just implement existing solutions—we architect new paradigms for AI-human collaboration, creating tools that anticipate user needs and streamline complex workflows.
-
-**Technical Excellence**: Our commitment to type safety, comprehensive testing, and maintainable code ensures reliable, scalable solutions that grow with your business.
-
-**Real-World Impact**: From automated news curation to collaborative document editing, our applications solve genuine business challenges with measurable efficiency gains.
-
----
-
-_Building the future of intelligent digital experiences, one innovative solution at a time._
+- Full-stack TypeScript development with Next.js and React patterns
+- Convex real-time database for scalable, serverless applications
+- AI orchestration with custom agent frameworks and intelligent routing
+- Mono-repo management using pnpm workspaces for enterprise codebases
+- Performance optimization with advanced caching and efficient state management
 
 ⚡⚡⚡
 
