@@ -18,7 +18,10 @@
     ".github": "github",
     ".notes": "docs",
     ".trunk": "config",
-    "acdc-digital": "app"
+    "acdc-digital": "app",
+    "smnb": "app",
+    "aura": "app",
+    "ruuf": "app"
   },
   
   // Custom file associations

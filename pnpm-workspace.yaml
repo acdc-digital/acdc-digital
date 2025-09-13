@@ -1,3 +1,6 @@
 packages:
   - "acdc-digital"
+  - "smnb/smnb"
+  - "aura/AURA"
+  - "ruuf/ruff"
   - "tools/*"

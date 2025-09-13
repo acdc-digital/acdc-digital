@@ -34,10 +34,12 @@ export const streamChat = action({
 
       // Extract the text content from the response
       const textContent = response.content
-        .filter((block: any) => block.type === "text")
-        .map((block: any) => {
-          if (block.type === "text") {
-            return block.text;
+        .filter((block: unknown) => 
+          typeof block === 'object' && block !== null && 'type' in block && block.type === "text"
+        )
+        .map((block: unknown) => {
+          if (typeof block === 'object' && block !== null && 'text' in block) {
+            return String(block.text);
           }
           return "";
         })
@@ -113,7 +115,7 @@ If the user asks about creating components, generating code, or building interfa
       const sources: Array<{ title: string; url: string }> = [];
       
       // Look for reasoning patterns
-      const reasoningMatch = textContent.match(/(?:Let me think|Here's my reasoning|Step by step):(.*?)(?:\n\n|\n(?=[A-Z]))/s);
+      const reasoningMatch = textContent.match(/(?:Let me think|Here's my reasoning|Step by step):([\s\S]*?)(?:\n\n|\n(?=[A-Z]))/);
       if (reasoningMatch) {
         reasoning = reasoningMatch[1].trim();
       }

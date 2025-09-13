@@ -1,0 +1,103 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Text files that should have consistent LF line endings
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+*.txt text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Configuration files
+*.config.js text eol=lf
+*.config.ts text eol=lf
+*.config.mjs text eol=lf
+package.json text eol=lf
+package-lock.json text eol=lf
+pnpm-lock.yaml text eol=lf
+yarn.lock text eol=lf
+tsconfig.json text eol=lf
+.eslintrc.* text eol=lf
+.prettierrc.* text eol=lf
+
+# Environment files
+.env* text eol=lf
+
+# Documentation
+README* text eol=lf
+CHANGELOG* text eol=lf
+LICENSE* text eol=lf
+CONTRIBUTING* text eol=lf
+
+# Binary files (explicitly marked to avoid corruption)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.7z binary
+
+# Video files
+*.mp4 binary
+*.mov binary
+*.avi binary
+*.webm binary
+
+# Audio files
+*.mp3 binary
+*.wav binary
+*.ogg binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.rar binary
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.avif binary
+
+# Documents
+*.pdf binary
+*.doc binary
+*.docx binary
+
+# Linguist overrides for better language detection
+*.tsx linguist-language=TypeScript
+*.jsx linguist-language=JavaScript
+*.md linguist-documentation
+package.json linguist-documentation
+pnpm-lock.yaml linguist-generated

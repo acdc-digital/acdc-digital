@@ -1,0 +1,28 @@
+root: .docs/
+
+structure:
+  summary: SUMMARY.md
+  readme: README.md
+
+redirects:
+  # Add any redirects if needed
+
+integrations:
+  github:
+    branch: main
+    includeInSearch: true
+    # Automatically sync changes from GitHub
+    automaticSync: true
+    # Include code blocks in search
+    includeCodeBlocks: true
+
+# Optional: Customize the appearance
+theme:
+  showPageTitle: true
+  showToc: true
+  showEditLink: true
+
+# Optional: Configure plugins
+plugins:
+  - search
+  - sharing

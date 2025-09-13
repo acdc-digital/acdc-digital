@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsletter Visual Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            plugins: [
+                require('@tailwindcss/typography')
+            ]
+        }
+    </script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Newsletter Visual Hierarchy Test</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="prose prose-lg max-w-none">
+                <!-- Test H1 -->
+                <h1 class="text-4xl mb-6 text-gray-900 font-bold tracking-tight">
+                    🚀 Main Story Headline
+                </h1>
+                
+                <!-- Test H2 -->
+                <h2 class="text-2xl mt-8 mb-4 text-blue-600 font-bold tracking-tight">
+                    📊 Key Metrics and Analysis
+                </h2>
+                
+                <p class="mb-4 leading-relaxed text-gray-700">
+                    This is a test paragraph to see how the content flows after an H2 heading. The text should be properly styled and readable.
+                </p>
+                
+                <!-- Test H3 -->
+                <h3 class="text-xl mt-6 mb-3 text-red-600 font-bold tracking-tight">
+                    🔍 Market Impact Details
+                </h3>
+                
+                <p class="mb-4 leading-relaxed text-gray-700">
+                    Another paragraph after an H3 heading. This should demonstrate the visual hierarchy with different header sizes and colors.
+                </p>
+                
+                <!-- Test List -->
+                <ul class="my-4 ml-6">
+                    <li class="mb-2 text-gray-700">First bullet point with proper spacing</li>
+                    <li class="mb-2 text-gray-700">Second bullet point</li>
+                    <li class="mb-2 text-gray-700">Third bullet point</li>
+                </ul>
+                
+                <!-- Test Blockquote -->
+                <blockquote class="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50 text-blue-800 italic my-6">
+                    This is a blockquote to test the styling. It should have a blue left border and light blue background.
+                </blockquote>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-600">
+                This test should show:
+                <br>• H1: Large (4xl), gray text
+                <br>• H2: Medium (2xl), blue text 
+                <br>• H3: Smaller (xl), red text
+                <br>• Proper paragraph spacing and colors
+                <br>• Styled lists and blockquotes
+            </p>
+        </div>
+    </div>
+</body>
+</html>

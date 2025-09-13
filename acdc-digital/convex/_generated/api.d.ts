@@ -11,11 +11,16 @@
 import type * as agents_intents from "../agents/intents.js";
 import type * as agents_orchestrator from "../agents/orchestrator.js";
 import type * as agents_tools from "../agents/tools.js";
+import type * as ai_computerUse from "../ai/computerUse.js";
+import type * as ai_contentTransform from "../ai/contentTransform.js";
+import type * as ai_streaming from "../ai/streaming.js";
 import type * as chat from "../chat.js";
 import type * as chatMessages from "../chatMessages.js";
+import type * as database from "../database.js";
 import type * as documentCleanup from "../documentCleanup.js";
 import type * as documentStatus from "../documentStatus.js";
 import type * as documents from "../documents.js";
+import type * as http from "../http.js";
 import type * as prosemirror from "../prosemirror.js";
 import type * as sharedDocument from "../sharedDocument.js";
 
@@ -37,11 +42,16 @@ declare const fullApi: ApiFromModules<{
   "agents/intents": typeof agents_intents;
   "agents/orchestrator": typeof agents_orchestrator;
   "agents/tools": typeof agents_tools;
+  "ai/computerUse": typeof ai_computerUse;
+  "ai/contentTransform": typeof ai_contentTransform;
+  "ai/streaming": typeof ai_streaming;
   chat: typeof chat;
   chatMessages: typeof chatMessages;
+  database: typeof database;
   documentCleanup: typeof documentCleanup;
   documentStatus: typeof documentStatus;
   documents: typeof documents;
+  http: typeof http;
   prosemirror: typeof prosemirror;
   sharedDocument: typeof sharedDocument;
 }>;

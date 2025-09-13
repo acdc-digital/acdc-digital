@@ -70,9 +70,15 @@ export const classifyIntent = internalAction({
         .map((block) => (block as { text: string }).text)
         .join("");
 
-      // Parse JSON response
+      // Parse JSON response - extract JSON from the response text
       try {
-        const parsed = JSON.parse(responseText);
+        // Try to find JSON object in the response
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error("No JSON object found in response");
+        }
+        
+        const parsed = JSON.parse(jsonMatch[0]);
         return {
           intent: parsed.intent || "general_chat",
           confidence: parsed.confidence || 0.5,
@@ -80,6 +86,7 @@ export const classifyIntent = internalAction({
         };
       } catch (parseError) {
         console.error("Failed to parse intent classification response:", parseError);
+        console.error("Raw response text:", responseText);
         
         // Fallback: simple keyword matching
         const message = args.message.toLowerCase();
