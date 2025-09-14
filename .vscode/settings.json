@@ -21,7 +21,8 @@
     "acdc-digital": "app",
     "smnb": "app",
     "aura": "app",
-    "ruuf": "app"
+    "ruuf": "app",
+    "donut": "app"
   },
   
   // Custom file associations
