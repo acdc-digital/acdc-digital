@@ -57,5 +57,8 @@
     "pnpm"
   ],
   "author": "ACDC Digital",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "zustand": "^5.0.8"
+  }
 }
