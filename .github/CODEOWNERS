@@ -1,0 +1,87 @@
+# CODEOWNERS file for ACDC Digital
+# This file defines who owns which parts of the codebase and who should review changes
+
+# Global owners - these users/teams will be requested for review on ALL changes
+# Replace with your actual GitHub usernames/team names
+* @acdc-digital/core-team
+
+# Project-specific ownership
+# Each project has its own maintainers
+
+# Main ACDC Digital project
+/acdc-digital/ @acdc-digital/frontend-team
+
+# Soloist project - Electron app with Convex backend  
+/soloist/ @acdc-digital/soloist-team
+/soloist/convex/ @acdc-digital/backend-team
+/soloist/renderer/ @acdc-digital/frontend-team
+/soloist/website/ @acdc-digital/frontend-team
+/soloist/electron/ @acdc-digital/desktop-team
+
+# LifeOS project - Full-stack productivity platform
+/lifeOS/ @acdc-digital/lifeos-team
+/lifeOS/LifeOS/convex/ @acdc-digital/backend-team
+/lifeOS/LifeOS/app/ @acdc-digital/frontend-team
+/lifeOS/LifeOS/lib/agents/ @acdc-digital/ai-team
+
+# Donut project - Time tracking
+/donut/ @acdc-digital/frontend-team
+
+# Aura project
+/aura/ @acdc-digital/frontend-team
+
+# Ruuf project  
+/ruuf/ @acdc-digital/ruuf-team
+
+# SMNB project
+/smnb/ @acdc-digital/smnb-team
+
+# Critical files that require admin approval
+/.github/ @acdc-digital/admins
+/package.json @acdc-digital/admins
+/pnpm-lock.yaml @acdc-digital/admins
+/pnpm-workspace.yaml @acdc-digital/admins
+/.gitignore @acdc-digital/admins
+/README.md @acdc-digital/admins
+
+# Backend/Database files need backend team review
+**/convex/ @acdc-digital/backend-team
+**/schema.ts @acdc-digital/backend-team
+**/convex.config.ts @acdc-digital/backend-team
+
+# Security-sensitive files need security team review
+**/.env* @acdc-digital/security-team
+**/auth.ts @acdc-digital/security-team
+**/middleware.ts @acdc-digital/security-team
+**/webhooks.ts @acdc-digital/security-team
+
+# Frontend files
+**/app/ @acdc-digital/frontend-team
+**/components/ @acdc-digital/frontend-team
+**/src/ @acdc-digital/frontend-team
+**/*.tsx @acdc-digital/frontend-team
+**/*.jsx @acdc-digital/frontend-team
+**/tailwind.config.* @acdc-digital/frontend-team
+**/next.config.* @acdc-digital/frontend-team
+
+# AI/ML related files
+**/agents/ @acdc-digital/ai-team
+**/lib/research/ @acdc-digital/ai-team
+**/*claude* @acdc-digital/ai-team
+**/*openai* @acdc-digital/ai-team
+
+# Documentation
+/docs/ @acdc-digital/docs-team
+**/*.md @acdc-digital/docs-team
+
+# Build and deployment
+**/scripts/ @acdc-digital/devops-team
+**/.github/workflows/ @acdc-digital/devops-team
+**/Dockerfile @acdc-digital/devops-team
+**/docker-compose* @acdc-digital/devops-team
+**/vercel.json @acdc-digital/devops-team
+
+# Package management
+**/package.json @acdc-digital/backend-team @acdc-digital/frontend-team
+**/package-lock.json @acdc-digital/backend-team @acdc-digital/frontend-team
+**/pnpm-lock.yaml @acdc-digital/backend-team @acdc-digital/frontend-team

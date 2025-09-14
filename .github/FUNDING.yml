@@ -1,0 +1,21 @@
+# Support ACDC Digital's Open Source Work
+# Your contributions help us maintain and improve our projects
+
+# Primary sponsorship platforms
+github: # [acdc-digital] - Enable GitHub Sponsors for your organization
+patreon: # acdcdigital - Support ongoing development 
+ko_fi: # acdcdigital - One-time or monthly support
+
+# Professional support & services  
+custom: 
+  - 'https://www.paypal.me/acdcdigital'
+  - 'https://buymeacoffee.com/acdcdigital'
+  # - 'https://acdc.digital/sponsor' - Link to your website's sponsorship page
+  # - 'https://acdc.digital/consulting' - Link to consulting services
+
+# Community & project-specific funding
+# open_collective: acdcdigital
+# liberapay: acdcdigital
+
+# Enterprise & package sponsorship
+# tidelift: # Add if you publish packages to npm/pypi that join Tidelift
