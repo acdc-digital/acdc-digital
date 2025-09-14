@@ -59,4 +59,4 @@ ACDC.digital develops intelligent news aggregation and content management system
 
 ⚡⚡⚡
 
-![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=acdc-digital&show_icons=true)
+![ACDC Digital GitHub Stats](https://github-readme-stats.vercel.app/api?username=acdc-digital&show_icons=true&hide_border=true&bg_color=393939&title_color=f5f5f5&icon_color=d4d4d8&text_color=e5e5e5&count_private=true)
