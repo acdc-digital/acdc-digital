@@ -1,5 +1,7 @@
 ## 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital.
 
+<img src="public/ghRepoLogo.png" alt="ACDC Digital Logo" width="1280" height="640">
+
 ![Profile views](https://komarev.com/ghpvc/?username=acdc-digital&color=blue&style=flat-square&label=Profile+views)
 
 #####
