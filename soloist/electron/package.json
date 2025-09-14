@@ -1,0 +1,39 @@
+{
+  "name": "solopro-electron",
+  "version": "1.6.6",
+  "description": "SoloPro - AI-powered mood tracking and emotional well-being platform",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acdc-digital/solopro.git"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development npx electron@latest .",
+    "start": "NODE_ENV=development npx electron@latest .",
+    "build": "electron-builder --config electron-builder.config.js",
+    "build:mac": "electron-builder --mac --config electron-builder.config.js",
+    "build:win": "electron-builder --win --config electron-builder.config.js",
+    "build:linux": "electron-builder --linux --config electron-builder.config.js",
+    "dist": "electron-builder --config electron-builder.config.js",
+    "dist:mac": "electron-builder --mac --config electron-builder.config.js --publish=never",
+    "pack": "electron-builder --dir --config electron-builder.config.js",
+    "postinstall": "electron-builder install-app-deps",
+    "notarize": "electron-builder --mac --config electron-builder.config.js",
+    "build:universal": "electron-builder --mac --x64 --arm64 --config electron-builder.config.js"
+  },
+  "keywords": [
+    "wellness",
+    "journaling",
+    "daily log",
+    "mood tracking",
+    "soloist"
+  ],
+  "author": "Matthew Simon",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@electron/notarize": "^3.0.1",
+    "dotenv": "^16.5.0",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.1"
+  }
+}
