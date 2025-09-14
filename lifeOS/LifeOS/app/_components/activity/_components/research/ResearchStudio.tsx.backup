@@ -1,0 +1,407 @@
+// RESEARCH STUDIO - Full-canvas research interface with newspaper-inspired layout
+// /Users/matthewsimon/Projects/LifeOS/LifeOS/app/_components/activity/_components/research/ResearchStudio.tsx
+
+'use client';
+
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { 
+  Lightbulb, 
+  Loader2, 
+  ExternalLink,
+  Bookmark,
+  Share,
+  Star,
+  MoreHorizontal
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { 
+  PromptInputModeSelect,
+  ResearchMode
+} from '@/components/ai/prompt-input';
+
+interface ResearchResult {
+  id: string;
+  queryId: string;
+  summary: string;
+  headline: string;
+  keyPoints: string[];
+  insights: string[];
+  citations: Array<{
+    title: string;
+    url?: string;
+    sourceType: 'web' | 'document' | 'internal' | 'academic';
+    snippet?: string;
+    reliability: 'high' | 'medium' | 'low';
+  }>;
+  confidence: number;
+  tokensUsed: number;
+  timeElapsed: number;
+  createdAt: number;
+  tags: string[];
+  category: 'research' | 'analysis' | 'trend' | 'technical' | 'market';
+}
+
+interface ResearchSession {
+  id: string;
+  query: string;
+  complexity: 'simple' | 'medium' | 'complex';
+  status: 'pending' | 'researching' | 'completed' | 'failed';
+  result?: ResearchResult;
+  error?: string;
+  startTime: number;
+  isStarred?: boolean;
+  isArchived?: boolean;
+}
+
+export function ResearchStudio() {
+  const [query, setQuery] = useState('');
+  const [researchMode, setResearchMode] = useState<ResearchMode>('comprehensive');
+  const [complexity, setComplexity] = useState<'simple' | 'medium' | 'complex'>('medium');
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeView, setActiveView] = useState<'research' | 'response' | 'canvas' | 'settings'>('research');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Keyboard shortcut for focus
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        textareaRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!query.trim()) return;
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: query.trim(),
+          complexity,
+          mode: researchMode,
+          userId: 'demo_user'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Handle successful research - results would be saved to database via API
+        console.log('Research completed:', data.data);
+      } else {
+        console.error('Research failed:', data.error);
+      }
+      
+      setQuery('');
+    } catch (error) {
+      console.error('Network error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [query, complexity, researchMode]);
+
+  return (
+    <div className="flex flex-col h-full bg-[#1e1e1e] text-[#cccccc]">
+      {/* Header - Command Palette Style */}
+      <div className="flex-shrink-0 border-b border-[#2d2d30] bg-[#1e1e1e]">
+        <div className="p-6">
+          {/* Title */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Lightbulb className="w-6 h-6 text-[#007acc]" />
+              <div>
+                <h1 className="text-xl font-bold text-[#ffffff] tracking-tight font-['SF_Pro_Display']">Research Studio</h1>
+                <p className="text-sm text-[#858585] font-['SF_Pro_Text']">AI-powered research assistant with intelligent insights</p>
+              </div>
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center gap-1 bg-[#252526] border border-[#3c3c3c] rounded p-1">
+              {[
+                { id: 'research', label: 'Research' },
+                { id: 'response', label: 'Response' },
+                { id: 'canvas', label: 'Canvas' },
+                { id: 'settings', label: 'Settings' }
+              ].map((view) => (
+                <Button
+                  key={view.id}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveView(view.id as 'research' | 'response' | 'canvas' | 'settings')}
+                  className={`h-7 px-3 text-xs font-['SF_Pro_Text'] font-medium transition-all ${
+                    activeView === view.id
+                      ? 'bg-[#007acc] text-white hover:bg-[#005a9e]'
+                      : 'text-[#858585] hover:text-[#cccccc] hover:bg-[#2d2d30]'
+                  }`}
+                >
+                  {view.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Interface - Two Column Layout */}
+          <div className="flex gap-4 mb-6">
+            {/* Left Column - Research Notes Input */}
+            <div className="w-[37.5%]">
+              <div className="bg-[#252526] border border-[#3c3c3c] rounded p-3 h-[344px] flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-[#858585] font-['SF_Pro_Text']">Research Notes</span>
+                  <PromptInputModeSelect
+                    value={researchMode}
+                    onValueChange={setResearchMode}
+                  />
+                </div>
+                <textarea
+                  ref={textareaRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="What would you like to research? Describe your goals, questions, or topics..."
+                  className="flex-1 resize-none bg-transparent border-none p-0 text-[#cccccc] placeholder:text-[#6a6a6a] focus:ring-0 focus:outline-none font-['SF_Pro_Text'] text-sm leading-relaxed"
+                  disabled={isLoading}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
+                      e.preventDefault();
+                      const form = e.currentTarget.closest('form');
+                      if (form) {
+                        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                        form.dispatchEvent(submitEvent);
+                      }
+                    }
+                  }}
+                />
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#3c3c3c]">
+                  <span className="text-xs text-[#6a6a6a] font-['SF_Pro_Text']">⌘+Enter to research</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleSubmit}
+                    disabled={!query.trim() || isLoading}
+                    className="h-7 px-3 bg-[#007acc] hover:bg-[#005a9e] text-white text-xs"
+                  >
+                    {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Research'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - System Response */}
+            <div className="flex-1">
+              <div className="bg-[#252526] border border-[#3c3c3c] rounded p-3 h-[344px] flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-[#858585] font-['SF_Pro_Text']">System Response</span>
+                  <div className="flex items-center gap-2">
+                    {isLoading && <Loader2 className="w-3 h-3 animate-spin text-[#007acc]" />}
+                                        <Badge variant="secondary" className="text-xs bg-[#3c3c3c] text-[#cccccc]">
+                      {isLoading ? 'researching' : 'ready'}
+                    </Badge>
+                  </div>
+                </div>
+                
+                {/* Response Content Area */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="bg-[#1e1e1e] border border-[#3c3c3c] rounded p-6 max-w-sm">
+                      <Lightbulb className="w-8 h-8 text-[#444444] mb-3 mx-auto" />
+                      <p className="text-sm text-[#858585] font-['SF_Pro_Text'] mb-3">
+                        Research responses will appear here
+                      </p>
+                      <p className="text-xs text-[#6a6a6a] font-['SF_Pro_Text']">
+                        Submit a query above to get started
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Response Footer */}
+                <div className="border-t border-[#3c3c3c] pt-2 mt-2">
+                  <div className="flex items-center justify-between text-xs text-[#6a6a6a] font-['SF_Pro_Text']">
+                    <span>Ready for research</span>
+                  </div>
+                </div>
+                  </div>
+                </div>
+                
+                {/* Response Content Area */}
+                <div className="flex-1 overflow-y-auto">
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="text-[#444444] mb-2">⚡</div>
+                    <p className="text-xs text-[#6a6a6a] font-['SF_Pro_Text']">
+                      AI responses will appear here
+                    </p>
+                  </div>
+                </div>
+
+                {/* Response Footer */}
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#3c3c3c]">
+                  <span className="text-xs text-[#6a6a6a] font-['SF_Pro_Text']">
+                    Ready for research
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-[#858585] hover:text-[#cccccc]"
+                    onClick={() => setActiveView('response')}
+                  >
+                    View All
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Command Palette - Research Cockpit */}
+          <div className="bg-[#252526] border border-[#3c3c3c] rounded p-4 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm font-semibold text-[#cccccc] font-['SF_Pro_Text']">Research Cockpit</span>
+              <Badge variant="secondary" className="text-xs bg-[#3c3c3c] text-[#858585]">
+                Navigation Center
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-4">
+              {/* Column 1 - Analysis Controls */}
+              <div className="space-y-3">
+                <div className="bg-[#1e1e1e] border border-[#3c3c3c] rounded p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-[#858585] font-['SF_Pro_Text'] uppercase tracking-wide">Depth</span>
+                    <Badge variant="secondary" className="text-xs bg-[#3c3c3c] text-[#cccccc]">
+                      {complexity}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-1">
+                    {(['simple', 'medium', 'complex'] as const).map((level) => (
+                      <Button
+                        key={level}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setComplexity(level)}
+                        className={`flex-1 h-6 px-2 text-xs capitalize font-['SF_Pro_Text'] ${
+                          complexity === level 
+                            ? 'bg-[#007acc] text-white hover:bg-[#005a9e]' 
+                            : 'text-[#858585] hover:bg-[#2d2d30] hover:text-[#cccccc]'
+                        }`}
+                        disabled={isLoading}
+                      >
+                        {level}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#1e1e1e] border border-[#3c3c3c] rounded p-3">
+                  <span className="text-xs text-[#858585] font-['SF_Pro_Text'] uppercase tracking-wide">Focus</span>
+                  <div className="grid grid-cols-2 gap-1 mt-2">
+                    {[
+                      { id: 'trends', label: 'Trends', icon: '📈' },
+                      { id: 'data', label: 'Data', icon: '📊' },
+                      { id: 'analysis', label: 'Analysis', icon: '🔍' },
+                      { id: 'sources', label: 'Sources', icon: '📚' }
+                    ].map((area) => (
+                      <Button
+                        key={area.id}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs font-['SF_Pro_Text'] text-[#858585] hover:text-[#cccccc] hover:bg-[#2d2d30] justify-start"
+                      >
+                        <span className="mr-1 text-xs">{area.icon}</span>
+                        {area.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 2 - Output & Session Controls */}
+              <div className="space-y-3">
+                <div className="bg-[#1e1e1e] border border-[#3c3c3c] rounded p-3">
+                  <span className="text-xs text-[#858585] font-['SF_Pro_Text'] uppercase tracking-wide">Format</span>
+                  <div className="space-y-1 mt-2">
+                    {[
+                      { id: 'structured', label: 'Report', desc: 'Organized sections' },
+                      { id: 'bullets', label: 'Points', desc: 'Key insights' },
+                      { id: 'narrative', label: 'Story', desc: 'Flowing prose' }
+                    ].map((format) => (
+                      <label key={format.id} className="flex items-center gap-2 cursor-pointer hover:bg-[#2d2d30] rounded px-1 py-0.5">
+                        <input
+                          type="radio"
+                          name="outputFormat"
+                          value={format.id}
+                          className="w-3 h-3 accent-[#007acc]"
+                        />
+                        <div className="flex-1">
+                          <span className="text-xs text-[#cccccc] font-['SF_Pro_Text']">{format.label}</span>
+                          <span className="text-xs text-[#6a6a6a] font-['SF_Pro_Text'] ml-1">— {format.desc}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 3 - Navigation & Actions */}
+              <div className="space-y-3">
+                <div className="bg-[#1e1e1e] border border-[#3c3c3c] rounded p-3">
+                  <span className="text-xs text-[#858585] uppercase tracking-wide">Quick Actions</span>
+                  <div className="space-y-1 mt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-6 px-2 text-xs text-[#858585] hover:text-[#cccccc] hover:bg-[#2d2d30] justify-start"
+                    >
+                      📋 Save Session
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-6 px-2 text-xs text-[#858585] hover:text-[#cccccc] hover:bg-[#2d2d30] justify-start"
+                    >
+                      📁 Open Template
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-6 px-2 text-xs text-[#858585] hover:text-[#cccccc] hover:bg-[#2d2d30] justify-start"
+                    >
+                      🔗 Export Results
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center">
+            <Lightbulb className="w-12 h-12 text-[#444444] mb-4 mx-auto" />
+            <p className="text-sm text-[#858585] font-['SF_Pro_Text']">
+              Start a new research session above or view results in the sidebar
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

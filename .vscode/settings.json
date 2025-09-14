@@ -22,7 +22,9 @@
     "smnb": "app",
     "aura": "app",
     "ruuf": "app",
-    "donut": "app"
+    "donut": "app",
+    "soloist": "app",
+    "lifeOS": "app"
   },
   
   // Custom file associations

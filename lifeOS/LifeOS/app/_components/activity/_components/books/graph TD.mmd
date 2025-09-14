@@ -1,0 +1,27 @@
+graph TD
+    A[Books Panel] --> B[Two-Column Layout]
+    B --> C[Column 1: Book Details]
+    B --> D[Column 2: Progress & Synopsis]
+    
+    C --> E[Book Cover]
+    C --> F[Title & Author]
+    C --> G[Status Badge]
+    C --> H[Genre & Pages]
+    
+    D --> I[Synopsis Section]
+    D --> J[Interactive Progress]
+    
+    J --> K[Progress Slider]
+    J --> L[Page Number Input]
+    J --> M[Percentage Display]
+    
+    K --> N[Real-time Updates]
+    L --> N
+    M --> N
+    
+    A --> O[Full-Width Notes Section]
+    O --> P[Personal Book Notes]
+    
+    style A fill:#1e1e1e,stroke:#007acc,color:#cccccc
+    style J fill:#252526,stroke:#007acc,color:#cccccc
+    style N fill:#007acc,stroke:#007acc,color:#ffffff

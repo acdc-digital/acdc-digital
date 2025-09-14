@@ -1,0 +1,24 @@
+{
+  "name": "lifeos-workspace",
+  "version": "1.0.0",
+  "description": "LifeOS project monorepo workspace",
+  "private": true,
+  "scripts": {
+    "dev": "cd LifeOS && pnpm dev",
+    "convex": "cd LifeOS && pnpm convex",
+    "state": "cd LifeOS && pnpm state",
+    "structure": "cd LifeOS && pnpm structure",
+    "build": "pnpm --recursive run build",
+    "install:all": "pnpm install",
+    "clean": "pnpm --parallel --recursive run clean",
+    "lint": "pnpm --parallel --recursive run lint",
+    "test": "pnpm --parallel --recursive run test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
