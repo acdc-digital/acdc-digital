@@ -59,10 +59,46 @@ ACDC.digital is a **full-service agentic framework studio** that transforms conc
 **Framework Architecture**
 
 - Production-grade TypeScript development with strict type safety across agent communications
+  ```typescript
+  export const agentMessage = mutation({
+    args: { agentId: v.id("agents"), payload: v.object({...}), targetId: v.id("agents") },
+    handler: async (ctx, { agentId, payload, targetId }) => ctx.runMutation(internal.orchestrator.route, {...})
+  });
+  ```
+
 - Serverless-first architecture enabling elastic agent scaling and resource optimization
+  ```typescript
+  export const scaleAgents = action({
+    handler: async (ctx) => {
+      const load = await ctx.runQuery(api.metrics.getCurrentLoad);
+      return ctx.scheduler.runAfter(0, internal.scaling.autoScale, { targetCapacity: load.optimal });
+    }
+  });
+  ```
+
 - Multi-model AI integration with intelligent routing and fallback mechanisms
+  ```typescript
+  const aiRouter = {
+    primary: "anthropic/claude-3-5-sonnet",
+    fallbacks: ["openai/gpt-4o", "openai/gpt-4o-mini"],
+    route: async (task: AgentTask) => await this.tryModel(task, this.primary) || await this.cascade(task)
+  };
+  ```
+
 - Mono-repo structure supporting modular agent development and deployment ensuring organization-wide consistency
+  ```typescript
+  // packages/agents/src/base/Agent.ts
+  export abstract class BaseAgent implements IAgent<TContext, TCapabilities> {
+    abstract async execute(ctx: ConvexContext): Promise<AgentResult<TOutput>>;
+  }
+  ```
+
 - Advanced caching strategies and state management for high-performance agent coordination
+  ```typescript
+  const agentState = useConvexQuery(api.agents.getState, { agentId });
+  const cachedResult = await ctx.storage.get(memoKey) ??
+    await ctx.runMutation(internal.cache.computeAndStore, { key: memoKey, computation });
+  ```
 
 ⚡⚡⚡
 
