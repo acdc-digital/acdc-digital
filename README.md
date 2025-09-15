@@ -18,13 +18,10 @@
 ![npm](https://img.shields.io/badge/npm-CB3837?style=plastic&logo=npm&logoColor=white&labelColor=a02e2e)
 ![ngrok](https://img.shields.io/badge/ngrok-14A99B?style=plastic&logo=ngrok&logoColor=white&labelColor=0f857c)
 ![Git](https://img.shields.io/badge/Git-F05032?style=plastic&logo=git&logoColor=white&labelColor=c54226)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=plastic&logo=github&logoColor=white&labelColor=0d1117)   
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=plastic&logo=github&logoColor=white&labelColor=0d1117)
 ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=plastic&logo=figma&logoColor=white&labelColor=c03d15)
 
-
 ##
-
-
 
 ## ACDC.digital - Agentic Framework Studio
 
