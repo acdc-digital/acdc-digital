@@ -34,16 +34,17 @@ ACDC.digital is an agentic framework studio focused on designing and implementin
 - **Real-Time Infrastructure**: Convex database with live synchronization supporting concurrent agent operations
 - **Workflow Automation**: Intelligent process routing with adaptive decision-making capabilities
 
-**Current Projects & Showcase**
-Currently 78+ agents in active development.
+**Current Projects & Agent Ecosystem**
 
-**Soloist**: Personal productivity platform demonstrating autonomous data analysis and predictive modeling through coordinated agent workflows for individual performance optimization.
+| Project | Active Agents | Core Technologies | Agent Capabilities | Use Case Focus |
+|---------|---------------|------------------|-------------------|----------------|
+| **Soloist** | 12+ agents | Next.js, Convex, TypeScript | Data Analysis, Predictive Modeling, Performance Tracking, Mood Forecasting | Personal Analytics & Productivity Optimization |
+| **SMNB** | 18+ agents | React, Convex, Node.js | Content Aggregation, Duplicate Detection, Threading, Classification | News Management & Content Processing |
+| **AURA** | 15+ agents | Next.js, Tailwind, Convex | Document Formatting, Real-time Collaboration, Auto-styling, Version Control | Collaborative Document Editing |
+| **LifeOS** | 22+ agents | TypeScript, React, Multi-model AI | Research Automation, File Management, Task Orchestration, Workflow Optimization | Comprehensive Productivity Suite |
+| **Framework Core** | 11+ agents | Model Context Protocol, Serverless | Agent Coordination, Communication Routing, Scalability Management | Foundation Infrastructure |
 
-**SMNB (Smart News Management Bot)**: Multi-agent content processing system showcasing automated aggregation, duplicate detection, and intelligent content threading across distributed data sources.
-
-**AURA**: Collaborative document editing platform featuring AI-assisted formatting agents with real-time synchronization and automated workflow enhancement.
-
-**LifeOS**: Comprehensive productivity ecosystem integrating multiple agent types for research, file management, and task automation in a unified interface.
+> **Total Active Agents**: 78+ across all projects with expanding multi-agent coordination capabilities
 
 **Framework Architecture**
 
