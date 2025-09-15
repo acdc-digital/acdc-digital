@@ -6,8 +6,6 @@
 
 #####
 
-#####
-
 ![React](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
@@ -18,8 +16,6 @@
 ![ngrok](https://img.shields.io/badge/-ngrok-14A99B?style=flat-square&logo=ngrok&logoColor=white)  
 ![Git](https://img.shields.io/badge/-Git-F05032?style=flat-square&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github&logoColor=white)
-![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
 ![Convex](https://img.shields.io/badge/-Convex_DB-F24E1E?style=flat-square&logo=database&logoColor=white)  
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)
 ![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat-square&logo=figma&logoColor=white)
@@ -29,33 +25,37 @@
 
 
 
-## ACDC.digital - AI-Driven News Technology
+## ACDC.digital - Agentic Framework Studio
 
-ACDC.digital develops intelligent news aggregation and content management systems powered by advanced AI models. Our platform combines real-time data processing with automated editorial workflows to deliver scalable news technology solutions.
+ACDC.digital is an agentic framework studio focused on designing and implementing autonomous agent workflows that deliver measurable results. We specialize in creating intelligent systems that orchestrate complex multi-agent processes for enterprise-scale applications.
 
-**Technology Stack**
+**Core Framework Technologies**
 
-- **AI Integration**: Anthropic Claude and OpenAI models with custom agent orchestration
-- **Real-Time Infrastructure**: Convex database with live synchronization and collaborative editing
-- **Content Processing**: Automated aggregation, intelligent filtering, and AI-powered editorial workflows
-- **Frontend Architecture**: Next.js 15+ with TypeScript, React, and modern UI components
-- **Authentication & Security**: Clerk integration with enterprise-grade authorization systems
+- **Agent Orchestration**: Custom frameworks for autonomous agent coordination and task distribution
+- **Model Context Protocol**: Advanced integration layers for seamless AI model communication and workflow management
+- **Real-Time Infrastructure**: Convex database with live synchronization supporting concurrent agent operations
+- **Workflow Automation**: Intelligent process routing with adaptive decision-making capabilities
+- **Enterprise Integration**: Scalable authentication and deployment systems for production environments
 
-**Platform Components**
+**Current Projects & Showcase**
 
-**SMNB (Smart News Management Bot)**: Automated content aggregation system with Reddit API integration, duplicate detection, and intelligent story threading for scalable news operations.
+**Soloist**: Personal productivity platform demonstrating autonomous data analysis and predictive modeling through coordinated agent workflows for individual performance optimization.
 
-**AURA**: Advanced text editor with AI-assisted formatting, collaborative document editing, and real-time synchronization for editorial teams.
+**SMNB (Smart News Management Bot)**: Multi-agent content processing system showcasing automated aggregation, duplicate detection, and intelligent content threading across distributed data sources.
 
-**RUUF**: Model Context Protocol integration platform enabling AI-assisted workflows with secure authentication and enterprise deployment capabilities.
+**AURA**: Collaborative document editing platform featuring AI-assisted formatting agents with real-time synchronization and automated workflow enhancement.
 
-**Technical Architecture**
+**RUUF**: Model Context Protocol reference implementation enabling secure multi-agent communication patterns and enterprise workflow orchestration.
 
-- Full-stack TypeScript development with Next.js and React patterns
-- Convex real-time database for scalable, serverless applications
-- AI orchestration with custom agent frameworks and intelligent routing
-- Mono-repo management using pnpm workspaces for enterprise codebases
-- Performance optimization with advanced caching and efficient state management
+**LifeOS**: Comprehensive productivity ecosystem integrating multiple agent types for research, file management, and task automation in a unified interface.
+
+**Framework Architecture**
+
+- Production-grade TypeScript development with strict type safety across agent communications
+- Serverless-first architecture enabling elastic agent scaling and resource optimization
+- Multi-model AI integration with intelligent routing and fallback mechanisms
+- Enterprise mono-repo structure supporting modular agent development and deployment
+- Advanced caching strategies and state management for high-performance agent coordination
 
 ⚡⚡⚡
 
