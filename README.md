@@ -23,15 +23,23 @@
 
 ##
 
-## ACDC.digital - Agentic Framework Studio
+## ACDC.digital - Full Service Agentic Framework Studio
 
-ACDC.digital is an agentic framework studio focused on designing and implementing autonomous agent workflows that deliver measurable results. We specialize in creating intelligent systems that orchestrate complex multi-agent processes in highly intuitive/ natural language ui.
+ACDC.digital is a **full-service agentic framework studio** that transforms concepts into production-ready intelligent systems. From initial design concepts to complex backend infrastructure, we deliver complete solutions that seamlessly blend autonomous agent capabilities with exceptional user experiences.
 
-**Core Framework Technologies**
+**Our End-to-End Process:**
+- **Design & UX**: Intuitive interfaces that make complex AI interactions feel natural
+- **Agent Development**: Sophisticated multi-agent orchestration and workflow automation
+- **Backend Infrastructure**: Scalable, real-time systems supporting concurrent agent operations
+- **Full Deployment**: Production-grade delivery with monitoring and optimization
 
-- **Agent Orchestration**: Custom frameworks for autonomous agent coordination and task distribution
-- **Model Context Protocol**: Advanced integration layers for seamless AI model communication and workflow management
-- **Real-Time Infrastructure**: Convex database with live synchronization supporting concurrent agent operations
+**Full-Service Capabilities**
+
+- **UI/UX Design**: Custom interfaces optimized for agent-human interaction patterns
+- **Agent Orchestration**: Sophisticated frameworks for autonomous coordination and task distribution
+- **Model Context Protocol**: Advanced integration layers for seamless AI model communication
+- **Real-Time Infrastructure**: High-performance backends with live synchronization and scaling
+- **Technical Architecture**: Complete system design from database to deployment pipelines
 - **Workflow Automation**: Intelligent process routing with adaptive decision-making capabilities
 
 **Current Projects & Agent Ecosystem**
