@@ -19,6 +19,7 @@
 ![Convex](https://img.shields.io/badge/Convex_DB-EC6F35?style=plastic&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiByeD0iMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxwYXRoIGQ9Im05IDlsMy0zbDMgM20tNiAwaDZ2NkgzbTYtNnY2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K&logoColor=white&labelColor=b85529)
 ![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-000000?style=plastic&logo=github-copilot&logoColor=white&labelColor=1a1a1a)
 ![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-000000?style=plastic&logo=shadcnui&logoColor=white&labelColor=1a1a1a)
+
 ![React](https://img.shields.io/badge/React-61DAFB?style=plastic&logo=react&logoColor=white&labelColor=4a90b8)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=plastic&logo=javascript&logoColor=black&labelColor=c4b818)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=plastic&logo=node.js&logoColor=white&labelColor=2d7a2d)
