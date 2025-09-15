@@ -35,12 +35,14 @@ ACDC.digital is a **full-service agentic framework studio** that transforms conc
 
 **Full-Service Capabilities**
 
-- **UI/UX Design**: Custom interfaces optimized for agent-human interaction patterns
-- **Agent Orchestration**: Sophisticated frameworks for autonomous coordination and task distribution
-- **Model Context Protocol**: Advanced integration layers for seamless AI model communication
-- **Real-Time Infrastructure**: High-performance backends with live synchronization and scaling
-- **Technical Architecture**: Complete system design from database to deployment pipelines
-- **Workflow Automation**: Intelligent process routing with adaptive decision-making capabilities
+| Service Area | Expertise | Technologies | Deliverables |
+|--------------|-----------|--------------|--------------|
+| **UI/UX Design** | Agent-Human Interaction Patterns | Figma, Tailwind CSS, React Components | Custom Interfaces, Design Systems, User Flows |
+| **Agent Orchestration** | Multi-Agent Coordination | TypeScript, Model Context Protocol | Autonomous Frameworks, Task Distribution Systems |
+| **Backend Infrastructure** | Real-Time & Scalable Systems | Convex, Node.js, Serverless Architecture | High-Performance APIs, Live Synchronization, Auto-Scaling |
+| **Technical Architecture** | End-to-End System Design | Next.js, Database Design, Deployment Pipelines | Complete Technical Specifications, Infrastructure Planning |
+| **AI Integration** | Multi-Model Communication | OpenAI, Anthropic, Custom Model Routing | Seamless AI Workflows, Intelligent Fallback Systems |
+| **Workflow Automation** | Process Optimization | Custom Orchestration, Decision Trees | Intelligent Routing, Adaptive Process Management |
 
 **Current Projects & Agent Ecosystem**
 
