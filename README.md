@@ -1,6 +1,9 @@
 ## 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital.
 
-This is where you'll find what we're working on, our developing projects, and how our architecture works.
+#### This is where you'll find what we're working on, our developing projects, and our architectural foundation. Our playbook is simple:
+1. websites and consultations are free 
+2. agents are ($$$) +design and implementation
+3. hosting and maintenance is $$$/ month ( we do not host on others' platform)
 
 <img src="public/ghRepoLogo.png" alt="ACDC Digital Logo" width="320" height="160">
 
@@ -27,26 +30,26 @@ This is where you'll find what we're working on, our developing projects, and ho
 
 ## ACDC.digital - Full Service Agentic Framework Studio
 
-ACDC.digital is a **full-service agentic framework studio** that transforms concepts into production-ready intelligent systems. From initial design concepts to complex backend infrastructure, we deliver complete solutions that seamlessly blend autonomous agent capabilities with exceptional user experiences.
+ACDC.digital is a **full-service agentic framework studio** that transforms concepts into production-ready intelligent systems. From initial design concepts to complex backend infrastructure, we deliver complete solutions that seamlessly blend autonomous agent capabilities with exceptional user experiences and natural conversation.
 
-**Our End-to-End Process:**
-- **Design & UX**: Intuitive interfaces that make complex AI interactions feel natural
-- **Agent Development**: Sophisticated multi-agent orchestration and workflow automation
-- **Backend Infrastructure**: Scalable, real-time systems supporting concurrent agent operations
-- **Full Deployment**: Production-grade delivery with monitoring and optimization
+#### **Our End-to-End Process:**
+- **Design & UX**: Intuitive interfaces that make complex AI interactions feel natural through interactive chat conversations.
+- **Agent Development**: Sophisticated multi-agent orchestration and workflow automation built on top of a proven platform.
+- **Backend Infrastructure**: Scalable, real-time systems supporting concurrent agent operations for complex task management while you focus on the big picture.
+- **Full Deployment**: Production-grade delivery with monitoring and optimization, hosted, and maintained.
 
-**Full-Service Capabilities**
+#### **Full-Service Capabilities**
 
 | Service Area | Expertise | Technologies | Deliverables |
 |--------------|-----------|--------------|--------------|
-| **UI/UX Design** | Agent-Human Interaction Patterns | Figma, Tailwind CSS, React Components | Custom Interfaces, Design Systems, User Flows |
-| **Agent Orchestration** | Multi-Agent Coordination | TypeScript, Model Context Protocol | Autonomous Frameworks, Task Distribution Systems |
+| **UI/UX Design** | Agent-Human Interaction Patterns | Figma, Tailwind CSS, Custom ShadnCN Component Library | Custom Interfaces, Design Systems, User Flows |
+| **Agent Orchestration** | Multi-Agent Coordination | TypeScript, Anthropic Provider, Convex Serverless Database | Autonomous Frameworks, Task Distribution Systems, Data Gathering & Analytics |
 | **Backend Infrastructure** | Real-Time & Scalable Systems | Convex, Node.js, Serverless Architecture | High-Performance APIs, Live Synchronization, Auto-Scaling |
-| **Technical Architecture** | End-to-End System Design | Next.js, Database Design, Deployment Pipelines | Complete Technical Specifications, Infrastructure Planning |
-| **AI Integration** | Multi-Model Communication | OpenAI, Anthropic, Custom Model Routing | Seamless AI Workflows, Intelligent Fallback Systems |
-| **Workflow Automation** | Process Optimization | Custom Orchestration, Decision Trees | Intelligent Routing, Adaptive Process Management |
+| **Technical Architecture** | End-to-End System Design | Next.js, Database Design, Deployment Pipelines | Complete Technical Specifications, Infrastructure Planning, and User Guides |
+| **AI Integration** | Accessible Multi-Model Communication | Anthropic Routing (Tools & Conversational, Artifacts) | Seamless AI Workflows, Intelligent Fallback Systems |
+| **Workflow Automation** | Process Optimization | Custom Orchestration, Decision Trees | Intelligent Routing, Adaptive Process Management, Human in the Loop |
 
-**Current Projects & Agent Ecosystem**
+#### **Current Projects & Agent Ecosystem**
 
 | Project | Active Agents | Core Technologies | Agent Capabilities | Use Case Focus |
 |---------|---------------|------------------|-------------------|----------------|
@@ -58,7 +61,7 @@ ACDC.digital is a **full-service agentic framework studio** that transforms conc
 
 > **Total Active Agents**: 78+ across all projects with expanding multi-agent coordination capabilities
 
-**Framework Architecture**
+#### **Framework Architecture**
 
 - Production-grade TypeScript development with strict type safety across agent communications
   ```typescript
