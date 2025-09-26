@@ -7,14 +7,15 @@ import React from "react";
 import { LucideIcon } from "lucide-react";
 import {
   Wallpaper,
-  ChartNetwork,
+  Haze,
   BarChart3,
-  FileCode,
+  Network,
   Settings,
-  User
+  User,
+  Archive
 } from "lucide-react";
 
-export type PanelType = "home" | "stats" | "analytics" | "docs" | "settings" | "account";
+export type PanelType = "archive" | "home" | "stats" | "heatmap" | "network" | "settings" | "account";
 
 interface ActivityBarProps {
   activePanel?: PanelType;
@@ -25,15 +26,14 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
   console.log('🔍 ActivityBar: Rendering with activePanel:', activePanel, 'onPanelChange:', !!onPanelChange);
   
   const activityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
+    { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },
     { id: "stats", icon: BarChart3, label: "Stats" },
-    { id: "analytics", icon: ChartNetwork, label: "Analytics" },
-    { id: "docs", icon: FileCode, label: "Documentation" },
+    { id: "heatmap", icon: Haze, label: "Heatmap" },
+    { id: "network", icon: Network, label: "Network" },
     { id: "settings", icon: Settings, label: "Settings" },
     { id: "account", icon: User, label: "Account" },
   ];
-
-  const bottomItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [];
 
   const handleActivityClick = (id: PanelType) => {
     console.log('🖱️ ActivityBar: Button clicked for panel', id);
@@ -108,10 +108,6 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
       {/* Activity Icons */}
       <div className="flex flex-col items-center pb-2">
         {activityItems.map(renderActivityButton)}
-      </div>
-      {/* Debug indicator */}
-      <div style={{fontSize: '8px', color: '#007acc', padding: '2px'}}>
-        {activePanel}
       </div>
     </aside>
   );

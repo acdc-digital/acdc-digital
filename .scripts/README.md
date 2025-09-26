@@ -51,6 +51,12 @@ The script generates a complete package structure with:
 #### 📁 Directory Structure
 ```
 <package-name>/
+├── .agents/                  # AI agents and automation scripts
+├── .docs/                    # Project documentation
+├── .github/                  # GitHub workflows and templates
+├── .notes/                   # Development notes and planning
+├── .tests/                   # Test files and test utilities
+├── .vscode/                  # VS Code workspace settings
 ├── package.json              # Dependencies and scripts
 ├── README.md                 # Package documentation
 ├── next.config.ts           # Next.js configuration

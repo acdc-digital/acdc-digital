@@ -24,7 +24,9 @@
     "ruuf": "app",
     "donut": "app",
     "soloist": "app",
-    "lifeOS": "app"
+    "lifeOS": "app",
+    ".agents": "robot",
+    "solov2": "app",
   },
   
   // Custom file associations

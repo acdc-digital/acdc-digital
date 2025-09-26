@@ -4,7 +4,6 @@
 'use client';
 
 import React from "react";
-import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { TokenCounter } from "@/components/ui/TokenCounter";
 import { RuntimeCounter } from "@/components/ui/RuntimeCounter";
@@ -12,12 +11,17 @@ import { ApiKeyInput } from "@/components/ui/ApiKeyInput";
 import ActivityBar from "./activityBar/ActivityBar";
 import { Fingerprint } from "lucide-react";
 import { DashboardProvider, useDashboard } from "./DashboardContext";
+import FeedSidebar from "./feed/FeedSidebar";
+import Studio from "./studio/Studio";
+import StatsPage from "./stats/Stats";
+import Heatmap from "./studio/heatmap/Heatmap";
+import Generator from "./studio/generator/Generator";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-function DashboardContent({ children }: DashboardLayoutProps) {
+function DashboardContent({}: DashboardLayoutProps) {
   const { activePanel, setActivePanel } = useDashboard();
 
   return (
@@ -34,7 +38,7 @@ function DashboardContent({ children }: DashboardLayoutProps) {
         </div>
       </div>
 
-      {/* Main content area with three panels (independent column scroll) */}
+      {/* Main content area with panel switching */}
       <div className="flex flex-1 overflow-hidden">
         {/* Activity Bar */}
         <ActivityBar 
@@ -42,9 +46,21 @@ function DashboardContent({ children }: DashboardLayoutProps) {
           onPanelChange={setActivePanel}
         />
         
-        {/* Main content area */}
+        {/* Panel Content */}
         <div className="flex flex-1 overflow-hidden">
-          {children}
+          {activePanel === "stats" ? (
+            <StatsPage />
+          ) : activePanel === "heatmap" ? (
+            <Heatmap />
+          ) : activePanel === "network" ? (
+            <Generator />
+          ) : (
+            <>
+              {/* Default Dashboard Content */}
+              <FeedSidebar />
+              <Studio />
+            </>
+          )}
         </div>
       </div>
 

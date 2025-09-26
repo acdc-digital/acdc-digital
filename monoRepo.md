@@ -12,6 +12,10 @@ This workspace contains multiple independent Next.js applications managed by pnp
 | **smnb** | 8888 | Smart News Management Bot | Reddit integration, content aggregation |  
 | **aura** | 3333 | AI assistant application | Clerk authentication, advanced AI features |
 | **ruuf** | 5454 | AI-powered assistant platform | MCP integration, Clerk authentication, agent workflows |
+| **donut** | 8009 | Data visualization and analytics | Recharts integration, donut charts, time tracking |
+| **home** | 8787 | ACDC Digital's home/landing page | Next.js, Tailwind CSS, modern UI components |
+| **lifeOS** | TBD | Agentic social media management platform | AI agents, brand strategy, content automation |
+| **soloist** | 3002/3004 | Personal analytics and mood tracking | AI forecasting, Electron desktop app, predictive insights |
 
 ## Workspace Structure
 ```
@@ -20,7 +24,7 @@ acdc-digital/                     # Root workspace
 ├── pnpm-workspace.yaml          # Workspace configuration
 ├── pnpm-lock.yaml              # Single lockfile for all packages
 ├── node_modules/               # Shared dependencies (hoisted)
-├── WORKSPACE.md                # This documentation file
+├── monoRepo.md                 # This documentation file
 ├── acdc-digital/               # Main application package
 │   ├── package.json
 │   ├── convex/
@@ -40,12 +44,35 @@ acdc-digital/                     # Root workspace
 │   │   ├── app/
 │   │   └── ...
 │   └── docs/                   # AURA documentation and assets
-└── ruuf/                       # RUUF workspace
-    └── ruff/                   # RUUF Next.js application
-        ├── package.json
-        ├── convex/
-        ├── app/
-        └── ...
+├── ruuf/                       # RUUF workspace
+│   └── ruff/                   # RUUF Next.js application
+│       ├── package.json
+│       ├── convex/
+│       ├── app/
+│       └── ...
+├── donut/                      # Data visualization application
+│   ├── package.json
+│   ├── convex/
+│   ├── app/
+│   ├── components/
+│   └── ...
+├── home/                       # ACDC Digital home/landing page
+│   ├── package.json
+│   ├── convex/
+│   ├── app/
+│   ├── components/
+│   └── ...
+├── lifeOS/                     # LifeOS workspace
+│   ├── LifeOS/                 # LifeOS Next.js application (in development)
+│   ├── package.json
+│   └── docs/                   # LifeOS documentation
+└── soloist/                    # Soloist monorepo workspace
+    ├── package.json            # Soloist workspace configuration
+    ├── convex/                 # Shared Convex backend
+    ├── renderer/               # Next.js web application (port 3002)
+    ├── website/                # Marketing website (port 3004)
+    ├── electron/               # Desktop application
+    └── docs/                   # Soloist documentation
 ```
 
 ## Available Scripts
@@ -107,6 +134,58 @@ pnpm type-check:ruuf           # Type check ruuf
 pnpm convex:ruuf               # Start ruuf Convex dev
 ```
 
+### Donut Application
+```bash
+# Development
+pnpm --filter donut dev         # Start donut in dev mode (port 8009)
+pnpm --filter donut build       # Build donut
+pnpm --filter donut start       # Start donut production server
+pnpm --filter donut lint        # Lint donut
+pnpm --filter donut convex      # Start donut Convex dev
+```
+
+### Home Application
+```bash
+# Development
+pnpm --filter home dev          # Start home in dev mode (port 8787)
+pnpm --filter home build        # Build home
+pnpm --filter home start        # Start home production server
+pnpm --filter home lint         # Lint home
+pnpm --filter home convex       # Start home Convex dev
+```
+
+### LifeOS Application
+```bash
+# Development
+pnpm --filter lifeos-workspace dev      # Start LifeOS in dev mode
+pnpm --filter lifeos-workspace build    # Build LifeOS
+pnpm --filter lifeos-workspace convex   # Start LifeOS Convex dev
+pnpm --filter lifeos-workspace state    # Run LifeOS state audit
+pnpm --filter lifeos-workspace structure # Run LifeOS structure tests
+pnpm --filter lifeos-workspace clean    # Clean LifeOS
+```
+
+### Soloist Application
+```bash
+# Development (Monorepo with multiple apps)
+pnpm --filter solopro-monorepo dev              # Start all Soloist apps (renderer + website + electron)
+pnpm --filter solopro-monorepo dev:renderer     # Start renderer only (port 3002)
+pnpm --filter solopro-monorepo dev:website      # Start website only (port 3004)
+pnpm --filter solopro-monorepo dev:electron     # Start Electron app only
+pnpm --filter solopro-monorepo convex:dev       # Start Convex dev
+
+# Building
+pnpm --filter solopro-monorepo build            # Build all Soloist projects
+pnpm --filter solopro-monorepo build:renderer   # Build renderer for production
+pnpm --filter solopro-monorepo build:website    # Build website for production
+pnpm --filter solopro-monorepo build:app        # Build Electron desktop app
+
+# Deployment
+pnpm --filter solopro-monorepo deploy:all       # Deploy website and renderer
+pnpm --filter solopro-monorepo deploy:website   # Deploy website only
+pnpm --filter solopro-monorepo deploy:renderer  # Deploy renderer only
+```
+
 ## Working with Packages
 
 ### Install Dependencies
@@ -119,6 +198,10 @@ pnpm --filter acdc-digital add [package-name]
 pnpm --filter smnb add [package-name]
 pnpm --filter aura add [package-name]
 pnpm --filter ruff add [package-name]
+pnpm --filter donut add [package-name]
+pnpm --filter home add [package-name]
+pnpm --filter lifeos-workspace add [package-name]
+pnpm --filter solopro-monorepo add [package-name]
 ```
 
 ### Run Commands in Specific Packages
@@ -128,6 +211,10 @@ pnpm --filter acdc-digital [script-name]
 pnpm --filter smnb [script-name]
 pnpm --filter aura [script-name]
 pnpm --filter ruff [script-name]
+pnpm --filter donut [script-name]
+pnpm --filter home [script-name]
+pnpm --filter lifeos-workspace [script-name]
+pnpm --filter solopro-monorepo [script-name]
 ```
 
 ### Development Workflow
@@ -138,10 +225,14 @@ pnpm --filter ruff [script-name]
 pnpm install
 
 # Start any application
-pnpm dev          # ACDC Digital (port 8008)
-pnpm dev:smnb     # SMNB (port 8888)
-pnpm dev:aura     # AURA (port 3333)
-pnpm dev:ruuf     # RUUF (port 5454)
+pnpm dev                                   # ACDC Digital (port 8008)
+pnpm dev:smnb                             # SMNB (port 8888)
+pnpm dev:aura                             # AURA (port 3333)
+pnpm dev:ruuf                             # RUUF (port 5454)
+pnpm --filter donut dev                   # Donut (port 8009)
+pnpm --filter home dev                    # Home (port 8787)
+pnpm --filter lifeos-workspace dev        # LifeOS (port TBD)
+pnpm --filter solopro-monorepo dev        # Soloist (renderer: 3002, website: 3004)
 ```
 
 #### Full Development Setup
@@ -149,11 +240,19 @@ pnpm dev:ruuf     # RUUF (port 5454)
 2. **Start SMNB**: `pnpm dev:smnb` (runs on port 8888)
 3. **Start AURA**: `pnpm dev:aura` (runs on port 3333)
 4. **Start RUUF**: `pnpm dev:ruuf` (runs on port 5454)
-5. **Start Convex for each** (in separate terminals):
+5. **Start Donut**: `pnpm --filter donut dev` (runs on port 8009)
+6. **Start Home**: `pnpm --filter home dev` (runs on port 8787)
+7. **Start LifeOS**: `pnpm --filter lifeos-workspace dev` (port TBD)
+8. **Start Soloist**: `pnpm --filter solopro-monorepo dev` (renderer: 3002, website: 3004)
+9. **Start Convex for each** (in separate terminals):
    - `pnpm convex` (for ACDC Digital)
    - `pnpm convex:smnb` (for SMNB)
    - `pnpm convex:aura` (for AURA)
    - `pnpm convex:ruuf` (for RUUF)
+   - `pnpm --filter donut convex` (for Donut)
+   - `pnpm --filter home convex` (for Home)
+   - `pnpm --filter lifeos-workspace convex` (for LifeOS)
+   - `pnpm --filter solopro-monorepo convex:dev` (for Soloist)
 
 ## Package Independence
 
@@ -162,7 +261,7 @@ Each package maintains its own:
 - Convex backend configuration
 - Environment variables (separate .env files)
 - Build outputs
-- Port configurations (8008 for acdc-digital, 8888 for smnb, 3333 for aura, 5454 for ruuf)
+- Port configurations (8008 for acdc-digital, 8888 for smnb, 3333 for aura, 5454 for ruuf, 8009 for donut, 8787 for home, 3002/3004 for soloist)
 
 ## Benefits of Mono-Repo Setup
 
@@ -181,6 +280,11 @@ Each package maintains its own:
 - SMNB: 8888  
 - AURA: 3333
 - RUUF: 5454
+- Donut: 8009
+- Home: 8787
+- LifeOS: TBD (in development)
+- Soloist Renderer: 3002
+- Soloist Website: 3004
 
 **Dependency issues**: 
 ```bash
@@ -205,6 +309,10 @@ Each package may require its own environment variables:
 - `smnb/smnb/.env.local` 
 - `aura/AURA/.env.local`
 - `ruuf/ruff/.env.local`
+- `donut/.env.local`
+- `home/.env.local`
+- `lifeOS/LifeOS/.env.local`
+- `soloist/.env.local`
 
 ## Migration Notes
 
