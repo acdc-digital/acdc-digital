@@ -2,7 +2,6 @@
 
 # ACDC Digital - Package Generator Script
 # Creates a new Next.js + Convex package following workspace standards
-
 set -e
 
 # Colors for output
@@ -148,6 +147,14 @@ print_status "Creating package structure..."
 mkdir -p "$PACKAGE_DIR/app"
 mkdir -p "$PACKAGE_DIR/components/ui"
 mkdir -p "$PACKAGE_DIR/lib"
+
+# Create additional project directories
+mkdir -p "$PACKAGE_DIR/.agents"
+mkdir -p "$PACKAGE_DIR/.docs"
+mkdir -p "$PACKAGE_DIR/.github"
+mkdir -p "$PACKAGE_DIR/.notes"
+mkdir -p "$PACKAGE_DIR/.tests"
+mkdir -p "$PACKAGE_DIR/.vscode"
 
 if [[ "$SKIP_CONVEX" == false ]]; then
     mkdir -p "$PACKAGE_DIR/convex"

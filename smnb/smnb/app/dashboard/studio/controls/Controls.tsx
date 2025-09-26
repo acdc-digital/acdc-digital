@@ -1,99 +1,404 @@
-// STUDIO CONTROLS
-// /Users/matthewsimon/Projects/SMNB/smnb/app/dashboard/studio/controls/Controls.tsx
+// STUDIO CONTROLS (REFACTORED)
+// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/app/dashboard/studio/controls/Controls.tsx
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSimpleLiveFeedStore } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 import { useHostAgentStore } from '@/lib/stores/host/hostAgentStore';
 import { useProducerStore } from '@/lib/stores/producer/producerStore';
 import { useApiKeyStore } from '@/lib/stores/apiKeyStore';
 import { useBroadcastSessionStore } from '@/lib/stores/broadcastSessionStore';
-import { StudioMode } from '../Studio';
+import { useQuery, useMutation, useAction } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { 
-  ChevronDown, 
-  ChevronRight,
-  CheckCircle,
-  XCircle,
-  Settings,
-  Activity,
-  Zap,
-  Users,
-  Mic,
-  Edit3,
-  Play,
-  Pause,
-  Scaling
+  Maximize2,
+  Minimize2,
+  Monitor,
+  Tablet,
+  Smartphone
 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { EnhancedRedditPost } from '@/lib/types/enhancedRedditPost';
-import { LiveFeedPost } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 
-// Helper function to convert LiveFeedPost to EnhancedRedditPost
-const convertLiveFeedPostToEnhanced = (post: LiveFeedPost): EnhancedRedditPost => {
-  return {
-    ...post,
-    fetch_timestamp: post.fetched_at || post.addedAt,
-    engagement_score: post.priority_score || 0,
-    processing_status: 'raw' as const
-  };
-};
+// Import components
+import {
+  SystemControlPanel,
+  SubredditManager,
+  SearchDomainManager,
+  ConfigPanel,
+  convertLiveFeedPostToEnhanced,
+  ControlsProps,
+  FeedbackState
+} from './_components';
 
-interface ControlSection {
-  id: string;
-  title: string;
-  icon: React.ComponentType<{ className?: string; }>;
-  status: 'active' | 'inactive' | 'info';
-}
+export default function Controls({ mode }: ControlsProps) {
+  const profileId = 'default';
 
-interface ControlsProps {
-  mode: StudioMode;
-  onModeChange: (mode: StudioMode) => void;
-}
+  const controlsResponse = useQuery(api.studioControls.getControlsState, { profileId });
+  const saveSelection = useMutation(api.studioControls.saveSubredditSelection);
+  const setSearchDomainsMutation = useMutation(api.studioControls.setSearchDomains);
+  const addCustomSubreddit = useAction(api.studioControlsActions.addCustomSubreddit);
 
-export default function Controls({ mode, onModeChange }: ControlsProps) {
   const [newSubreddit, setNewSubreddit] = useState('');
+  const [newDomain, setNewDomain] = useState('');
+  const [enabledDefaults, setEnabledDefaults] = useState<string[]>([]);
   const [customSubreddits, setCustomSubreddits] = useState<string[]>([]);
-  const [enabledDefaults, setEnabledDefaults] = useState<string[]>(['all', 'news', 'worldnews', 'technology']);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['feed-controls', 'mode-controls']));
+  const [searchDomains, setSearchDomainsState] = useState<string[]>([]);
+  const [hasCustomSelection, setHasCustomSelection] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [isSavingSelection, setIsSavingSelection] = useState(false);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
+  const [subredditFeedback, setSubredditFeedback] = useState<FeedbackState>({ status: 'idle' });
+  const [domainFeedback, setDomainFeedback] = useState<FeedbackState>({ status: 'idle' });
   const [processedPostIds, setProcessedPostIds] = useState<Set<string>>(new Set());
-  
-  // Filter states for Primary and Secondary columns (acting as one list)
-  const [activeFilter, setActiveFilter] = useState<string | null>('news');
 
-  // Subreddit mappings for each filter category
-  const filterSubreddits = {
-    news: ['news', 'worldnews', 'politics', 'economics', 'breakingnews'],
-    worldnews: ['worldnews', 'geopolitics', 'europe', 'asia', 'internationalnews'],
-    tech: ['technology', 'programming', 'startups', 'gadgets', 'artificial'],
-    sports: ['sports', 'nfl', 'nba', 'soccer', 'olympics'],
-    gaming: ['gaming', 'pcgaming', 'nintendo', 'playstation', 'xbox'],
-    funny: ['funny', 'memes', 'dankmemes', 'wholesomememes', 'jokes'],
-    learning: ['todayilearned', 'explainlikeimfive', 'askscience', 'history', 'documentaries'],
-    social: ['askreddit', 'relationships', 'advice', 'socialskills', 'confession']
-  };
+  // Responsive design state
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [viewSize, setViewSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide'>('desktop');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [manualSize, setManualSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide' | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  // Get current subreddits based on active filter
-  const getCurrentSubreddits = () => {
-    return activeFilter ? filterSubreddits[activeFilter as keyof typeof filterSubreddits] || [] : [];
-  };
+  // Size presets for different viewport sizes
+  const SIZE_PRESETS = useMemo(() => ({
+    compact: { cols: 3, hideSecondary: true, hideFilters: true, minWidth: 640 },
+    tablet: { cols: 4, hideSecondary: true, hideFilters: false, minWidth: 768 },
+    desktop: { cols: 5, hideSecondary: false, hideFilters: false, minWidth: 1024 },
+    wide: { cols: 5, hideSecondary: false, hideFilters: false, minWidth: 1280 }
+  }), []);
 
-  // Auto-select all subreddits when filter changes
+  const isLoadingControls = controlsResponse === undefined;
+  const defaultGroups = useMemo(() => controlsResponse?.defaultGroups ?? [], [controlsResponse?.defaultGroups]);
+
+  const groupMap = useMemo(() => {
+    const map = new Map<string, string[]>();
+    defaultGroups.forEach((group) => {
+      map.set(group.id, group.subreddits);
+    });
+    return map;
+  }, [defaultGroups]);
+
+  const presetRows = useMemo(() => {
+    const firstRow = defaultGroups.slice(0, 4);
+    const secondRow = defaultGroups.slice(4, 8);
+    return [firstRow, secondRow];
+  }, [defaultGroups]);
+
+  const combinedSelectedSubreddits = useMemo(() => {
+    const merged: string[] = [];
+    enabledDefaults.forEach((subreddit) => {
+      if (!merged.includes(subreddit)) {
+        merged.push(subreddit);
+      }
+    });
+    customSubreddits.forEach((subreddit) => {
+      if (!merged.includes(subreddit)) {
+        merged.push(subreddit);
+      }
+    });
+    return merged;
+  }, [enabledDefaults, customSubreddits]);
+
+  // Column 2: Fixed 3 subreddits, Column 3: Remainder (scrollable when > 4 total)
+  const primarySubreddits = combinedSelectedSubreddits.slice(0, 3);
+  const secondarySubreddits = combinedSelectedSubreddits.slice(3);
+
+  const showPresetButtons = !hasCustomSelection && defaultGroups.length > 0;
+  const defaultPreset = defaultGroups[0];
+
   useEffect(() => {
-    const currentSubreddits = getCurrentSubreddits();
-    setEnabledDefaults(currentSubreddits);
-  }, [activeFilter]);
+    if (!controlsResponse) {
+      return;
+    }
 
-  // Split subreddits between Primary (first 3, since first row is search) and Secondary (remaining)
-  const getPrimarySubreddits = () => {
-    const allSubreddits = [...enabledDefaults, ...customSubreddits];
-    return allSubreddits.slice(0, 3);
-  };
+    setEnabledDefaults(controlsResponse.enabledDefaults);
+    setCustomSubreddits(controlsResponse.customSubreddits);
+    setSearchDomainsState(controlsResponse.searchDomains);
+    setHasCustomSelection(controlsResponse.hasCustomizations);
+    setActiveFilter(controlsResponse.hasCustomizations ? null : controlsResponse.activeGroupId);
+  }, [controlsResponse]);
 
-  const getSecondarySubreddits = () => {
-    const allSubreddits = [...enabledDefaults, ...customSubreddits];
-    return allSubreddits.slice(3, 7);
-  };
+  useEffect(() => {
+    if (subredditFeedback.status === 'success' || subredditFeedback.status === 'error') {
+      const timeout = setTimeout(() => setSubredditFeedback({ status: 'idle' }), 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [subredditFeedback]);
+
+  useEffect(() => {
+    if (domainFeedback.status === 'error') {
+      const timeout = setTimeout(() => setDomainFeedback({ status: 'idle' }), 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [domainFeedback]);
+
+  // Monitor container width and auto-adjust view size
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        setContainerWidth(width);
+        
+        // Auto-adjust view size if no manual override
+        if (!manualSize) {
+          if (width < SIZE_PRESETS.compact.minWidth) {
+            setViewSize('compact');
+          } else if (width < SIZE_PRESETS.tablet.minWidth) {
+            setViewSize('tablet');
+          } else if (width < SIZE_PRESETS.wide.minWidth) {
+            setViewSize('desktop');
+          } else {
+            setViewSize('wide');
+          }
+        } else {
+          setViewSize(manualSize);
+        }
+      }
+    });
+    
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [manualSize, SIZE_PRESETS]);
+
+  const persistSelection = useCallback(
+    async (nextEnabled: string[], nextCustom: string[], hint?: { activeGroupId?: string | null; customSelection?: boolean }) => {
+      if (hint) {
+        if (hint.customSelection !== undefined) {
+          setHasCustomSelection(hint.customSelection);
+        }
+        if (hint.activeGroupId !== undefined) {
+          setActiveFilter(hint.activeGroupId);
+        }
+      }
+
+      setEnabledDefaults(nextEnabled);
+      setCustomSubreddits(nextCustom);
+      setIsSavingSelection(true);
+      setSelectionError(null);
+
+      try {
+        const result = await saveSelection({
+          profileId,
+          enabledDefaults: nextEnabled,
+          customSubreddits: nextCustom,
+        });
+        setEnabledDefaults(result.enabledDefaults);
+        setCustomSubreddits(result.customSubreddits);
+        setHasCustomSelection(result.hasCustomizations);
+        setActiveFilter(result.hasCustomizations ? null : result.activeGroupId);
+      } catch (error) {
+        console.error('🎛️ CONTROLS: Failed to update subreddit selection', error);
+        setSelectionError((error as Error).message ?? 'Failed to update subreddit selection.');
+        if (controlsResponse) {
+          setEnabledDefaults(controlsResponse.enabledDefaults);
+          setCustomSubreddits(controlsResponse.customSubreddits);
+          setHasCustomSelection(controlsResponse.hasCustomizations);
+          setActiveFilter(controlsResponse.hasCustomizations ? null : controlsResponse.activeGroupId);
+        }
+      } finally {
+        setIsSavingSelection(false);
+      }
+    },
+    [controlsResponse, profileId, saveSelection]
+  );
+
+  const handleToggleFilter = useCallback(
+    async (groupId: string) => {
+      if (!groupMap.has(groupId) || isSavingSelection) {
+        return;
+      }
+
+      const groupSubreddits = groupMap.get(groupId)!;
+      const currentlyActive = !hasCustomSelection && activeFilter === groupId;
+
+      if (currentlyActive) {
+        await persistSelection([], [], { activeGroupId: null, customSelection: true });
+      } else {
+        await persistSelection(groupSubreddits, [], { activeGroupId: groupId, customSelection: false });
+      }
+    },
+    [activeFilter, groupMap, hasCustomSelection, isSavingSelection, persistSelection]
+  );
+
+  const handleToggleDefaultSubreddit = useCallback(
+    async (subreddit: string) => {
+      if (isSavingSelection) {
+        return;
+      }
+
+      const isEnabled = enabledDefaults.includes(subreddit);
+      const nextEnabled = isEnabled
+        ? enabledDefaults.filter((value) => value !== subreddit)
+        : [...enabledDefaults, subreddit];
+
+      await persistSelection(nextEnabled, customSubreddits, { activeGroupId: null, customSelection: true });
+    },
+    [customSubreddits, enabledDefaults, isSavingSelection, persistSelection]
+  );
+
+  const handleRemoveSubreddit = useCallback(
+    async (subreddit: string) => {
+      if (isSavingSelection) {
+        return;
+      }
+
+      const nextEnabled = enabledDefaults.filter((value) => value !== subreddit);
+      const nextCustom = customSubreddits.filter((value) => value !== subreddit);
+
+      await persistSelection(nextEnabled, nextCustom, { activeGroupId: null, customSelection: true });
+    },
+    [customSubreddits, enabledDefaults, isSavingSelection, persistSelection]
+  );
+
+  const handleResetPresets = useCallback(async () => {
+    if (!defaultPreset || isSavingSelection) {
+      return;
+    }
+
+    await persistSelection(defaultPreset.subreddits, [], { activeGroupId: defaultPreset.id, customSelection: false });
+  }, [defaultPreset, isSavingSelection, persistSelection]);
+
+  // Parse and clean subreddit input - handles single or multiple subreddits
+  const parseSubredditInput = useCallback((input: string): string[] => {
+    // Split by comma, semicolon, or whitespace
+    const subreddits = input.split(/[,;\s]+/)
+      .map(sub => {
+        // Remove r/ prefix if present, trim whitespace
+        let cleaned = sub.trim().toLowerCase();
+        if (cleaned.startsWith('r/')) {
+          cleaned = cleaned.substring(2);
+        }
+        // Remove any remaining special characters except alphanumeric and underscore
+        cleaned = cleaned.replace(/[^a-z0-9_]/g, '');
+        return cleaned;
+      })
+      .filter(sub => sub.length > 0); // Remove empty strings
+    
+    return subreddits;
+  }, []);
+
+  const handleAddSubreddit = useCallback(async () => {
+    const value = newSubreddit.trim();
+    if (!value || subredditFeedback.status === 'working') {
+      return;
+    }
+
+    // Parse the input - could be single or multiple subreddits
+    const subredditsToAdd = parseSubredditInput(value);
+    
+    if (subredditsToAdd.length === 0) {
+      setSubredditFeedback({ status: 'error', message: 'Please enter valid subreddit name(s).' });
+      return;
+    }
+
+    setSubredditFeedback({ status: 'working' });
+
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+    
+    try {
+      // Process each subreddit individually
+      for (const subreddit of subredditsToAdd) {
+        try {
+          const result = await addCustomSubreddit({ profileId, subreddit });
+
+          if (result.ok) {
+            successCount++;
+            // Update state with the latest result
+            if (result.state) {
+              setEnabledDefaults(result.state.enabledDefaults);
+              setCustomSubreddits(result.state.customSubreddits);
+              setSearchDomainsState(result.state.searchDomains);
+              setHasCustomSelection(result.state.hasCustomizations);
+              setActiveFilter(result.state.hasCustomizations ? null : result.state.activeGroupId);
+            }
+          } else {
+            errorCount++;
+            errors.push(`${subreddit}: ${result.message ?? 'Failed to add'}`);
+          }
+        } catch (subError) {
+          errorCount++;
+          errors.push(`${subreddit}: ${(subError as Error).message ?? 'Unknown error'}`);
+        }
+      }
+
+      // Set appropriate feedback based on results
+      if (successCount > 0 && errorCount === 0) {
+        const message = successCount === 1
+          ? `r/${subredditsToAdd[0]} added successfully.`
+          : `${successCount} subreddits added successfully.`;
+        setSubredditFeedback({ status: 'success', message });
+      } else if (successCount > 0 && errorCount > 0) {
+        setSubredditFeedback({
+          status: 'success',
+          message: `${successCount} added, ${errorCount} failed. ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? '...' : ''}`
+        });
+      } else {
+        setSubredditFeedback({
+          status: 'error',
+          message: `Failed to add subreddit(s). ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? '...' : ''}`
+        });
+      }
+
+      // Clear input only if at least one subreddit was added successfully
+      if (successCount > 0) {
+        setNewSubreddit('');
+      }
+      
+    } catch (error) {
+      console.error('🎛️ CONTROLS: Failed to add subreddit(s)', error);
+      setSubredditFeedback({ status: 'error', message: (error as Error).message ?? 'Failed to add subreddit(s).' });
+    }
+  }, [addCustomSubreddit, newSubreddit, parseSubredditInput, profileId, subredditFeedback.status]);
+
+  const handleAddDomain = useCallback(async () => {
+    const value = newDomain.trim();
+    if (!value || domainFeedback.status === 'working') {
+      return;
+    }
+
+    if (searchDomains.some((domain) => domain.toLowerCase() === value.toLowerCase())) {
+      setDomainFeedback({ status: 'error', message: 'Domain already added.' });
+      return;
+    }
+
+    setDomainFeedback({ status: 'working' });
+
+    try {
+      const result = await setSearchDomainsMutation({
+        profileId,
+        domains: [...searchDomains, value],
+      });
+      setSearchDomainsState(result.searchDomains);
+      setNewDomain('');
+      setDomainFeedback({ status: 'idle' });
+    } catch (error) {
+      console.error('🎛️ CONTROLS: Failed to update search domains', error);
+      setDomainFeedback({ status: 'error', message: (error as Error).message ?? 'Failed to update search domains.' });
+    }
+  }, [domainFeedback.status, newDomain, profileId, searchDomains, setSearchDomainsMutation]);
+
+  const handleRemoveDomain = useCallback(async (domain: string) => {
+    if (domainFeedback.status === 'working') {
+      return;
+    }
+
+    setDomainFeedback({ status: 'working' });
+
+    try {
+      const result = await setSearchDomainsMutation({
+        profileId,
+        domains: searchDomains.filter((value) => value !== domain),
+      });
+      setSearchDomainsState(result.searchDomains);
+      setDomainFeedback({ status: 'idle' });
+    } catch (error) {
+      console.error('🎛️ CONTROLS: Failed to remove search domain', error);
+      setDomainFeedback({ status: 'error', message: (error as Error).message ?? 'Failed to update search domains.' });
+    }
+  }, [domainFeedback.status, profileId, searchDomains, setSearchDomainsMutation]);
   
   const { 
     posts,
@@ -112,8 +417,7 @@ export default function Controls({ mode, onModeChange }: ControlsProps) {
 
   const {
     startBroadcastSession,
-    endBroadcastSession,
-    currentSession
+    endBroadcastSession
   } = useBroadcastSessionStore();
 
   const {
@@ -143,8 +447,6 @@ export default function Controls({ mode, onModeChange }: ControlsProps) {
     }
   };
 
-  const allDefaultSubreddits = ['all', 'news', 'worldnews', 'technology', 'gaming', 'funny', 'todayilearned', 'askreddit'];
-
   // Combined broadcast function that starts/stops the host agent and producer
   const handleBroadcastToggle = async () => {
     try {
@@ -165,111 +467,6 @@ export default function Controls({ mode, onModeChange }: ControlsProps) {
       }
     } catch (error) {
       console.error('🎙️ CONTROLS: Error toggling broadcast:', error);
-    }
-  };
-
-  const controlSections: ControlSection[] = [
-    {
-      id: 'mode-controls',
-      title: 'Studio Mode',
-      icon: Settings,
-      status: 'info'
-    },
-    {
-      id: 'feed-controls',
-      title: 'Live Feed Controls',
-      icon: Activity,
-      status: isLive ? 'active' : 'inactive'
-    },
-    {
-      id: 'agent-controls',
-      title: 'Host Configuration',
-      icon: Mic,
-      status: isHostActive ? 'active' : 'inactive'
-    },
-    {
-      id: 'subreddit-manager',
-      title: 'Subreddit Manager',
-      icon: Users,
-      status: 'info'
-    },
-    {
-      id: 'system-stats',
-      title: 'System Statistics',
-      icon: Zap,
-      status: 'info'
-    }
-  ];
-
-  const updateSelectedSubreddits = useCallback((enabledDefaults: string[], customSubreddits: string[]) => {
-    const allSubreddits = [...enabledDefaults, ...customSubreddits];
-    setSelectedSubreddits(allSubreddits);
-  }, [setSelectedSubreddits]);
-
-  const toggleSection = useCallback((sectionId: string) => {
-    const newExpanded = new Set(expandedSections);
-    if (newExpanded.has(sectionId)) {
-      newExpanded.delete(sectionId);
-    } else {
-      newExpanded.add(sectionId);
-    }
-    setExpandedSections(newExpanded);
-  }, [expandedSections]);
-
-  // Toggle filter - deactivate if already active, otherwise activate
-  const handleToggleFilter = (filter: string) => {
-    if (activeFilter === filter) {
-      // Deactivate current filter - clear all selections
-      setActiveFilter(null);
-      setEnabledDefaults([]);
-    } else {
-      // Activate new filter
-      setActiveFilter(filter);
-    }
-  };
-
-  const handleRemoveSubreddit = (subreddit: string) => {
-    // Remove from enabledDefaults
-    const updatedEnabledDefaults = enabledDefaults.filter(s => s !== subreddit);
-    setEnabledDefaults(updatedEnabledDefaults);
-    
-    // Also remove from customSubreddits if it exists there
-    const updatedCustom = customSubreddits.filter(s => s !== subreddit);
-    setCustomSubreddits(updatedCustom);
-    
-    // Update the selected subreddits
-    updateSelectedSubreddits(updatedEnabledDefaults, updatedCustom);
-    
-    console.log(`🗑️ Removed subreddit: ${subreddit}`);
-  };
-
-  const handleToggleDefaultSubreddit = (subreddit: string) => {
-    const updatedEnabledDefaults = enabledDefaults.includes(subreddit)
-      ? enabledDefaults.filter(sub => sub !== subreddit)
-      : [...enabledDefaults, subreddit];
-    
-    setEnabledDefaults(updatedEnabledDefaults);
-    updateSelectedSubreddits(updatedEnabledDefaults, customSubreddits);
-  };
-
-  const handleAddSubreddit = () => {
-    if (newSubreddit.trim() && !customSubreddits.includes(newSubreddit.trim().toLowerCase())) {
-      const subredditToAdd = newSubreddit.trim().toLowerCase();
-      const updatedCustom = [...customSubreddits, subredditToAdd];
-      setCustomSubreddits(updatedCustom);
-      updateSelectedSubreddits(enabledDefaults, updatedCustom);
-      setNewSubreddit('');
-    }
-  };
-
-  const getStatusIcon = (status: ControlSection['status']) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle className="w-3 h-3 text-green-400" />;
-      case 'inactive':
-        return <XCircle className="w-3 h-3 text-gray-400" />;
-      default:
-        return <Settings className="w-3 h-3 text-blue-400" />;
     }
   };
 
@@ -324,360 +521,177 @@ export default function Controls({ mode, onModeChange }: ControlsProps) {
   }, [isHostActive, setProcessedPostIds]);
 
   useEffect(() => {
-    updateSelectedSubreddits(enabledDefaults, customSubreddits);
-  }, [enabledDefaults, customSubreddits, updateSelectedSubreddits]);
+    if (!controlsResponse) {
+      return;
+    }
+
+    const merged = [...enabledDefaults, ...customSubreddits];
+    setSelectedSubreddits(merged);
+  }, [controlsResponse, customSubreddits, enabledDefaults, setSelectedSubreddits]);
+
+  // Responsive helper functions
+  const getCurrentPreset = () => {
+    return SIZE_PRESETS[manualSize || viewSize] || SIZE_PRESETS.desktop;
+  };
+
+  const preset = getCurrentPreset();
+
+  // Dynamic grid columns based on preset
+  const getGridCols = () => {
+    const gridCols = {
+      3: 'grid-cols-[minmax(0,0.5fr)_1fr_1fr]',
+      4: 'grid-cols-[minmax(0,0.5fr)_0.7fr_0.6fr_1fr]',
+      5: 'grid-cols-[minmax(0,0.5fr)_0.7fr_0.6fr_1fr_0.6fr]'
+    } as const;
+    return gridCols[preset.cols as keyof typeof gridCols] || gridCols[5];
+  };
+
+  // Render collapsed view
+  if (isCollapsed) {
+    return (
+      <div className="bg-card border border-border rounded-lg shadow-sm">
+        <div className="flex items-center justify-between px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-light text-muted-foreground">Control Panel</span>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
+              <span>Feed: {posts.length} | Queue: {hostStats.queueLength}</span>
+            </div>
+          </div>
+          <button
+            title="Expand Panel"
+            onClick={() => setIsCollapsed(false)}
+            className="p-1 hover:bg-[#2d2d2d] rounded transition-colors text-muted-foreground/70 hover:text-muted-foreground"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-card border border-border rounded-t-xs rounded-b-lg shadow-sm flex flex-col min-h-0">
-      {/* Compact Header */}
+    <div ref={containerRef} className="bg-card border border-border rounded-t-xs rounded-b-lg shadow-sm">
+      {/* Header with responsive controls */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
           <span className="text-sm font-light text-muted-foreground font-sans">Control Panel</span>
+          <div className="text-xs text-muted-foreground/50">
+            {containerWidth}px • {viewSize}
+          </div>
         </div>
-        <button
-          title="Scaling"
-          className="p-1 hover:bg-[#2d2d2d] rounded transition-colors text-muted-foreground/70 hover:text-muted-foreground cursor-pointer"
-        >
-          <Scaling className="w-4 h-4" />
-        </button>
+        
+        <div className="flex items-center gap-1">
+          {/* Size preset buttons */}
+          <button
+            title="Compact View"
+            onClick={() => setManualSize(manualSize === 'compact' ? null : 'compact')}
+            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
+              (manualSize || viewSize) === 'compact' ? 'text-blue-400' : 'text-muted-foreground/70'
+            }`}
+          >
+            <Smartphone className="w-3 h-3" />
+          </button>
+          <button
+            title="Tablet View"
+            onClick={() => setManualSize(manualSize === 'tablet' ? null : 'tablet')}
+            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
+              (manualSize || viewSize) === 'tablet' ? 'text-blue-400' : 'text-muted-foreground/70'
+            }`}
+          >
+            <Tablet className="w-3 h-3" />
+          </button>
+          <button
+            title="Desktop View"
+            onClick={() => setManualSize(manualSize === 'desktop' ? null : 'desktop')}
+            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
+              (manualSize || viewSize) === 'desktop' ? 'text-blue-400' : 'text-muted-foreground/70'
+            }`}
+          >
+            <Monitor className="w-3 h-3" />
+          </button>
+          <div className="w-px h-4 bg-border mx-1" />
+          <button
+            title="Minimize"
+            onClick={() => setIsCollapsed(true)}
+            className="p-1 hover:bg-[#2d2d2d] rounded transition-colors text-muted-foreground/70 hover:text-muted-foreground"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Horizontal Table Layout - Custom Column Widths */}
-      <div className="p-3">
-        <div className="grid grid-cols-[minmax(0,0.5fr)_0.7fr_0.6fr_1fr_0.6fr] gap-3 h-full">
-          
-          {/* Column 1: Master Live Control */}
-          <div className="space-y-2">
-            <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">System</div>
-            <div 
-              className={`bg-[#1a1a1a] rounded-sm px-1 py-3 border border-border/20 text-center space-y-2 ${
-                !(isLive && isHostActive) ? 'cursor-pointer hover:bg-[#1f1f1f] transition-colors' : ''
-              }`}
-              onClick={() => {
-                // Only handle click if not active (big button to start)
-                if (!(isLive && isHostActive)) {
-                  if (!isLive) setIsLive(true);
-                  if (!isHostActive) handleBroadcastToggle();
-                }
-              }}
-            >
-              <div className={`w-4 h-4 rounded-full mx-auto ${(isLive && isHostActive) ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
-              <div className="space-y-1">
-                <div className="text-xs text-muted-foreground/50">Feed: {posts.length}</div>
-                <div className="text-xs text-muted-foreground/50">Queue: {hostStats.queueLength}</div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent container click
-                  if (isLive && isHostActive) {
-                    // Stop when active
-                    setIsLive(false);
-                    handleBroadcastToggle();
-                  } else {
-                    // Start when inactive
-                    if (!isLive) setIsLive(true);
-                    if (!isHostActive) handleBroadcastToggle();
-                  }
-                }}
-                className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer relative ${
-                  (isLive && isHostActive)
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
-                }`}
-              >
-                {(isLive && isHostActive) ? (
-                  <>
-                    <Pause className="w-3 h-3 absolute left-1 top-1/2 transform -translate-y-1/2" />
-                    <span className="text-center w-full pl-4">Stop</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3 h-3 absolute left-1 top-1/2 transform -translate-y-1/2" />
-                    <span className="text-center w-full pl-4">Live</span>
-                  </>
-                )}
-              </button>
-            </div>
-            {/* Studio Mode - Host Only */}
-            <div className="flex gap-1">
-              <button
-                title="Host Mode - Producer statistics and story preview"
-                className="flex-1 px-1 py-1 text-xs rounded-sm transition-colors bg-blue-500/20 text-blue-400"
-                disabled
-              >
-                <Mic className="w-3 h-3 mx-auto" />
-              </button>
-            </div>
-          </div>
+      {/* Responsive Grid Layout */}
+      <div className="p-3 overflow-x-auto">
+        <div className={`grid ${getGridCols()} gap-3 min-w-fit`}>
+          {/* Column 1: System Control Panel */}
+          <SystemControlPanel
+            isLive={isLive}
+            setIsLive={setIsLive}
+            postsCount={posts.length}
+            isHostActive={isHostActive}
+            hostStats={hostStats}
+            handleBroadcastToggle={handleBroadcastToggle}
+          />
 
-          {/* Column 2: Add Subreddits */}
-          <div className="space-y-2 min-w-0">
-            <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">Add Subreddits</div>
-            <div className="rounded-sm px-0 space-y-1">
-              {[0, 1, 2, 3].map((index) => {
-                // First row (index 0) is search input
-                if (index === 0) {
-                  return (
-                    <div key="add-input" className="flex gap-1">
-                      <input
-                        type="text"
-                        placeholder="add"
-                        className="flex-1 px-1 py-1 text-xs bg-[#1a1a1a] border border-border/20 rounded-sm text-muted-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
-                      />
-                      <button
-                        className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
-                      >
-                        +
-                      </button>
-                    </div>
-                  );
-                }
-                
-                // Remaining rows (index 1, 2, 3) show subreddits (offset by -1)
-                const subreddit = getPrimarySubreddits()[index - 1];
-                return subreddit ? (
-                  enabledDefaults.includes(subreddit) ? (
-                    <div
-                      key={subreddit}
-                      className="w-full px-2 py-1.25 text-xs rounded-sm bg-green-500/20 text-green-400 flex items-center gap-2 group relative"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-green-400" />
-                      <span className="truncate">{subreddit}</span>
-                      <button
-                        onClick={() => handleRemoveSubreddit(subreddit)}
-                        className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 flex items-center justify-center text-red-400 hover:text-red-300 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      key={subreddit}
-                      className="w-full px-2 py-1.25 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-2 bg-[#0d0d0d] text-muted-foreground/50 hover:text-muted-foreground/70 group relative"
-                      onClick={() => handleToggleDefaultSubreddit(subreddit)}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-gray-400" />
-                      <span className="truncate">{subreddit}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveSubreddit(subreddit);
-                        }}
-                        className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 flex items-center justify-center text-red-400 hover:text-red-300 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )
-                ) : (
-                  <div
-                    key={`empty-${index}`}
-                    className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
-                  >
-                    subreddit...
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* 4 Filter Badges at bottom of Primary column */}
-            <div className="flex gap-1">
-              {['news', 'worldnews', 'tech', 'sports'].map((filter, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleToggleFilter(filter)}
-                  className={`flex-1 px-1 py-1 text-xs rounded-sm transition-colors cursor-pointer ${
-                    activeFilter === filter
-                      ? 'bg-red-500/20 text-red-400'
-                      : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Columns 2-3: Subreddit Manager */}
+          <SubredditManager
+            enabledDefaults={enabledDefaults}
+            customSubreddits={customSubreddits}
+            primarySubreddits={primarySubreddits}
+            secondarySubreddits={secondarySubreddits}
+            newSubreddit={newSubreddit}
+            setNewSubreddit={setNewSubreddit}
+            subredditFeedback={subredditFeedback}
+            selectionError={selectionError}
+            isLoadingControls={isLoadingControls}
+            isSavingSelection={isSavingSelection}
+            hasCustomSelection={hasCustomSelection}
+            activeFilter={activeFilter}
+            showPresetButtons={showPresetButtons && !preset.hideFilters}
+            defaultGroups={defaultGroups}
+            presetRows={presetRows}
+            defaultPreset={defaultPreset}
+            handleAddSubreddit={handleAddSubreddit}
+            handleToggleDefaultSubreddit={handleToggleDefaultSubreddit}
+            handleRemoveSubreddit={handleRemoveSubreddit}
+            handleToggleFilter={handleToggleFilter}
+            handleResetPresets={handleResetPresets}
+          />
 
-          {/* Column 3: Secondary Sources (no header) */}
-          <div className="space-y-2">
-            <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">&nbsp;</div>
-            <div className="rounded-sm px-0 space-y-1">
-              {[0, 1, 2, 3].map((index) => {
-                const subreddit = getSecondarySubreddits()[index];
-                return subreddit ? (
-                  enabledDefaults.includes(subreddit) ? (
-                    <div
-                      key={subreddit}
-                      className="w-full px-2 py-1 text-xs rounded-sm bg-green-500/20 text-green-400 flex items-center gap-2 group relative"
-                    >
-                      <div className="w-2 h-2 rounded-full bg-green-400" />
-                      <span className="truncate">{subreddit}</span>
-                      <button
-                        onClick={() => handleRemoveSubreddit(subreddit)}
-                        className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 flex items-center justify-center text-red-400 hover:text-red-300 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      key={subreddit}
-                      className="w-full px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-2 bg-[#0d0d0d] text-muted-foreground/50 hover:text-muted-foreground/70 group relative"
-                      onClick={() => handleToggleDefaultSubreddit(subreddit)}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-gray-400" />
-                      <span className="truncate">{subreddit}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveSubreddit(subreddit);
-                        }}
-                        className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity w-4 h-4 flex items-center justify-center text-red-400 hover:text-red-300 text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )
-                ) : (
-                  <div
-                    key={`empty-${index}`}
-                    className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
-                  >
-                    subreddit...
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* 4 Filter Badges at bottom of Secondary column */}
-            <div className="flex gap-1">
-              {['gaming', 'funny', 'learning', 'social'].map((filter, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleToggleFilter(filter)}
-                  className={`flex-1 px-1 py-1 text-xs rounded-sm transition-colors cursor-pointer ${
-                    activeFilter === filter
-                      ? 'bg-red-500/20 text-red-400'
-                      : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Column 4: Search Domain Manager - Hide in compact mode */}
+          {preset.cols >= 4 && (
+            <SearchDomainManager
+              searchDomains={searchDomains}
+              newDomain={newDomain}
+              setNewDomain={setNewDomain}
+              domainFeedback={domainFeedback}
+              handleAddDomain={handleAddDomain}
+              handleRemoveDomain={handleRemoveDomain}
+              showConfigInline={preset.cols === 4}
+              configData={preset.cols === 4 ? {
+                enabledDefaultsCount: enabledDefaults.length,
+                customSubredditsCount: customSubreddits.length,
+                hostStats,
+                useUserApiKey,
+                setUseUserApiKey,
+                hasValidApiKey
+              } : undefined}
+            />
+          )}
 
-          {/* Column 4: Search */}
-          <div className="space-y-2">
-            <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">Search</div>
-            <div className="space-y-1">
-              {/* Search Input - matching Custom input */}
-              <div className="flex gap-1">
-                <input
-                  type="text"
-                  placeholder="search"
-                  className="flex-1 px-1 py-1 text-xs bg-[#1a1a1a] border border-border/20 rounded-sm text-muted-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
-                />
-                <button
-                  className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
-                >
-                  +
-                </button>
-              </div>
-              
-              {/* Search Terms Container - Empty badges for custom searches */}
-              <div className="space-y-1">
-                {/* Empty placeholder badges - will be populated with custom searches */}
-                <div className="px-2 py-1 mr-4.5 text-xs rounded-sm bg-[#1a1a1a] text-muted-foreground/30 italic border border-border/20">
-                  Custom...
-                </div>
-                <div className="px-2 py-1 mr-4.5 text-xs rounded-sm bg-[#1a1a1a] text-muted-foreground/30 italic border border-border/20">
-                  Custom...
-                </div>
-                <div className="px-2 py-1 mr-4.5 text-xs rounded-sm bg-[#1a1a1a] text-muted-foreground/30 italic border border-border/20">
-                  Custom...
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Column 5: Config */}
-          <div className="space-y-1">
-            <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">Config</div>
-            <div className="space-y-2">
-              {/* Custom subreddits list */}
-              <div className="space-y-1 max-h-16 overflow-y-auto">
-                {customSubreddits.map((subreddit) => (
-                  <button
-                    key={subreddit}
-                    onClick={() => setCustomSubreddits(customSubreddits.filter(s => s !== subreddit))}
-                    className="w-full px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-2 bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                    <span className="truncate flex-1">{subreddit}</span>
-                    <span className="text-yellow-300">×</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Stats Panel */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground/70">Sources</span>
-                  <span className="text-xs font-mono text-muted-foreground">{enabledDefaults.length + customSubreddits.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground/70">Stories</span>
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {hostStats.totalNarrations}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground/70">Mode</span>
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {mode.toUpperCase()}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground/70">API</span>
-                  <div className="flex items-center gap-1">
-                    <Switch
-                      checked={useUserApiKey}
-                      onCheckedChange={setUseUserApiKey}
-                      className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-600"
-                      style={{ transform: 'scale(0.7)' }}
-                    />
-                    <span className={`text-xs font-mono ${
-                      useUserApiKey 
-                        ? (hasValidApiKey() ? 'text-green-400' : 'text-red-400')
-                        : 'text-muted-foreground'
-                    }`}>
-                      {useUserApiKey 
-                        ? (hasValidApiKey() ? 'USER' : 'ERR')
-                        : 'ENV'
-                      }
-                    </span>
-                  </div>
-                </div>
-
-                {/* Status Indicators */}
-                <div className="border-t border-border/20 pt-2 mt-2 space-y-1">
-                  <div className="flex items-center gap-1 text-xs font-mono">
-                    <span className="text-muted-foreground/70">Col:</span>
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <span className="text-muted-foreground/50">|</span>
-                    <span className="text-muted-foreground/70">Content:</span>
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <span className="text-muted-foreground/50">|</span>
-                    <span className="text-muted-foreground/70">Status:</span>
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          {/* Column 5: Config Panel - Only in full desktop */}
+          {preset.cols === 5 && (
+            <ConfigPanel
+              enabledDefaultsCount={enabledDefaults.length}
+              customSubredditsCount={customSubreddits.length}
+              hostStats={hostStats}
+              mode={mode}
+              useUserApiKey={useUserApiKey}
+              setUseUserApiKey={setUseUserApiKey}
+              hasValidApiKey={hasValidApiKey}
+            />
+          )}
         </div>
       </div>
     </div>

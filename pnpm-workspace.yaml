@@ -3,6 +3,7 @@ packages:
   - "smnb/smnb"
   - "aura/AURA"
   - "ruuf/ruff"
+  - "home"
 
 # TypeScript workspace configuration for better type resolution
 packageExtensions:

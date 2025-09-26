@@ -79,6 +79,20 @@ export default defineSchema({
       filterFields: ["subreddit", "source", "over_18", "batchId"]
     }),
 
+  studio_controls: defineTable({
+    profile_id: v.string(),
+    active_group_id: v.optional(v.string()),
+    enabled_defaults: v.array(v.string()),
+    custom_subreddits: v.array(v.string()),
+    search_domains: v.array(v.string()),
+    has_customizations: v.boolean(),
+    default_groups_version: v.number(),
+    created_at: v.number(),
+    updated_at: v.number(),
+    last_synced_at: v.optional(v.number()),
+  })
+    .index("by_profile_id", ["profile_id"]),
+
   editor_documents: defineTable({
     story_id: v.string(), // References the story ID from story_history or live_feed_posts
     blog_content: v.optional(v.string()), // Generated blog post content

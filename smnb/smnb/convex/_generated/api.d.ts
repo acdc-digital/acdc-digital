@@ -12,6 +12,7 @@ import type * as apiHealth from "../apiHealth.js";
 import type * as clearDatabase from "../clearDatabase.js";
 import type * as debug from "../debug.js";
 import type * as editorDocuments from "../editorDocuments.js";
+import type * as enhancedTrends from "../enhancedTrends.js";
 import type * as redditFeed from "../redditFeed.js";
 import type * as redditPosts from "../redditPosts.js";
 import type * as stats_aggregation from "../stats/aggregation.js";
@@ -19,9 +20,13 @@ import type * as stats_index from "../stats/index.js";
 import type * as stats_mutations from "../stats/mutations.js";
 import type * as stats_queries from "../stats/queries.js";
 import type * as stats_scheduled from "../stats/scheduled.js";
+import type * as stats_subredditStats from "../stats/subredditStats.js";
 import type * as stats_test from "../stats/test.js";
 import type * as storyHistory from "../storyHistory.js";
+import type * as studioControls from "../studioControls.js";
+import type * as studioControlsActions from "../studioControlsActions.js";
 import type * as tokenUsage from "../tokenUsage.js";
+import type * as trends from "../trends.js";
 import type * as userAnalytics from "../userAnalytics.js";
 
 import type {
@@ -43,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   clearDatabase: typeof clearDatabase;
   debug: typeof debug;
   editorDocuments: typeof editorDocuments;
+  enhancedTrends: typeof enhancedTrends;
   redditFeed: typeof redditFeed;
   redditPosts: typeof redditPosts;
   "stats/aggregation": typeof stats_aggregation;
@@ -50,9 +56,13 @@ declare const fullApi: ApiFromModules<{
   "stats/mutations": typeof stats_mutations;
   "stats/queries": typeof stats_queries;
   "stats/scheduled": typeof stats_scheduled;
+  "stats/subredditStats": typeof stats_subredditStats;
   "stats/test": typeof stats_test;
   storyHistory: typeof storyHistory;
+  studioControls: typeof studioControls;
+  studioControlsActions: typeof studioControlsActions;
   tokenUsage: typeof tokenUsage;
+  trends: typeof trends;
   userAnalytics: typeof userAnalytics;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
