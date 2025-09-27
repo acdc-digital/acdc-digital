@@ -41,7 +41,6 @@ export const addStory = mutation({
   },
   handler: async (ctx, args) => {
     const storyId = await ctx.db.insert("story_history", args);
-    console.log(`📚 Added story to history: ${args.story_id}`);
     return storyId;
   },
 });
@@ -78,7 +77,6 @@ export const getRecentStories = query({
       .order("desc")
       .take(args.limit || 100);
     
-    console.log(`📚 Retrieved ${stories.length} stories from last ${hoursAgo} hours`);
     return stories;
   },
 });

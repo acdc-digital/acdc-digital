@@ -16,6 +16,7 @@ import Studio from "./studio/Studio";
 import StatsPage from "./stats/Stats";
 import Heatmap from "./studio/heatmap/Heatmap";
 import Generator from "./studio/generator/Generator";
+import Wiki from "./studio/wiki/Wiki";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -54,6 +55,8 @@ function DashboardContent({}: DashboardLayoutProps) {
             <Heatmap />
           ) : activePanel === "network" ? (
             <Generator />
+          ) : activePanel === "docs" ? (
+            <Wiki />
           ) : (
             <>
               {/* Default Dashboard Content */}
