@@ -244,8 +244,6 @@ export const logSystemEvent = mutation({
       timestamp: now,
       created_at: now
     });
-    
-    console.log(`🔔 System Event: [${args.severity}] ${args.component}: ${args.message}`);
   }
 });
 
@@ -298,7 +296,6 @@ export const updateRateLimit = mutation({
       });
     }
     
-    console.log(`📈 Rate limit updated for ${args.service}: ${args.calls_remaining} remaining`);
   }
 });
 
@@ -370,6 +367,5 @@ export const trackEngagement = mutation({
       });
     }
     
-    console.log(`👥 Engagement tracked: ${args.event_type} for post ${args.postId}`);
   }
 });

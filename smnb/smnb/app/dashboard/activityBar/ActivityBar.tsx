@@ -10,12 +10,13 @@ import {
   Haze,
   BarChart3,
   Network,
+  NotebookPen,
   Settings,
   User,
   Archive
 } from "lucide-react";
 
-export type PanelType = "archive" | "home" | "stats" | "heatmap" | "network" | "settings" | "account";
+export type PanelType = "archive" | "home" | "stats" | "heatmap" | "network" | "docs" | "settings" | "account";
 
 interface ActivityBarProps {
   activePanel?: PanelType;
@@ -23,27 +24,24 @@ interface ActivityBarProps {
 }
 
 export default function ActivityBar({ activePanel = "home", onPanelChange }: ActivityBarProps) {
-  console.log('🔍 ActivityBar: Rendering with activePanel:', activePanel, 'onPanelChange:', !!onPanelChange);
-  
   const activityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
     { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },
     { id: "stats", icon: BarChart3, label: "Stats" },
     { id: "heatmap", icon: Haze, label: "Heatmap" },
     { id: "network", icon: Network, label: "Network" },
+    { id: "docs", icon: NotebookPen, label: "Docs" },
     { id: "settings", icon: Settings, label: "Settings" },
     { id: "account", icon: User, label: "Account" },
   ];
 
   const handleActivityClick = (id: PanelType) => {
-    console.log('🖱️ ActivityBar: Button clicked for panel', id);
     onPanelChange?.(id);
   };
 
   const renderActivityButton = (item: { id: PanelType; icon: LucideIcon; label: string }) => {
     const Icon = item.icon;
     const isActive = activePanel === item.id;
-    console.log('🎨 ActivityBar: Rendering button for', item.id, 'isActive:', isActive);
     
     // Special styling for user account button
     if (item.id === "account") {
@@ -53,10 +51,8 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('🖱️ Button DIRECT click for', item.id);
             handleActivityClick(item.id);
           }}
-          onMouseDown={() => console.log('🖱️ Button mouseDown for', item.id)}
           className={`
             w-full h-11 hover:bg-[#2d2d2d] flex items-center justify-center cursor-pointer
             ${isActive 
@@ -101,8 +97,6 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
     );
   };
 
-  console.log('🏗️ ActivityBar: About to render', activityItems.length, 'activity items');
-  
   return (
     <aside className="w-12 bg-[#181818] border-r border-[#2d2d2d] flex flex-col">
       {/* Activity Icons */}

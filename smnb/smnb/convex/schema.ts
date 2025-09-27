@@ -882,4 +882,232 @@ export default defineSchema({
     .index("by_content_type", ["content_type", "timestamp"])
     .index("by_session", ["session_id"])
     .index("by_user_content", ["user_id", "content_id"]),
+
+  // 📊 KEYWORD TRENDS SYSTEM - AI-powered keyword extraction and trend analysis
+  
+  // Keyword trends table with comprehensive tracking
+  keyword_trends: defineTable({
+    // Core keyword data
+    keyword: v.string(), // The actual keyword or phrase
+    normalized_keyword: v.string(), // Lowercase, trimmed version for deduplication
+    keyword_type: v.union(
+      v.literal("phrase"), // Multi-word phrase
+      v.literal("entity"), // Named entity (person, org, location)
+      v.literal("topic"), // Single topic word
+      v.literal("subreddit"), // Subreddit name
+      v.literal("hashtag") // Hashtag or trending term
+    ),
+    
+    // Frequency & performance metrics
+    total_occurrences: v.number(), // Total times seen across all posts
+    unique_posts_count: v.number(), // Number of unique posts containing this keyword
+    first_seen_at: v.number(), // When keyword was first detected
+    last_seen_at: v.number(), // Most recent occurrence
+    peak_occurrence_time: v.optional(v.number()), // When keyword was most popular
+    
+    // Quality & engagement scores
+    avg_post_score: v.number(), // Average Reddit score of posts containing this
+    avg_comment_count: v.number(), // Average comments on posts with this keyword
+    avg_upvote_ratio: v.number(), // Average upvote ratio
+    total_engagement_score: v.number(), // Combined engagement metric
+    viral_coefficient: v.number(), // Likelihood of going viral (0-1)
+    
+    // Categorization
+    primary_category: v.string(), // Main category (mental-health, productivity, etc.)
+    secondary_categories: v.optional(v.array(v.string())), // Additional categories
+    related_keywords: v.optional(v.array(v.string())), // Related/co-occurring keywords
+    parent_keyword: v.optional(v.string()), // For hierarchical relationships
+    
+    // Sentiment analysis
+    sentiment_scores: v.object({
+      positive: v.number(),
+      neutral: v.number(),
+      negative: v.number(),
+      mixed: v.number()
+    }),
+    dominant_sentiment: v.string(),
+    sentiment_confidence: v.number(), // 0-1 confidence score
+    
+    // Source tracking
+    top_subreddits: v.array(v.object({
+      subreddit: v.string(),
+      count: v.number(),
+      avg_score: v.number()
+    })),
+    source_post_ids: v.array(v.string()), // Sample of post IDs for reference
+    
+    // Trend analysis
+    trend_status: v.union(
+      v.literal("emerging"), // Just starting to appear
+      v.literal("rising"), // Gaining momentum
+      v.literal("peak"), // At peak popularity
+      v.literal("declining"), // Losing momentum
+      v.literal("stable"), // Consistent presence
+      v.literal("dormant") // Was popular but inactive
+    ),
+    trend_velocity: v.number(), // Rate of change in popularity
+    trend_acceleration: v.number(), // Rate of change of velocity
+    
+    // Performance tier (matching your heatmap)
+    performance_tier: v.union(
+      v.literal("elite"),
+      v.literal("excel"),
+      v.literal("veryGood"),
+      v.literal("good"),
+      v.literal("avgPlus"),
+      v.literal("avg"),
+      v.literal("avgMinus"),
+      v.literal("poor"),
+      v.literal("veryPoor"),
+      v.literal("critical")
+    ),
+    
+    // LLM enrichment (if processed by AI)
+    llm_processed: v.boolean(),
+    llm_summary: v.optional(v.string()), // AI-generated context about this keyword
+    llm_suggested_content: v.optional(v.string()), // Content ideas for this keyword
+    llm_target_audience: v.optional(v.array(v.string())), // Who's interested in this
+    
+    // Time-based patterns
+    hourly_distribution: v.optional(v.array(v.number())), // 24-hour activity pattern
+    weekly_distribution: v.optional(v.array(v.number())), // 7-day pattern
+    seasonal_relevance: v.optional(v.string()), // If keyword is seasonal
+    
+    // Metadata
+    created_at: v.number(),
+    updated_at: v.number(),
+    last_processed_at: v.number(), // When analysis was last run
+    processing_version: v.number(), // Track algorithm version
+  })
+    .index("by_keyword", ["normalized_keyword"])
+    .index("by_performance", ["performance_tier", "total_engagement_score"])
+    .index("by_trend", ["trend_status", "trend_velocity"])
+    .index("by_category", ["primary_category", "total_engagement_score"])
+    .index("by_recency", ["last_seen_at"])
+    .index("by_engagement", ["total_engagement_score"])
+    .searchIndex("search_keywords", {
+      searchField: "keyword",
+      filterFields: ["primary_category", "trend_status", "performance_tier"]
+    }),
+
+  // Keyword extraction sessions (track processing runs)
+  keyword_extraction_runs: defineTable({
+    run_id: v.string(), // Unique run identifier
+    started_at: v.number(),
+    completed_at: v.optional(v.number()),
+    
+    // Processing stats
+    posts_processed: v.number(),
+    keywords_extracted: v.number(),
+    new_keywords_found: v.number(),
+    keywords_updated: v.number(),
+    
+    // Configuration used
+    extraction_config: v.object({
+      min_keyword_length: v.number(),
+      max_keyword_length: v.number(),
+      min_occurrence_threshold: v.number(),
+      time_window_hours: v.number(),
+      use_llm_enrichment: v.boolean()
+    }),
+    
+    // Performance metrics
+    processing_duration_ms: v.optional(v.number()),
+    errors_encountered: v.optional(v.array(v.string())),
+    
+    status: v.union(
+      v.literal("running"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("partial")
+    ),
+    
+    created_at: v.number(),
+    updated_at: v.number()
+  })
+    .index("by_status", ["status", "created_at"])
+    .index("by_created", ["created_at"]),
+
+  // Model usage tracking for cost analysis
+  model_usage_logs: defineTable({
+    model: v.string(), // e.g., "claude-3-haiku", "gpt-4", etc.
+    inputTokens: v.number(),
+    outputTokens: v.number(),
+    cost: v.number(), // in USD
+    purpose: v.string(), // e.g., "reddit_post_generation", "keyword_enrichment"
+    metadata: v.optional(v.any()),
+    timestamp: v.number()
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_model", ["model", "timestamp"])
+    .index("by_purpose", ["purpose", "timestamp"]),
+
+  // Generated Reddit posts tracking
+  generated_posts: defineTable({
+    // Post Content
+    title: v.string(),
+    content: v.string(),
+    author: v.string(),
+    
+    // Reddit Context
+    target_subreddit: v.string(),
+    estimated_score: v.number(),
+    estimated_comments: v.number(),
+    
+    // Generation Context
+    source_keywords: v.array(v.string()),
+    column_context: v.string(), // "Content Ideas", "Research Topics", etc.
+    generation_prompt_hash: v.optional(v.string()), // To track prompt variations
+    
+    // Performance Metrics Used
+    avg_synergy_score: v.optional(v.number()),
+    avg_relevance_coefficient: v.optional(v.number()),
+    avg_engagement_potential: v.optional(v.number()),
+    avg_freshness_coefficient: v.optional(v.number()),
+    avg_novelty_index: v.optional(v.number()),
+    
+    // Model & Cost Info
+    model_used: v.string(),
+    generation_cost: v.number(),
+    input_tokens: v.number(),
+    output_tokens: v.number(),
+    
+    // Timestamps
+    generated_at: v.number(),
+    created_at: v.number(),
+    
+    // Status & Performance Tracking
+    status: v.union(
+      v.literal("generated"), // Just created
+      v.literal("published"), // Actually posted to Reddit
+      v.literal("archived"),  // Saved for later
+      v.literal("discarded")  // Marked as not useful
+    ),
+    
+    // If actually published
+    actual_reddit_url: v.optional(v.string()),
+    actual_score: v.optional(v.number()),
+    actual_comments: v.optional(v.number()),
+    published_at: v.optional(v.number()),
+    
+    // User feedback
+    user_rating: v.optional(v.union(
+      v.literal("excellent"),
+      v.literal("good"), 
+      v.literal("fair"),
+      v.literal("poor")
+    )),
+    user_notes: v.optional(v.string()),
+    
+    // Analytics
+    view_count: v.optional(v.number()),
+    last_viewed_at: v.optional(v.number())
+  })
+    .index("by_generated_at", ["generated_at"])
+    .index("by_status", ["status", "generated_at"])
+    .index("by_subreddit", ["target_subreddit", "generated_at"])
+    .index("by_column_context", ["column_context", "generated_at"])
+    .index("by_keywords", ["source_keywords"])
+    .index("by_cost", ["generation_cost"])
+    .index("by_user_rating", ["user_rating", "generated_at"]),
 });
