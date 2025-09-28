@@ -12,7 +12,7 @@
 import { EventEmitter } from 'events';
 import { RedditPost } from '@/lib/reddit/reddit';
 import { EnhancedRedditPost } from '@/lib/types/enhancedRedditPost';
-import { tokenCountingService } from '../tokenCountingService';
+import { tokenCountingService } from '../core/tokenCountingService';
 
 export interface ProducerConfig {
   searchInterval: number; // ms between search operations

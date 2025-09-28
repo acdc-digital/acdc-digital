@@ -22,9 +22,9 @@ import {
   VisualFeedback,
   ChangeTracker,
   ContentType
-} from '../types/editor';
-import { getAIService } from '../services/editorAIService';
-import { getEditorConvexService, ContentType as ConvexContentType } from '../services/editorConvexService';
+} from '../../types/editor';
+import { getAIService } from '../../services/editor/editorAIService';
+import { getEditorConvexService, ContentType as ConvexContentType } from '../../services/editor/editorConvexService';
 
 // Default editor configuration
 const DEFAULT_CONFIG: EditorConfig = {

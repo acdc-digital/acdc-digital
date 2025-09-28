@@ -10,7 +10,7 @@
  */
 
 import { HostNarration } from '@/lib/types/hostAgent';
-import { tokenCountingService, TokenUsageMetrics } from '../tokenCountingService';
+import { tokenCountingService, TokenUsageMetrics } from '../core/tokenCountingService';
 import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
 
 export interface LLMOptions {

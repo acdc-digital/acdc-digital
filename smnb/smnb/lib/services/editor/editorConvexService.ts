@@ -4,7 +4,7 @@
  */
 
 import { ConvexReactClient } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { api } from '../../../convex/_generated/api';
 
 // Content type for database persistence (home content is not persisted)
 export type ContentType = 'blog' | 'newsletter' | 'analysis' | 'social' | 'context';

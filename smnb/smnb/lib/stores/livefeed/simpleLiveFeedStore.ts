@@ -22,7 +22,7 @@ const getStoryThreadStore = () => {
 
 // Helper function to get Convex client
 const getConvexClient = () => {
-  return import('@/lib/convex').then(module => module.default);
+  return import('@/lib/convex/convex').then(module => module.default);
 };
 
 export interface LiveFeedPost {

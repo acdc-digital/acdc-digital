@@ -3,7 +3,7 @@
 
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { Doc, Id } from "../_generated/dataModel";
+import { Doc } from "../_generated/dataModel";
 
 // Track post processing stats
 export const trackPostProcessing = mutation({
@@ -133,9 +133,7 @@ export const trackPostProcessing = mutation({
       };
       
       // If post not found, we'll update with Reddit metrics later when post is saved
-      if (!post && args.stage === "fetched") {
-        console.log(`📊 Creating stats record for post ${args.postId} (post not in DB yet)`);
-      } else if (!post) {
+      if (!post && args.stage !== "fetched") {
         console.warn(`⚠️ Post ${args.postId} not found in database for stage ${args.stage}`);
       }
       
@@ -164,7 +162,7 @@ export const trackPostProcessing = mutation({
       await ctx.db.insert("post_stats", newRecord);
     }
     
-    console.log(`📊 Tracked ${args.stage} for post ${args.postId}`);
+    // Removed verbose logging - stats tracking working silently
   }
 });
 
@@ -206,7 +204,10 @@ export const updatePipelineStats = mutation({
       created_at: now
     });
     
-    console.log(`🔧 Updated pipeline stats for ${args.stage}: healthy=${args.metrics.is_healthy}`);
+    // Only log if unhealthy or has error
+    if (!args.metrics.is_healthy || args.metrics.last_error) {
+      console.warn(`🔧 Pipeline ${args.stage} issue: healthy=${args.metrics.is_healthy}${args.metrics.last_error ? ', error=' + args.metrics.last_error : ''}`);
+    }
   }
 });
 

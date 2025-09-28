@@ -32,15 +32,7 @@ export const storeLiveFeedPosts = mutation({
   },
   handler: async (ctx, args) => {
     // Debug: log incoming payload details to help diagnose cases where requested === 0
-    try {
-      const inCount = Array.isArray(args.posts) ? args.posts.length : 0;
-      const sampleIds = Array.isArray(args.posts)
-        ? args.posts.slice(0, 5).map((p) => (p as Record<string, unknown>)['id'])
-        : [];
-      console.log(`🛰️ storeLiveFeedPosts handler invoked: posts=${inCount}`, sampleIds);
-    } catch {
-      // ignore logging errors
-    }
+    // Removed verbose logging for cleaner development experience
     // Append new batch posts (do not delete previous batches). Skip posts that
     // already exist by Reddit ID to avoid duplicate entries when the same posts
     // are fetched multiple times across batches.
@@ -61,13 +53,7 @@ export const storeLiveFeedPosts = mutation({
 
     const existingIds = new Set(recentMatches.map((p) => String(p['id'])));
 
-    // Debug: log how many existing matches we found and sample some ids
-    try {
-      console.log(`🛰️ storeLiveFeedPosts: candidateIds=${candidateIds.length} recentMatches=${recentMatches.length}`,
-        recentMatches.slice(0, 10).map(m => String(m['id'])));
-    } catch {
-      // ignore logging errors
-    }
+    // Silent operation - only log errors if they occur
 
     const toInsert = args.posts.filter(p => !existingIds.has(p.id));
 

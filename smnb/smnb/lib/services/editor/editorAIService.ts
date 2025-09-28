@@ -43,8 +43,8 @@ BEGIN IMMEDIATELY with str_replace_editor create command - no explanatory text.`
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { AIRequest, AIResponse, AIRequestType } from '../types/editor';
-import { selectTemplateForContent, generateContextualPrompt, ANALYTICAL_TEMPLATES } from './analyticalTemplates';
+import { AIRequest, AIResponse, AIRequestType } from '../../types/editor';
+import { selectTemplateForContent, generateContextualPrompt, ANALYTICAL_TEMPLATES } from '../core/analyticalTemplates';
 import { AnthropicTextEditorHandler, TextEditorToolCall } from './anthropicTextEditorHandler';
 // Removed unused markdown converter imports
 

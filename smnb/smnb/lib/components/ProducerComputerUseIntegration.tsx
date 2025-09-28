@@ -7,7 +7,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { getComputerUseService, type EditorInteractionOptions } from '../services/producerComputerUse';
+import { getComputerUseService, type EditorInteractionOptions } from '../services/producer/producerComputerUse';
 
 // Re-export the type for easier imports
 export type { EditorInteractionOptions };
