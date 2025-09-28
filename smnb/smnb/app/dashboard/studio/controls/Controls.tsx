@@ -7,8 +7,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSimpleLiveFeedStore } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 import { useHostAgentStore } from '@/lib/stores/host/hostAgentStore';
 import { useProducerStore } from '@/lib/stores/producer/producerStore';
-import { useApiKeyStore } from '@/lib/stores/apiKeyStore';
-import { useBroadcastSessionStore } from '@/lib/stores/broadcastSessionStore';
+import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
+import { useBroadcastSessionStore } from '@/lib/stores/session/broadcastSessionStore';
 import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { 
@@ -21,9 +21,9 @@ import {
 
 // Import components
 import {
-  SystemControlPanel,
   SubredditManager,
   SearchDomainManager,
+  Sessions,
   ConfigPanel,
   convertLiveFeedPostToEnhanced,
   ControlsProps,
@@ -56,7 +56,6 @@ export default function Controls({ mode }: ControlsProps) {
   const [viewSize, setViewSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide'>('desktop');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [manualSize, setManualSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide' | null>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
 
   // Size presets for different viewport sizes
   const SIZE_PRESETS = useMemo(() => ({
@@ -77,11 +76,7 @@ export default function Controls({ mode }: ControlsProps) {
     return map;
   }, [defaultGroups]);
 
-  const presetRows = useMemo(() => {
-    const firstRow = defaultGroups.slice(0, 4);
-    const secondRow = defaultGroups.slice(4, 8);
-    return [firstRow, secondRow];
-  }, [defaultGroups]);
+
 
   const combinedSelectedSubreddits = useMemo(() => {
     const merged: string[] = [];
@@ -98,11 +93,10 @@ export default function Controls({ mode }: ControlsProps) {
     return merged;
   }, [enabledDefaults, customSubreddits]);
 
-  // Column 2: Fixed 3 subreddits, Column 3: Remainder (scrollable when > 4 total)
-  const primarySubreddits = combinedSelectedSubreddits.slice(0, 3);
-  const secondarySubreddits = combinedSelectedSubreddits.slice(3);
+  // Column 1: Fixed 6 subreddits, Column 2: Remainder (up to 7 more)
+  const primarySubreddits = combinedSelectedSubreddits.slice(0, 6);
+  const secondarySubreddits = combinedSelectedSubreddits.slice(6);
 
-  const showPresetButtons = !hasCustomSelection && defaultGroups.length > 0;
   const defaultPreset = defaultGroups[0];
 
   useEffect(() => {
@@ -138,7 +132,6 @@ export default function Controls({ mode }: ControlsProps) {
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
         const width = entry.contentRect.width;
-        setContainerWidth(width);
         
         // Auto-adjust view size if no manual override
         if (!manualSize) {
@@ -536,12 +529,12 @@ export default function Controls({ mode }: ControlsProps) {
 
   const preset = getCurrentPreset();
 
-  // Dynamic grid columns based on preset
+  // Dynamic grid columns with fixed widths for consistency
   const getGridCols = () => {
     const gridCols = {
-      3: 'grid-cols-[minmax(0,0.5fr)_1fr_1fr]',
-      4: 'grid-cols-[minmax(0,0.5fr)_0.7fr_0.6fr_1fr]',
-      5: 'grid-cols-[minmax(0,0.5fr)_0.7fr_0.6fr_1fr_0.6fr]'
+      3: 'grid-cols-[200px_200px_50px_200px]', // subreddit1 + subreddit2 + presets + search
+      4: 'grid-cols-[200px_200px_50px_200px_200px]', // subreddit1 + subreddit2 + presets + search + sessions
+      5: 'grid-cols-[200px_200px_50px_200px_200px_210px]' // subreddit1 + subreddit2 + presets + search + sessions + config (wider)
     } as const;
     return gridCols[preset.cols as keyof typeof gridCols] || gridCols[5];
   };
@@ -551,12 +544,31 @@ export default function Controls({ mode }: ControlsProps) {
     return (
       <div className="bg-card border border-border rounded-lg shadow-sm">
         <div className="flex items-center justify-between px-3 py-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-sm font-light text-muted-foreground">Control Panel</span>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`} />
               <span>Feed: {posts.length} | Queue: {hostStats.queueLength}</span>
             </div>
+            {/* Live Button in collapsed view */}
+            <button
+              onClick={() => {
+                if (isLive && isHostActive) {
+                  setIsLive(false);
+                  handleBroadcastToggle();
+                } else {
+                  if (!isLive) setIsLive(true);
+                  if (!isHostActive) handleBroadcastToggle();
+                }
+              }}
+              className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1 ${
+                (isLive && isHostActive)
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
+              <span>{(isLive && isHostActive) ? 'LIVE' : 'Live'}</span>
+            </button>
           </div>
           <button
             title="Expand Panel"
@@ -572,13 +584,33 @@ export default function Controls({ mode }: ControlsProps) {
 
   return (
     <div ref={containerRef} className="bg-card border border-border rounded-t-xs rounded-b-lg shadow-sm">
-      {/* Header with responsive controls */}
+      {/* Header with responsive controls and Live button */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <span className="text-sm font-light text-muted-foreground font-sans">Control Panel</span>
-          <div className="text-xs text-muted-foreground/50">
-            {containerWidth}px • {viewSize}
-          </div>
+          
+          {/* Live Button moved from System column */}
+          <button
+            onClick={() => {
+              if (isLive && isHostActive) {
+                // Stop when active
+                setIsLive(false);
+                handleBroadcastToggle();
+              } else {
+                // Start when inactive
+                if (!isLive) setIsLive(true);
+                if (!isHostActive) handleBroadcastToggle();
+              }
+            }}
+            className={`px-3 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1 ${
+              (isLive && isHostActive)
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
+            <span>{(isLive && isHostActive) ? 'LIVE' : 'Live'}</span>
+          </button>
         </div>
         
         <div className="flex items-center gap-1">
@@ -622,19 +654,9 @@ export default function Controls({ mode }: ControlsProps) {
       </div>
 
       {/* Responsive Grid Layout */}
-      <div className="p-3 overflow-x-auto">
-        <div className={`grid ${getGridCols()} gap-3 min-w-fit`}>
-          {/* Column 1: System Control Panel */}
-          <SystemControlPanel
-            isLive={isLive}
-            setIsLive={setIsLive}
-            postsCount={posts.length}
-            isHostActive={isHostActive}
-            hostStats={hostStats}
-            handleBroadcastToggle={handleBroadcastToggle}
-          />
-
-          {/* Columns 2-3: Subreddit Manager */}
+      <div className="p-3">
+        <div className={`grid ${getGridCols()} gap-2`}>
+          {/* Column 1: Subreddit Manager (double column, 8 rows) */}
           <SubredditManager
             enabledDefaults={enabledDefaults}
             customSubreddits={customSubreddits}
@@ -645,51 +667,87 @@ export default function Controls({ mode }: ControlsProps) {
             subredditFeedback={subredditFeedback}
             selectionError={selectionError}
             isLoadingControls={isLoadingControls}
-            isSavingSelection={isSavingSelection}
-            hasCustomSelection={hasCustomSelection}
-            activeFilter={activeFilter}
-            showPresetButtons={showPresetButtons && !preset.hideFilters}
-            defaultGroups={defaultGroups}
-            presetRows={presetRows}
-            defaultPreset={defaultPreset}
             handleAddSubreddit={handleAddSubreddit}
             handleToggleDefaultSubreddit={handleToggleDefaultSubreddit}
             handleRemoveSubreddit={handleRemoveSubreddit}
-            handleToggleFilter={handleToggleFilter}
-            handleResetPresets={handleResetPresets}
+            showHeaders={false} // Remove column headers
           />
 
-          {/* Column 4: Search Domain Manager - Hide in compact mode */}
+          {/* Column 3: Preset Column - Wider column with flexible button widths */}
+          <div className="space-y-1 px-0">
+            {defaultGroups.map((group) => (
+              <button
+                key={group.id}
+                onClick={() => handleToggleFilter(group.id)}
+                disabled={isSavingSelection || isLoadingControls}
+                className={`w-full py-1 text-xs rounded-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-center whitespace-nowrap ${
+                  !hasCustomSelection && activeFilter === group.id
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
+                }`}
+              >
+                {group.label.split(' ')[0]} {/* Only first word */}
+              </button>
+            ))}
+            {defaultGroups.length === 0 && (
+              <div className="w-full px-1 py-1 text-xs text-muted-foreground/40 border border-border/20 rounded-sm text-center">
+                None
+              </div>
+            )}
+            {/* Reset button if custom selection */}
+            {hasCustomSelection && defaultPreset && (
+              <button
+                onClick={handleResetPresets}
+                disabled={isSavingSelection || isLoadingControls}
+                className="w-full px-1 py-1 text-xs text-blue-400 hover:text-blue-300 disabled:text-muted-foreground/40 text-center"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+
+          {/* Column 4: Search Domain Manager */}
+          <SearchDomainManager
+            searchDomains={searchDomains}
+            newDomain={newDomain}
+            setNewDomain={setNewDomain}
+            domainFeedback={domainFeedback}
+            handleAddDomain={handleAddDomain}
+            handleRemoveDomain={handleRemoveDomain}
+            showConfigInline={preset.cols === 3}
+            showHeaders={false} // Remove headers
+            configData={preset.cols === 3 ? {
+              enabledDefaultsCount: enabledDefaults.length,
+              customSubredditsCount: customSubreddits.length,
+              hostStats: { totalNarrations: hostStats.totalNarrations },
+              useUserApiKey,
+              setUseUserApiKey,
+              hasValidApiKey,
+              postsCount: posts.length, // Add feed/queue data
+              queueLength: hostStats.queueLength
+            } : undefined}
+          />
+
+          {/* Column 5: Sessions - Only in 4+ column mode */}
           {preset.cols >= 4 && (
-            <SearchDomainManager
-              searchDomains={searchDomains}
-              newDomain={newDomain}
-              setNewDomain={setNewDomain}
-              domainFeedback={domainFeedback}
-              handleAddDomain={handleAddDomain}
-              handleRemoveDomain={handleRemoveDomain}
-              showConfigInline={preset.cols === 4}
-              configData={preset.cols === 4 ? {
-                enabledDefaultsCount: enabledDefaults.length,
-                customSubredditsCount: customSubreddits.length,
-                hostStats,
-                useUserApiKey,
-                setUseUserApiKey,
-                hasValidApiKey
-              } : undefined}
+            <Sessions
+              showHeaders={false} // Remove headers
             />
           )}
 
-          {/* Column 5: Config Panel - Only in full desktop */}
-          {preset.cols === 5 && (
+          {/* Column 6: Config Panel - Only in 5+ column mode */}
+          {preset.cols >= 5 && (
             <ConfigPanel
               enabledDefaultsCount={enabledDefaults.length}
               customSubredditsCount={customSubreddits.length}
-              hostStats={hostStats}
+              hostStats={{ totalNarrations: hostStats.totalNarrations }}
               mode={mode}
               useUserApiKey={useUserApiKey}
               setUseUserApiKey={setUseUserApiKey}
               hasValidApiKey={hasValidApiKey}
+              showHeaders={false} // Remove headers
+              postsCount={posts.length} // Add feed/queue data
+              queueLength={hostStats.queueLength}
             />
           )}
         </div>

@@ -6,11 +6,7 @@
 import React from 'react';
 import { FeedbackState } from './types';
 
-interface DefaultGroup {
-  id: string;
-  label: string;
-  subreddits: string[];
-}
+
 
 interface SubredditManagerProps {
   // Subreddit state
@@ -25,22 +21,14 @@ interface SubredditManagerProps {
   subredditFeedback: FeedbackState;
   selectionError: string | null;
   isLoadingControls: boolean;
-  isSavingSelection: boolean;
   
-  // Selection state
-  hasCustomSelection: boolean;
-  activeFilter: string | null;
-  showPresetButtons: boolean;
-  defaultGroups: DefaultGroup[];
-  presetRows: DefaultGroup[][];
-  defaultPreset?: DefaultGroup;
+  // UI Options
+  showHeaders?: boolean; // Optional header display control
   
   // Actions
   handleAddSubreddit: () => void;
   handleToggleDefaultSubreddit: (subreddit: string) => void;
   handleRemoveSubreddit: (subreddit: string) => void;
-  handleToggleFilter: (groupId: string) => void;
-  handleResetPresets: () => void;
 }
 
 export default function SubredditManager({
@@ -52,17 +40,10 @@ export default function SubredditManager({
   subredditFeedback,
   selectionError,
   isLoadingControls,
-  isSavingSelection,
-  hasCustomSelection,
-  activeFilter,
-  showPresetButtons,
-  presetRows,
-  defaultPreset,
+  showHeaders = true, // Default to showing headers for backward compatibility
   handleAddSubreddit,
   handleToggleDefaultSubreddit,
   handleRemoveSubreddit,
-  handleToggleFilter,
-  handleResetPresets,
 }: SubredditManagerProps) {
   
   const renderSubredditItem = (subreddit: string, showRemoveButton = true) => {
@@ -111,11 +92,18 @@ export default function SubredditManager({
     );
   };
 
+  // Split subreddits between two columns (6 in first column, rest in second)
+  const allSubreddits = [...primarySubreddits, ...secondarySubreddits];
+  const firstColumnSubreddits = allSubreddits.slice(0, 6);
+  const secondColumnSubreddits = allSubreddits.slice(6);
+  
   return (
     <>
-      {/* Column 2: Add Subreddits */}
+      {/* Column 1: Input + 6 Subreddit rows (7 total) */}
       <div className="space-y-2 min-w-0">
-        <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">Add Subreddits</div>
+        {showHeaders && (
+          <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">Add Subreddits</div>
+        )}
         {selectionError && (
           <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-sm px-2 py-1">
             {selectionError}
@@ -159,15 +147,15 @@ export default function SubredditManager({
             )}
           </div>
           
-          {/* Primary Subreddits - Fixed 3 rows */}
+          {/* First 6 Subreddits */}
           <div className="space-y-1">
-            {[0, 1, 2].map((index) => {
-              const subreddit = primarySubreddits[index];
+            {[0, 1, 2, 3, 4, 5].map((index) => {
+              const subreddit = firstColumnSubreddits[index];
               return subreddit ? (
                 renderSubredditItem(subreddit)
               ) : (
                 <div
-                  key={`empty-${index}`}
+                  key={`empty-1-${index}`}
                   className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
                 >
                   subreddit...
@@ -176,98 +164,31 @@ export default function SubredditManager({
             })}
           </div>
         </div>
-        
-        {/* Preset Groups Row */}
-        {showPresetButtons ? (
-          <div className="flex gap-1">
-            {presetRows[0].map((group) => (
-              <button
-                key={group.id}
-                onClick={() => handleToggleFilter(group.id)}
-                disabled={isSavingSelection || isLoadingControls}
-                className={`flex-1 px-1 py-1 text-xs rounded-sm transition-colors cursor-pointer disabled:cursor-not-allowed ${
-                  !hasCustomSelection && activeFilter === group.id
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
-                }`}
-              >
-                {group.label}
-              </button>
-            ))}
-            {presetRows[0].length === 0 && (
-              <div className="flex-1 px-1 py-1 text-xs text-muted-foreground/40 border border-border/20 rounded-sm">
-                No presets
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground/60 px-1 py-1">
-            <span>Custom selection active</span>
-            {defaultPreset && (
-              <button
-                onClick={handleResetPresets}
-                disabled={isSavingSelection || isLoadingControls}
-                className="text-blue-400 hover:text-blue-300 disabled:text-muted-foreground/40"
-              >
-                Reset presets
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Column 3: Secondary Sources */}
-      <div className="space-y-2">
-        <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">&nbsp;</div>
-        <div className={`rounded-sm px-0 space-y-1 ${
-          secondarySubreddits.length > 4 
-            ? 'max-h-[120px] overflow-y-auto custom-scrollbar' 
-            : ''
-        }`}>
-          {secondarySubreddits.length > 0 ? (
-            <>
-              {secondarySubreddits.map((subreddit) => renderSubredditItem(subreddit))}
-              {/* Scroll indicator - show expanded mode when using full height */}
-              {secondarySubreddits.length > 4 && (
-                <div className="text-xs text-muted-foreground/50 italic text-center pt-1">
-                  {!showPresetButtons 
-                    ? `${secondarySubreddits.length} overflow • expanded ↕` 
-                    : `+${secondarySubreddits.length} more • scroll ↕`
-                  }
-                </div>
-              )}
-            </>
-          ) : (
-            // Show empty placeholders only when no secondary subreddits exist
-            [0, 1, 2, 3].map((index) => (
-              <div
-                key={`empty-${index}`}
-                className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
-              >
-                subreddit...
-              </div>
-            ))
-          )}
-        </div>
-        
-        {showPresetButtons && presetRows[1].length > 0 && (
-          <div className="flex gap-1">
-            {presetRows[1].map((group) => (
-              <button
-                key={group.id}
-                onClick={() => handleToggleFilter(group.id)}
-                disabled={isSavingSelection || isLoadingControls}
-                className={`flex-1 px-1 py-1 text-xs rounded-sm transition-colors cursor-pointer disabled:cursor-not-allowed ${
-                  !hasCustomSelection && activeFilter === group.id
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
-                }`}
-              >
-                {group.label}
-              </button>
-            ))}
-          </div>
+      {/* Column 2: 7 Subreddit rows (aligned with input) */}
+      <div className="space-y-2 min-w-0">
+        {showHeaders && (
+          <div className="text-xs text-muted-foreground/70 uppercase tracking-wider invisible">Add Subreddits</div>
         )}
+        <div className="rounded-sm px-0 space-y-1">
+          {/* 7 Subreddits (7-13) - starts at top level with input */}
+          <div className="space-y-1">
+            {[0, 1, 2, 3, 4, 5, 6].map((index) => {
+              const subreddit = secondColumnSubreddits[index];
+              return subreddit ? (
+                renderSubredditItem(subreddit)
+              ) : (
+                <div
+                  key={`empty-2-${index}`}
+                  className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
+                >
+                  subreddit...
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </>
   );

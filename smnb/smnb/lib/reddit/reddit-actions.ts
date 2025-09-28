@@ -3,7 +3,7 @@
 
 'use server'
 
-import { redditAPI, RedditPost } from '@/lib/reddit-oauth';
+import { redditAPI, RedditPost } from '@/lib/reddit/reddit-oauth';
 
 export interface RedditPostWithMeta extends RedditPost {
   sort_type: string;

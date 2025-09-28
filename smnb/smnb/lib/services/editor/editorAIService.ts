@@ -12,7 +12,7 @@
 START NOW by calling str_replace_editor with "create" command to generate a newsletter with this EXACT structure:
 
 REQUIRED NEWSLETTER STRUCTURE:
-1. HEADER: ALL CAPS title with emoji (🌟 TITLE NAME)
+1. HEADER: Professional newsletter title
 2. SUBTITLE: *Your Essential Guide to [Topic]*
 3. ISSUE INFO: Issue ### | Date
 
@@ -22,12 +22,12 @@ ${request.input}
 MANDATORY FORMATTING using str_replace_editor tool:
 1. Use "create" command to build the complete newsletter
 2. Apply proper markdown hierarchy:
-   - ## 🌟 MAJOR SECTIONS 
-   - ### 📊 Data Subsections
+   - ## MAJOR SECTIONS 
+   - ### Data Subsections
    - **Bold metrics**: **Platform: 2.3M users ⬆️**
    - *Italic emphasis* for context
    - > Blockquotes for key insights
-3. Apply visual hierarchy with emojis and consistent spacing
+3. Apply visual hierarchy with consistent spacing
 
 BEGIN IMMEDIATELY with str_replace_editor create command - no explanatory text.`;ce_editor'
           }
@@ -46,7 +46,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { AIRequest, AIResponse, AIRequestType } from '../types/editor';
 import { selectTemplateForContent, generateContextualPrompt, ANALYTICAL_TEMPLATES } from './analyticalTemplates';
 import { AnthropicTextEditorHandler, TextEditorToolCall } from './anthropicTextEditorHandler';
-import { convertMarkdownToHTML, isMarkdownContent } from '../utils/markdownConverter';
+// Removed unused markdown converter imports
 
 // AI Service Configuration
 interface AIServiceConfig {
@@ -91,8 +91,12 @@ export class EditorAIService {
         lastError = error;
         
         // Check if it's a retryable error (overload, rate limit, network issues)
+        const errorString = JSON.stringify(error);
         const isRetryableError = error?.error?.type === 'overloaded_error' || 
+                                 error?.type === 'overloaded_error' ||
                                  error?.message?.includes('Overloaded') ||
+                                 errorString.includes('overloaded_error') ||
+                                 errorString.includes('Overloaded') ||
                                  error?.message?.includes('rate_limit') ||
                                  error?.message?.includes('network') ||
                                  error?.message?.includes('timeout');
@@ -175,12 +179,12 @@ export class EditorAIService {
         if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
           const text = chunk.delta.text;
           
-          // For newsletter format, stream raw markdown text for immediate feedback
+          // For newsletter format, stream raw HTML text for immediate feedback
           if (request.type === 'newsletter-format') {
             fullContent += text;
             
-            // Stream raw markdown text immediately - don't convert during streaming
-            // This prevents partial conversion that breaks formatting
+            // Stream raw HTML text immediately for real-time display
+            // Newsletter prompt outputs clean HTML that gets styled after completion
             if (streamHandler && text.length > 0) {
               streamHandler.onChunk(text);
             }
@@ -268,19 +272,39 @@ export class EditorAIService {
         streamHandler.onChunk(contentBuffer);
       }
       
-      // Newsletter format: Send complete markdown content to TipTap
+      // Newsletter format: Send complete HTML content to TipTap
       if (request.type === 'newsletter-format' && streamHandler) {
-        console.log(`🎯 Newsletter streaming complete - Sending markdown to TipTap`);
+        console.log(`🎯 Newsletter streaming complete - Sending HTML to TipTap`);
         console.log(`� Final newsletter content: ${fullContent.length} chars`);
         
-        // Convert complete markdown to HTML for TipTap
-        let finalContent = fullContent;
-        if (isMarkdownContent(fullContent)) {
-          finalContent = convertMarkdownToHTML(fullContent);
-          console.log(`🔄 Converted complete newsletter: ${fullContent.length} chars markdown → ${finalContent.length} chars HTML`);
+        // Check if content is markdown and convert to HTML
+        let processedContent = fullContent;
+        if (fullContent.includes('# ') || fullContent.includes('## ')) {
+          console.log(`🔄 Converting markdown to HTML for newsletter`);
+          // Quick markdown to HTML conversion
+          processedContent = fullContent
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^\* (.+)$/gm, '<li>$1</li>')
+            .replace(/^\- (.+)$/gm, '<li>$1</li>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/^(?!<[hul])/gm, '<p>')
+            .replace(/<\/p><p><li>/g, '</p><ul><li>')
+            .replace(/<\/li><p>/g, '</li></ul><p>');
+          
+          // Wrap lists properly  
+          processedContent = processedContent.replace(/(<li>.+?<\/li>)/g, '<ul>$1</ul>');
+          console.log(`✅ Converted markdown to HTML (${processedContent.length} chars)`);
         }
         
-        // Send the converted HTML content to TipTap
+        // Apply newsletter CSS classes to the HTML output  
+        const finalContent = EditorAIService.applyNewsletterStyles(processedContent);
+        console.log(`🎨 Applied newsletter CSS classes to streamed content`);
+        
+        // Send the styled HTML content to TipTap
         streamHandler.onComplete(finalContent);
         
         const processingTime = Date.now() - startTime;
@@ -306,6 +330,12 @@ export class EditorAIService {
       // If we didn't get content through streaming, extract from the message
       if (!finalContent.trim() && message.content) {
         finalContent = this.extractContent(message);
+      }
+      
+      // Apply newsletter styles to final content if it's a newsletter format
+      if (request.type === 'newsletter-format' && finalContent.trim()) {
+        finalContent = EditorAIService.applyNewsletterStyles(finalContent);
+        console.log(`🎨 Applied newsletter CSS classes to final extracted content`);
       }
       
       console.log(`🔍 Streaming extraction complete - Content length: ${finalContent.length}`);
@@ -381,10 +411,9 @@ export class EditorAIService {
           if (fallbackResponse.success && fallbackResponse.content) {
             // Convert fallback content if it's markdown
             let fallbackContent = fallbackResponse.content;
-            if (isMarkdownContent(fallbackResponse.content)) {
-              fallbackContent = convertMarkdownToHTML(fallbackResponse.content);
-              console.log(`🔄 Converted fallback from markdown to HTML`);
-            }
+            // Apply newsletter styles to fallback content (should already be HTML)
+            fallbackContent = EditorAIService.applyNewsletterStyles(fallbackResponse.content);
+            console.log(`🎨 Applied newsletter styles to fallback HTML`);
             streamHandler.onComplete(fallbackContent);
             return {
               ...fallbackResponse,
@@ -551,6 +580,36 @@ export class EditorAIService {
   }
 
   /**
+   * Apply newsletter CSS classes to HTML content
+   */
+  private static applyNewsletterStyles(html: string): string {
+    console.log('🎨 Applying newsletter CSS classes to HTML');
+    let styled = html;
+    
+    // Apply newsletter classes to headers (preserve existing classes)
+    styled = styled.replace(/<h1([^>]*)>/g, '<h1$1 class="newsletter-display">');
+    styled = styled.replace(/<h2([^>]*)>/g, '<h2$1 class="newsletter-h2">');
+    styled = styled.replace(/<h3([^>]*)>/g, '<h3$1 class="newsletter-h3">');
+    styled = styled.replace(/<h4([^>]*)>/g, '<h4$1 class="newsletter-h4">');
+    styled = styled.replace(/<h5([^>]*)>/g, '<h5$1 class="newsletter-h5">');
+    styled = styled.replace(/<h6([^>]*)>/g, '<h6$1 class="newsletter-h6">');
+    
+    // Apply newsletter classes to body elements
+    styled = styled.replace(/<p([^>]*)>/g, '<p$1 class="newsletter-body">');
+    styled = styled.replace(/<blockquote([^>]*)>/g, '<blockquote$1 class="newsletter-blockquote">');
+    styled = styled.replace(/<ul([^>]*)>/g, '<ul$1 class="newsletter-list">');
+    styled = styled.replace(/<ol([^>]*)>/g, '<ol$1 class="newsletter-list newsletter-list-ordered">');
+    
+    // Apply newsletter classes to other elements
+    styled = styled.replace(/<hr([^>]*)>/g, '<hr$1 class="newsletter-divider">');
+    styled = styled.replace(/<strong([^>]*)>/g, '<strong$1 class="newsletter-strong">');
+    styled = styled.replace(/<em([^>]*)>/g, '<em$1 class="newsletter-emphasis">');
+    
+    console.log(`🎨 Newsletter styles applied - HTML length: ${styled.length}`);
+    return styled;
+  }
+
+  /**
    * Build appropriate prompt based on request type
    */
   private buildPrompt(request: AIRequest): string {
@@ -629,10 +688,10 @@ Start immediately by calling the str_replace_editor tool with the "create" comma
    - Apply newsletter-specific formatting patterns
 
 2. NEWSLETTER-SPECIFIC FORMATTING:
-   - ## 🌟 MAIN SECTIONS (H2 with emojis for major sections)
-   - ### 📊 Data Analysis (H3 with emojis for subsections)
-   - ### 📈 Performance Metrics (H3 for data sections)
-   - ### ⚠️ Important Context (H3 for warnings/alerts)
+   - ## MAIN SECTIONS (H2 for major sections)
+   - ### Data Analysis (H3 for subsections)
+   - ### Performance Metrics (H3 for data sections)
+   - ### Important Context (H3 for warnings/alerts)
 
 3. CONTENT STRUCTURE:
    - **Bold** for key metrics, names, important data
@@ -642,7 +701,7 @@ Start immediately by calling the str_replace_editor tool with the "create" comma
    - Numbered/bulleted lists for structured data
 
 4. VISUAL HIERARCHY:
-   - Use emojis strategically: 🌟📊📈⚠️🎯💡🔍🚨📍💰
+   - Use clean, professional formatting without emojis
    - Apply consistent spacing between sections
    - Format metrics clearly: **Platform: 2.3M users ⬆️**
    - Use trend indicators: ⬆️⬇️➡️
@@ -650,60 +709,67 @@ Start immediately by calling the str_replace_editor tool with the "create" comma
 BEGIN NOW with str_replace_editor create command.`;
 
       case 'newsletter-format':
-        return `Transform this content into a professional newsletter using MARKDOWN FORMATTING that will be converted to HTML with newsletter CSS classes. Return ONLY the formatted newsletter content - no explanations, no tool calls.
+        return `You are an expert newsletter editor. Transform content into a professional, engaging newsletter format.
 
-CRITICAL NEWSLETTER STRUCTURE:
-- Use specific heading hierarchy that maps to our newsletter design system
-- Apply proper markdown syntax for visual hierarchy
-- Create engaging, scannable content with clear sections
+CRITICAL: Output clean, semantic HTML only. CSS classes will be applied automatically by the system.
 
-MANDATORY MARKDOWN STRUCTURE:
-# Newsletter Title 🗞️
-*Your comprehensive briefing on [topic]*
+REQUIRED HTML STRUCTURE:
+1. Issue stats: <p><em>Issue #247 • Saturday, September 28, 2025</em></p>
+2. Main headline: <h1>Short Title</h1> (2-4 words maximum)
+3. Separator line: <hr>
+4. Lead paragraph: <p>Opening summary paragraph (will be styled as lead)</p>
+5. Section headers: <h2>Brief Header</h2> (2-4 words maximum)
+6. Subsections: <h3>Analysis</h3> or <h3>Key Points</h3> (2-3 words maximum)
+7. Body paragraphs: <p>Content goes here...</p>
+8. Important callouts: <blockquote>Key insight or quote</blockquote>
+9. Lists: <ul><li>Item</li></ul> or <ol><li>Item</li></ol>
 
-## Lead Story Subtitle
-> Key insight or compelling hook to draw readers in
+STRICT REQUIREMENTS:
+- OUTPUT ONLY HTML - no markdown, no code blocks, no explanations
+- DO NOT add CSS classes (they are added automatically)
+- DO NOT wrap in <div> containers
+- START immediately with <h1> tag
+- Use semantic HTML structure
+- NO emojis in headers or content
+- KEEP ALL HEADERS SHORT: h1 (2-4 words), h2 (2-4 words), h3 (2-3 words)
+- Professional, clean typography matching premium newsletter style
 
-### 📊 Main Section Header
-Regular paragraph content with **key metrics** and *emphasized context*. Use clear, engaging language that flows well.
+VISUAL HIERARCHY (NO EMOJIS):
+- <h1> for newsletter title
+- <h2> for major story sections
+- <h3> for subsections (Analysis, Key Developments, etc.)
+- <h4> for minor sections
+- <h5> for resource sections
+- <h6> for editorial notes
+- <strong> for metrics, names, key data
+- <em> for attribution, context, quotes
 
-- Bullet points for key information
-- **Bold metrics**: Specific numbers and data
-- *Italics* for quotes, context, and emphasis
+EXAMPLE OUTPUT:
+<p><em>Issue #247 • Saturday, September 28, 2025</em></p>
+<h1>Trade Barriers Fall</h1>
+<hr>
+<p>In a surprising turn of events, officials announced sweeping changes that could reshape the landscape of international relations for years to come.</p>
 
-### 🔍 Analysis & Context
-Content that provides deeper insights and background information.
+<p>Today's announcement marks a pivotal moment in diplomatic history. After months of behind-the-scenes negotiations, leaders have agreed to a framework that addresses long-standing concerns while opening new avenues for cooperation.</p>
 
-> Blockquotes for important callouts and key insights that deserve special attention
+<h2>Key Developments</h2>
+<ul>
+<li>Unprecedented bilateral agreement reached after 18-hour negotiations</li>
+<li>Economic implications expected to exceed $500 billion over five years</li>
+<li>Multiple stakeholders express cautious optimism about implementation</li>
+</ul>
 
-FORMATTING STANDARDS:
-- # (H1) = newsletter-display class - main newsletter title
-- ## (H2) = newsletter-h2 class - subtitle/lead section  
-- ### (H3) = newsletter-h3 class - major sections
-- #### (H4) = newsletter-h4 class - subsections
-- **Bold** = Strong emphasis for metrics, names, data
-- *Italic* = Emphasis for quotes, context, attribution
-- \`Code\` = Technical terms, URLs, specific values
-- > Blockquotes = Important callouts, key insights
-- Regular paragraphs = newsletter-body class
-- Lists = newsletter-list class
+<blockquote>This represents not just a policy change, but a fundamental shift in how we approach global challenges. The ramifications will be felt for generations.</blockquote>
 
-VISUAL HIERARCHY EXAMPLES:
-# Political Pulse Newsletter 🗞️
-*Latest developments in national politics*
+<h3>Analysis & Context</h3>
+<p>Expert analysts suggest three primary factors contributed to this breakthrough:</p>
 
-## Democrats Challenge Trump on Jan 6 Pardons
+<hr>
 
-### 📊 Key Developments
-**Key Democrats** propose former President Trump rescind Capitol riot pardons. This suggestion aims at demonstrating commitment to reducing political tensions.
-
-### 💭 Context & Implications
-*According to political analysts*, this move focuses on accountability measures and national healing efforts.
-
-Content to format:
+Source content to transform:
 ${request.input}
 
-Return formatted newsletter with proper hierarchy - start with # for main title:`;
+Transform into clean HTML newsletter format starting with <h1> tag:`;
 
       case 'add-analysis':
         return `${baseContext}Add analytical depth to this news content by including:

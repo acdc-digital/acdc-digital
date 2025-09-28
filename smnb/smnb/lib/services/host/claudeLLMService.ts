@@ -11,7 +11,7 @@
 
 import { HostNarration } from '@/lib/types/hostAgent';
 import { tokenCountingService, TokenUsageMetrics } from '../tokenCountingService';
-import { useApiKeyStore } from '@/lib/stores/apiKeyStore';
+import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
 
 export interface LLMOptions {
   temperature?: number;

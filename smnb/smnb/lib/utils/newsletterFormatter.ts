@@ -6,101 +6,132 @@
 export class NewsletterFormatter {
   
   /**
+   * Generate complete newsletter with title, date and formatted content
+   */
+  static generateNewsletter(options: {
+    title: string;
+    date?: string;
+    content: string;
+    metadata?: {
+      title?: string;
+      tags?: string[];
+      priority?: number;
+      [key: string]: unknown;
+    };
+  }) {
+    const { title, date, content, metadata } = options;
+    
+    // Clean the content first
+    const cleanContent = this.cleanHTML(content);
+    
+    return `
+      <div class="newsletter-container">
+        <h1 class="newsletter-title">${title}</h1>
+        ${date ? `<p class="newsletter-date">${date}</p>` : ''}
+        <hr class="newsletter-divider" />
+        <div class="newsletter-body">
+          ${this.formatContent(cleanContent, metadata)}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
    * Apply newsletter classes to existing HTML content
    */
   static formatExistingContent(html: string): string {
-    // Parse and enhance existing HTML with newsletter classes
-    let formattedHTML = html;
+    // If already formatted as newsletter, return as is
+    if (html.includes('newsletter-container')) {
+      return html;
+    }
     
-    // Transform headings to newsletter classes
-    formattedHTML = formattedHTML.replace(
-      /<h1(?:\s[^>]*)?>([^<]*)<\/h1>/gi, 
-      '<h1 class="newsletter-h1">$1</h1>'
-    );
+    // Extract title if present (first h1 or h2)
+    const titleMatch = html.match(/<h[12][^>]*>(.*?)<\/h[12]>/);
+    const title = titleMatch ? titleMatch[1] : 'SMNB Newsletter';
     
-    formattedHTML = formattedHTML.replace(
-      /<h2(?:\s[^>]*)?>([^<]*)<\/h2>/gi, 
-      '<h2 class="newsletter-h2">$1</h2>'
-    );
+    // Remove the title from content if found
+    const contentWithoutTitle = titleMatch
+      ? html.replace(titleMatch[0], '')
+      : html;
     
-    formattedHTML = formattedHTML.replace(
-      /<h3(?:\s[^>]*)?>([^<]*)<\/h3>/gi, 
-      '<h3 class="newsletter-h3">$1</h3>'
-    );
+    return this.generateNewsletter({
+      title,
+      date: new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      content: contentWithoutTitle
+    });
+  }
+
+  /**
+   * Format content with newsletter classes and metadata enhancements
+   */
+  static formatContent(content: string, metadata?: {
+    tags?: string[];
+    [key: string]: unknown;
+  }): string {
+    // Process paragraphs
+    let formatted = content.replace(/<p>/g, '<p class="newsletter-body">');
     
-    // Transform paragraphs to newsletter body class
-    formattedHTML = formattedHTML.replace(
-      /<p(?:\s[^>]*)?>([^<]*)<\/p>/gi, 
-      '<p class="newsletter-body">$1</p>'
-    );
+    // Process headings
+    formatted = formatted.replace(/<h2>/g, '<h2 class="newsletter-subtitle">');
+    formatted = formatted.replace(/<h3>/g, '<h3 class="newsletter-subtitle" style="font-size: 1.25rem !important;">');
     
-    // Transform blockquotes
-    formattedHTML = formattedHTML.replace(
-      /<blockquote(?:\s[^>]*)?>([^<]*)<\/blockquote>/gi, 
-      '<blockquote class="newsletter-blockquote">$1</blockquote>'
-    );
+    // Add sections if metadata suggests categories
+    if (metadata?.tags?.includes('breaking')) {
+      formatted = `<div class="newsletter-section"><strong>BREAKING NEWS</strong></div>${formatted}`;
+    }
     
-    // Transform lists
-    formattedHTML = formattedHTML.replace(
-      /<ul(?:\s[^>]*)?>([^<]*)<\/ul>/gi, 
-      '<ul class="newsletter-list">$1</ul>'
-    );
-    
-    formattedHTML = formattedHTML.replace(
-      /<ol(?:\s[^>]*)?>([^<]*)<\/ol>/gi, 
-      '<ol class="newsletter-list newsletter-list-ordered">$1</ol>'
-    );
-    
-    return formattedHTML;
+    return formatted;
+  }
+
+  /**
+   * Clean HTML content
+   */
+  static cleanHTML(html: string): string {
+    // Remove empty paragraphs
+    return html
+      .replace(/<p>\s*<\/p>/g, '')
+      .replace(/<p>&nbsp;<\/p>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
   
   /**
    * Generate sample newsletter content with proper formatting
    */
-  static generateSampleNewsletter(title: string = "SMNB News Alert"): string {
-    return `
-      <div class="newsletter-display">${title}</div>
-      
-      <p class="newsletter-lead">
-        Your comprehensive source for breaking news, analysis, and insights from across the digital landscape.
-      </p>
-      
-      <h1 class="newsletter-h1">Today's Top Story</h1>
-      
-      <p class="newsletter-body">
-        In today's rapidly evolving news environment, artificial intelligence continues to reshape how we consume and understand information. This transformation is creating new opportunities for both content creators and audiences.
-      </p>
-      
-      <h2 class="newsletter-h2">Key Developments</h2>
-      
-      <ul class="newsletter-list">
-        <li>Advanced content curation systems now process millions of sources simultaneously</li>
-        <li>Real-time sentiment analysis provides deeper understanding of public opinion</li>
-        <li>Automated summarization helps readers stay informed without information overload</li>
-      </ul>
-      
-      <div class="newsletter-blockquote">
-        "The future of news consumption is not just about speed—it's about intelligent filtering and personalized delivery that respects the reader's time and attention."
-      </div>
-      
-      <h3 class="newsletter-h3">Market Analysis</h3>
-      
-      <p class="newsletter-body">
-        Industry analysts predict continued growth in AI-powered news platforms, with user engagement metrics showing sustained improvement over traditional formats.
-      </p>
-      
-      <div class="newsletter-pullquote">
-        Innovation in news delivery is accelerating at an unprecedented pace.
-      </div>
-      
-      <div class="newsletter-divider"></div>
-      
-      <h4 class="newsletter-h4">Looking Forward</h4>
-      
-      <p class="newsletter-body">
-        As these technologies mature, we can expect even more sophisticated approaches to news curation and delivery, ensuring that readers receive the most relevant and timely information.
-      </p>
-    `;
+  static generateSampleNewsletter(title: string = '🗞️ SMNB Daily Newsletter'): string {
+    return this.generateNewsletter({
+      title,
+      date: new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      content: `
+        <h2>Today's Top Stories</h2>
+        <p>Welcome to today's edition of the SMNB Newsletter. We've curated the most important stories and insights to keep you informed.</p>
+        
+        <h3>Breaking News</h3>
+        <p>Major developments in the tech sector as companies announce groundbreaking innovations that promise to reshape how we interact with technology.</p>
+        
+        <h3>Market Analysis</h3>
+        <p>Financial markets showed strong performance today, with key indicators suggesting continued growth momentum across multiple sectors.</p>
+        
+        <h3>Featured Story</h3>
+        <p>An in-depth look at emerging trends that are defining the future of digital communication and social interaction in our increasingly connected world.</p>
+        
+        <p>Thank you for reading today's newsletter. Stay tuned for more updates tomorrow!</p>
+      `,
+      metadata: {
+        tags: ['daily', 'news', 'tech', 'markets'],
+        priority: 1.0
+      }
+    });
   }
   
   /**

@@ -6,7 +6,7 @@ import { enrichmentAgent } from './enrichmentAgent';
 import { scoringAgent } from './scoringAgent';
 import { schedulerService } from './schedulerService';
 import { analyzePostWithProducer } from '@/lib/stores/producer/producerStore';
-import convex from '@/lib/convex';
+import convex from '@/lib/convex/convex';
 import { api } from '@/convex/_generated/api';
 
 export interface PipelineConfig {

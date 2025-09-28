@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Radio, RadioIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBroadcastSessionStore, useIsBroadcastActive, useCurrentBroadcastDuration, useTotalBroadcastTime } from '@/lib/stores/broadcastSessionStore';
+import { useBroadcastSessionStore, useIsBroadcastActive, useCurrentBroadcastDuration, useTotalBroadcastTime } from '@/lib/stores/session/broadcastSessionStore';
 
 interface RuntimeCounterProps {
   className?: string;

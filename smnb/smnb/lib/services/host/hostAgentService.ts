@@ -27,7 +27,7 @@ import { StoryThread, StoryUpdate } from '@/lib/types/storyThread';
 import { MockLLMService } from './mockLLMService';
 import { ClaudeLLMService } from './claudeLLMService';
 import { api } from '@/convex/_generated/api';
-import convex from '@/lib/convex';
+import convex from '@/lib/convex/convex';
 
 export class HostAgentService extends EventEmitter {
   private state: HostState;

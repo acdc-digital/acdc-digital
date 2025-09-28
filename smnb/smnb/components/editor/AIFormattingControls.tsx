@@ -18,7 +18,7 @@ import {
   Home
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useEditorActions, useEditorStatus, useEditorStore } from '../../lib/stores/editorStore';
+import { useEditorActions, useEditorStatus, useEditorStore } from '../../lib/stores/editor/editorStore';
 import { ContentType } from '../../lib/types/editor';
 import { convertMarkdownToHTML, isMarkdownContent } from '../../lib/utils/markdownConverter';
 
@@ -386,23 +386,6 @@ export default function AIFormattingControls({ editor, storyId, className }: AIF
         </button>
 
         <button
-          onClick={handleBlogPostGeneration}
-          disabled={status === 'ai-processing' || streamingType === 'blog'}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border disabled:opacity-50 cursor-pointer",
-            hasGeneratedContent('blog')
-              ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30"
-              : status === 'ai-processing' || streamingType === 'blog'
-              ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-              : "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30"
-          )}
-          title={hasGeneratedContent('blog') ? "Blog post already generated" : "Generate analytical blog post"}
-        >
-          {hasGeneratedContent('blog') ? <Check className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-          <span>{streamingType === 'blog' ? 'Generating...' : 'Blog Post'}</span>
-        </button>
-
-        <button
           onClick={handleNewsletterFormat}
           disabled={status === 'ai-processing' || streamingType === 'newsletter'}
           className={cn(
@@ -415,51 +398,6 @@ export default function AIFormattingControls({ editor, storyId, className }: AIF
         >
           {hasGeneratedContent('newsletter') ? <Check className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
           Newsletter
-        </button>
-
-        <button
-          onClick={handleAddAnalysis}
-          disabled={status === 'ai-processing' || streamingType === 'analysis'}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border disabled:opacity-50 cursor-pointer",
-            hasGeneratedContent('analysis')
-              ? "bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
-              : "bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
-          )}
-          title={hasGeneratedContent('analysis') ? "Load generated analysis (already created)" : "Add analytical insights"}
-        >
-          {hasGeneratedContent('analysis') ? <Check className="w-3 h-3" /> : <BarChart3 className="w-3 h-3" />}
-          Analysis
-        </button>
-
-        <button
-          onClick={handleSocialInsights}
-          disabled={status === 'ai-processing' || streamingType === 'social'}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border disabled:opacity-50 cursor-pointer",
-            hasGeneratedContent('social')
-              ? "bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
-              : "bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border-yellow-500/30"
-          )}
-          title={hasGeneratedContent('social') ? "Load generated social insights (already created)" : "Analyze social media implications"}
-        >
-          {hasGeneratedContent('social') ? <Check className="w-3 h-3" /> : <MessageSquare className="w-3 h-3" />}
-          Social
-        </button>
-
-        <button
-          onClick={handleAddContext}
-          disabled={status === 'ai-processing' || streamingType === 'context'}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded border disabled:opacity-50 cursor-pointer",
-            hasGeneratedContent('context')
-              ? "bg-green-500/20 hover:bg-green-500/30 text-green-400 border-green-500/30"
-              : "bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border-orange-500/30"
-          )}
-          title={hasGeneratedContent('context') ? "Load generated context (already created)" : "Add background context"}
-        >
-          {hasGeneratedContent('context') ? <Check className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
-          Context
         </button>
       </div>
 

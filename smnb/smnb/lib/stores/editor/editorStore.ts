@@ -1,5 +1,5 @@
 /**
- * Editor Store - Zustand State Management for TipTap Editor
+ * Editor Store - Zustand State Management for Newsletter Editor
  * Manages editor content, status, AI integration, and visual feedback
  */
 
@@ -97,14 +97,9 @@ export const useEditorStore = create<EditorStore>()(
       responses: []
     },
     
-    // Current story tracking for persistence - enhanced with cleanup tracking
+    // Current story tracking for newsletter persistence
     currentStoryId: undefined,
-    currentContentType: undefined,
     previousStoryId: undefined, // Track previous story for cleanup
-    
-    // Content type management state - now story-specific
-    generatedContent: new Map(), // storyId -> Map<ContentType, GeneratedContent>
-    generationStatus: new Map(), // storyId -> Map<ContentType, boolean>
 
     // Content Management Actions
     setContent: (newContent) => {
@@ -224,48 +219,14 @@ export const useEditorStore = create<EditorStore>()(
         
         return {
           currentStoryId: storyId,
-          previousStoryId: state.currentStoryId,
-          currentContentType: undefined
+          previousStoryId: state.currentStoryId
         };
       });
     },
 
     loadContent: async (storyId, contentType) => {
       try {
-        // Handle 'home' content type - don't persist to database, use in-memory generated content
-        if (contentType === 'home') {
-          const state = get();
-          const storyContent = state.generatedContent.get(storyId);
-          const homeContent = storyContent?.get('home');
-          
-          if (homeContent) {
-            set(() => ({
-              content: {
-                ...createDefaultContent(),
-                html: homeContent.html,
-                json: homeContent.json,
-                text: homeContent.html.replace(/<[^>]*>/g, ''),
-                wordCount: homeContent.html.replace(/<[^>]*>/g, '').trim().split(/\s+/).length || 0,
-                characterCount: homeContent.html.replace(/<[^>]*>/g, '').length
-              },
-              currentStoryId: storyId,
-              currentContentType: contentType,
-              hasUnsavedChanges: false
-            }));
-            console.log(`📝 Loaded home content from memory for story ${storyId}`);
-            return homeContent.html;
-          } else {
-            // No home content generated yet, load default empty content
-            set(() => ({
-              content: createDefaultContent(),
-              currentStoryId: storyId,
-              currentContentType: contentType,
-              hasUnsavedChanges: false
-            }));
-            console.log(`📝 Loaded default home content for story ${storyId}`);
-            return '';
-          }
-        }
+        // Newsletter content is handled through editor_documents table
 
         // Check if content already exists for other types
         const convexService = getEditorConvexService();
@@ -285,19 +246,17 @@ export const useEditorStore = create<EditorStore>()(
                 characterCount: existingContent.replace(/<[^>]*>/g, '').length
               },
               currentStoryId: storyId,
-              currentContentType: contentType,
               hasUnsavedChanges: false
             }));
 
-            console.log(`📝 Loaded existing ${contentType} content for story ${storyId}`);
+            console.log(`📝 Loaded existing newsletter content for story ${storyId}`);
             return existingContent;
           }
         }
 
         // Content doesn't exist, return null to trigger generation
         set(() => ({
-          currentStoryId: storyId,
-          currentContentType: contentType
+          currentStoryId: storyId
         }));
         
         return null;
@@ -333,12 +292,7 @@ export const useEditorStore = create<EditorStore>()(
 
     checkContentExists: async (storyId, contentType) => {
       try {
-        // Handle 'home' content type - check in-memory generated content
-        if (contentType === 'home') {
-          const state = get();
-          const storyStatus = state.generationStatus.get(storyId);
-          return storyStatus?.get('home') || false;
-        }
+        // Only newsletter content type supported now
 
         // Check database for other content types
         const convexService = getEditorConvexService();
@@ -401,20 +355,14 @@ export const useEditorStore = create<EditorStore>()(
           // Create a streaming handler that updates content in real-time
           const streamHandler = {
             onChunk: (chunk: string) => {
-              // Update content as it streams in - append to existing
-              set((state) => {
-                const newContent = state.content.html + chunk;
-                return {
-                  content: {
-                    ...state.content,
-                    html: newContent,
-                    text: newContent.replace(/<[^>]*>/g, ''),
-                    wordCount: newContent.replace(/<[^>]*>/g, '').trim().split(/\s+/).length,
-                    characterCount: newContent.replace(/<[^>]*>/g, '').length,
-                    lastModified: Date.now()
-                  }
-                };
-              });
+              // Optimized streaming - only update HTML, defer expensive calculations
+              set((state) => ({
+                content: {
+                  ...state.content,
+                  html: state.content.html + chunk,
+                  lastModified: Date.now()
+                }
+              }));
             },
             onComplete: (finalContent: string) => {
               // Set the final formatted content (will be processed by editorAIService)
@@ -548,11 +496,22 @@ export const useEditorStore = create<EditorStore>()(
         });
       } else {
         // Handle failed AI response
+        const errorString = JSON.stringify(response.error);
+        const isOverloadError = response.error?.type === 'overloaded_error' || 
+                               errorString.includes('overloaded_error') ||
+                               errorString.includes('Overloaded');
+        
+        if (isOverloadError) {
+          console.warn('⏳ AI service is overloaded, please try again in a moment');
+          // You could show a toast notification here
+        } else {
+          console.error('❌ AI Response error:', response.error);
+        }
+        
         set({ 
           isAIProcessing: false,
           status: 'error'
         });
-        console.error('❌ AI Response error:', response.error);
       }
     },
 
@@ -681,7 +640,7 @@ export const useEditorStore = create<EditorStore>()(
         },
         status: 'editing',
         hasUnsavedChanges: true,
-        currentContentType: 'home' // Default to home content when receiving from producer
+        // Newsletter content loaded from producer
       }));
 
       console.log(`✅ Editor loaded story ${newStoryId} with ${content.content.length} chars`);
@@ -1006,4 +965,4 @@ useEditorStore.subscribe(
   }
 );
 
-console.log('📝 Editor store initialized with TipTap integration');
+console.log('📝 Editor store initialized with Newsletter Display integration');
