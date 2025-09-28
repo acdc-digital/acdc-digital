@@ -1110,4 +1110,60 @@ export default defineSchema({
     .index("by_keywords", ["source_keywords"])
     .index("by_cost", ["generation_cost"])
     .index("by_user_rating", ["user_rating", "generated_at"]),
+
+  // SESSION MANAGER TABLES - Chat-style session management with AI model parameters
+  
+  // Sessions table - Manages individual chat sessions with AI model settings
+  sessions: defineTable({
+    name: v.string(), // Session name/title
+    status: v.union(
+      v.literal("active"),
+      v.literal("paused"), 
+      v.literal("archived")
+    ),
+    
+    // AI Model Configuration
+    settings: v.object({
+      model: v.string(), // "gpt-4", "gpt-4-turbo", "claude-3-opus", etc.
+      temperature: v.number(), // 0.0 - 2.0
+      maxTokens: v.number(), // 256 - 4096
+      topP: v.number(), // 0.0 - 1.0
+      frequencyPenalty: v.number(), // -2.0 - 2.0
+      presencePenalty: v.number(), // -2.0 - 2.0
+      controlMode: v.union(
+        v.literal("hands-free"), // AI manages all parameters
+        v.literal("balanced"), // Preset configurations with minor adjustments
+        v.literal("full-control") // Complete control over all parameters
+      )
+    }),
+    
+    // Timestamps
+    created_at: v.number(),
+    updated_at: v.number(),
+    last_active: v.number()
+  })
+    .index("by_status", ["status"])
+    .index("by_last_active", ["last_active"])
+    .index("by_created_at", ["created_at"]),
+
+  // Messages table - Individual messages within sessions
+  messages: defineTable({
+    sessionId: v.id("sessions"), // Reference to parent session
+    role: v.union(
+      v.literal("user"),
+      v.literal("assistant"),
+      v.literal("system")
+    ),
+    content: v.string(), // Message content
+    
+    // Optional metadata
+    tokens: v.optional(v.number()), // Token count for this message
+    model: v.optional(v.string()), // Model used for assistant responses
+    
+    // Timestamps
+    created_at: v.number()
+  })
+    .index("by_session", ["sessionId", "created_at"])
+    .index("by_role", ["role"])
+    .index("by_created_at", ["created_at"]),
 });

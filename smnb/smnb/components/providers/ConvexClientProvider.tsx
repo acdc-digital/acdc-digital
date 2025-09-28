@@ -12,5 +12,11 @@ interface ConvexClientProviderProps {
 }
 
 export default function ConvexClientProvider({ children }: ConvexClientProviderProps) {
-  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+  try {
+    return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+  } catch (error) {
+    console.warn("Convex client not available, running in offline mode:", error);
+    // Return children without Convex provider for development
+    return <>{children}</>;
+  }
 }

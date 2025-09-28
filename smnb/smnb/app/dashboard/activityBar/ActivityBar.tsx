@@ -16,7 +16,7 @@ import {
   Archive
 } from "lucide-react";
 
-export type PanelType = "archive" | "home" | "stats" | "heatmap" | "network" | "docs" | "settings" | "account";
+export type PanelType = "archive" | "sessions" | "home" | "stats" | "heatmap" | "network" | "docs" | "settings" | "account";
 
 interface ActivityBarProps {
   activePanel?: PanelType;
@@ -36,7 +36,12 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
   ];
 
   const handleActivityClick = (id: PanelType) => {
-    onPanelChange?.(id);
+    // Special handling for archive button - open sessions in studio
+    if (id === "archive") {
+      onPanelChange?.("sessions");
+    } else {
+      onPanelChange?.(id);
+    }
   };
 
   const renderActivityButton = (item: { id: PanelType; icon: LucideIcon; label: string }) => {
