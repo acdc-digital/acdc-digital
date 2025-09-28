@@ -10,7 +10,7 @@
 
 import React, { useEffect } from 'react';
 import { useConvex } from 'convex/react';
-import { tokenCountingService } from '@/lib/services/tokenCountingService';
+import { tokenCountingService } from '@/lib/services/core/tokenCountingService';
 
 interface TokenCountingProviderProps {
   children: React.ReactNode;
