@@ -15,7 +15,7 @@ import { Eye, EyeOff, Key, Check, X, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useApiKeyStore, ANTHROPIC_CONFIG, maskApiKey, validateKeyFormat } from '@/lib/stores/apiKeyStore';
+import { useApiKeyStore, ANTHROPIC_CONFIG, maskApiKey, validateKeyFormat } from '@/lib/stores/auth/apiKeyStore';
 
 interface ApiKeyInputProps {
   className?: string;

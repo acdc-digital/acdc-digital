@@ -31,7 +31,7 @@ export default function Studio() {
         </div>
 
         {/* Controls Panel - Pinned to bottom */}
-        <div className="flex-shrink-0 max-h-70 overflow-y-auto pb-0">
+        <div className="flex-shrink-0 max-h-70 mb-3">
           <Controls mode={mode} onModeChange={setMode} />
         </div>
         

@@ -1110,4 +1110,5 @@ export default defineSchema({
     .index("by_keywords", ["source_keywords"])
     .index("by_cost", ["generation_cost"])
     .index("by_user_rating", ["user_rating", "generated_at"]),
+
 });

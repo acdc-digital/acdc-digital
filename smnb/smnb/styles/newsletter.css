@@ -69,6 +69,20 @@
 }
 
 /* ============================================
+   NEWSLETTER CONTAINER CLASSES
+   ============================================ */
+
+/* Newsletter Display Container */
+.newsletter-display-container {
+  background-color: #262626 !important; /* neutral-800 */
+  border-radius: 0.5rem;
+}
+
+.dark .newsletter-display-container {
+  background-color: #262626 !important; /* neutral-800 */
+}
+
+/* ============================================
    NEWSLETTER TYPOGRAPHY CLASSES
    ============================================ */
 
@@ -90,7 +104,7 @@
 /* H1 - Major Section Headers */
 .newsletter-h1 {
   font-family: var(--font-display);
-  font-size: var(--text-h1);
+  font-size: var(--text-h3);
   font-weight: 700;
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
@@ -222,9 +236,9 @@
   font-size: clamp(1.125rem, 2vw, 1.25rem);
   font-style: italic;
   line-height: var(--leading-relaxed);
-  background-color: #f9fafb;
-  border-left: 4px solid #d1d5db;
-  color: #374151;
+  background-color: #525252;
+  border-left: 4px solid #ffffff;
+  color: #ffffff;
   padding-left: 1.5rem;
   padding-right: 1rem;
   padding-top: 1rem;
@@ -235,9 +249,32 @@
 }
 
 .dark .newsletter-blockquote {
-  background-color: #1f2937;
-  border-left-color: #4b5563;
-  color: #d1d5db;
+  background-color: #525252;
+  border-left-color: #ffffff;
+  color: #ffffff;
+}
+
+/* Universal blockquote styling within newsletter container */
+.newsletter-display-container blockquote {
+  font-family: var(--font-headline);
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  font-style: italic;
+  line-height: var(--leading-relaxed);
+  background-color: #525252 !important;
+  border-left: 4px solid #ffffff !important;
+  color: #ffffff !important;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dark .newsletter-display-container blockquote {
+  background-color: #525252 !important;
+  border-left-color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 .newsletter-blockquote::before {
@@ -409,6 +446,33 @@
 /* ============================================
    DIVIDERS & SPACING
    ============================================ */
+
+/* Issue stats above header */
+p:first-child em {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.dark p:first-child em {
+  color: #9ca3af;
+}
+
+/* Issue stats paragraph - minimal spacing */
+p:first-child {
+  margin-bottom: 0.25rem;
+  margin-top: 0;
+}
+
+/* Header separator - tight spacing below h1 */
+.newsletter-h1 + hr {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dark .newsletter-h1 + hr {
+  border-top-color: #374151;
+}
 
 .newsletter-divider {
   margin-top: 2rem;

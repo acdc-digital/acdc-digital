@@ -256,7 +256,7 @@ export type ToolbarItem =
   | 'undo' | 'redo';
 
 // Content Type for persistent storage and button identification  
-export type ContentType = 'home' | 'blog' | 'newsletter' | 'analysis' | 'social' | 'context';
+export type ContentType = 'newsletter';
 
 // Store Actions Interface
 export interface EditorActions {

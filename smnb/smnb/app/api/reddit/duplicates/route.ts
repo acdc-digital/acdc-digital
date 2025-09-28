@@ -2,7 +2,7 @@
 // /Users/matthewsimon/Projects/SMNB/smnb/app/api/reddit/duplicates/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { redditAPI, RedditResponse } from '@/lib/reddit';
+import { redditAPI, RedditResponse } from '@/lib/reddit/reddit';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

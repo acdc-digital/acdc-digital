@@ -1,5 +1,5 @@
 import { api } from "../../../convex/_generated/api";
-import convex from "@/lib/convex";
+import convex from "@/lib/convex/convex";
 import { Id } from "../../../convex/_generated/dataModel";
 
 // Simple interface for analytics configuration

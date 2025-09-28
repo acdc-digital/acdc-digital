@@ -10,7 +10,7 @@
  */
 
 import { EventEmitter } from 'events';
-import { RedditPost } from '@/lib/reddit';
+import { RedditPost } from '@/lib/reddit/reddit';
 import { EnhancedRedditPost } from '@/lib/types/enhancedRedditPost';
 import { tokenCountingService } from '../tokenCountingService';
 

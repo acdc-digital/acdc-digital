@@ -15,11 +15,11 @@ import { useProducerStore } from "@/lib/stores/producer/producerStore";
 import { useStorySelectionStore } from "@/lib/stores/livefeed/storySelectionStore";
 import { Eye, X, UserPen } from "lucide-react";
 import { StudioMode } from '../Studio';
-import Editor from '../editor/Editor';
-import { useEditorStatus, useEditorContent, useEditorStore } from "@/lib/stores/editorStore";
+import Editor from "./_components/Editor";
+import { useEditorStatus, useEditorContent, useEditorStore } from "@/lib/stores/editor/editorStore";
 import { ComputerUseAIControls } from "@/lib/components/ComputerUseAIControls";
 import { ProducerComputerUseIntegration } from "@/lib/components/ProducerComputerUseIntegration";
-import { useApiKeyStore } from "@/lib/stores/apiKeyStore";
+import { useApiKeyStore } from "@/lib/stores/auth/apiKeyStore";
 
 interface ProducerProps {
   onModeChange?: (mode: StudioMode) => void;
@@ -222,7 +222,7 @@ export default function Producer({ onModeChange }: ProducerProps) {
         onError={(error) => console.error('❌ Producer computer use error:', error)}
       />
       
-      <div className="h-full bg-card rounded-t-none rounded-b-lg shadow-sm flex flex-col">{/* Thin Header with Status Indicators */}
+      <div className="h-full bg-card border border-border rounded-t-none rounded-b-lg shadow-sm flex flex-col">{/* Thin Header with Status Indicators */}
       <div className="flex bg-muted/30 items-center justify-between px-4 py-2 border-b border-border">
         {/* Left side buttons */}
         <div className="flex items-center gap-2">
@@ -425,10 +425,10 @@ export default function Producer({ onModeChange }: ProducerProps) {
             )}
           </div>
         ) : (
-          // Editor View - Show embedded editor component
-          <div className="h-full flex flex-col">
+          // Editor View - Show embedded editor component with proper scrolling
+          <div className="h-full flex flex-col overflow-hidden">
             {/* Editor Component */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <Editor />
             </div>
           </div>

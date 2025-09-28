@@ -18,6 +18,9 @@ interface SearchDomainManagerProps {
   handleAddDomain: () => void;
   handleRemoveDomain: (domain: string) => void;
   
+  // UI Options
+  showHeaders?: boolean;
+  
   // Responsive props
   showConfigInline?: boolean;
   configData?: {
@@ -27,6 +30,8 @@ interface SearchDomainManagerProps {
     useUserApiKey: boolean;
     setUseUserApiKey: (value: boolean) => void;
     hasValidApiKey: () => boolean;
+    postsCount?: number; // Feed count from system column
+    queueLength?: number; // Queue count from system column
   };
 }
 
@@ -37,14 +42,17 @@ export default function SearchDomainManager({
   domainFeedback,
   handleAddDomain,
   handleRemoveDomain,
+  showHeaders = true,
   showConfigInline = false,
   configData,
 }: SearchDomainManagerProps) {
   return (
     <div className="space-y-2">
-      <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">
-        {showConfigInline ? 'Search & Config' : 'Search'}
-      </div>
+      {showHeaders && (
+        <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">
+          {showConfigInline ? 'Search & Config' : 'Search'}
+        </div>
+      )}
       <div className="space-y-1">
         {/* Search Input */}
         <div className="flex gap-1">
@@ -74,14 +82,11 @@ export default function SearchDomainManager({
           </button>
         </div>
         
-        {/* Search Terms Container */}
+        {/* Search Terms Container - 6 rows to match other columns */}
         <div className="space-y-1">
-          {searchDomains.length === 0 ? (
-            <div className="px-2 py-1 text-xs rounded-sm bg-[#1a1a1a] text-muted-foreground/30 italic border border-border/20">
-              custom domain…
-            </div>
-          ) : (
-            searchDomains.map((domain) => (
+          {[0, 1, 2, 3, 4, 5].map((index) => {
+            const domain = searchDomains[index];
+            return domain ? (
               <div
                 key={domain}
                 className="px-2 py-1 text-xs rounded-sm bg-blue-500/15 text-blue-300 flex items-center justify-between gap-2 border border-blue-500/20"
@@ -95,8 +100,15 @@ export default function SearchDomainManager({
                   ×
                 </button>
               </div>
-            ))
-          )}
+            ) : (
+              <div
+                key={`empty-domain-${index}`}
+                className="px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
+              >
+                custom domain...
+              </div>
+            );
+          })}
         </div>
         {domainFeedback.status === 'error' && (
           <div className="text-xs text-red-400">{domainFeedback.message}</div>
@@ -105,13 +117,14 @@ export default function SearchDomainManager({
         {/* Inline config for tablet view */}
         {showConfigInline && configData && (
           <div className="space-y-1 text-xs pt-2 border-t border-border/20">
+            {/* Feed/Queue from system column */}
             <div className="flex justify-between">
-              <span className="text-muted-foreground/70">Sources</span>
-              <span className="font-mono">{configData.enabledDefaultsCount + configData.customSubredditsCount}</span>
+              <span className="text-muted-foreground/70">Feed</span>
+              <span className="font-mono">{configData.postsCount || 0}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground/70">Stories</span>
-              <span className="font-mono">{configData.hostStats.totalNarrations}</span>
+              <span className="text-muted-foreground/70">Queue</span>
+              <span className="font-mono">{configData.queueLength || 0}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground/70">API</span>
@@ -120,6 +133,14 @@ export default function SearchDomainManager({
                 onCheckedChange={configData.setUseUserApiKey}
                 className="scale-75"
               />
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground/70">Sources</span>
+              <span className="font-mono">{configData.enabledDefaultsCount + configData.customSubredditsCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground/70">Stories</span>
+              <span className="font-mono">{configData.hostStats.totalNarrations}</span>
             </div>
           </div>
         )}

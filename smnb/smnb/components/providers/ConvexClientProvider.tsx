@@ -5,7 +5,7 @@
 
 import { ConvexProvider } from "convex/react";
 import { ReactNode } from "react";
-import convex from "@/lib/convex-client";
+import convex from "@/lib/convex/convex-client";
 
 interface ConvexClientProviderProps {
   children: ReactNode;

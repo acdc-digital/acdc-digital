@@ -50,7 +50,7 @@ POST /api/reddit
 ### 3. Server Actions
 
 ```typescript
-import { fetchHotPosts, fetchRisingPosts, fetchTrendingPosts } from '@/lib/reddit-actions';
+import { fetchHotPosts, fetchRisingPosts, fetchTrendingPosts } from '@/lib/reddit/reddit-actions';
 
 // Fetch hot posts
 const hotPosts = await fetchHotPosts('programming', 25);
