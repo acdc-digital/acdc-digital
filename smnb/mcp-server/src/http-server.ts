@@ -248,7 +248,7 @@ app.get('/', (req: Request, res: Response) => {
 async function getSessionMetrics(args: any) {
   try {
     console.log('Calling getSessionMetrics with args:', args);
-    const result = await convex.query({ functionName: 'analytics:getSessionMetrics' } as any, {
+    const result = await convex.query('analytics:getSessionMetrics' as any, {
       sessionId: args.sessionId,
       timeRange: args.timeRange || 'all',
     });
@@ -263,7 +263,7 @@ async function getSessionMetrics(args: any) {
 async function getTokenUsage(args: any) {
   try {
     console.log('Calling getTokenUsage with args:', args);
-    const usage = await convex.query({ functionName: 'analytics:getTokenUsage' } as any, {
+    const usage = await convex.query('analytics:getTokenUsage' as any, {
       groupBy: args.groupBy || 'day',
       timeRange: args.timeRange || 'week',
     });
@@ -287,7 +287,7 @@ async function getTokenUsage(args: any) {
 async function searchMessages(args: any) {
   try {
     console.log('Calling searchMessages with args:', args);
-    const result = await convex.query({ functionName: 'analytics:searchMessages' } as any, {
+    const result = await convex.query('analytics:searchMessages' as any, {
       query: args.query,
       sessionId: args.sessionId,
       limit: args.limit || 10,
@@ -303,7 +303,7 @@ async function searchMessages(args: any) {
 async function getActiveSessions(args: any) {
   try {
     console.log('Calling getActiveSessions with args:', args);
-    const result = await convex.query({ functionName: 'analytics:getActiveSessions' } as any, {
+    const result = await convex.query('analytics:getActiveSessions' as any, {
       includeDetails: args.includeDetails || false,
     });
     console.log('getActiveSessions result:', result);
@@ -317,7 +317,7 @@ async function getActiveSessions(args: any) {
 async function analyzeEngagement(args: any) {
   try {
     console.log('Calling analyzeEngagement with args:', args);
-    const result = await convex.query({ functionName: 'analytics:analyzeEngagement' } as any, {
+    const result = await convex.query('analytics:analyzeEngagement' as any, {
       metric: args.metric || 'messages',
       timeRange: args.timeRange || 'week',
     });
@@ -332,7 +332,7 @@ async function analyzeEngagement(args: any) {
 async function getSystemHealth() {
   try {
     console.log('Calling getSystemHealth');
-    const result = await convex.query({ functionName: 'analytics:getSystemHealth' } as any, {});
+    const result = await convex.query('analytics:getSystemHealth' as any, {});
     console.log('getSystemHealth result:', result);
     return result;
   } catch (error) {
@@ -344,7 +344,7 @@ async function getSystemHealth() {
 async function getCostBreakdown(args: any) {
   try {
     console.log('Calling getCostBreakdown with args:', args);
-    const result = await convex.query({ functionName: 'analytics:getCostBreakdown' } as any, {
+    const result = await convex.query('analytics:getCostBreakdown' as any, {
       period: args.period || 'weekly',
     });
     console.log('getCostBreakdown result:', result);
