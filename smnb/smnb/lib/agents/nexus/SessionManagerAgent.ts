@@ -20,10 +20,15 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { MessageParam, ToolResultBlockParam } from '@anthropic-ai/sdk/resources/messages';
 import { BaseNexusAgent } from './BaseNexusAgent';
 import type { AgentRequest, AgentChunk, Tool } from './types';
+import { ConvexHttpClient } from 'convex/browser';
+import { api } from '@/convex/_generated/api';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
+
+// Initialize Convex client for database access
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export class SessionManagerAgent extends BaseNexusAgent {
   readonly id = 'session-manager-agent';
@@ -207,17 +212,30 @@ export class SessionManagerAgent extends BaseNexusAgent {
 
   async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
     try {
+      // Generate sessionId if not provided (for conversation grouping)
+      const sessionId = request.context?.sessionId || `session-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
       // Yield initial metadata
       yield this.createMetadataChunk({
         status: 'starting',
         agentId: this.id,
         agentName: this.name,
+        sessionId,
       });
 
       // Extract user message from request
-      const userMessage = typeof request.input === 'string' 
-        ? request.input 
+      const userMessage = typeof request.input === 'string'
+        ? request.input
         : (request.input as { message?: string })?.message || 'Help me with session management';
+      
+      // Save user message to database
+      const userMessageId = await convex.mutation(api.sessionManagerChats.create, {
+        sessionId,
+        role: 'user',
+        content: userMessage,
+      });
+      
+      console.log('[SessionManagerAgent] Saved user message:', userMessageId);
 
       // If specific tool requested, execute directly
       if (request.toolId) {
@@ -290,6 +308,19 @@ Always try to help users understand their data and make informed decisions.`
         }
       ];
 
+      // Track assistant response data for database storage
+      let assistantContent = '';
+      const toolCallsExecuted: Array<{
+        toolName: string;
+        toolInput: string;
+        toolResult?: string;
+        status: 'success' | 'error' | 'pending';
+        executionTime?: number;
+        errorMessage?: string;
+      }> = [];
+      let totalInputTokens = 0;
+      let totalOutputTokens = 0;
+
       let currentResponse = response;
       let continueConversation = true;
       const MAX_TURNS = 10; // Prevent infinite loops
@@ -298,6 +329,12 @@ Always try to help users understand their data and make informed decisions.`
       while (continueConversation && turnCount < MAX_TURNS) {
         turnCount++;
         console.log('[SessionManagerAgent] Processing response turn', turnCount, 'blocks:', currentResponse.content.length);
+        
+        // Track token usage from this turn
+        if (currentResponse.usage) {
+          totalInputTokens += currentResponse.usage.input_tokens || 0;
+          totalOutputTokens += currentResponse.usage.output_tokens || 0;
+        }
         
         // Add assistant response to conversation
         conversationMessages.push({
@@ -313,6 +350,9 @@ Always try to help users understand their data and make informed decisions.`
           console.log('[SessionManagerAgent] Block type:', block.type);
           
           if (block.type === 'text') {
+            // Accumulate text content for database storage
+            assistantContent += block.text;
+            
             // Stream text content
             console.log('[SessionManagerAgent] Yielding text content:', block.text.substring(0, 100));
             yield this.createContentChunk(block.text);
@@ -325,8 +365,19 @@ Always try to help users understand their data and make informed decisions.`
               toolId: block.name,
             });
 
+            const toolStartTime = Date.now();
             try {
               const toolResult = await this.executeTool(block.name, block.input, request.context);
+              const executionTime = Date.now() - toolStartTime;
+              
+              // Track tool call for database
+              toolCallsExecuted.push({
+                toolName: block.name,
+                toolInput: JSON.stringify(block.input),
+                toolResult: JSON.stringify(toolResult),
+                status: 'success',
+                executionTime,
+              });
               
               yield this.createToolCallChunk(block.name, block.input, toolResult);
 
@@ -337,13 +388,24 @@ Always try to help users understand their data and make informed decisions.`
                 content: JSON.stringify(toolResult),
               });
             } catch (error) {
-              yield this.createErrorChunk(
-                error instanceof Error ? error.message : 'Tool execution failed'
-              );
+              const executionTime = Date.now() - toolStartTime;
+              const errorMessage = error instanceof Error ? error.message : 'Tool execution failed';
+              
+              // Track failed tool call
+              toolCallsExecuted.push({
+                toolName: block.name,
+                toolInput: JSON.stringify(block.input),
+                toolResult: undefined,
+                status: 'error',
+                executionTime,
+                errorMessage,
+              });
+              
+              yield this.createErrorChunk(errorMessage);
               toolResults.push({
                 type: 'tool_result',
                 tool_use_id: block.id,
-                content: JSON.stringify({ error: error instanceof Error ? error.message : 'Tool execution failed' }),
+                content: JSON.stringify({ error: errorMessage }),
               });
             }
           }
@@ -379,8 +441,38 @@ FORMATTING GUIDELINES:
         }
       }
 
+      // Calculate cost based on Claude 3.5 Haiku pricing
+      // Input: $0.80 per million tokens, Output: $4.00 per million tokens
+      const inputCost = (totalInputTokens / 1_000_000) * 0.80;
+      const outputCost = (totalOutputTokens / 1_000_000) * 4.00;
+      const totalCost = inputCost + outputCost;
+      
+      // Save assistant message to database with all metadata
+      const assistantMessageId = await convex.mutation(api.sessionManagerChats.create, {
+        sessionId,
+        role: 'assistant',
+        content: assistantContent,
+        toolCalls: toolCallsExecuted.length > 0 ? toolCallsExecuted : undefined,
+        tokenUsage: {
+          inputTokens: totalInputTokens,
+          outputTokens: totalOutputTokens,
+          totalTokens: totalInputTokens + totalOutputTokens,
+          estimatedCost: totalCost,
+          model: 'claude-3-5-haiku-20241022',
+        },
+      });
+      
+      console.log('[SessionManagerAgent] Saved assistant message:', assistantMessageId, {
+        contentLength: assistantContent.length,
+        toolCalls: toolCallsExecuted.length,
+        totalTokens: totalInputTokens + totalOutputTokens,
+        cost: totalCost,
+      });
+
       yield this.createMetadataChunk({
         status: 'complete',
+        sessionId,
+        messagesSaved: 2, // user + assistant
       });
 
     } catch (error) {
@@ -391,97 +483,268 @@ FORMATTING GUIDELINES:
     }
   }
 
-  // Tool handlers that will call Convex actions
+  // Tool handlers that call Convex database queries
   private async handleSessionMetrics(input: unknown): Promise<unknown> {
-    // This will be replaced with actual Convex action call
-    // For now, return placeholder that shows structure
-    const { timeRange } = input as { timeRange: 'today' | 'week' | 'month' | 'all' };
-    
-    // TODO: Call Convex action
-    // const result = await convex.action(api.nexusAgents.executeSessionMetrics, { timeRange });
-    
-    return {
-      placeholder: true,
-      message: `This will fetch session metrics for ${timeRange} from Convex`,
-      timeRange,
-    };
+    try {
+      const { timeRange } = input as { timeRange: 'today' | 'week' | 'month' | 'all' };
+      
+      // Get active sessions count
+      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
+        minutesThreshold: 30,
+      });
+      
+      // Get global session metrics for the timeRange
+      const sessionMetrics = await convex.query(api.sessionManagerChats.getGlobalSessionMetrics, {
+        timeRange,
+      });
+      
+      // Get conversation metrics
+      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
+        timeRange,
+      });
+      
+      return {
+        timeRange,
+        totalSessions: activeSessions.totalSessions,
+        activeSessions: activeSessions.activeSessions,
+        recentActivity: sessionMetrics.recentSessionCount,
+        messageCount: sessionMetrics.totalMessages,
+        messageBreakdown: sessionMetrics.breakdown,
+        averageResponseTime: metrics.averageResponseTime,
+        averageSentiment: metrics.averageSentiment,
+        satisfactionRate: metrics.satisfactionRate,
+        toolUsageCount: 0, // Will get from tool stats if needed
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleSessionMetrics:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch session metrics',
+      };
+    }
   }
 
   private async handleTokenUsage(input: unknown): Promise<unknown> {
-    const { groupBy, timeRange } = input as {
-      groupBy: 'session' | 'model' | 'day' | 'hour';
-      timeRange: 'today' | 'week' | 'month' | 'all';
-    };
-    
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: `This will fetch token usage grouped by ${groupBy} for ${timeRange} from Convex`,
-      groupBy,
-      timeRange,
-    };
+    try {
+      const { groupBy, timeRange } = input as {
+        groupBy: 'session' | 'model' | 'day' | 'hour';
+        timeRange: 'today' | 'week' | 'month' | 'all';
+      };
+      
+      // Map hour to day since we don't support hourly grouping yet
+      const validGroupBy = groupBy === 'hour' ? 'day' : groupBy as 'session' | 'model' | 'day';
+      
+      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
+        timeRange,
+        groupBy: validGroupBy,
+      });
+      
+      return {
+        timeRange,
+        groupBy,
+        totalTokens: tokenStats.totalTokens,
+        totalCost: tokenStats.totalCost,
+        averageTokensPerMessage: tokenStats.averageTokensPerMessage,
+        breakdown: tokenStats.breakdown,
+        topSessions: tokenStats.topSessions,
+        costByModel: tokenStats.costByModel,
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleTokenUsage:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch token usage',
+      };
+    }
   }
 
   private async handleMessageSearch(input: unknown): Promise<unknown> {
-    const { query, sessionId, limit = 10 } = input as {
-      query: string;
-      sessionId?: string;
-      limit?: number;
-    };
-    
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: `This will search for "${query}" in ${sessionId ? `session ${sessionId}` : 'all sessions'}`,
-      query,
-      sessionId,
-      limit,
-    };
+    try {
+      const { query, sessionId, limit = 10 } = input as {
+        query: string;
+        sessionId?: string;
+        limit?: number;
+      };
+      
+      const results = await convex.query(api.sessionManagerChats.searchMessages, {
+        sessionId: sessionId || '',
+        searchQuery: query,
+        limit,
+      });
+      
+      return {
+        query,
+        sessionId,
+        resultCount: results.length,
+        results: results.map(msg => ({
+          messageId: msg._id,
+          role: msg.role,
+          content: msg.content.substring(0, 200) + (msg.content.length > 200 ? '...' : ''),
+          createdAt: msg._creationTime,
+          sessionId: msg.sessionId,
+        })),
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleMessageSearch:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to search messages',
+      };
+    }
   }
 
   private async handleActiveSessions(input: unknown): Promise<unknown> {
-    const { includeDetails = false } = input as { includeDetails?: boolean };
-    
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: `This will fetch active sessions ${includeDetails ? 'with details' : 'summary only'}`,
-      includeDetails,
-    };
+    try {
+      const { includeDetails = false } = input as { includeDetails?: boolean };
+      
+      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
+        minutesThreshold: 30,
+      });
+      
+      // If details requested, also get the full session list
+      let sessions;
+      if (includeDetails) {
+        sessions = await convex.query(api.sessionManagerChats.getActiveSessions, {
+          minutesThreshold: 30,
+        });
+      }
+      
+      return {
+        includeDetails,
+        totalSessions: activeSessions.totalSessions,
+        activeSessions: activeSessions.activeSessions,
+        recentSessionCount: activeSessions.recentSessionCount,
+        sessions: includeDetails ? sessions : undefined,
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleActiveSessions:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch active sessions',
+      };
+    }
   }
 
   private async handleEngagement(input: unknown): Promise<unknown> {
-    const { metric, timeRange } = input as {
-      metric: 'message_volume' | 'response_time' | 'session_duration' | 'overall';
-      timeRange: 'today' | 'week' | 'month' | 'all';
-    };
-    
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: `This will analyze ${metric} engagement for ${timeRange}`,
-      metric,
-      timeRange,
-    };
+    try {
+      const { metric, timeRange } = input as {
+        metric: 'message_volume' | 'response_time' | 'session_duration' | 'overall';
+        timeRange: 'today' | 'week' | 'month' | 'all';
+      };
+      
+      // Get conversation metrics
+      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
+        timeRange,
+      });
+      
+      // Get session metrics for message volume
+      const sessionMetrics = await convex.query(api.sessionManagerChats.getGlobalSessionMetrics, {
+        timeRange,
+      });
+      
+      // Get tool usage stats for engagement patterns
+      const toolStats = await convex.query(api.sessionManagerChats.getGlobalToolUsageStats, {
+        timeRange,
+      });
+      
+      return {
+        metric,
+        timeRange,
+        messageVolume: {
+          total: sessionMetrics.totalMessages,
+          breakdown: sessionMetrics.breakdown,
+        },
+        responseTime: {
+          average: metrics.averageResponseTime,
+        },
+        engagement: {
+          averageSentiment: metrics.averageSentiment,
+          satisfactionRate: metrics.satisfactionRate,
+          toolUsageCount: toolStats.totalToolCalls,
+        },
+        toolUsage: toolStats,
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleEngagement:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to analyze engagement',
+      };
+    }
   }
 
   private async handleSystemHealth(): Promise<unknown> {
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: 'This will check system health from Convex',
-    };
+    try {
+      // Check active sessions as a health indicator
+      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
+        minutesThreshold: 30,
+      });
+      
+      // Get recent token usage to check API health
+      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
+        timeRange: 'today',
+      });
+      
+      // Get recent metrics
+      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
+        timeRange: 'today',
+      });
+      
+      // Calculate health score based on activity and error rates
+      const isHealthy = activeSessions.totalSessions > 0 && metrics.averageResponseTime < 10000;
+      
+      return {
+        status: isHealthy ? 'healthy' : 'degraded',
+        activeSessions: activeSessions.activeSessions,
+        totalSessions: activeSessions.totalSessions,
+        todayMessages: tokenStats.totalTokens > 0,
+        averageResponseTime: metrics.averageResponseTime,
+        systemUptime: 'operational',
+        lastChecked: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleSystemHealth:', error);
+      return {
+        status: 'error',
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to check system health',
+      };
+    }
   }
 
   private async handleCostBreakdown(input: unknown): Promise<unknown> {
-    const { period } = input as { period: 'daily' | 'weekly' | 'monthly' };
-    
-    // TODO: Call Convex action
-    return {
-      placeholder: true,
-      message: `This will fetch ${period} cost breakdown from Convex`,
-      period,
-    };
+    try {
+      const { period } = input as { period: 'daily' | 'weekly' | 'monthly' };
+
+      // Map period to timeRange
+      const timeRange = period === 'daily' ? 'today' as const :
+                        period === 'weekly' ? 'week' as const :
+                        'month' as const;
+      
+      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
+        timeRange,
+        groupBy: 'model',
+      });
+      
+      return {
+        period,
+        timeRange,
+        totalCost: tokenStats.totalCost,
+        totalTokens: tokenStats.totalTokens,
+        averageCostPerMessage: tokenStats.totalCost / (tokenStats.averageTokensPerMessage > 0 ? tokenStats.averageTokensPerMessage : 1),
+        costByModel: tokenStats.costByModel,
+        topSessions: tokenStats.topSessions,
+        projectedMonthlyCost: period === 'daily' ? tokenStats.totalCost * 30 :
+                              period === 'weekly' ? tokenStats.totalCost * 4.3 :
+                              tokenStats.totalCost,
+      };
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleCostBreakdown:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch cost breakdown',
+      };
+    }
   }
 
   protected formatToolResult(toolId: string, result: unknown): string {

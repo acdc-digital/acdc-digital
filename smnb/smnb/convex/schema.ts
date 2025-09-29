@@ -1154,4 +1154,103 @@ export default defineSchema({
   })
     .index("by_sessionId", ["sessionId"]),
 
+  // Session Manager Chat Messages - AI-powered session analytics conversations
+  sessionManagerChats: defineTable({
+    // Core message data
+    sessionId: v.string(), // Session identifier for grouping conversations
+    role: v.union(
+      v.literal("user"),      // User query
+      v.literal("assistant"), // AI response
+      v.literal("system")     // System messages/context
+    ),
+    content: v.string(), // Message text content
+    
+    // Message metadata
+    messageId: v.optional(v.string()), // Unique message identifier for tracking
+    parentMessageId: v.optional(v.string()), // For threading/conversation flow
+    
+    // Tool usage tracking (for Nexus agent tool calls)
+    toolCalls: v.optional(v.array(v.object({
+      toolName: v.string(), // e.g., "analyze_session_metrics"
+      toolInput: v.string(), // JSON string of input parameters
+      toolResult: v.optional(v.string()), // JSON string of tool output
+      status: v.union(
+        v.literal("pending"),
+        v.literal("success"),
+        v.literal("error")
+      ),
+      executionTime: v.optional(v.number()), // milliseconds
+      errorMessage: v.optional(v.string()),
+    }))),
+    
+    // Token usage and cost tracking
+    tokenUsage: v.optional(v.object({
+      inputTokens: v.number(),
+      outputTokens: v.number(),
+      totalTokens: v.number(),
+      estimatedCost: v.number(), // USD
+      model: v.string(), // e.g., "claude-3-5-sonnet-20241022"
+    })),
+    
+    // AI model configuration (at time of generation)
+    modelConfig: v.optional(v.object({
+      model: v.string(),
+      temperature: v.optional(v.number()),
+      maxTokens: v.optional(v.number()),
+      topP: v.optional(v.number()),
+    })),
+    
+    // Conversation context
+    conversationTurn: v.optional(v.number()), // Turn number in conversation
+    isMultiTurn: v.optional(v.boolean()), // Part of multi-turn tool chain
+    
+    // Message classification
+    messageType: v.optional(v.union(
+      v.literal("query"),        // User question
+      v.literal("response"),     // AI answer
+      v.literal("tool_result"),  // Tool execution result
+      v.literal("error"),        // Error message
+      v.literal("context")       // System context
+    )),
+    
+    // Sentiment and analytics (can be computed later)
+    sentiment: v.optional(v.union(
+      v.literal("positive"),
+      v.literal("neutral"),
+      v.literal("negative")
+    )),
+    
+    // User engagement tracking
+    userFeedback: v.optional(v.object({
+      rating: v.union(
+        v.literal("helpful"),
+        v.literal("neutral"),
+        v.literal("unhelpful")
+      ),
+      comment: v.optional(v.string()),
+      feedbackAt: v.number(),
+    })),
+    
+    // Performance metrics
+    responseTime: v.optional(v.number()), // Total response time in ms
+    streamingEnabled: v.optional(v.boolean()),
+    
+    // Additional metadata (flexible JSON blob)
+    metadata: v.optional(v.string()), // JSON string for extensibility
+    
+    // Timestamps
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_sessionId_and_createdAt", ["sessionId", "createdAt"])
+    .index("by_role", ["role", "createdAt"])
+    .index("by_messageType", ["messageType", "createdAt"])
+    .index("by_createdAt", ["createdAt"])
+    // Search index for message content
+    .searchIndex("search_chat_content", {
+      searchField: "content",
+      filterFields: ["sessionId", "role", "messageType"]
+    }),
+
 });

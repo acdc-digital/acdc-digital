@@ -355,13 +355,18 @@ async function getCostBreakdown(args: any) {
   }
 }
 
-// Start the server
-app.listen(port, () => {
-  console.log(`🚀 SMNB HTTP MCP Server running on http://localhost:${port}`);
-  console.log('📡 Available endpoints:');
-  console.log(`   GET  http://localhost:${port}/health`);
-  console.log(`   GET  http://localhost:${port}/mcp/server-info`);
-  console.log(`   GET  http://localhost:${port}/mcp/tools`);
-  console.log(`   POST http://localhost:${port}/mcp/tools/:toolName`);
-  console.log('✅ Ready for Claude MCP connector integration');
-});
+// Start the server (local development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`🚀 SMNB HTTP MCP Server running on http://localhost:${port}`);
+    console.log('📡 Available endpoints:');
+    console.log(`   GET  http://localhost:${port}/health`);
+    console.log(`   GET  http://localhost:${port}/mcp/server-info`);
+    console.log(`   GET  http://localhost:${port}/mcp/tools`);
+    console.log(`   POST http://localhost:${port}/mcp/tools/:toolName`);
+    console.log('✅ Ready for Claude MCP connector integration');
+  });
+}
+
+// Export for Vercel serverless
+export default app;

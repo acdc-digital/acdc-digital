@@ -12,7 +12,8 @@
     "dev:stdio": "tsx watch src/index.ts",
     "test": "npm run build && tsx src/test.ts",
     "clean": "rm -rf dist",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "vercel-build": "npm run build"
   },
   "keywords": ["mcp", "model-context-protocol", "smnb", "convex", "news-studio"],
   "author": "ACDC Digital",
