@@ -11,8 +11,5 @@
       "src": "/(.*)",
       "dest": "src/http-server.ts"
     }
-  ],
-  "env": {
-    "CONVEX_URL": "@convex-url"
-  }
+  ]
 }

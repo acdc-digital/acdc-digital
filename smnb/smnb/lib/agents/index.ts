@@ -2,33 +2,28 @@
 // /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/agents/index.ts
 
 /**
- * SMNB Agent System
+ * SMNB Nexus Agent System
  * 
- * Central export and initialization for all SMNB agents
+ * Central exports for the Nexus streaming agent framework.
+ * Legacy AURA-pattern system has been removed.
  */
 
-// Export base classes and interfaces
-export { BaseAgent } from "./base";
-export type { 
-  AgentTool, 
-  AgentExecutionContext, 
-  AgentExecutionResult, 
-  ConvexMutations,
-  AgentSystemState,
-  AgentActivationState
-} from "./base";
+// Export Nexus base class and types
+export { BaseNexusAgent } from "./nexus/BaseNexusAgent";
+export type {
+  AgentRequest,
+  AgentChunk,
+  AgentChunkType,
+  AgentResponse,
+  Tool,
+  ToolType,
+  ToolHandler,
+  AnthropicToolSchema,
+  ExecutionContext,
+  AgentMetadata,
+} from "./nexus/types";
 
-// Export registry
-export { SMNBAgentRegistry, smnbAgentRegistry } from "./registry";
+// Export concrete agents
+export { SessionManagerAgent } from "./nexus/SessionManagerAgent";
 
-// Export individual agents
-export { SessionChatAgent, sessionChatAgent } from "../services/sessionManager/SessionChatAgent";
-
-// Initialize registry with available agents
-import { smnbAgentRegistry } from "./registry";
-import { sessionChatAgent } from "../services/sessionManager/SessionChatAgent";
-
-// Register all agents on module load
-smnbAgentRegistry.register(sessionChatAgent);
-
-console.log('🤖 SMNB Agent System initialized with agents:', smnbAgentRegistry.getAllAgents().map(a => a.name));
+console.log('🤖 SMNB Nexus Agent System loaded');
