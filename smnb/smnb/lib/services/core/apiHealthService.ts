@@ -61,7 +61,7 @@ export class APIHealthService {
 
     try {
       for (const endpoint of this.endpoints) {
-        await this.convexClient.mutation(api.apiHealth.initializeAPIEndpoint, {
+        await this.convexClient.mutation(api.system.apiHealth.initializeAPIEndpoint, {
           endpoint: endpoint.name,
           category: endpoint.category,
           url: endpoint.url,
@@ -214,7 +214,7 @@ export class APIHealthService {
       // Persist to Convex if client is available
       if (this.convexClient) {
         try {
-          await this.convexClient.mutation(api.apiHealth.recordAPIHealth, {
+          await this.convexClient.mutation(api.system.apiHealth.recordAPIHealth, {
             endpoint: endpoint.name,
             category: endpoint.category,
             status: newStatus.status,

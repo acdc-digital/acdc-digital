@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query, action } from "./_generated/server";
+import { query, action } from "../_generated/server";
 
 // Enhanced trending analysis with LLM keyword extraction
 export const getEnhancedTrends = query({

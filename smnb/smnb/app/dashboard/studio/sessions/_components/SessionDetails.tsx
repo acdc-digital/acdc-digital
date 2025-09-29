@@ -22,7 +22,7 @@ interface SessionDetailsProps {
 export function SessionDetails({ session }: SessionDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(session.name);
-  const updateSession = useMutation(api.sessions.update);
+  const updateSession = useMutation(api.users.sessions.update);
 
   const handleSave = async () => {
     await updateSession({

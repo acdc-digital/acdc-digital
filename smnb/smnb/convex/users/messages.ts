@@ -1,6 +1,6 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api } from "../_generated/api";
 
 export const list = query({
   args: { sessionId: v.id("sessions") },
@@ -54,7 +54,7 @@ export const send = mutation({
           }));
 
         // Schedule the AI response generation action
-        await ctx.scheduler.runAfter(0, api.chatAgent.generateAIResponse, {
+        await ctx.scheduler.runAfter(0, api.host.chatAgent.generateAIResponse, {
           sessionId: args.sessionId,
           userMessage: args.content,
           conversationHistory

@@ -33,7 +33,7 @@ export class AnalyticsService {
     
     try {
       // Check if user analytics already exists
-      const existing = await convex.query(api.userAnalytics.getUserAnalytics, { user_id: userId });
+      const existing = await convex.query(api.analytics.userAnalytics.getUserAnalytics, { user_id: userId });
       
       if (existing) {
         // Update existing analytics
@@ -45,7 +45,7 @@ export class AnalyticsService {
           updated_at: Date.now()
         };
         
-        await convex.mutation(api.userAnalytics.updateUserAnalytics, {
+        await convex.mutation(api.analytics.userAnalytics.updateUserAnalytics, {
           user_id: userId,
           updates: updateData
         });
@@ -75,7 +75,7 @@ export class AnalyticsService {
           updated_at: Date.now()
         };
         
-        const analyticsId = await convex.mutation(api.userAnalytics.createUserAnalytics, analyticsData);
+        const analyticsId = await convex.mutation(api.analytics.userAnalytics.createUserAnalytics, analyticsData);
         console.log(`✅ Created analytics for user: ${userId}`);
         return analyticsId;
       }
@@ -99,7 +99,7 @@ export class AnalyticsService {
       const sessionId = this.generateSessionId();
       const deviceInfo = this.getDeviceInfo();
       
-      await convex.mutation(api.userAnalytics.createUserSession, {
+      await convex.mutation(api.analytics.userAnalytics.createUserSession, {
         session_id: sessionId,
         user_id: userId,
         session_start: Date.now(),
@@ -128,7 +128,7 @@ export class AnalyticsService {
     console.log(`🏁 Ending session ${activeSessionId}`);
     
     try {
-      await convex.mutation(api.userAnalytics.updateUserSession, {
+      await convex.mutation(api.analytics.userAnalytics.updateUserSession, {
         session_id: activeSessionId,
         updates: {
           session_end: Date.now(),
@@ -151,7 +151,7 @@ export class AnalyticsService {
     try {
       const eventId = this.generateEventId();
       
-      await convex.mutation(api.userAnalytics.createUserEvent, {
+      await convex.mutation(api.analytics.userAnalytics.createUserEvent, {
         event_id: eventId,
         user_id: this.userId,
         session_id: this.sessionId || "",
@@ -192,7 +192,7 @@ export class AnalyticsService {
     try {
       const interactionId = this.generateInteractionId();
       
-      await convex.mutation(api.userAnalytics.createContentInteraction, {
+      await convex.mutation(api.analytics.userAnalytics.createContentInteraction, {
         interaction_id: interactionId,
         user_id: this.userId,
         content_id: contentId,
@@ -219,7 +219,7 @@ export class AnalyticsService {
     if (!targetUserId) return null;
 
     try {
-      return await convex.query(api.userAnalytics.getUserAnalytics, {
+      return await convex.query(api.analytics.userAnalytics.getUserAnalytics, {
         user_id: targetUserId
       });
     } catch (error) {
@@ -233,7 +233,7 @@ export class AnalyticsService {
     if (!targetUserId) return null;
 
     try {
-      return await convex.query(api.userAnalytics.getEngagementMetrics, {
+      return await convex.query(api.analytics.userAnalytics.getEngagementMetrics, {
         user_id: targetUserId,
         timeframe_days: timeframeDays
       });
@@ -245,7 +245,7 @@ export class AnalyticsService {
 
   async getDashboardStats(timeframeDays: number = 7): Promise<any> {
     try {
-      return await convex.query(api.userAnalytics.getDashboardStats, {
+      return await convex.query(api.analytics.userAnalytics.getDashboardStats, {
         timeframe_days: timeframeDays
       });
     } catch (error) {
@@ -433,7 +433,7 @@ export class AnalyticsService {
         const updates: any = {};
         updates[metric] = (current[metric] || 0) + amount;
         
-        await convex.mutation(api.userAnalytics.updateUserAnalytics, {
+        await convex.mutation(api.analytics.userAnalytics.updateUserAnalytics, {
           user_id: this.userId,
           updates
         });

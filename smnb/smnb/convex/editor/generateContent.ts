@@ -1,8 +1,8 @@
 "use node";
 
-import { action } from "./_generated/server";
+import { action } from "../_generated/server";
 import { v } from "convex/values";
-import { internal, api } from "./_generated/api";
+import { internal, api } from "../_generated/api";
 import Anthropic from "@anthropic-ai/sdk";
 
 // Initialize Anthropic client
@@ -52,13 +52,13 @@ export const generateRedditPost = action({
     }
 
     // Get top posts for each keyword
-    const topPosts = await ctx.runQuery(internal.keywordMetrics.getTopPostsForKeywords, {
+    const topPosts = await ctx.runQuery(internal.keywords.metrics.getTopPostsForKeywords, {
       keywords: args.keywords.map(k => k.keyword),
       limit: 3
     });
 
     // Get metric scores for keywords
-    const keywordMetrics: any[] = await ctx.runQuery(internal.keywordMetrics.getKeywordMetrics, {
+    const keywordMetrics: any[] = await ctx.runQuery(internal.keywords.metrics.getKeywordMetrics, {
       keywords: args.keywords.map(k => k.keyword)
     });
 
@@ -304,7 +304,7 @@ Format as JSON with metric-based predictions:
       const modelCost = (inputTokens * 0.00000025) + (outputTokens * 0.00000125);
 
       // Log the generation
-      await ctx.runMutation(internal.costTracking.logModelUsage, {
+      await ctx.runMutation(internal.analytics.costTracking.logModelUsage, {
         model: "claude-3-haiku",
         inputTokens,
         outputTokens,
@@ -350,7 +350,7 @@ Format as JSON with metric-based predictions:
       }
 
       // Store the generated post in database
-      const postId: any = await ctx.runMutation(api.generatedPosts.storeGeneratedPost, {
+      const postId: any = await ctx.runMutation(api.editor.generatedPosts.storeGeneratedPost, {
         title: generatedPost.title,
         content: generatedPost.content,
         author: authorName,

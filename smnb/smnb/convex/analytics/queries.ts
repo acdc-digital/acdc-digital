@@ -5,7 +5,7 @@
  * Session Manager queries about platform metrics and performance.
  */
 
-import { query } from "./_generated/server";
+import { query } from "../_generated/server";
 import { v } from "convex/values";
 
 // Session Metrics Analysis

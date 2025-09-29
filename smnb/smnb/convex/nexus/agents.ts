@@ -8,9 +8,9 @@
 
 "use node";
 
-import { action } from "./_generated/server";
+import { action } from "../_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api } from "../_generated/api";
 
 /**
  * Execute a Nexus agent tool
@@ -43,7 +43,7 @@ export const executeAgent = action({
       switch (toolId) {
         case 'analyze_session_metrics': {
           const { timeRange } = input as { timeRange: 'today' | 'week' | 'month' | 'all' };
-          const result: unknown = await ctx.runQuery(api.analytics.getSessionMetrics, {
+          const result: unknown = await ctx.runQuery(api.analytics.queries.getSessionMetrics, {
             timeRange: timeRange || 'week',
           });
           return {
@@ -59,7 +59,7 @@ export const executeAgent = action({
             groupBy: 'session' | 'model' | 'day' | 'hour';
             timeRange: 'today' | 'week' | 'month' | 'all';
           };
-          const result: unknown = await ctx.runQuery(api.analytics.getTokenUsage, {
+          const result: unknown = await ctx.runQuery(api.analytics.queries.getTokenUsage, {
             groupBy: groupBy || 'model',
             timeRange: timeRange || 'week',
           });
@@ -79,7 +79,7 @@ export const executeAgent = action({
           };
           // Note: searchMessages expects sessionId as Id<"sessions"> | undefined
           // We'll need to pass undefined if sessionId is a string (can't convert without ctx.db)
-          const result = await ctx.runQuery(api.analytics.searchMessages, {
+          const result = await ctx.runQuery(api.analytics.queries.searchMessages, {
             query,
             sessionId: undefined, // TODO: Convert string sessionId to Id<"sessions"> if needed
             limit: limit || 10,
@@ -94,7 +94,7 @@ export const executeAgent = action({
 
         case 'get_active_sessions': {
           const { includeDetails } = input as { includeDetails?: boolean };
-          const result: unknown = await ctx.runQuery(api.analytics.getActiveSessions, {
+          const result: unknown = await ctx.runQuery(api.analytics.queries.getActiveSessions, {
             includeDetails: includeDetails ?? false,
           });
           return {
@@ -110,7 +110,7 @@ export const executeAgent = action({
             metric?: 'messages' | 'duration' | 'retention' | 'cost_efficiency';
             timeRange: 'today' | 'week' | 'month';
           };
-          const result = await ctx.runQuery(api.analytics.analyzeEngagement, {
+          const result = await ctx.runQuery(api.analytics.queries.analyzeEngagement, {
             metric: metric || 'messages',
             timeRange: timeRange || 'week',
           });
@@ -123,7 +123,7 @@ export const executeAgent = action({
         }
 
         case 'check_system_health': {
-          const result: unknown = await ctx.runQuery(api.analytics.getSystemHealth);
+          const result: unknown = await ctx.runQuery(api.analytics.queries.getSystemHealth);
           return {
             success: true,
             data: result,
@@ -134,7 +134,7 @@ export const executeAgent = action({
 
         case 'analyze_costs': {
           const { period } = input as { period: 'daily' | 'weekly' | 'monthly' };
-          const result: unknown = await ctx.runQuery(api.analytics.getCostBreakdown, {
+          const result: unknown = await ctx.runQuery(api.analytics.queries.getCostBreakdown, {
             period: period || 'daily',
           });
           return {

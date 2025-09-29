@@ -6,7 +6,7 @@
  * Provides persistence for the token counting service.
  */
 
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 
 // Store token usage data

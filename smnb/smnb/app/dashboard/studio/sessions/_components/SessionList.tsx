@@ -27,7 +27,7 @@ interface SessionListProps {
 }
 
 export function SessionList({ sessions, selectedId, onSelect }: SessionListProps) {
-  const deleteSession = useMutation(api.sessions.remove);
+  const deleteSession = useMutation(api.users.sessions.remove);
 
 
 

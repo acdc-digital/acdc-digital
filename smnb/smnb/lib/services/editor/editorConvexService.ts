@@ -21,7 +21,7 @@ class EditorConvexService {
 
   async hasContent(storyId: string, contentType: ContentType): Promise<boolean> {
     try {
-      return await this.convex.query(api.editorDocuments.hasContent, {
+      return await this.convex.query(api.editor.documents.hasContent, {
         storyId,
         contentType
       });
@@ -33,7 +33,7 @@ class EditorConvexService {
 
   async getContent(storyId: string, contentType: ContentType): Promise<string | null> {
     try {
-      return await this.convex.query(api.editorDocuments.getContent, {
+      return await this.convex.query(api.editor.documents.getContent, {
         storyId,
         contentType
       });
@@ -45,7 +45,7 @@ class EditorConvexService {
 
   async saveContent(storyId: string, contentType: ContentType, content: string): Promise<void> {
     try {
-      await this.convex.mutation(api.editorDocuments.updateEditorContent, {
+      await this.convex.mutation(api.editor.documents.updateEditorContent, {
         storyId,
         contentType,
         content
@@ -59,7 +59,7 @@ class EditorConvexService {
 
   async getEditorDocument(storyId: string) {
     try {
-      return await this.convex.query(api.editorDocuments.getEditorDocument, {
+      return await this.convex.query(api.editor.documents.getEditorDocument, {
         storyId
       });
     } catch (error) {
@@ -70,7 +70,7 @@ class EditorConvexService {
 
   async deleteEditorDocument(storyId: string): Promise<boolean> {
     try {
-      return await this.convex.mutation(api.editorDocuments.deleteEditorDocument, {
+      return await this.convex.mutation(api.editor.documents.deleteEditorDocument, {
         storyId
       });
     } catch (error) {

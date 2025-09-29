@@ -297,7 +297,7 @@ class SMNBMCPServer {
   private async getSessionMetrics(args: any) {
     try {
       // This will call a Convex function we'll create
-      const metrics = await convex.query('analytics:getSessionMetrics' as any, {
+      const metrics = await convex.query('analytics/queries:getSessionMetrics' as any, {
         sessionId: args.sessionId,
         timeRange: args.timeRange || 'all',
       });
@@ -324,7 +324,7 @@ class SMNBMCPServer {
 
   private async getTokenUsage(args: any) {
     try {
-      const usage = await convex.query('analytics:getTokenUsage' as any, {
+      const usage = await convex.query('analytics/queries:getTokenUsage' as any, {
         groupBy: args.groupBy || 'day',
         timeRange: args.timeRange || 'week',
       });
@@ -361,7 +361,7 @@ class SMNBMCPServer {
 
   private async searchMessages(args: any) {
     try {
-      const results = await convex.query('analytics:searchMessages' as any, {
+      const results = await convex.query('analytics/queries:searchMessages' as any, {
         query: args.query,
         sessionId: args.sessionId,
         limit: args.limit || 10,
@@ -389,7 +389,7 @@ class SMNBMCPServer {
 
   private async getActiveSessions(args: any) {
     try {
-      const sessions = await convex.query('analytics:getActiveSessions' as any, {
+      const sessions = await convex.query('analytics/queries:getActiveSessions' as any, {
         includeDetails: args.includeDetails || false,
       });
 
@@ -415,7 +415,7 @@ class SMNBMCPServer {
 
   private async analyzeEngagement(args: any) {
     try {
-      const analysis = await convex.query('analytics:analyzeEngagement' as any, {
+      const analysis = await convex.query('analytics/queries:analyzeEngagement' as any, {
         metric: args.metric || 'messages',
         timeRange: args.timeRange || 'week',
       });
@@ -442,7 +442,7 @@ class SMNBMCPServer {
 
   private async getSystemHealth() {
     try {
-      const health = await convex.query('analytics:getSystemHealth' as any, {});
+      const health = await convex.query('analytics/queries:getSystemHealth' as any, {});
 
       return {
         content: [
@@ -466,7 +466,7 @@ class SMNBMCPServer {
 
   private async getCostBreakdown(args: any) {
     try {
-      const costs = await convex.query('analytics:getCostBreakdown' as any, {
+      const costs = await convex.query('analytics/queries:getCostBreakdown' as any, {
         period: args.period || 'weekly',
       });
 

@@ -297,7 +297,7 @@ export class TokenCountingService {
     if (!this.convexClient) return;
 
     try {
-      await this.convexClient.mutation(api.tokenUsage.recordTokenUsage, {
+      await this.convexClient.mutation(api.analytics.tokenUsage.recordTokenUsage, {
         request_id: metrics.requestId,
         timestamp: metrics.timestamp.getTime(),
         model: metrics.model,

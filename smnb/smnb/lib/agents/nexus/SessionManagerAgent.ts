@@ -234,7 +234,7 @@ export class SessionManagerAgent extends BaseNexusAgent {
         : (request.input as { message?: string })?.message || 'Help me with session management';
       
       // Save user message to database
-      const userMessageId = await convex.mutation(api.sessionManagerChats.create, {
+      const userMessageId = await convex.mutation(api.nexus.sessionChats.create, {
         sessionId,
         role: 'user',
         content: userMessage,
@@ -453,7 +453,7 @@ FORMATTING GUIDELINES:
       const totalCost = inputCost + outputCost;
       
       // Save assistant message to database with all metadata
-      const assistantMessageId = await convex.mutation(api.sessionManagerChats.create, {
+      const assistantMessageId = await convex.mutation(api.nexus.sessionChats.create, {
         sessionId,
         role: 'assistant',
         content: assistantContent,

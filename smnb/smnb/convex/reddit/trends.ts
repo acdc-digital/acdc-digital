@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { query } from "../_generated/server";
 
 // Performance tier thresholds based on Reddit scores (what you actually have)
 const PERFORMANCE_TIERS = {

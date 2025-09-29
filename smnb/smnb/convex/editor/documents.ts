@@ -2,7 +2,7 @@
 // /Users/matthewsimon/Projects/SMNB/smnb/convex/editorDocuments.ts
 
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 
 // Content type for the editor documents
 export type ContentType = "blog" | "newsletter" | "analysis" | "social" | "context";

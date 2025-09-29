@@ -56,7 +56,7 @@ export function useAuth(): UseAuthReturn {
   
   // Get the corresponding Convex user
   const convexUser = useQuery(
-    api.users.getCurrentUser,
+    api.users.users.getCurrentUser,
     clerkUser ? {} : "skip"
   );
   

@@ -1316,7 +1316,7 @@ Focus on: What's new, why it matters, and how it advances the story.
       this.sessionContent += narrationBlock;
       
       // Update the session content in the database
-      await convex.mutation(api.redditFeed.updateHostSessionContent, {
+      await convex.mutation(api.reddit.feed.updateHostSessionContent, {
         session_id: this.currentSessionId,
         content_text: this.sessionContent,
         current_narration_id: narration.id,
@@ -1347,7 +1347,7 @@ Focus on: What's new, why it matters, and how it advances the story.
       if (!this.currentSessionId || typeof this.currentSessionId !== 'string' || this.currentSessionId.length === 0) {
         console.warn('⚠️ Skipping stats increment - invalid session ID:', this.currentSessionId);
       } else {
-        await convex.mutation(api.redditFeed.incrementHostSessionStats, {
+        await convex.mutation(api.reddit.feed.incrementHostSessionStats, {
           session_id: this.currentSessionId,
           narrations_increment: 1,
           words_increment: wordCount,
@@ -1389,7 +1389,7 @@ Focus on: What's new, why it matters, and how it advances the story.
       
       const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
       
-      await convex.mutation(api.redditFeed.createHostSession, {
+      await convex.mutation(api.reddit.feed.createHostSession, {
         session_id: this.currentSessionId,
         title: `Host Session - ${new Date().toLocaleString()}`,
         personality: this.config.personality,
@@ -1422,7 +1422,7 @@ Focus on: What's new, why it matters, and how it advances the story.
 
       const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
       
-      await convex.mutation(api.redditFeed.endHostSession, {
+      await convex.mutation(api.reddit.feed.endHostSession, {
         session_id: this.currentSessionId,
       });
 

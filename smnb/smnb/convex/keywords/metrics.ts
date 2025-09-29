@@ -1,4 +1,4 @@
-import { internalQuery } from "./_generated/server";
+import { internalQuery } from "../_generated/server";
 import { v } from "convex/values";
 
 // Internal query to get top posts for keywords

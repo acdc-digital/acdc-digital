@@ -7,7 +7,7 @@
  */
 
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { paginationOptsValidator } from "convex/server";
 
 // ============================================================================

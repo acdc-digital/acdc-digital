@@ -28,7 +28,7 @@ interface ModelParametersProps {
 export function ModelParameters({ sessionId, settings }: ModelParametersProps) {
   const [localSettings, setLocalSettings] = useState(settings);
   const [hasChanges, setHasChanges] = useState(false);
-  const updateSettings = useMutation(api.sessions.updateSettings);
+  const updateSettings = useMutation(api.users.sessions.updateSettings);
 
   const handleChange = (key: string, value: any) => {
     setLocalSettings({ ...localSettings, [key]: value });

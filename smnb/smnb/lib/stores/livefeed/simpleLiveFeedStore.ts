@@ -691,7 +691,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       const { api } = await import('@/convex/_generated/api');
       
       // Always fetch fresh data from Convex, don't use cached posts
-      const convexStories = await convexClient.query(api.storyHistory.getRecentStories, { 
+      const convexStories = await convexClient.query(api.host.storyHistory.getRecentStories, { 
         hours: 24 
       });
       
@@ -736,7 +736,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
         agentType = 'host';
       }
       
-      await convexClient.mutation(api.storyHistory.addStory, {
+      await convexClient.mutation(api.host.storyHistory.addStory, {
         story_id: story.id,
         narrative: story.narrative,
         title: story.title, // Use the LLM-generated story title
