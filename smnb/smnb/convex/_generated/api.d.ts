@@ -25,6 +25,7 @@ import type * as newsletters from "../newsletters.js";
 import type * as nexusAgents from "../nexusAgents.js";
 import type * as redditFeed from "../redditFeed.js";
 import type * as redditPosts from "../redditPosts.js";
+import type * as sessionManagerChats from "../sessionManagerChats.js";
 import type * as sessions from "../sessions.js";
 import type * as stats_aggregation from "../stats/aggregation.js";
 import type * as stats_index from "../stats/index.js";
@@ -74,6 +75,7 @@ declare const fullApi: ApiFromModules<{
   nexusAgents: typeof nexusAgents;
   redditFeed: typeof redditFeed;
   redditPosts: typeof redditPosts;
+  sessionManagerChats: typeof sessionManagerChats;
   sessions: typeof sessions;
   "stats/aggregation": typeof stats_aggregation;
   "stats/index": typeof stats_index;

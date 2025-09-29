@@ -3,17 +3,21 @@
 
 /**
  * SessionManagerAgent - Nexus Framework Implementation
- * 
- * AI-powered session analytics and management agent with direct database access
- * through Anthropic Tools API. Replaces legacy SessionChatAgent with streaming
- * support and standardized Nexus architecture.
- * 
+ *
+ * AI-powered session analytics and management agent powered by MCP (Model Context Protocol)
+ * server. Uses Anthropic Tools API with streaming support and standardized Nexus architecture.
+ *
+ * Analytics Flow:
+ * - All analytics queries (metrics, tokens, search, etc.) → MCP Server → Convex Analytics
+ * - Chat message storage (user/assistant messages) → Direct Convex mutations
+ *
  * Capabilities:
- * - Session metrics and analytics
- * - Token usage and cost tracking
- * - Message search and retrieval
- * - System health monitoring
+ * - Session metrics and analytics (via MCP server)
+ * - Token usage and cost tracking (via MCP server)
+ * - Message search and retrieval (via MCP server)
+ * - System health monitoring (via MCP server)
  * - Real-time streaming responses
+ * - Chat history persistence (direct Convex)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -27,7 +31,8 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-// Initialize Convex client for database access
+// Convex client ONLY for message storage (not analytics)
+// All analytics queries now go through MCP server
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export class SessionManagerAgent extends BaseNexusAgent {
@@ -152,18 +157,18 @@ export class SessionManagerAgent extends BaseNexusAgent {
         requiresPremium: false,
         schema: {
           name: 'analyze_engagement',
-          description: 'Analyze user engagement metrics including message volume, response times, and trends. Use for engagement analysis and user behavior insights.',
+          description: 'Analyze user engagement metrics including message volume, session duration, retention, and cost efficiency. Use for engagement analysis and user behavior insights.',
           input_schema: {
             type: 'object',
             properties: {
               metric: {
                 type: 'string',
-                enum: ['message_volume', 'response_time', 'session_duration', 'overall'],
-                description: 'Specific engagement metric to analyze'
+                enum: ['messages', 'duration', 'retention', 'cost_efficiency'],
+                description: 'Specific engagement metric to analyze: messages (message volume), duration (session length), retention (user return rate), cost_efficiency (value per dollar)'
               },
               timeRange: {
                 type: 'string',
-                enum: ['today', 'week', 'month', 'all'],
+                enum: ['today', 'week', 'month'],
                 description: 'Time range for analysis'
               }
             },
@@ -488,33 +493,20 @@ FORMATTING GUIDELINES:
     try {
       const { timeRange } = input as { timeRange: 'today' | 'week' | 'month' | 'all' };
       
-      // Get active sessions count
-      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
-        minutesThreshold: 30,
+      // Call MCP server for session metrics
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_session_metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeRange }),
       });
       
-      // Get global session metrics for the timeRange
-      const sessionMetrics = await convex.query(api.sessionManagerChats.getGlobalSessionMetrics, {
-        timeRange,
-      });
+      const data = await response.json();
       
-      // Get conversation metrics
-      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
-        timeRange,
-      });
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
       
-      return {
-        timeRange,
-        totalSessions: activeSessions.totalSessions,
-        activeSessions: activeSessions.activeSessions,
-        recentActivity: sessionMetrics.recentSessionCount,
-        messageCount: sessionMetrics.totalMessages,
-        messageBreakdown: sessionMetrics.breakdown,
-        averageResponseTime: metrics.averageResponseTime,
-        averageSentiment: metrics.averageSentiment,
-        satisfactionRate: metrics.satisfactionRate,
-        toolUsageCount: 0, // Will get from tool stats if needed
-      };
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleSessionMetrics:', error);
       return {
@@ -531,24 +523,20 @@ FORMATTING GUIDELINES:
         timeRange: 'today' | 'week' | 'month' | 'all';
       };
       
-      // Map hour to day since we don't support hourly grouping yet
-      const validGroupBy = groupBy === 'hour' ? 'day' : groupBy as 'session' | 'model' | 'day';
-      
-      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
-        timeRange,
-        groupBy: validGroupBy,
+      // Call MCP server for token usage
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_token_usage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ groupBy, timeRange }),
       });
       
-      return {
-        timeRange,
-        groupBy,
-        totalTokens: tokenStats.totalTokens,
-        totalCost: tokenStats.totalCost,
-        averageTokensPerMessage: tokenStats.averageTokensPerMessage,
-        breakdown: tokenStats.breakdown,
-        topSessions: tokenStats.topSessions,
-        costByModel: tokenStats.costByModel,
-      };
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
+      
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleTokenUsage:', error);
       return {
@@ -566,24 +554,20 @@ FORMATTING GUIDELINES:
         limit?: number;
       };
       
-      const results = await convex.query(api.sessionManagerChats.searchMessages, {
-        sessionId: sessionId || '',
-        searchQuery: query,
-        limit,
+      // Call MCP server for message search
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/search_messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, sessionId, limit }),
       });
       
-      return {
-        query,
-        sessionId,
-        resultCount: results.length,
-        results: results.map(msg => ({
-          messageId: msg._id,
-          role: msg.role,
-          content: msg.content.substring(0, 200) + (msg.content.length > 200 ? '...' : ''),
-          createdAt: msg._creationTime,
-          sessionId: msg.sessionId,
-        })),
-      };
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
+      
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleMessageSearch:', error);
       return {
@@ -597,25 +581,20 @@ FORMATTING GUIDELINES:
     try {
       const { includeDetails = false } = input as { includeDetails?: boolean };
       
-      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
-        minutesThreshold: 30,
+      // Call MCP server for active sessions
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_active_sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ includeDetails }),
       });
       
-      // If details requested, also get the full session list
-      let sessions;
-      if (includeDetails) {
-        sessions = await convex.query(api.sessionManagerChats.getActiveSessions, {
-          minutesThreshold: 30,
-        });
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
       }
       
-      return {
-        includeDetails,
-        totalSessions: activeSessions.totalSessions,
-        activeSessions: activeSessions.activeSessions,
-        recentSessionCount: activeSessions.recentSessionCount,
-        sessions: includeDetails ? sessions : undefined,
-      };
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleActiveSessions:', error);
       return {
@@ -628,42 +607,24 @@ FORMATTING GUIDELINES:
   private async handleEngagement(input: unknown): Promise<unknown> {
     try {
       const { metric, timeRange } = input as {
-        metric: 'message_volume' | 'response_time' | 'session_duration' | 'overall';
-        timeRange: 'today' | 'week' | 'month' | 'all';
+        metric: 'messages' | 'duration' | 'retention' | 'cost_efficiency';
+        timeRange: 'today' | 'week' | 'month';
       };
       
-      // Get conversation metrics
-      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
-        timeRange,
+      // Call MCP server for engagement analysis
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/analyze_engagement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ metric, timeRange }),
       });
       
-      // Get session metrics for message volume
-      const sessionMetrics = await convex.query(api.sessionManagerChats.getGlobalSessionMetrics, {
-        timeRange,
-      });
+      const data = await response.json();
       
-      // Get tool usage stats for engagement patterns
-      const toolStats = await convex.query(api.sessionManagerChats.getGlobalToolUsageStats, {
-        timeRange,
-      });
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
       
-      return {
-        metric,
-        timeRange,
-        messageVolume: {
-          total: sessionMetrics.totalMessages,
-          breakdown: sessionMetrics.breakdown,
-        },
-        responseTime: {
-          average: metrics.averageResponseTime,
-        },
-        engagement: {
-          averageSentiment: metrics.averageSentiment,
-          satisfactionRate: metrics.satisfactionRate,
-          toolUsageCount: toolStats.totalToolCalls,
-        },
-        toolUsage: toolStats,
-      };
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleEngagement:', error);
       return {
@@ -675,33 +636,20 @@ FORMATTING GUIDELINES:
 
   private async handleSystemHealth(): Promise<unknown> {
     try {
-      // Check active sessions as a health indicator
-      const activeSessions = await convex.query(api.sessionManagerChats.getActiveSessionsCount, {
-        minutesThreshold: 30,
+      // Call MCP server for system health
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_system_health', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
       });
       
-      // Get recent token usage to check API health
-      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
-        timeRange: 'today',
-      });
+      const data = await response.json();
       
-      // Get recent metrics
-      const metrics = await convex.query(api.sessionManagerChats.getGlobalConversationMetrics, {
-        timeRange: 'today',
-      });
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
       
-      // Calculate health score based on activity and error rates
-      const isHealthy = activeSessions.totalSessions > 0 && metrics.averageResponseTime < 10000;
-      
-      return {
-        status: isHealthy ? 'healthy' : 'degraded',
-        activeSessions: activeSessions.activeSessions,
-        totalSessions: activeSessions.totalSessions,
-        todayMessages: tokenStats.totalTokens > 0,
-        averageResponseTime: metrics.averageResponseTime,
-        systemUptime: 'operational',
-        lastChecked: new Date().toISOString(),
-      };
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleSystemHealth:', error);
       return {
@@ -715,29 +663,21 @@ FORMATTING GUIDELINES:
   private async handleCostBreakdown(input: unknown): Promise<unknown> {
     try {
       const { period } = input as { period: 'daily' | 'weekly' | 'monthly' };
-
-      // Map period to timeRange
-      const timeRange = period === 'daily' ? 'today' as const :
-                        period === 'weekly' ? 'week' as const :
-                        'month' as const;
       
-      const tokenStats = await convex.query(api.sessionManagerChats.getGlobalTokenStats, {
-        timeRange,
-        groupBy: 'model',
+      // Call MCP server for cost breakdown
+      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_cost_breakdown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ period }),
       });
       
-      return {
-        period,
-        timeRange,
-        totalCost: tokenStats.totalCost,
-        totalTokens: tokenStats.totalTokens,
-        averageCostPerMessage: tokenStats.totalCost / (tokenStats.averageTokensPerMessage > 0 ? tokenStats.averageTokensPerMessage : 1),
-        costByModel: tokenStats.costByModel,
-        topSessions: tokenStats.topSessions,
-        projectedMonthlyCost: period === 'daily' ? tokenStats.totalCost * 30 :
-                              period === 'weekly' ? tokenStats.totalCost * 4.3 :
-                              tokenStats.totalCost,
-      };
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'MCP server returned error');
+      }
+      
+      return data.result;
     } catch (error) {
       console.error('[SessionManagerAgent] Error in handleCostBreakdown:', error);
       return {
