@@ -3,7 +3,7 @@
  * Provides newsletter-specific queries and operations for content stored in editor_documents
  */
 
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 
 // Save or update newsletter content in editor_documents

@@ -44,14 +44,14 @@ export interface DailyUsageData {
  * Get aggregated token usage statistics
  */
 export function useTokenUsageStats(startTime?: number, endTime?: number): TokenUsageStats | undefined {
-  return useQuery(api.tokenUsage.getAggregatedStats, { startTime, endTime });
+  return useQuery(api.analytics.tokenUsage.getAggregatedStats, { startTime, endTime });
 }
 
 /**
  * Get recent token usage records
  */
 export function useRecentTokenUsage(limit?: number) {
-  return useQuery(api.tokenUsage.getRecentUsage, { limit });
+  return useQuery(api.analytics.tokenUsage.getRecentUsage, { limit });
 }
 
 /**
@@ -63,7 +63,7 @@ export function useTokenUsageByType(
   endTime?: number,
   limit?: number
 ) {
-  return useQuery(api.tokenUsage.getUsageByType, {
+  return useQuery(api.analytics.tokenUsage.getUsageByType, {
     request_type: requestType,
     startTime,
     endTime,
@@ -75,7 +75,7 @@ export function useTokenUsageByType(
  * Get daily usage summary
  */
 export function useDailyTokenUsage(days?: number): DailyUsageData[] | undefined {
-  return useQuery(api.tokenUsage.getDailyUsage, { days });
+  return useQuery(api.analytics.tokenUsage.getDailyUsage, { days });
 }
 
 /**

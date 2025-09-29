@@ -11,7 +11,7 @@ import { api } from "@/convex/_generated/api";
  */
 export function UserInitializer() {
   const { user, isLoaded } = useUser();
-  const upsertCurrentUser = useMutation(api.users.upsertCurrentUser);
+  const upsertCurrentUser = useMutation(api.users.users.upsertCurrentUser);
 
   useEffect(() => {
     if (isLoaded && user) {

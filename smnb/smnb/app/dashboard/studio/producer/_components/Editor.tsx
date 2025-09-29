@@ -27,10 +27,10 @@ export default function Editor() {
 
   // Newsletter persistence hooks - check existing newsletter in editor_documents
   const storyHasValidId = selectedStory?.id && selectedStory.id.length > 10; // Basic validation
-  const existingDocument = useQuery(api.editorDocuments.getEditorDocument, 
+  const existingDocument = useQuery(api.editor.documents.getEditorDocument, 
     storyHasValidId ? { storyId: selectedStory.id } : "skip"
   );
-  const saveContent = useMutation(api.editorDocuments.updateEditorContent);
+  const saveContent = useMutation(api.editor.documents.updateEditorContent);
 
   // Debug logging for existing document
   useEffect(() => {

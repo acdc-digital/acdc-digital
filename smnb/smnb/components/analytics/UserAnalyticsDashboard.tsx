@@ -38,7 +38,7 @@ export function UserAnalyticsDashboard() {
   });
 
   // Get dashboard stats
-  const dashboardStats = useQuery(api.userAnalytics.getDashboardStats, { timeframe_days: 7 });
+  const dashboardStats = useQuery(api.analytics.userAnalytics.getDashboardStats, { timeframe_days: 7 });
   // Note: engagementMetrics requires user_id, so we'll use it in user lookup instead
 
   // Mock data for demonstration - replace with real data when available

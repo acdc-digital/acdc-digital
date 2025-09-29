@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { Doc, Id } from "./_generated/dataModel";
+import { mutation, query } from "../_generated/server";
+import { Doc, Id } from "../_generated/dataModel";
 
 // 📊 USER ANALYTICS FUNCTIONS - Working with existing schema
 

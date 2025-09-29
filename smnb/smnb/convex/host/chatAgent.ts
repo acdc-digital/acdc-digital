@@ -1,7 +1,7 @@
-import { action } from "./_generated/server";
+import { action } from "../_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import { api } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
 
 export const generateAIResponse = action({
   args: {
@@ -26,7 +26,7 @@ export const generateAIResponse = action({
       // Check if Anthropic API key is available
       if (!process.env.ANTHROPIC_API_KEY) {
         console.error("ANTHROPIC_API_KEY not configured");
-        const messageId: Id<"messages"> = await ctx.runMutation(api.messages.insertAssistantMessage, {
+        const messageId: Id<"messages"> = await ctx.runMutation(api.users.messages.insertAssistantMessage, {
           sessionId: args.sessionId,
           content: "I'm not properly configured to connect to Claude AI. Please check the ANTHROPIC_API_KEY environment variable."
         });
@@ -165,7 +165,7 @@ Type any command to get started!`;
                 
                 // Store token usage in database
                 try {
-                  await ctx.runMutation(api.messages.logTokenUsage, {
+                  await ctx.runMutation(api.users.messages.logTokenUsage, {
                     requestId,
                     model: "claude-3-5-haiku-20241022",
                     action: args.userMessage.startsWith('/analyze') ? "analyze" : "generate",
@@ -195,7 +195,7 @@ Type any command to get started!`;
             // Log failed attempts
             if (retryCount === maxRetries) {
               try {
-                await ctx.runMutation(api.messages.logTokenUsage, {
+                await ctx.runMutation(api.users.messages.logTokenUsage, {
                   requestId,
                   model: "claude-3-5-haiku-20241022",
                   action: args.userMessage.startsWith('/analyze') ? "analyze" : "generate",
@@ -243,7 +243,7 @@ Type any command to get started!`;
       }
 
       // Insert the response into the database using the mutation
-      const messageId: Id<"messages"> = await ctx.runMutation(api.messages.insertAssistantMessage, {
+      const messageId: Id<"messages"> = await ctx.runMutation(api.users.messages.insertAssistantMessage, {
         sessionId: args.sessionId,
         content: responseContent!
       });
@@ -258,7 +258,7 @@ Type any command to get started!`;
       
       // Insert error response
       try {
-        const messageId: Id<"messages"> = await ctx.runMutation(api.messages.insertAssistantMessage, {
+        const messageId: Id<"messages"> = await ctx.runMutation(api.users.messages.insertAssistantMessage, {
           sessionId: args.sessionId,
           content: "I'm experiencing some technical difficulties. Please try again in a moment."
         });

@@ -61,8 +61,8 @@ export function StatsProvider({ children, timeRange = "24h" }: StatsProviderProp
   const rateLimits = useQuery(api.stats.queries.getRateLimitStatus, {});
   
   // API Health Queries
-  const apiHealthStatus = useQuery(api.apiHealth.getAPIHealthStatus, {});
-  const apiHealthSummary = useQuery(api.apiHealth.getAPIHealthSummary, {});
+  const apiHealthStatus = useQuery(api.system.apiHealth.getAPIHealthStatus, {});
+  const apiHealthSummary = useQuery(api.system.apiHealth.getAPIHealthSummary, {});
   
   // Test Mutations
   const createTestDataMutation = useMutation(api.stats.test.createTestStatsData);

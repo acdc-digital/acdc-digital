@@ -10,6 +10,6 @@ export * from "./subredditStats";
 // Re-export for API access
 export { default as scheduled } from "./scheduled";
 
-// Export trends functionality
-export * from "../trends";
-export * from "../enhancedTrends";
+// Export trends functionality (now in reddit/)
+export * from "../reddit/trends";
+export * from "../reddit/enhancedTrends";

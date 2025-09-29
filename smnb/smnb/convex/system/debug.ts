@@ -1,7 +1,7 @@
 // DEBUG QUERIES
 // /Users/matthewsimon/Projects/SMNB/smnb/convex/debug.ts
 
-import { query } from "./_generated/server";
+import { query } from "../_generated/server";
 
 // Debug: Check what data is actually in our stats tables
 export const checkStatsData = query({

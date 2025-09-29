@@ -33,10 +33,10 @@ import {
 export default function Controls({ mode }: ControlsProps) {
   const profileId = 'default';
 
-  const controlsResponse = useQuery(api.studioControls.getControlsState, { profileId });
-  const saveSelection = useMutation(api.studioControls.saveSubredditSelection);
-  const setSearchDomainsMutation = useMutation(api.studioControls.setSearchDomains);
-  const addCustomSubreddit = useAction(api.studioControlsActions.addCustomSubreddit);
+  const controlsResponse = useQuery(api.system.studioControls.getControlsState, { profileId });
+  const saveSelection = useMutation(api.system.studioControls.saveSubredditSelection);
+  const setSearchDomainsMutation = useMutation(api.system.studioControls.setSearchDomains);
+  const addCustomSubreddit = useAction(api.system.studioControlsActions.addCustomSubreddit);
 
   const [newSubreddit, setNewSubreddit] = useState('');
   const [newDomain, setNewDomain] = useState('');

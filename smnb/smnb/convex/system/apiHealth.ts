@@ -2,7 +2,7 @@
 // /Users/matthewsimon/Projects/SMNB/smnb/convex/apiHealth.ts
 
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { query, mutation } from "../_generated/server";
 
 // 📊 API HEALTH QUERIES
 

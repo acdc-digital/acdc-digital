@@ -16,10 +16,10 @@ export function Sessions() {
   const { isLoading, isAuthenticated } = useAuth();
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
 
-  const sessions = useQuery(api.sessions.list, isAuthenticated ? {} : "skip");
-  const createSession = useMutation(api.sessions.create);
+  const sessions = useQuery(api.users.sessions.list, isAuthenticated ? {} : "skip");
+  const createSession = useMutation(api.users.sessions.create);
   const selectedSession = useQuery(
-    api.sessions.get,
+    api.users.sessions.get,
     selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
   );
 

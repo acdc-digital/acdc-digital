@@ -14,15 +14,15 @@ export function useSessions() {
   
   // Get user's sessions (only if authenticated)
   const sessions = useQuery(
-    api.sessions.list,
+    api.users.sessions.list,
     isAuthenticated ? {} : "skip"
   );
   
   // Session mutations
-  const createSession = useMutation(api.sessions.create);
-  const updateSession = useMutation(api.sessions.update);
-  const deleteSession = useMutation(api.sessions.remove);
-  const duplicateSession = useMutation(api.sessions.duplicate);
+  const createSession = useMutation(api.users.sessions.create);
+  const updateSession = useMutation(api.users.sessions.update);
+  const deleteSession = useMutation(api.users.sessions.remove);
+  const duplicateSession = useMutation(api.users.sessions.duplicate);
   
   // Helper functions
   const createNewSession = async (name?: string) => {
@@ -94,19 +94,19 @@ export function useSession(sessionId: Id<"sessions"> | null) {
   
   // Get session details
   const session = useQuery(
-    api.sessions.get,
+    api.users.sessions.get,
     sessionId && isAuthenticated ? { id: sessionId } : "skip"
   );
   
   // Get session messages
   const messages = useQuery(
-    api.messages.list,
+    api.users.messages.list,
     sessionId && isAuthenticated ? { sessionId } : "skip"
   );
   
   // Message mutations
-  const sendMessage = useMutation(api.messages.send);
-  const updateSessionSettings = useMutation(api.sessions.updateSettings);
+  const sendMessage = useMutation(api.users.messages.send);
+  const updateSessionSettings = useMutation(api.users.sessions.updateSettings);
   
   const send = async (content: string, role: "user" | "assistant" = "user") => {
     if (!sessionId || !isAuthenticated) {

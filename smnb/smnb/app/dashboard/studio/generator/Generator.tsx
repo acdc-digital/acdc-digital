@@ -93,12 +93,12 @@ export default function Generator() {
   ]);
 
   // Fetch trending keywords from database
-  const trends = useQuery(api.keywords.getTrendingKeywords, {
+  const trends = useQuery(api.keywords.keywords.getTrendingKeywords, {
     limit: 50
   });
 
   // Add generate post action - TODO: Fix API path
-  // const generatePost = useAction(api.generateContent.generateRedditPost);
+  // const generatePost = useAction(api.editor.generateContent.generateRedditPost);
   
 
   
@@ -370,7 +370,7 @@ export default function Generator() {
   }, []);
 
   // Use real Anthropic-powered generation
-  const generateContent = useAction(api.generateContent.generateRedditPost);
+  const generateContent = useAction(api.editor.generateContent.generateRedditPost);
 
   // Handle generate button click
   const handleGeneratePost = async (columnId: string) => {

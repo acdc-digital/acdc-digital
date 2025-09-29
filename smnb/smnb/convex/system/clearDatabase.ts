@@ -3,7 +3,7 @@
 //
 // BACKUP YOUR DATA BEFORE RUNNING THIS SCRIPT!
 
-import { mutation, query } from "./_generated/server";
+import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 
 /**

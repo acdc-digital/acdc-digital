@@ -1,9 +1,9 @@
 // KEYWORD TRENDS PROCESSING SYSTEM
 // /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/convex/keywords.ts
 
-import { mutation, query, internalQuery } from "./_generated/server";
+import { mutation, query, internalQuery } from "../_generated/server";
 import { v } from "convex/values";
-import { Doc } from "./_generated/dataModel";
+import { Doc } from "../_generated/dataModel";
 
 // Process and store keywords from recent posts
 export const processKeywordsFromPosts = mutation({
