@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville, Work_Sans, Playfair_Display, Crimson_Text, Inter } from "next/font/google";
+import { ClerkProvider } from '@clerk/nextjs';
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { TokenCountingProvider } from "@/components/providers/TokenCountingProvider";
@@ -64,18 +65,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} ${workSans.variable} ${playfairDisplay.variable} ${crimsonText.variable} ${inter.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ConvexClientProvider>
-            <TokenCountingProvider>
-              {children}
-            </TokenCountingProvider>
-          </ConvexClientProvider>
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ConvexClientProvider>
+              <TokenCountingProvider>
+                {children}
+              </TokenCountingProvider>
+            </ConvexClientProvider>
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

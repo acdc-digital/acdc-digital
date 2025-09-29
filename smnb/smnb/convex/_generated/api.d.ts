@@ -8,7 +8,9 @@
  * @module
  */
 
+import type * as analytics from "../analytics.js";
 import type * as apiHealth from "../apiHealth.js";
+import type * as chatAgent from "../chatAgent.js";
 import type * as clearDatabase from "../clearDatabase.js";
 import type * as costTracking from "../costTracking.js";
 import type * as debug from "../debug.js";
@@ -18,9 +20,12 @@ import type * as generateContent from "../generateContent.js";
 import type * as generatedPosts from "../generatedPosts.js";
 import type * as keywordMetrics from "../keywordMetrics.js";
 import type * as keywords from "../keywords.js";
+import type * as messages from "../messages.js";
 import type * as newsletters from "../newsletters.js";
+import type * as nexusAgents from "../nexusAgents.js";
 import type * as redditFeed from "../redditFeed.js";
 import type * as redditPosts from "../redditPosts.js";
+import type * as sessions from "../sessions.js";
 import type * as stats_aggregation from "../stats/aggregation.js";
 import type * as stats_index from "../stats/index.js";
 import type * as stats_mutations from "../stats/mutations.js";
@@ -35,6 +40,7 @@ import type * as test from "../test.js";
 import type * as tokenUsage from "../tokenUsage.js";
 import type * as trends from "../trends.js";
 import type * as userAnalytics from "../userAnalytics.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -51,7 +57,9 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  analytics: typeof analytics;
   apiHealth: typeof apiHealth;
+  chatAgent: typeof chatAgent;
   clearDatabase: typeof clearDatabase;
   costTracking: typeof costTracking;
   debug: typeof debug;
@@ -61,9 +69,12 @@ declare const fullApi: ApiFromModules<{
   generatedPosts: typeof generatedPosts;
   keywordMetrics: typeof keywordMetrics;
   keywords: typeof keywords;
+  messages: typeof messages;
   newsletters: typeof newsletters;
+  nexusAgents: typeof nexusAgents;
   redditFeed: typeof redditFeed;
   redditPosts: typeof redditPosts;
+  sessions: typeof sessions;
   "stats/aggregation": typeof stats_aggregation;
   "stats/index": typeof stats_index;
   "stats/mutations": typeof stats_mutations;
@@ -78,6 +89,7 @@ declare const fullApi: ApiFromModules<{
   tokenUsage: typeof tokenUsage;
   trends: typeof trends;
   userAnalytics: typeof userAnalytics;
+  users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

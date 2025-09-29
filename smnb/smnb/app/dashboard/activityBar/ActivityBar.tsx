@@ -24,15 +24,18 @@ interface ActivityBarProps {
 }
 
 export default function ActivityBar({ activePanel = "home", onPanelChange }: ActivityBarProps) {
-  const activityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
+  const mainActivityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
     { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },
     { id: "stats", icon: BarChart3, label: "Stats" },
     { id: "heatmap", icon: Haze, label: "Heatmap" },
     { id: "network", icon: Network, label: "Network" },
     { id: "docs", icon: NotebookPen, label: "Docs" },
-    { id: "settings", icon: Settings, label: "Settings" },
     { id: "account", icon: User, label: "Account" },
+  ];
+
+  const bottomActivityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
+    { id: "settings", icon: Settings, label: "Settings" },
   ];
 
   const handleActivityClick = (id: PanelType) => {
@@ -99,9 +102,17 @@ export default function ActivityBar({ activePanel = "home", onPanelChange }: Act
 
   return (
     <aside className="w-12 bg-[#181818] border-r border-[#2d2d2d] flex flex-col">
-      {/* Activity Icons */}
+      {/* Main Activity Icons */}
+      <div className="flex flex-col items-center">
+        {mainActivityItems.map(renderActivityButton)}
+      </div>
+      
+      {/* Spacer */}
+      <div className="flex-1" />
+      
+      {/* Bottom Activity Icons */}
       <div className="flex flex-col items-center pb-2">
-        {activityItems.map(renderActivityButton)}
+        {bottomActivityItems.map(renderActivityButton)}
       </div>
     </aside>
   );

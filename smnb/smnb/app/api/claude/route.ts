@@ -1,11 +1,11 @@
-// CLAUDE API ROUTE
+// CLAUDE API ROUTE WITH MCP INTEGRATION
 // /Users/matthewsimon/Projects/SMNB/smnb/app/api/claude/route.ts
 
 /**
- * Claude API Route
+ * Claude API Route with Native MCP Connector
  * 
- * Server-side API endpoint for Claude LLM requests
- * This keeps the API key secure and handles all Claude communication
+ * Server-side API endpoint for Claude LLM requests with MCP tool integration
+ * Uses Claude's native MCP connector for direct database access
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +14,7 @@ import Anthropic from '@anthropic-ai/sdk';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, prompt, options, apiKey } = body;
+    const { action, prompt, options, apiKey, messages, enableMCP = true } = body;
 
     // Use provided API key or fall back to environment variable
     const effectiveApiKey = apiKey || process.env.ANTHROPIC_API_KEY;
@@ -35,64 +35,124 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Anthropic client with the effective API key
-    const anthropic = new Anthropic({
-      apiKey: effectiveApiKey,
-    });
+    // MCP server configuration
+    const mcpServerUrl = process.env.MCP_SERVER_URL || 'http://localhost:3001';
+    const useMCP = enableMCP && process.env.ENABLE_MCP !== 'false';
 
-    if (action === 'generate') {
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',
-        max_tokens: options?.maxTokens || 200,
+    // Create Anthropic client with the effective API key and MCP beta header
+    const anthropicConfig = {
+      apiKey: effectiveApiKey,
+      ...(useMCP && {
+        defaultHeaders: {
+          'anthropic-beta': 'mcp-client-2025-04-04'
+        }
+      })
+    };
+
+    if (useMCP) {
+      console.log('🔌 Enabling MCP connector for database access');
+    }
+
+    const anthropic = new Anthropic(anthropicConfig);
+
+    if (action === 'chat' || action === 'generate') {
+      // Prepare request configuration
+      const requestConfig = {
+        model: options?.model || 'claude-3-5-haiku-20241022',
+        max_tokens: options?.maxTokens || 1000,
         temperature: options?.temperature || 0.7,
-        system: options?.systemPrompt || 'You are a professional news broadcaster generating engaging narrations.',
-        messages: [
+        messages: messages || [
           {
-            role: 'user',
+            role: 'user' as const,
             content: prompt
           }
-        ]
+        ],
+        ...(options?.systemPrompt && { system: options.systemPrompt }),
+        ...(useMCP && {
+          mcp_servers: [
+            {
+              name: 'smnb-news-studio',
+              url: mcpServerUrl,
+              description: 'SMNB Session Manager database access for analytics and metrics'
+            }
+          ]
+        })
+      };
+
+      console.log('📤 Sending request to Claude with config:', JSON.stringify({
+        ...requestConfig,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        messages: requestConfig.messages.map((m: any) => ({ role: m.role, content: m.content.substring(0, 100) + '...' }))
+      }, null, 2));
+
+      const response = await anthropic.messages.create(requestConfig);
+
+      console.log('📥 Claude response:', {
+        type: response.type,
+        role: response.role,
+        model: response.model,
+        stop_reason: response.stop_reason,
+        content_blocks: response.content.length,
+        usage: response.usage
       });
 
       const content = response.content[0];
       if (content.type === 'text') {
+        console.log('✅ Returning text response:', content.text.substring(0, 200) + '...');
         return NextResponse.json({
           success: true,
-          text: content.text.trim()
+          text: content.text.trim(),
+          usage: response.usage,
+          model: response.model,
+          mcp_enabled: useMCP
         });
       } else {
         throw new Error('Unexpected response format from Claude');
       }
 
     } else if (action === 'stream') {
+      // Prepare streaming request configuration
+      const requestConfig = {
+        model: options?.model || 'claude-3-5-haiku-20241022',
+        max_tokens: options?.maxTokens || 1000,
+        temperature: options?.temperature || 0.7,
+        messages: messages || [
+          {
+            role: 'user' as const,
+            content: prompt
+          }
+        ],
+        stream: true,
+        ...(options?.systemPrompt && { system: options.systemPrompt }),
+        ...(useMCP && {
+          mcp_servers: [
+            {
+              name: 'smnb-news-studio',
+              url: mcpServerUrl,
+              description: 'SMNB Session Manager database access for analytics and metrics'
+            }
+          ]
+        })
+      };
+
       // Create a streaming response
       const stream = new ReadableStream({
         async start(controller) {
           try {
-            const response = await anthropic.messages.create({
-              model: 'claude-3-5-haiku-20241022',
-              max_tokens: options?.maxTokens || 200,
-              temperature: options?.temperature || 0.7,
-              system: options?.systemPrompt || 'You are a professional news broadcaster generating engaging narrations.',
-              messages: [
-                {
-                  role: 'user',
-                  content: prompt
-                }
-              ],
-              stream: true
-            });
+            const response = await anthropic.messages.stream(requestConfig);
 
+            // Handle streaming response
             for await (const chunk of response) {
               if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-                const data = JSON.stringify({ 
-                  type: 'chunk', 
-                  text: chunk.delta.text 
+                const data = JSON.stringify({
+                  type: 'chunk',
+                  text: chunk.delta.text
                 });
                 controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
               } else if (chunk.type === 'message_stop') {
-                const data = JSON.stringify({ 
-                  type: 'complete' 
+                const data = JSON.stringify({
+                  type: 'complete',
+                  mcp_enabled: useMCP
                 });
                 controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
                 break;
@@ -173,14 +233,13 @@ Return only valid JSON, no additional text.
       // Token counting endpoint
       const { model, system, messages, tools, thinking } = body;
       
-      const countRequest: any = {
+      const countRequest = {
         model: model || 'claude-3-5-haiku-20241022',
-        messages: messages || []
+        messages: messages || [],
+        ...(system && { system }),
+        ...(tools && { tools }),
+        ...(thinking && { thinking })
       };
-      
-      if (system) countRequest.system = system;
-      if (tools) countRequest.tools = tools;
-      if (thinking) countRequest.thinking = thinking;
 
       const response = await anthropic.messages.countTokens(countRequest);
       

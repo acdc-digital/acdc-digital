@@ -1111,4 +1111,47 @@ export default defineSchema({
     .index("by_cost", ["generation_cost"])
     .index("by_user_rating", ["user_rating", "generated_at"]),
 
+  // User Management
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+    tokenIdentifier: v.string(), // Clerk's unique identifier
+    avatarUrl: v.optional(v.string()),
+    createdAt: v.number(),
+    lastActiveAt: v.number(),
+  })
+    .index("by_token", ["tokenIdentifier"])
+    .index("by_email", ["email"]),
+
+  // Session Management
+  sessions: defineTable({
+    userId: v.id("users"), // Reference to users table
+    name: v.string(),
+    status: v.union(v.literal("active"), v.literal("paused"), v.literal("archived")),
+    settings: v.object({
+      model: v.string(),
+      temperature: v.number(),
+      maxTokens: v.number(),
+      topP: v.number(),
+      frequencyPenalty: v.number(),
+      presencePenalty: v.number(),
+      controlMode: v.union(
+        v.literal("hands-free"),
+        v.literal("balanced"),
+        v.literal("full-control")
+      ),
+    }),
+  })
+    .index("by_status", ["status"])
+    .index("by_userId", ["userId"])
+    .index("by_userId_and_status", ["userId", "status"]),
+
+  // Session Messages
+  messages: defineTable({
+    sessionId: v.id("sessions"),
+    content: v.string(),
+    role: v.union(v.literal("user"), v.literal("assistant")),
+  })
+    .index("by_sessionId", ["sessionId"]),
+
 });

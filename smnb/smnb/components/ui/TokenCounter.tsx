@@ -26,12 +26,13 @@ export function TokenCounter({ className = '' }: TokenCounterProps) {
     return `${(num / 1000000).toFixed(1)}M`;
   };
 
-  // Format cost with appropriate precision
+  // Format cost with higher precision to show incremental changes
   const formatCost = (cost: number): string => {
-    if (cost === 0) return '$0.00';
-    if (cost < 0.01) return `$${cost.toFixed(4)}`;
-    if (cost < 1) return `$${cost.toFixed(3)}`;
-    return `$${cost.toFixed(2)}`;
+    if (cost === 0) return '$0.000000';
+    if (cost < 0.001) return `$${cost.toFixed(6)}`; // Show 6 decimal places for very small costs
+    if (cost < 0.01) return `$${cost.toFixed(5)}`; // Show 5 decimal places for small costs
+    if (cost < 1) return `$${cost.toFixed(4)}`; // Show 4 decimal places for costs under $1
+    return `$${cost.toFixed(2)}`; // Standard 2 decimal places for costs over $1
   };
 
   // Get cost color based on amount
