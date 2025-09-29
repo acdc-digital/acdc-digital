@@ -31,6 +31,8 @@ export const getSessionMetrics = query({
       sessionId: v.id("sessions"),
       name: v.string(),
       messageCount: v.number(),
+      lastActivity: v.number(),
+      status: v.string(),
     })),
     recentActivity: v.array(v.object({
       sessionId: v.id("sessions"),
