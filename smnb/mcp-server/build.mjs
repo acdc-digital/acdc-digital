@@ -30,7 +30,7 @@ await build({
   bundle: true,
   platform: 'node',
   target: 'node18',
-  format: 'esm',
+  format: 'cjs',
   outfile: 'dist/http-server.js',
   external: [],
   sourcemap: true,
