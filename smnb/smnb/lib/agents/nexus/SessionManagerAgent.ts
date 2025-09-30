@@ -35,6 +35,9 @@ const anthropic = new Anthropic({
 // All analytics queries now go through MCP server
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+// MCP Server URL - can be localhost for dev or Vercel URL for production
+const MCP_SERVER_URL = process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'https://mcp-server-i6h9k4z40-acdcdigitals-projects.vercel.app';
+
 export class SessionManagerAgent extends BaseNexusAgent {
   readonly id = 'session-manager-agent';
   readonly name = 'Session Manager AI';
@@ -494,7 +497,7 @@ FORMATTING GUIDELINES:
       const { timeRange } = input as { timeRange: 'today' | 'week' | 'month' | 'all' };
       
       // Call MCP server for session metrics
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_session_metrics', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/get_session_metrics`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timeRange }),
@@ -524,7 +527,7 @@ FORMATTING GUIDELINES:
       };
       
       // Call MCP server for token usage
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_token_usage', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/get_token_usage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ groupBy, timeRange }),
@@ -555,7 +558,7 @@ FORMATTING GUIDELINES:
       };
       
       // Call MCP server for message search
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/search_messages', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/search_messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, sessionId, limit }),
@@ -582,7 +585,7 @@ FORMATTING GUIDELINES:
       const { includeDetails = false } = input as { includeDetails?: boolean };
       
       // Call MCP server for active sessions
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_active_sessions', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/get_active_sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ includeDetails }),
@@ -612,7 +615,7 @@ FORMATTING GUIDELINES:
       };
       
       // Call MCP server for engagement analysis
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/analyze_engagement', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/analyze_engagement`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ metric, timeRange }),
@@ -637,7 +640,7 @@ FORMATTING GUIDELINES:
   private async handleSystemHealth(): Promise<unknown> {
     try {
       // Call MCP server for system health
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_system_health', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/get_system_health`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -665,7 +668,7 @@ FORMATTING GUIDELINES:
       const { period } = input as { period: 'daily' | 'weekly' | 'monthly' };
       
       // Call MCP server for cost breakdown
-      const response = await fetch('https://mcp-server-6coc9rxf0-acdcdigitals-projects.vercel.app/mcp/tools/get_cost_breakdown', {
+      const response = await fetch(`${MCP_SERVER_URL}/mcp/tools/get_cost_breakdown`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ period }),
