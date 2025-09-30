@@ -24,7 +24,7 @@ if (existsSync(sourcePath)) {
   console.warn('⚠️  Warning: Convex _generated folder not found at', sourcePath);
 }
 
-// Build the HTTP server
+// Build the HTTP server (for Vercel - no shebang)
 await build({
   entryPoints: ['src/http-server.ts'],
   bundle: true,
@@ -34,9 +34,6 @@ await build({
   outfile: 'dist/http-server.js',
   external: [],
   sourcemap: true,
-  banner: {
-    js: '#!/usr/bin/env node',
-  },
 });
 
 console.log('✅ HTTP server built successfully');
