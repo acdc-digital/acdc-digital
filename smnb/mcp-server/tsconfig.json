@@ -1,26 +1,29 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
+    "module": "Node16",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
     "esModuleInterop": true,
-    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "resolveJsonModule": true
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true,
+    "declaration": false,
+    "skipDefaultLibCheck": true,
+    "noEmit": false,
+    "incremental": true
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "../smnb/convex/**/*.ts",
+    "../smnb/app/**/*",
+    "../smnb/components/**/*",
+    "../smnb/lib/**/*"
   ]
 }
