@@ -2,5 +2,11 @@
   "buildCommand": "cd mcp-server && npm install && npm run build",
   "installCommand": "echo 'Skipping root install'",
   "outputDirectory": "mcp-server/dist",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ]
 }
