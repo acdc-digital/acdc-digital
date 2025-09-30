@@ -16,8 +16,19 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Initialize Convex client
-const convex = new ConvexHttpClient(process.env.CONVEX_URL!);
+// Lazy-initialize Convex client to avoid errors when CONVEX_URL is not set at import time
+let convex: ConvexHttpClient | null = null;
+
+function getConvex(): ConvexHttpClient {
+  if (!convex) {
+    const url = process.env.CONVEX_URL;
+    if (!url) {
+      throw new Error('CONVEX_URL environment variable is not set');
+    }
+    convex = new ConvexHttpClient(url);
+  }
+  return convex;
+}
 
 const app = express();
 const port = parseInt(process.env.MCP_PORT || '3001');
@@ -249,7 +260,7 @@ app.get('/', (req: Request, res: Response) => {
 async function getSessionMetrics(args: any) {
   try {
     console.log('Calling getSessionMetrics with args:', args);
-    const result = await convex.query(api.analytics.queries.getSessionMetrics, {
+    const result = await getConvex().query(api.analytics.queries.getSessionMetrics, {
       sessionId: args.sessionId,
       timeRange: args.timeRange || 'all',
     });
@@ -264,7 +275,7 @@ async function getSessionMetrics(args: any) {
 async function getTokenUsage(args: any) {
   try {
     console.log('Calling getTokenUsage with args:', args);
-    const usage = await convex.query(api.analytics.queries.getTokenUsage, {
+    const usage = await getConvex().query(api.analytics.queries.getTokenUsage, {
       groupBy: args.groupBy || 'day',
       timeRange: args.timeRange || 'week',
     });
@@ -288,7 +299,7 @@ async function getTokenUsage(args: any) {
 async function searchMessages(args: any) {
   try {
     console.log('Calling searchMessages with args:', args);
-    const result = await convex.query(api.analytics.queries.searchMessages, {
+    const result = await getConvex().query(api.analytics.queries.searchMessages, {
       query: args.query,
       sessionId: args.sessionId,
       limit: args.limit || 10,
@@ -304,7 +315,7 @@ async function searchMessages(args: any) {
 async function getActiveSessions(args: any) {
   try {
     console.log('Calling getActiveSessions with args:', args);
-    const result = await convex.query(api.analytics.queries.getActiveSessions, {
+    const result = await getConvex().query(api.analytics.queries.getActiveSessions, {
       includeDetails: args.includeDetails || false,
     });
     console.log('getActiveSessions result:', result);
@@ -318,7 +329,7 @@ async function getActiveSessions(args: any) {
 async function analyzeEngagement(args: any) {
   try {
     console.log('Calling analyzeEngagement with args:', args);
-    const result = await convex.query(api.analytics.queries.analyzeEngagement, {
+    const result = await getConvex().query(api.analytics.queries.analyzeEngagement, {
       metric: args.metric || 'messages',
       timeRange: args.timeRange || 'week',
     });
@@ -333,7 +344,7 @@ async function analyzeEngagement(args: any) {
 async function getSystemHealth() {
   try {
     console.log('Calling getSystemHealth');
-    const result = await convex.query(api.analytics.queries.getSystemHealth, {});
+    const result = await getConvex().query(api.analytics.queries.getSystemHealth, {});
     console.log('getSystemHealth result:', result);
     return result;
   } catch (error) {
@@ -345,7 +356,7 @@ async function getSystemHealth() {
 async function getCostBreakdown(args: any) {
   try {
     console.log('Calling getCostBreakdown with args:', args);
-    const result = await convex.query(api.analytics.queries.getCostBreakdown, {
+    const result = await getConvex().query(api.analytics.queries.getCostBreakdown, {
       period: args.period || 'weekly',
     });
     console.log('getCostBreakdown result:', result);
