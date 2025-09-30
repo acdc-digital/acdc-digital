@@ -8,6 +8,11 @@ yarn-error.log*
 dist/
 build/
 
+# Copied Convex API (generated during build)
+# Note: convex/_generated/ is committed for Vercel deployment
+convex/*
+!convex/_generated/
+
 # Environment variables
 .env
 .env.local

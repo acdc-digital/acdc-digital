@@ -9,6 +9,8 @@
     "dev:convex": "cd smnb && npx convex dev",
     "convex": "cd smnb && npx convex dev",
     "dev:all": "pnpm -r --parallel dev:next dev:convex",
+    "build": "cd mcp-server && npm install && npm run build",
+    "vercel-build": "cd mcp-server && npm install && npm run build",
     "clean": "cd smnb && node scripts/pnpm-clean.js",
     "clean:stats": "cd smnb && npx convex run clearDatabase:getDatabaseStats",
     "clean:analytics": "cd smnb && npx convex run clearDatabase:clearSpecificTables '{\"tables\": [\"post_stats\", \"pipeline_stats\", \"system_events\", \"rate_limits\", \"engagement_stats\", \"aggregate_stats\"]}'",
