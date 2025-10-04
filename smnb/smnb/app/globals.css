@@ -129,6 +129,17 @@
   }
 }
 
+/* Hide scrollbars for suggestion chips */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* TipTap Editor Highlight Styles */
 .editor-highlight {
   @apply bg-yellow-200 text-gray-800 px-1 py-0.5 rounded-sm;

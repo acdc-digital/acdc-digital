@@ -182,17 +182,16 @@ export default function Producer({ onModeChange }: ProducerProps) {
     setUserSelectedView(view); // Remember user's choice permanently
   };
 
-  // Initialize producer agent on mount
+  // Ensure producer is initialized (safe to call multiple times)
+  // Global initialization happens at dashboard layout level
+  // This is just a safety check in case Producer is rendered standalone
   useEffect(() => {
     if (!isInitialized) {
       initializeProducer();
       setIsInitialized(true);
     }
-    
-    return () => {
-      cleanup();
-    };
-  }, [initializeProducer, cleanup, isInitialized]);
+    // NO cleanup - managed globally at dashboard layout level
+  }, [initializeProducer, isInitialized]);
 
   // Stats sync removed to fix infinite loop - will implement later with proper state management
 

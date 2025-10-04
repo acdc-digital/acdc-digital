@@ -1,4 +1,7 @@
 {
+  // Disable Pylance MCP Server
+  "python.pylanceMcp.enabled": false,
+  
   // Material Icon Theme Configuration
   "material-icon-theme.folders.color": "#42a5f5",
   "material-icon-theme.files.color": "#90a4ae",

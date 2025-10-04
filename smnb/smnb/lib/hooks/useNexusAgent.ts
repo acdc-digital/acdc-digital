@@ -18,6 +18,7 @@ export interface NexusMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  thinking?: string; // AI reasoning/thinking process
   timestamp: number;
   toolCalls?: Array<{
     name: string;
@@ -90,6 +91,29 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
     }
 
     switch (chunk.type) {
+      case 'thinking':
+        // Append thinking content
+        if (typeof chunk.data === 'string') {
+          console.log('[useNexusAgent] Appending thinking:', chunk.data.substring(0, 50));
+          if (!currentMessageRef.current.thinking) {
+            currentMessageRef.current.thinking = '';
+          }
+          currentMessageRef.current.thinking += chunk.data;
+          console.log('[useNexusAgent] Total thinking length now:', currentMessageRef.current.thinking.length);
+          
+          // Update messages with new reference to trigger re-render
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastIndex = updated.length - 1;
+            if (lastIndex >= 0 && currentMessageRef.current) {
+              updated[lastIndex] = { ...currentMessageRef.current };
+              console.log('[useNexusAgent] Updated message thinking:', updated[lastIndex].thinking?.substring(0, 50));
+            }
+            return updated;
+          });
+        }
+        break;
+
       case 'content':
         // Append text content
         if (typeof chunk.data === 'string') {

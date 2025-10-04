@@ -46,6 +46,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { AIRequest, AIResponse, AIRequestType } from '../../types/editor';
 import { selectTemplateForContent, generateContextualPrompt, ANALYTICAL_TEMPLATES } from '../core/analyticalTemplates';
 import { AnthropicTextEditorHandler, TextEditorToolCall } from './anthropicTextEditorHandler';
+import { CONTENT_GENERATOR_CONFIG, ANTHROPIC_MODELS } from '../../../../../.agents/anthropic.config';
 // Removed unused markdown converter imports
 
 // AI Service Configuration
@@ -61,16 +62,19 @@ export class EditorAIService {
   private config: AIServiceConfig;
 
   constructor(apiKey: string) {
+    // SECURITY FIX: This should be refactored to use backend API routes
+    // For now, keeping minimal client initialization without browser exposure
+    // TODO: Migrate to /api/editor-ai route and remove client-side Anthropic usage
     this.anthropic = new Anthropic({
-      apiKey,
-      dangerouslyAllowBrowser: true // Note: In production, route through your backend
+      apiKey
+      // dangerouslyAllowBrowser removed - this service should route through backend
     });
 
     this.config = {
       apiKey,
-      model: 'claude-3-5-sonnet-20241022',
-      maxTokens: 4000,
-      temperature: 0.7
+      model: CONTENT_GENERATOR_CONFIG.model,
+      maxTokens: CONTENT_GENERATOR_CONFIG.maxTokens,
+      temperature: CONTENT_GENERATOR_CONFIG.temperature
     };
   }
 
@@ -317,7 +321,7 @@ export class EditorAIService {
           requestId: request.id,
           timestamp: Date.now(),
           metadata: {
-            model: 'claude-3-5-sonnet-20241022',
+            model: this.config.model,
             tokensUsed: (message.usage?.input_tokens || 0) + (message.usage?.output_tokens || 0),
             processingTime: processingTime
           }
@@ -392,7 +396,7 @@ export class EditorAIService {
         requestId: request.id,
         timestamp: Date.now(),
         metadata: {
-          model: 'claude-3-5-sonnet-20241022',
+          model: this.config.model,
           tokensUsed: (message.usage?.input_tokens || 0) + (message.usage?.output_tokens || 0),
           processingTime: processingTime
         }
@@ -455,7 +459,7 @@ export class EditorAIService {
       
       let response = await this.retryWithBackoff(async () => {
         const createConfig: any = {
-          model: 'claude-3-5-sonnet-20241022',
+          model: this.config.model,
           max_tokens: this.config.maxTokens,
           temperature: this.config.temperature,
           messages: [
@@ -509,7 +513,7 @@ export class EditorAIService {
           
           // Get final response after tool execution
           response = await this.anthropic.messages.create({
-            model: 'claude-3-5-sonnet-20241022',
+            model: this.config.model,
             max_tokens: 4000,
             tools: [
               {
@@ -559,7 +563,7 @@ export class EditorAIService {
         requestId: request.id,
         timestamp: Date.now(),
         metadata: {
-          model: 'claude-3-5-sonnet-20241022',
+          model: this.config.model,
           tokensUsed: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0),
           processingTime: processingTime
         }

@@ -41,6 +41,7 @@ export interface HostNarration {
     topics?: string[];
     summary?: string;
     originalItem?: NewsItem; // Store original item for queue processing
+    session_id?: string | null; // Link narration to session
   };
 }
 

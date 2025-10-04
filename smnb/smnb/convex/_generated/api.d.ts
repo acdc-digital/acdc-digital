@@ -12,6 +12,7 @@ import type * as analytics_costTracking from "../analytics/costTracking.js";
 import type * as analytics_queries from "../analytics/queries.js";
 import type * as analytics_tokenUsage from "../analytics/tokenUsage.js";
 import type * as analytics_userAnalytics from "../analytics/userAnalytics.js";
+import type * as clearDatabase from "../clearDatabase.js";
 import type * as editor_documents from "../editor/documents.js";
 import type * as editor_generateContent from "../editor/generateContent.js";
 import type * as editor_generatedPosts from "../editor/generatedPosts.js";
@@ -62,6 +63,7 @@ declare const fullApi: ApiFromModules<{
   "analytics/queries": typeof analytics_queries;
   "analytics/tokenUsage": typeof analytics_tokenUsage;
   "analytics/userAnalytics": typeof analytics_userAnalytics;
+  clearDatabase: typeof clearDatabase;
   "editor/documents": typeof editor_documents;
   "editor/generateContent": typeof editor_generateContent;
   "editor/generatedPosts": typeof editor_generatedPosts;

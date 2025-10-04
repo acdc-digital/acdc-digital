@@ -1,0 +1,1 @@
+Grapes uses the shadCN browser preview, to generate a viewport of google maps. 

@@ -26,6 +26,7 @@ import { BaseNexusAgent } from './BaseNexusAgent';
 import type { AgentRequest, AgentChunk, Tool } from './types';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
+import { ANTHROPIC_MODELS } from '../../../../../.agents/anthropic.config';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -274,7 +275,7 @@ export class SessionManagerAgent extends BaseNexusAgent {
       const tools = this.getTools().map(t => t.schema);
       
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: ANTHROPIC_MODELS.HAIKU_LATEST,
         max_tokens: 4096,
         temperature: 0.7,
         tools,
@@ -353,17 +354,33 @@ Always try to help users understand their data and make informed decisions.`
         let hasToolUse = false;
         const toolResults: ToolResultBlockParam[] = [];
 
+        // First pass: check if this turn has any tool use
+        const hasTool = currentResponse.content.some(b => b.type === 'tool_use');
+
         // Process all blocks in current response
-        for (const block of currentResponse.content) {
-          console.log('[SessionManagerAgent] Block type:', block.type);
+        for (let i = 0; i < currentResponse.content.length; i++) {
+          const block = currentResponse.content[i];
+          console.log('[SessionManagerAgent] Block type:', block.type, 'index:', i);
           
           if (block.type === 'text') {
             // Accumulate text content for database storage
             assistantContent += block.text;
             
-            // Stream text content
-            console.log('[SessionManagerAgent] Yielding text content:', block.text.substring(0, 100));
-            yield this.createContentChunk(block.text);
+            // Determine if this text is "thinking" or "content":
+            // - If this turn has tools AND this text comes BEFORE any tool_use block = thinking
+            // - Otherwise = content (final response)
+            const toolUseIndex = currentResponse.content.findIndex(b => b.type === 'tool_use');
+            const isBeforeToolUse = hasTool && toolUseIndex > i;
+            
+            if (isBeforeToolUse) {
+              // Text before tools = thinking/planning
+              console.log('[SessionManagerAgent] Yielding thinking content:', block.text.substring(0, 100));
+              yield this.createChunk('thinking', block.text);
+            } else {
+              // Text after tools or no tools = final content
+              console.log('[SessionManagerAgent] Yielding text content:', block.text.substring(0, 100));
+              yield this.createContentChunk(block.text);
+            }
           } else if (block.type === 'tool_use') {
             hasToolUse = true;
             
@@ -428,7 +445,7 @@ Always try to help users understand their data and make informed decisions.`
 
           // Get next response from Claude
           currentResponse = await anthropic.messages.create({
-            model: 'claude-3-5-haiku-20241022',
+            model: ANTHROPIC_MODELS.HAIKU_LATEST,
             max_tokens: 4096,
             temperature: 0.7,
             tools,
@@ -466,7 +483,7 @@ FORMATTING GUIDELINES:
           outputTokens: totalOutputTokens,
           totalTokens: totalInputTokens + totalOutputTokens,
           estimatedCost: totalCost,
-          model: 'claude-3-5-haiku-20241022',
+          model: ANTHROPIC_MODELS.HAIKU_LATEST,
         },
       });
       

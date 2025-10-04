@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { SignInButton } from "@clerk/nextjs";
 import { useAuth } from "@/lib/hooks";
@@ -10,11 +10,28 @@ import { SessionList } from "./_components/SessionList";
 import { SessionDetails } from "./_components/SessionDetails";
 import { SessionChat } from "./_components/SessionChat";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings2, FileText, LogIn, Sparkles } from "lucide-react";
+import { Plus, Settings2, FileText, LogIn, Sparkles, Radio } from "lucide-react";
+import { useSimpleLiveFeedStore } from "@/lib/stores/livefeed/simpleLiveFeedStore";
+import {
+  useBroadcastOrchestrator,
+  useIsBroadcasting,
+  useIsTransitioning,
+  useBroadcastError,
+  useBroadcastState,
+  useActiveBroadcastSessionId
+} from "@/lib/stores/orchestrator/broadcastOrchestrator";
+import { useHostAgentStore } from "@/lib/stores/host/hostAgentStore";
+import { useBroadcastSync } from "@/lib/hooks/useBroadcastSync";
+import { convertLiveFeedPostToEnhanced } from "../controls/_components/types";
 
 export function Sessions() {
   const { isLoading, isAuthenticated } = useAuth();
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
+  const [sessionDuration, setSessionDuration] = useState(0); // Local duration in milliseconds
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const lastSyncRef = useRef<number>(0);
+  const baselineDurationRef = useRef<number>(0); // Store baseline when timer starts
 
   const sessions = useQuery(api.users.sessions.list, isAuthenticated ? {} : "skip");
   const createSession = useMutation(api.users.sessions.create);
@@ -22,25 +39,268 @@ export function Sessions() {
     api.users.sessions.get,
     selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
   );
+  const sessionStats = useQuery(
+    api.users.sessions.getSessionStats,
+    selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
+  );
+  const startSessionTimer = useMutation(api.users.sessions.startSessionTimer);
+  const updateSessionDuration = useMutation(api.users.sessions.updateSessionDuration);
+  const pauseSessionTimer = useMutation(api.users.sessions.pauseSessionTimer);
+  
+  // ========================================================================
+  // BROADCAST ORCHESTRATOR (Replaces individual store management)
+  // ========================================================================
+  const { startBroadcast, stopBroadcast, recover, initialize } = useBroadcastOrchestrator();
+  const isLive = useIsBroadcasting();
+  const isTransitioning = useIsTransitioning();
+  const broadcastError = useBroadcastError();
+  const broadcastState = useBroadcastState();
+  const activeBroadcastSessionId = useActiveBroadcastSessionId(); // Track which session is broadcasting
+  
+  // Sync broadcast state with Convex backend
+  useBroadcastSync({
+    sessionId: selectedSessionId,
+    enabled: isAuthenticated && selectedSessionId !== null,
+    syncInterval: 5000, // Sync every 5 seconds
+    syncOnStateChange: true, // Immediate sync on state changes
+  });
+  
+  // Still need access to live feed posts for auto-processing
+  const { posts } = useSimpleLiveFeedStore();
+  const { processLiveFeedPost, getSessionQueueLength } = useHostAgentStore();
+  
+  // Filter posts by current session
+  const sessionPosts = posts.filter(post => post.sessionId === selectedSessionId);
+  
+  // Get session-specific queue length
+  const sessionQueueLength = getSessionQueueLength(selectedSessionId);
+  
+  // Note: processedPostIds should be moved to global store in future
+  // For now, keeping it local but this causes state loss on tab switch
+  const [processedPostIds, setProcessedPostIds] = useState<Set<string>>(new Set());
+  
+  // Button shows red when actually broadcasting
+  const isBroadcasting = isLive;
 
-  // Auto-select the first session when sessions are loaded
+  // ========================================================================
+  // BROADCAST TOGGLE (Using Orchestrator)
+  // ========================================================================
+  const handleToggleLive = async () => {
+    try {
+      if (isLive) {
+        // Currently broadcasting - stop
+        console.log('📺 SESSIONS: Stopping broadcast via orchestrator');
+        await stopBroadcast();
+      } else {
+        // Not broadcasting - need to start
+        // Handle different initial states appropriately
+        if (broadcastState === 'idle') {
+          // From idle, we need to initialize
+          console.log('📺 SESSIONS: Idle state detected, initializing orchestrator...');
+          await initialize();
+        } else if (broadcastState === 'error') {
+          // From error, we need to recover (which will transition to idle, then initialize)
+          console.log('📺 SESSIONS: Error state detected, attempting recovery...');
+          await recover();
+        } else if (broadcastState === 'ready') {
+          // Already ready, can start directly
+          console.log('📺 SESSIONS: System ready, starting broadcast...');
+        } else {
+          // For any other state (initializing, starting, stopping), log and wait
+          console.warn(`📺 SESSIONS: Unexpected state '${broadcastState}' when trying to start`);
+          return;
+        }
+        
+        // Start the broadcast (will only work if state is 'ready')
+        console.log('📺 SESSIONS: Starting broadcast via orchestrator');
+        await startBroadcast(selectedSessionId ?? undefined);
+      }
+    } catch (error) {
+      console.error('📺 SESSIONS: Error toggling broadcast:', error);
+      // Error is already captured in orchestrator state
+    }
+  };
+
+  // Auto-select session logic:
+  // 1. If a broadcast is active, ALWAYS select that session (prevent data spillage)
+  // 2. If no session selected and sessions exist, select the first one
+  // 3. If selected session was deleted, select the first available
   useEffect(() => {
+    // Priority 1: If broadcasting, lock to that session
+    if (activeBroadcastSessionId) {
+      if (selectedSessionId !== activeBroadcastSessionId) {
+        console.log(`📺 SESSIONS: Switching to active broadcast session: ${activeBroadcastSessionId}`);
+        setSelectedSessionId(activeBroadcastSessionId);
+      }
+      return; // Don't allow other selections while broadcasting
+    }
+    
+    // Priority 2: Auto-select first session if none selected
     if (sessions && sessions.length > 0 && !selectedSessionId) {
+      console.log(`📺 SESSIONS: Auto-selecting first session: ${sessions[0]._id}`);
       setSelectedSessionId(sessions[0]._id);
     }
-  }, [sessions, selectedSessionId]);
+  }, [sessions, selectedSessionId, activeBroadcastSessionId]);
 
   // If the selected session no longer exists, select the first available session
   useEffect(() => {
+    // Don't change selection if broadcasting
+    if (activeBroadcastSessionId) return;
+    
     if (sessions && selectedSessionId) {
       const sessionExists = sessions.some(session => session._id === selectedSessionId);
       if (!sessionExists && sessions.length > 0) {
+        console.log(`📺 SESSIONS: Selected session deleted, switching to first available`);
         setSelectedSessionId(sessions[0]._id);
       }
     }
-  }, [sessions, selectedSessionId]);
+  }, [sessions, selectedSessionId, activeBroadcastSessionId]);
+
+  // Initialize session duration from database when session changes
+  useEffect(() => {
+    if (!selectedSessionId || !selectedSession) return;
+    
+    // Set initial duration from database
+    const dbDuration = selectedSession.totalDuration ?? 0;
+    setSessionDuration(dbDuration);
+    // Also update the baseline ref so it's in sync
+    baselineDurationRef.current = dbDuration;
+    
+    console.log(`📊 SESSIONS: Initialized duration for session: ${formatDuration(dbDuration)}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSessionId, selectedSession?.totalDuration]);
+
+  // Session timer management: start/pause/update duration - ONLY runs when Live
+  useEffect(() => {
+    if (!selectedSessionId) return;
+    
+    // Only start timer when broadcast is Live
+    if (!isLive) {
+      console.log('⏸️ SESSIONS: Timer paused - not live');
+      return;
+    }
+
+    console.log('▶️ SESSIONS: Timer started - going live');
+    
+    // Use the current baseline from ref (already set by initialization effect)
+    // If timer was already running, this will continue from where it left off
+    
+    // Start timer for this session
+    startTimeRef.current = Date.now();
+    lastSyncRef.current = Date.now();
+    
+    // Start the session timer in database if not already started
+    startSessionTimer({ id: selectedSessionId }).catch(console.error);
+
+    // Update local duration every second - smooth counting
+    timerIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      setSessionDuration(baselineDurationRef.current + elapsed);
+
+      // Sync to database every 10 seconds
+      const timeSinceLastSync = Date.now() - lastSyncRef.current;
+      if (timeSinceLastSync >= 10000) {
+        const totalElapsed = Date.now() - startTimeRef.current;
+        updateSessionDuration({
+          id: selectedSessionId,
+          additionalMilliseconds: totalElapsed,
+        }).catch(console.error);
+        
+        // Reset tracking for next sync period
+        lastSyncRef.current = Date.now();
+        startTimeRef.current = Date.now();
+        // Update baseline ref for next interval
+        baselineDurationRef.current = baselineDurationRef.current + totalElapsed;
+      }
+    }, 1000);
+
+    // Cleanup: pause timer when stopping Live or switching sessions
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+      
+      // Save final duration to database when stopping
+      const finalElapsed = Date.now() - startTimeRef.current;
+      const finalDuration = baselineDurationRef.current + finalElapsed;
+      
+      pauseSessionTimer({
+        id: selectedSessionId,
+        finalDuration,
+      }).catch(console.error);
+      
+      // Update baseline ref for when component remounts
+      baselineDurationRef.current = finalDuration;
+      
+      console.log('⏹️ SESSIONS: Timer stopped and saved:', formatDuration(finalDuration));
+    };
+  }, [selectedSessionId, isLive, startSessionTimer, updateSessionDuration, pauseSessionTimer]);
+
+  // Format duration for display (HH:MM:SS)
+  const formatDuration = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Auto-feed posts to host when live - CRITICAL for narration
+  useEffect(() => {
+    // Only run when live and we have posts
+    // Orchestrator ensures host is active when isLive is true
+    if (!isLive || sessionPosts.length === 0) {
+      return;
+    }
+
+    console.log(`📮 SESSIONS: Auto-feed check - ${sessionPosts.length} session posts available`);
+
+    // Filter out posts we've already processed
+    const newPosts = sessionPosts.filter(post => !processedPostIds.has(post.id));
+    
+    if (newPosts.length === 0) {
+      console.log('📮 SESSIONS: No new posts to process');
+      return;
+    }
+
+    console.log(`📮 SESSIONS: Found ${newPosts.length} new posts to feed to host`);
+
+    // Process up to 3 posts at a time with delays
+    const postsToProcess = newPosts.slice(0, 3);
+    
+    postsToProcess.forEach((post, index) => {
+      setTimeout(() => {
+        console.log(`📮 SESSIONS: Feeding post ${index + 1}/${postsToProcess.length} to host:`, post.title);
+        
+        // Convert to enhanced format
+        const enhancedPost = convertLiveFeedPostToEnhanced(post);
+        
+        // Feed to host agent
+        processLiveFeedPost(enhancedPost);
+        
+        // Mark as processed
+        setProcessedPostIds(prev => {
+          const newSet = new Set(prev);
+          newSet.add(post.id);
+          return newSet;
+        });
+      }, index * 3000); // 3 second delay between posts
+    });
+
+  }, [isLive, sessionPosts, processedPostIds, processLiveFeedPost]);
+
+  // Safeguard: Prevent manual session switching while broadcasting
+  const handleSessionSelect = (id: Id<"sessions">) => {
+    if (activeBroadcastSessionId && activeBroadcastSessionId !== id) {
+      console.warn(`⚠️ SESSIONS: Cannot switch from broadcasting session ${activeBroadcastSessionId} to ${id}`);
+      // Could show a toast notification here
+      return;
+    }
+    setSelectedSessionId(id);
+  };
 
   const handleCreateSession = async () => {
+    // Allow creating new sessions even when broadcasting (won't auto-select it)
     const id = await createSession({
       name: `Session ${new Date().toLocaleString()}`,
       settings: {
@@ -53,7 +313,11 @@ export function Sessions() {
         controlMode: "balanced"
       }
     });
-    setSelectedSessionId(id);
+    
+    // Only auto-select if not broadcasting
+    if (!activeBroadcastSessionId) {
+      setSelectedSessionId(id);
+    }
   };
 
 
@@ -115,7 +379,7 @@ export function Sessions() {
           <SessionList
             sessions={sessions || []}
             selectedId={selectedSessionId}
-            onSelect={setSelectedSessionId}
+            onSelect={handleSessionSelect}
           />
         </div>
       </div>
@@ -144,23 +408,129 @@ export function Sessions() {
               {/* Unified Content Panel */}
               <div className="flex-1 overflow-y-auto">
                 <div className="space-y-6">
+                  {/* Header with Live Button */}
+                  <div className="px-4 pt-3 pb-2 border-b border-neutral-800">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={handleToggleLive}
+                          size="sm"
+                          variant={isBroadcasting ? "default" : "outline"}
+                          disabled={isTransitioning}
+                          className={`h-7 gap-1.5 ${
+                            isBroadcasting
+                              ? "bg-red-500 hover:bg-red-600 text-white"
+                              : broadcastState === 'error'
+                                ? "bg-yellow-600 hover:bg-yellow-700 text-white border-yellow-500"
+                                : "bg-neutral-900 border-neutral-700 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                          }`}
+                        >
+                          {isTransitioning ? (
+                            <>
+                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span className="text-xs font-medium">
+                                {isBroadcasting ? "Stopping..." : "Starting..."}
+                              </span>
+                            </>
+                          ) : broadcastState === 'error' ? (
+                            <>
+                              <span className="text-xs font-medium">⚠️ Recover & Start</span>
+                            </>
+                          ) : (
+                            <>
+                              <Radio className={`w-3 h-3 ${isBroadcasting ? "animate-pulse" : ""}`} />
+                              <span className="text-xs font-medium">
+                                {isBroadcasting ? "LIVE" : "Go Live"}
+                              </span>
+                            </>
+                          )}
+                        </Button>
+
+                        {/* State Badge */}
+                        {process.env.NODE_ENV === 'development' && (
+                          <span className="text-xs text-neutral-500 font-mono">
+                            {broadcastState}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Error Display */}
+                      {broadcastError && (
+                        <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded px-2 py-1">
+                          {broadcastError}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Session Overview Section */}
                   <div className="px-4 pt-4">
                     <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">
                       Session Overview
                     </h3>
-                    <div className="space-y-2">
-                      <div className="bg-neutral-900/50 rounded-lg p-3 border border-neutral-800">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-neutral-500">Model</span>
-                          <Settings2 className="w-3 h-3 text-neutral-600" />
-                        </div>
-                        <p className="text-sm text-neutral-200 font-mono">
-                          {selectedSession.settings.model}
-                        </p>
-                        <p className="text-xs text-neutral-600 mt-1 capitalize">
-                          {selectedSession.settings.controlMode} mode
-                        </p>
+                    <div className="space-y-0.75">
+                      {/* Session ID/Name */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Session</span>
+                        <span className="text-xs text-neutral-200 font-mono truncate max-w-[180px]">
+                          {selectedSession.name}
+                        </span>
+                      </div>
+                      
+                      {/* Tokens */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Tokens</span>
+                        <span className="text-xs text-cyan-400 font-mono">
+                          {sessionStats?.totalTokens.toLocaleString() ?? "0"}
+                        </span>
+                      </div>
+                      
+                      {/* Stories */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Stories</span>
+                        <span className="text-xs text-cyan-400 font-mono">
+                          {sessionStats?.storyCount ?? 0}
+                        </span>
+                      </div>
+                      
+                      {/* Feed Posts */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Feed</span>
+                        <span className="text-xs text-purple-400 font-mono">
+                          {sessionPosts.length}
+                        </span>
+                      </div>
+                      
+                      {/* Host Queue */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Queue</span>
+                        <span className="text-xs text-amber-400 font-mono">
+                          {sessionQueueLength}
+                        </span>
+                      </div>
+                      
+                      {/* Cost */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Cost</span>
+                        <span className="text-xs text-emerald-400 font-mono">
+                          ${(sessionStats?.totalCost ?? 0).toFixed(4)}
+                        </span>
+                      </div>
+                      
+                      {/* Duration */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Duration</span>
+                        <span className="text-xs text-neutral-200 font-mono">
+                          {formatDuration(sessionDuration)}
+                        </span>
+                      </div>
+                      
+                      {/* Messages */}
+                      <div className="flex items-center justify-between py-0.5">
+                        <span className="text-xs text-neutral-500">Messages</span>
+                        <span className="text-xs text-cyan-400 font-mono">
+                          0
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -172,17 +542,17 @@ export function Sessions() {
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="bg-neutral-900/50 rounded-lg p-3 border border-neutral-800">
-                        <p className="text-xs text-neutral-500 mb-1">Messages</p>
-                        <p className="text-lg font-mono text-neutral-200">0</p>
+                        <p className="text-xs text-neutral-500 mb-1">Stories</p>
+                        <p className="text-lg font-mono text-neutral-200">{sessionStats?.storyCount ?? 0}</p>
                       </div>
                       <div className="bg-neutral-900/50 rounded-lg p-3 border border-neutral-800">
                         <p className="text-xs text-neutral-500 mb-1">Tokens</p>
-                        <p className="text-lg font-mono text-neutral-200">0</p>
+                        <p className="text-lg font-mono text-neutral-200">{sessionStats?.totalTokens.toLocaleString() ?? "0"}</p>
                       </div>
                     </div>
                     <div className="mt-2 bg-neutral-900/50 rounded-lg p-3 border border-neutral-800">
-                      <p className="text-xs text-neutral-500 mb-1">Session Duration</p>
-                      <p className="text-sm font-mono text-neutral-200">00:00:00</p>
+                      <p className="text-xs text-neutral-500 mb-1">Total Cost</p>
+                      <p className="text-sm font-mono text-emerald-400">${(sessionStats?.totalCost ?? 0).toFixed(4)}</p>
                     </div>
                   </div>
 

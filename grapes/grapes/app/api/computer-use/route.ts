@@ -1,3 +1,41 @@
+/**
+ * DEPRECATED: This route is deprecated as of January 2025
+ *
+ * @deprecated Use `/api/agents/stream` with `grapes-orchestrator` agent instead
+ *
+ * Migration Guide:
+ * ----------------
+ * Old approach (deprecated):
+ * ```typescript
+ * const response = await fetch('/api/computer-use', {
+ *   method: 'POST',
+ *   body: JSON.stringify({ prompt, shapeCoordinates, screenshot })
+ * });
+ * ```
+ *
+ * New approach (Nexus architecture):
+ * ```typescript
+ * import { useGrapesAgent } from '@/lib/hooks/useGrapesAgent';
+ *
+ * const { messages, isStreaming, sendMessage } = useGrapesAgent();
+ *
+ * await sendMessage({
+ *   message: prompt,
+ *   screenshot,
+ *   shapeCoordinates
+ * });
+ * ```
+ *
+ * Benefits of new architecture:
+ * - Modular agent system (easier testing)
+ * - Type-safe tool definitions
+ * - Better error handling
+ * - Consistent streaming patterns
+ * - Reusable across multiple UIs
+ *
+ * This route will be removed in the next major version.
+ */
+
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
 
@@ -5,16 +43,16 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Google Maps Geocoding/Geometry API tool
+// Google Maps Geocoding/Geometry/Places API tool
 const GOOGLE_MAPS_TOOL: Anthropic.Tool = {
   name: "google_maps_api",
-  description: "Access Google Maps APIs to calculate geographic areas, get place names, convert coordinates, and perform spatial analysis. Use this to analyze user-drawn shapes on the map.",
+  description: "Access Google Maps APIs to calculate geographic areas, get place names, convert coordinates, search for businesses/places, and perform spatial analysis. Use this to analyze user-drawn shapes on the map and find businesses within the area.",
   input_schema: {
     type: "object",
     properties: {
       action: {
         type: "string",
-        enum: ["calculate_area", "geocode", "reverse_geocode", "get_place_info"],
+        enum: ["calculate_area", "geocode", "reverse_geocode", "get_place_info", "search_places"],
         description: "The Maps API action to perform",
       },
       coordinates: {
@@ -39,7 +77,19 @@ const GOOGLE_MAPS_TOOL: Anthropic.Tool = {
       },
       lng: {
         type: "number",
-        description: "Longitude for reverse geocoding",
+        description: "Longitude for reverse geocoding or place search center",
+      },
+      placeType: {
+        type: "string",
+        description: "Type of place to search for (e.g., 'restaurant', 'cafe', 'store', 'gas_station', 'hospital', 'school', 'bank', 'hotel'). See Google Places types.",
+      },
+      radius: {
+        type: "number",
+        description: "Search radius in meters (max 50000). For shape-based searches, use the polygon's bounding radius.",
+      },
+      keyword: {
+        type: "string",
+        description: "Keyword to search for in place names and descriptions",
       },
     },
     required: ["action"],
@@ -51,7 +101,7 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, shapeCoordinates = [] } = await req.json();
+    const { prompt, shapeCoordinates = [], screenshot, useHybrid, conversationHistory = [] } = await req.json();
 
     if (!prompt) {
       return new Response(
@@ -72,13 +122,39 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // System message explaining the shape analysis context
-          const systemMessage = `You are analyzing geographic shapes drawn by a user on a Google Maps interface.
+          // System message - hybrid mode combines coordinates with vision verification
+          const systemMessage = useHybrid && screenshot
+            ? `You are analyzing geographic shapes drawn by a user on a Google Maps interface using a HYBRID approach.
 
-The user has drawn a shape on a map of Canada. You have access to a Google Maps API tool to:
+You will receive:
+1. Calculated coordinates from pixel-to-lat/lng conversion (may have some inaccuracy)
+2. A screenshot showing the drawn shape on the map
+
+Your task:
+1. FIRST: Use the google_maps_api tool with the provided coordinates to:
+   - Calculate the area of the shape
+   - Get the geographic location via reverse geocoding
+   - Identify what region/city/province the coordinates indicate
+
+2. THEN: Look at the screenshot to verify:
+   - Can you see any map labels, city names, or landmarks?
+   - Does the visible location match the calculated coordinates?
+   - If there's a discrepancy, what does the screenshot actually show?
+
+3. REPORT: Provide the area calculation and location, then mention if the screenshot confirms this or suggests a different location.
+
+Be clear about:
+- What the coordinates indicate
+- What you can see in the screenshot
+- Whether they match or if there's a discrepancy
+- Your confidence level in the identification`
+            : `You are analyzing geographic shapes drawn by a user on a Google Maps interface.
+
+The user has drawn a shape on a map. You have access to a Google Maps API tool to:
 1. Calculate the area of the drawn shape (in km², acres, sq miles, etc.)
 2. Identify what geographic region(s) the shape covers
 3. Get place names and information about the area
+4. **Search for businesses and places** within the area (restaurants, stores, hotels, gas stations, cafes, etc.)
 
 The shape coordinates are provided as an array of lat/lng points defining a polygon.
 
@@ -86,16 +162,80 @@ Your task is to:
 - Use the google_maps_api tool to calculate the area
 - Provide the area in multiple units (km², acres, sq miles)
 - Identify what region/province/territory/city the shape covers
+- **When the user asks about businesses/places, use action: "search_places"**
 - Provide any relevant geographic information
+
+**For place searches:**
+1. Calculate the center point from the polygon coordinates (average lat/lng)
+2. Calculate an appropriate radius (half the polygon's bounding box diagonal, max 50000m)
+3. Use action: "search_places" with:
+   - lat/lng: center point
+   - radius: calculated radius
+   - placeType: "restaurant", "cafe", "hotel", "store", "gas_station", etc.
+   - keyword: optional search term from user query
+
+**Place types available:**
+restaurant, cafe, bar, hotel, lodging, store, shopping_mall, gas_station, hospital, pharmacy, bank, atm, school, university, gym, park, museum, movie_theater, library, airport, subway_station, train_station, bus_station, parking
+
+**When presenting results:**
+- Show business names, addresses, ratings
+- Mention if area is too remote (ZERO_RESULTS)
+- Suggest trying a different area or business type
+- Remember: coordinate accuracy is ~90%, so results might be offset
+
+The shape coordinates remain constant throughout the conversation, so you can refer to them in follow-up questions.
 
 Be precise and informative in your analysis.`;
 
-          const messages: Anthropic.MessageParam[] = [
-            {
+          // Build messages array with conversation history
+          const messages: Anthropic.MessageParam[] = [];
+          
+          // Add conversation history if present
+          if (conversationHistory.length > 0) {
+            conversationHistory.forEach((msg: { role: string; content: string }) => {
+              messages.push({
+                role: msg.role as "user" | "assistant",
+                content: msg.content,
+              });
+            });
+          }
+          
+          // Add current prompt
+          // For hybrid mode: include both coordinates AND screenshot
+          // For coordinate-only mode: just include coordinates
+          const isFirstMessage = conversationHistory.length === 0;
+          
+          if (useHybrid && screenshot) {
+            // Hybrid analysis: coordinates + vision verification
+            const base64Data = screenshot.split(',')[1]; // Remove data:image/png;base64, prefix
+            messages.push({
               role: "user",
-              content: `${prompt}\n\nShape coordinates: ${JSON.stringify(shapeCoordinates, null, 2)}`,
-            },
-          ];
+              content: [
+                {
+                  type: "text",
+                  text: isFirstMessage 
+                    ? `${prompt}\n\nCalculated shape coordinates: ${JSON.stringify(shapeCoordinates, null, 2)}`
+                    : prompt,
+                },
+                {
+                  type: "image",
+                  source: {
+                    type: "base64",
+                    media_type: "image/png",
+                    data: base64Data,
+                  },
+                },
+              ],
+            });
+          } else {
+            // Coordinate-only analysis
+            messages.push({
+              role: "user",
+              content: isFirstMessage 
+                ? `${prompt}\n\nShape coordinates: ${JSON.stringify(shapeCoordinates, null, 2)}`
+                : prompt,
+            });
+          }
 
           let continueLoop = true;
           let iterations = 0;
@@ -251,6 +391,9 @@ async function executeMapsApiCall(input: {
   address?: string;
   lat?: number;
   lng?: number;
+  placeType?: string;
+  radius?: number;
+  keyword?: string;
 }): Promise<string> {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -282,6 +425,22 @@ async function executeMapsApiCall(input: {
         throw new Error("Lat/lng required for place info");
       }
       return await getPlaceInfo(input.lat, input.lng, apiKey);
+
+    case "search_places":
+      if (input.lat === undefined || input.lng === undefined) {
+        throw new Error("Lat/lng required for place search");
+      }
+      if (!input.radius) {
+        throw new Error("Radius required for place search");
+      }
+      return await searchPlaces(
+        input.lat,
+        input.lng,
+        input.radius,
+        apiKey,
+        input.placeType,
+        input.keyword
+      );
 
     default:
       throw new Error(`Unknown action: ${input.action}`);
@@ -386,4 +545,86 @@ async function getPlaceInfo(
 ): Promise<string> {
   // Use reverse geocoding to get place information
   return await reverseGeocode(lat, lng, apiKey);
+}
+
+// Search for places using Google Places API (Nearby Search)
+async function searchPlaces(
+  lat: number,
+  lng: number,
+  radius: number,
+  apiKey: string,
+  placeType?: string,
+  keyword?: string
+): Promise<string> {
+  try {
+    // Use Places API Nearby Search
+    // Note: This uses the legacy Places API. For production, consider migrating to Places API (New)
+    const params = new URLSearchParams({
+      location: `${lat},${lng}`,
+      radius: Math.min(radius, 50000).toString(), // Max 50km
+      key: apiKey,
+    });
+
+    if (placeType) {
+      params.append("type", placeType);
+    }
+
+    if (keyword) {
+      params.append("keyword", keyword);
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?${params.toString()}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+      throw new Error(`Places API error: ${data.status} - ${data.error_message || "Unknown error"}`);
+    }
+
+    if (data.status === "ZERO_RESULTS" || !data.results || data.results.length === 0) {
+      return JSON.stringify({
+        status: "ZERO_RESULTS",
+        message: "No places found in this area",
+        searchParams: {
+          center: { lat, lng },
+          radius,
+          type: placeType,
+          keyword,
+        },
+      });
+    }
+
+    // Parse and format results (limit to 20 for readability)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const places = data.results.slice(0, 20).map((place: any) => ({
+      name: place.name,
+      address: place.vicinity,
+      types: place.types,
+      rating: place.rating,
+      user_ratings_total: place.user_ratings_total,
+      price_level: place.price_level,
+      location: place.geometry.location,
+      open_now: place.opening_hours?.open_now,
+      place_id: place.place_id,
+    }));
+
+    return JSON.stringify({
+      status: "OK",
+      results_count: places.length,
+      total_results: data.results.length,
+      searchParams: {
+        center: { lat, lng },
+        radius,
+        type: placeType,
+        keyword,
+      },
+      places,
+    }, null, 2);
+    
+  } catch (error) {
+    throw new Error(
+      `Places search failed: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
+  }
 }

@@ -11,15 +11,15 @@
 
 'use client';
 
-import React, { useEffect } from "react";
+import React from "react";
 import { WaterfallNarration } from "@/components/host/WaterfallNarration";
 import { HostSettings } from "@/components/host/HostSettings";
 import { useHostAgentStore } from "@/lib/stores/host/hostAgentStore";
+import { useIsBroadcasting, useBroadcastState } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 import { Settings } from 'lucide-react';
 
 export default function Host() {
-  const { 
-    isActive, 
+  const {
     isStreaming,
     streamingText,
     currentNarration,
@@ -27,19 +27,12 @@ export default function Host() {
     isGenerating,
     stats,
     showSettings,
-    initializeHostAgent, 
-    cleanup,
     toggleSettings
   } = useHostAgentStore();
 
-  // Initialize host agent on mount
-  useEffect(() => {
-    initializeHostAgent();
-    
-    return () => {
-      cleanup();
-    };
-  }, [initializeHostAgent, cleanup]);
+  // Orchestrator state - single source of truth for broadcast status
+  const isActive = useIsBroadcasting();
+  const broadcastState = useBroadcastState();
 
   // Get current status text and styling
   const getStatusInfo = () => {
@@ -72,6 +65,14 @@ export default function Host() {
           <span className={`text-xs font-medium ${statusInfo.textColor}`}>
             {statusInfo.text}
           </span>
+
+          {/* Broadcast State Badge (dev only) */}
+          {process.env.NODE_ENV === 'development' && (
+            <span className="text-xs text-neutral-500 font-mono px-1.5 py-0.5 bg-neutral-800 rounded border border-neutral-700">
+              {broadcastState}
+            </span>
+          )}
+
           <button
             title="Host Settings"
             onClick={toggleSettings}

@@ -22,7 +22,8 @@ export default defineSchema({
     estimated_cost: v.number(), // Cost in USD
     request_type: v.union(
       v.literal("host"),
-      v.literal("producer")
+      v.literal("producer"),
+      v.literal("editor")
     ),
     duration: v.optional(v.number()), // Request duration in milliseconds
     success: v.boolean(),
@@ -242,6 +243,8 @@ export default defineSchema({
     summary: v.optional(v.string()), // Brief summary
     created_at: v.number(), // Timestamp when story was created
     completed_at: v.number(), // Timestamp when story was completed
+    // Session tracking - CRITICAL for filtering stories by session
+    session_id: v.optional(v.string()), // Link to host_sessions to filter stories by session
     // Original source information
     original_item: v.optional(v.object({
       title: v.string(),
@@ -258,6 +261,7 @@ export default defineSchema({
     .index("by_created_at", ["created_at"])
     .index("by_completed_at", ["completed_at"])
     .index("by_sentiment", ["sentiment"])
+    .index("by_session_id", ["session_id"]) // Index for filtering by session
     // Search index for stories
     .searchIndex("search_stories", {
       searchField: "narrative",
@@ -1141,10 +1145,36 @@ export default defineSchema({
         v.literal("full-control")
       ),
     }),
+    // Session-specific duration tracking (independent of global project tracking)
+    startTime: v.optional(v.number()), // Timestamp when session became active
+    totalDuration: v.optional(v.number()), // Accumulated milliseconds of active time
+    lastActiveTime: v.optional(v.number()), // Last interaction timestamp for pause/resume
+    
+    // Broadcast State Fields - NEW: Sync with orchestrator
+    broadcastState: v.optional(v.union(
+      v.literal("idle"),
+      v.literal("initializing"),
+      v.literal("ready"),
+      v.literal("starting"),
+      v.literal("live"),
+      v.literal("stopping"),
+      v.literal("error")
+    )),
+    isLive: v.optional(v.boolean()), // Quick check for active broadcast
+    hostActive: v.optional(v.boolean()), // Host agent status
+    producerActive: v.optional(v.boolean()), // Producer agent status
+    liveFeedActive: v.optional(v.boolean()), // Live feed status
+    broadcastStartedAt: v.optional(v.number()), // When broadcast went live
+    broadcastStoppedAt: v.optional(v.number()), // When broadcast stopped
+    broadcastDuration: v.optional(v.number()), // Total broadcast duration in ms
+    broadcastError: v.optional(v.string()), // Last error message if any
+    lastBroadcastSync: v.optional(v.number()), // Last sync with orchestrator
   })
     .index("by_status", ["status"])
     .index("by_userId", ["userId"])
-    .index("by_userId_and_status", ["userId", "status"]),
+    .index("by_userId_and_status", ["userId", "status"])
+    .index("by_broadcastState", ["broadcastState"])
+    .index("by_isLive", ["isLive"]),
 
   // Session Messages
   messages: defineTable({

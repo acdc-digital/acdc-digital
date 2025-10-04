@@ -4,7 +4,14 @@
 /**
  * Nexus-Powered Chat Component for Session Manager
  * 
- * Drop-in replacement for Chat.tsx using Nexus Framework with:
+ * Drop-in replacement for Chat.tsx using Nexus Framew              <Button
+                variant="ghost-minimal"
+                size="xs"
+                onClick={handleClearChat}
+                className="p-1 pr-2 text-neutral-400 hover:text-neutral-200"
+              >
+                Clear
+              </Button>:
  * - Real-time streaming via SSE
  * - Tool execution display
  * - Natural language query understanding
@@ -13,16 +20,22 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Send, Bot, Settings, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNexusAgent } from "@/lib/hooks/useNexusAgent";
 import { NexusChatMessage } from "./_components/NexusChatMessage";
-import { StreamingIndicator } from "./_components/StreamingIndicator";
-
-export interface NexusChatProps {
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton
+} from "@/components/ai/conversation";
+import {
+  PromptInput,
+  PromptInputTextarea,
+} from "@/components/ai/prompt-input";
+import { Suggestion } from "@/components/ai/suggestion";export interface NexusChatProps {
   className?: string;
   placeholder?: string;
   agentId?: string;
@@ -46,8 +59,7 @@ export function NexusChat({
   showSettings = false
 }: NexusChatProps) {
   const [currentMessage, setCurrentMessage] = useState("");
-  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showSettingsPanel] = useState(false);
 
   // Use Nexus agent hook
   const {
@@ -78,15 +90,9 @@ export function NexusChat({
     isStreaming
   });
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isStreaming]);
-
-  const handleSend = async () => {
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!currentMessage.trim() || isStreaming || disabled) return;
 
     const messageText = currentMessage.trim();
@@ -109,10 +115,18 @@ export function NexusChat({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+  const handleSuggestionClick = async (suggestion: string) => {
+    if (isStreaming || disabled) return;
+    
+    // Notify parent
+    onMessageSent?.(suggestion);
+
+    // Send to Nexus agent
+    try {
+      await sendMessage(suggestion);
+      console.log('[NexusChat] Suggestion sent successfully:', suggestion);
+    } catch (err) {
+      console.error('[NexusChat] Failed to send suggestion:', err);
     }
   };
 
@@ -122,30 +136,140 @@ export function NexusChat({
 
   return (
     <div className={cn("flex flex-col h-full bg-neutral-950", className)}>
-      {/* Header with Settings */}
+      {/* Error Display */}
+      {error && (
+        <div className="p-4 bg-red-900/20 border-l-4 border-red-500 text-red-200 text-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          <div>
+            <div className="font-semibold">Error</div>
+            <div className="text-xs mt-0.5">{error.message}</div>
+          </div>
+        </div>
+      )}
+      
+      {/* Messages Area with Auto-Scroll */}
+      <Conversation className="flex-1" initial="smooth" resize="smooth">
+        <ConversationContent paddingSize="default">
+          {messages.length === 0 && !isStreaming && (
+            <div className="flex items-center justify-center pt-8">
+              <div className="max-w-3xl w-full px-4">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  <Suggestion
+                    suggestion="How are my data metrics for the week?"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-cyan-400 hover:bg-neutral-800 hover:border-cyan-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Show me token usage trends"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-purple-400 hover:bg-neutral-800 hover:border-purple-400/50"
+                  />
+                  <Suggestion
+                    suggestion="What's my current system health?"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-green-400 hover:bg-neutral-800 hover:border-green-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Analyze my engagement metrics"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-orange-400 hover:bg-neutral-800 hover:border-orange-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Compare this week to last week"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-blue-400 hover:bg-neutral-800 hover:border-blue-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Show me error rates"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-red-400 hover:bg-neutral-800 hover:border-red-400/50"
+                  />
+                  <Suggestion
+                    suggestion="What are my peak usage times?"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-amber-400 hover:bg-neutral-800 hover:border-amber-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Summary of recent sessions"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-indigo-400 hover:bg-neutral-800 hover:border-indigo-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Show cost breakdown"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-emerald-400 hover:bg-neutral-800 hover:border-emerald-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Which tools are most used?"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-pink-400 hover:bg-neutral-800 hover:border-pink-400/50"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {messages.map((msg, index) => (
+            <NexusChatMessage
+              key={msg.id}
+              message={msg}
+              isStreaming={isStreaming && index === messages.length - 1}
+            />
+          ))}
+        </ConversationContent>
+
+        {/* Scroll to Bottom Button */}
+        <ConversationScrollButton
+          label="Scroll to latest message"
+          showBadge={false}
+        />
+      </Conversation>
+
+      {/* Input Area */}
+      <div className="border-t border-neutral-800 p-2 bg-neutral-900">
+        <div className="max-w-4xl mx-auto">
+          <PromptInput onSubmit={handleSend}>
+            <PromptInputTextarea
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.currentTarget.value)}
+              placeholder={placeholder}
+              minHeight={60}
+              maxHeight={200}
+              className="bg-neutral-800 border-neutral-700 text-white focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              disabled={isStreaming || disabled}
+            />
+          </PromptInput>
+          {isStreaming && (
+            <p className="text-xs text-neutral-500 text-center mt-2">
+              Agent is processing your request...
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Footer with Settings */}
       {showSettings && (
-        <div className="border-b border-neutral-800 p-4 bg-neutral-900">
+        <div className="border-t border-neutral-800 pl-2 bg-neutral-900">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-neutral-200">Nexus Chat</h3>
               <p className="text-xs text-neutral-500 mt-0.5">
-                Powered by SessionManagerAgent with 7 analytics tools
+                Nexus Chat: Powered by the Session Manager w/ 7 analytics tools
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowSettingsPanel(!showSettingsPanel)}
                 className="text-neutral-400 hover:text-neutral-200"
               >
                 <Settings className="w-4 h-4" />
-              </Button>
+              </Button> */}
               <Button
-                variant="ghost"
-                size="sm"
+                variant="ghost-minimal"
+                size="xs"
                 onClick={handleClearChat}
-                className="text-neutral-400 hover:text-neutral-200"
+                className="p-1 pr-2 text-neutral-400 hover:text-neutral-200"
               >
                 Clear
               </Button>
@@ -174,76 +298,6 @@ export function NexusChat({
           )}
         </div>
       )}
-
-      {/* Error Display */}
-      {error && (
-        <div className="p-4 bg-red-900/20 border-l-4 border-red-500 text-red-200 text-sm flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
-          <div>
-            <div className="font-semibold">Error</div>
-            <div className="text-xs mt-0.5">{error.message}</div>
-          </div>
-        </div>
-      )}
-      
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {messages.length === 0 && !isStreaming && (
-          <div className="text-center text-neutral-500 mt-8">
-            <Bot className="w-12 h-12 mx-auto mb-4 text-neutral-600" />
-            <p className="text-lg font-medium text-neutral-400">Ask me anything about your sessions</p>
-            <div className="mt-6 max-w-md mx-auto space-y-2 text-sm text-left">
-              <p className="text-neutral-500 text-center mb-3">Try asking:</p>
-              <div className="space-y-2">
-                <div className="bg-neutral-900 p-3 rounded-lg border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <p className="text-cyan-400">&ldquo;How are my data metrics for the week?&rdquo;</p>
-                </div>
-                <div className="bg-neutral-900 p-3 rounded-lg border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <p className="text-purple-400">&ldquo;Show me token usage trends&rdquo;</p>
-                </div>
-                <div className="bg-neutral-900 p-3 rounded-lg border border-neutral-800 hover:border-neutral-700 transition-colors">
-                  <p className="text-green-400">&ldquo;What&apos;s my current system health?&rdquo;</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {messages.map((msg) => (
-          <NexusChatMessage key={msg.id} message={msg} />
-        ))}
-        
-        {/* Streaming Indicator */}
-        {isStreaming && <StreamingIndicator />}
-        
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="border-t border-neutral-800 p-4 bg-neutral-900">
-        <div className="max-w-4xl mx-auto flex gap-3">
-          <Textarea
-            value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            className="min-h-[60px] max-h-[200px] bg-neutral-800 border-neutral-700 text-white resize-none focus:border-cyan-400/50 transition-colors"
-            disabled={isStreaming || disabled}
-          />
-          <Button
-            onClick={handleSend}
-            disabled={!currentMessage.trim() || isStreaming || disabled}
-            className="bg-cyan-400 hover:bg-cyan-500 text-black font-medium self-end disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-        {isStreaming && (
-          <p className="text-xs text-neutral-500 text-center mt-2">
-            Agent is processing your request...
-          </p>
-        )}
-      </div>
     </div>
   );
 }

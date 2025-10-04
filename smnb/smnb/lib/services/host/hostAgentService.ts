@@ -61,6 +61,9 @@ export class HostAgentService extends EventEmitter {
   private sessionContent: string = ''; // Accumulate session content
   private storyThreadStore: typeof useStoryThreadStore; // Story thread store reference
   
+  // Session-aware queue storage - persist queues per session
+  private sessionQueues: Map<string, HostNarration[]> = new Map();
+  
   // Smart Caching System for Zero Duplicates
   private narrationCache: Map<string, { content: string; timestamp: number; hash: string }> = new Map();
   private contentHashes: Set<string> = new Set(); // Track unique content signatures
@@ -70,6 +73,14 @@ export class HostAgentService extends EventEmitter {
   // Host-Level Duplicate Detection
   private processedContentSignatures: Set<string> = new Set(); // Track processed content signatures
   private titleSimilarityCache: Map<string, string[]> = new Map(); // Cache similar titles
+  
+  // Narration Timeout Management
+  private narrationTimeout: NodeJS.Timeout | null = null;
+  private readonly NARRATION_TIMEOUT_MS = 10000; // 10 seconds max for narration to start
+  
+  // Rate Limit Management (Tier 1: 50 RPM)
+  private lastRequestTime: number = 0;
+  private readonly MIN_REQUEST_INTERVAL_MS = 1200; // 1.2s = 50 RPM (with safety margin)
 
   constructor(config: Partial<HostAgentConfig> = {}, llmService?: MockLLMService | ClaudeLLMService) {
     super();
@@ -114,8 +125,8 @@ export class HostAgentService extends EventEmitter {
   }
 
   // Public API Methods
-  public start(): void {
-    console.log('🎙️ HostAgentService.start() called'); 
+  public start(sessionId?: string): void {
+    console.log('🎙️ HostAgentService.start() called', sessionId ? `with session ID: ${sessionId}` : 'without session ID'); 
     
     if (this.state.isActive) {
       console.log('🎙️ Host agent is already active');
@@ -127,11 +138,31 @@ export class HostAgentService extends EventEmitter {
     // DON'T clear duplicate detection cache on start - preserve across sessions
     console.log(`🔍 HOST START: Preserving duplicate cache with ${this.processedContentSignatures.size} signatures, ${this.titleSimilarityCache.size} titles`);
     
-    // Create a new session when starting
-    this.currentSessionId = `host-session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Use provided session ID or generate a new one as fallback
+    if (sessionId) {
+      this.currentSessionId = sessionId;
+      console.log('📋 Host agent start() - Using provided session ID:', this.currentSessionId);
+    } else {
+      this.currentSessionId = `host-session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      console.log('📋 Host agent start() - Generated fallback session ID:', this.currentSessionId);
+    }
     this.sessionContent = ''; // Reset session content
     
-    console.log('📋 Host agent start() - Generated session ID:', this.currentSessionId);
+    // 🎯 SESSION-AWARE TOKEN TRACKING: Link LLM service to this session
+    this.llmService.setSessionId(this.currentSessionId);
+    console.log('🔗 Linked LLM service to session:', this.currentSessionId);
+    
+    // ✅ SESSION-AWARE QUEUE: Restore this session's queue from storage
+    if (this.currentSessionId) {
+      const existingQueue = this.sessionQueues.get(this.currentSessionId) || [];
+      this.state.narrationQueue = existingQueue;
+      console.log(`📦 Restored ${existingQueue.length} queued items for session: ${this.currentSessionId}`);
+      this.emit('queue:updated', this.state.narrationQueue);
+    } else {
+      console.warn('⚠️ Starting without session ID - queue will not be persisted');
+      this.state.narrationQueue = [];
+      this.emit('queue:updated', this.state.narrationQueue);
+    }
     
     // Create the session in the database
     this.createSession().catch((error: unknown) => {
@@ -165,11 +196,25 @@ export class HostAgentService extends EventEmitter {
     
     console.log('🎙️ Host agent stopping...');
     
+    // ✅ PERSIST SESSION QUEUE: Save current session's queue before stopping
+    if (this.currentSessionId && this.state.narrationQueue.length > 0) {
+      this.sessionQueues.set(this.currentSessionId, [...this.state.narrationQueue]);
+      console.log(`💾 Saved ${this.state.narrationQueue.length} queued items for session: ${this.currentSessionId}`);
+    }
+    
     // End the current session
     if (this.currentSessionId) {
       this.endSession().catch((error: unknown) => {
         console.error('❌ Failed to end host session:', error);
       });
+      
+      // 🎯 SESSION-AWARE TOKEN TRACKING: Unlink LLM service from session
+      this.llmService.setSessionId(null);
+      console.log('🔗 Unlinked LLM service from session');
+      
+      // Clear the session ID so it doesn't pollute the next session
+      this.currentSessionId = null;
+      console.log('🧹 Cleared currentSessionId on stop');
     }
     
     this.state.isActive = false;
@@ -185,6 +230,12 @@ export class HostAgentService extends EventEmitter {
       this.statsInterval = null;
     }
     
+    // Clear narration timeout
+    if (this.narrationTimeout) {
+      clearTimeout(this.narrationTimeout);
+      this.narrationTimeout = null;
+    }
+    
     // Clear current narration BUT preserve queue
     this.state.currentNarration = null;
     
@@ -193,6 +244,28 @@ export class HostAgentService extends EventEmitter {
     
     this.emit('host:stopped');
     console.log('✅ Host agent stopped successfully - queue preserved for resume');
+  }
+
+  public getCurrentSessionId(): string | null {
+    return this.currentSessionId;
+  }
+  
+  public getSessionQueue(sessionId: string): HostNarration[] {
+    // If it's the active session, return the live queue
+    if (sessionId === this.currentSessionId) {
+      return this.state.narrationQueue;
+    }
+    // Otherwise return the persisted queue
+    return this.sessionQueues.get(sessionId) || [];
+  }
+  
+  public getAllSessionQueues(): Map<string, HostNarration[]> {
+    // Create a map with all persisted queues plus the active one
+    const allQueues = new Map(this.sessionQueues);
+    if (this.currentSessionId) {
+      allQueues.set(this.currentSessionId, this.state.narrationQueue);
+    }
+    return allQueues;
   }
 
   public async processNewsItem(item: NewsItem): Promise<void> {
@@ -233,7 +306,7 @@ export class HostAgentService extends EventEmitter {
       this.state.stats.itemsProcessed++;
       
       this.emit('narration:queued', item.id);
-      this.emit('queue:updated', this.state.narrationQueue.length);
+      this.emit('queue:updated', this.state.narrationQueue);
       
       console.log(`✅ Started streaming narration for: ${item.id}`);
       
@@ -328,7 +401,7 @@ export class HostAgentService extends EventEmitter {
       }
       
       this.emit('narration:queued', post.id);
-      this.emit('queue:updated', this.state.narrationQueue.length);
+      this.emit('queue:updated', this.state.narrationQueue);
       
       // Emit thread update event for UI
       this.emit('thread:processed', {
@@ -384,7 +457,7 @@ export class HostAgentService extends EventEmitter {
   public clearQueue(): void {
     console.log(`🗑️ Clearing narration queue (${this.state.narrationQueue.length} items)`);
     this.state.narrationQueue = [];
-    this.emit('queue:updated', 0);
+    this.emit('queue:updated', this.state.narrationQueue);
   }
 
   public getQueueStatus(): {
@@ -809,7 +882,8 @@ export class HostAgentService extends EventEmitter {
         segments: [], // Will be populated by streaming
         metadata: {
           ...analysis,
-          originalItem: item // Store the original item for queue processing
+          originalItem: item, // Store the original item for queue processing
+          session_id: this.currentSessionId // Link narration to current session
         }
       };
 
@@ -845,8 +919,36 @@ export class HostAgentService extends EventEmitter {
   }
 
   private async startLiveStreaming(narration: HostNarration, item: NewsItem): Promise<void> {
+    console.log(`🔊 Starting live streaming for narration ${narration.id}`);
+    
+    // Set timeout to clear stuck narrations
+    if (this.narrationTimeout) {
+      clearTimeout(this.narrationTimeout);
+    }
+    
+    console.log(`⏲️ Setting ${this.NARRATION_TIMEOUT_MS/1000}s timeout for ${narration.id}`);
+    this.narrationTimeout = setTimeout(() => {
+      console.error(`\n🚨 ====== NARRATION TIMEOUT ======`);
+      console.error(`⏱️ Narration ${narration.id} timed out after ${this.NARRATION_TIMEOUT_MS/1000}s`);
+      console.error(`❌ First chunk was NEVER received from Claude API`);
+      console.error(`🔍 This usually means:`);
+      console.error(`   1. Rate limit hit (429) - check if you're on Tier 1 with 50 RPM limit`);
+      console.error(`   2. API key exhausted or invalid`);
+      console.error(`   3. Network issue between server and Claude API`);
+      console.error(`   4. Claude API experiencing outages`);
+      console.error(`📊 Check your Claude Console for rate limit status: https://console.anthropic.com/settings/limits`);
+      console.error(`================================\n`);
+      this.clearStuckNarration();
+      setTimeout(() => {
+        if (this.state.isActive) {
+          this.processQueue();
+        }
+      }, 100);
+    }, this.NARRATION_TIMEOUT_MS);
+    
     const prompt = this.buildPrompt(item);
-    let finalText = '';
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let finalText = ''; // Accumulates chunks from LLM (used in callback below)
     let streamingBuffer = '';
     let isStreaming = false;
     
@@ -884,6 +986,16 @@ export class HostAgentService extends EventEmitter {
     };
     
     try {
+      // Rate limit protection: ensure minimum 1.2s between requests (50 RPM)
+      const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+      if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL_MS) {
+        const waitTime = this.MIN_REQUEST_INTERVAL_MS - timeSinceLastRequest;
+        console.log(`⏳ Rate limit protection: waiting ${waitTime}ms before API call...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+      
+      this.lastRequestTime = Date.now();
+      console.log(`📞 Calling LLM service generateStream for ${narration.id}...`);
       await this.llmService.generateStream(
         prompt,
         {
@@ -893,6 +1005,13 @@ export class HostAgentService extends EventEmitter {
         },
         // onChunk callback - collect chunks but don't stream them immediately
         (chunk: string) => {
+          // Clear timeout on first chunk received - streaming has started!
+          if (this.narrationTimeout) {
+            console.log(`✅ First chunk received for ${narration.id}, clearing timeout`);
+            clearTimeout(this.narrationTimeout);
+            this.narrationTimeout = null;
+          }
+          
           finalText += chunk;
           // Don't emit chunks immediately - we'll stream character-by-character at the end
         },
@@ -941,26 +1060,92 @@ export class HostAgentService extends EventEmitter {
         // onError callback
         (error: Error) => {
           console.error(`❌ Live streaming failed for ${narration.id}:`, error);
+          
+          // Clear timeout on error
+          if (this.narrationTimeout) {
+            clearTimeout(this.narrationTimeout);
+            this.narrationTimeout = null;
+          }
+          
+          // Check if error is due to API overload or rate limit
+          const errorMsg = error.message.toLowerCase();
+          const isOverloaded = errorMsg.includes('overload');
+          const isRateLimit = errorMsg.includes('429') || errorMsg.includes('rate limit');
+          
+          if (isOverloaded || isRateLimit) {
+            const errorType = isRateLimit ? 'Rate limit (429)' : 'API overload';
+            const retryDelay = isRateLimit ? 10000 : 5000; // 10s for rate limit, 5s for overload
+            
+            console.warn(`⚠️ ${errorType} hit - will retry ${narration.id} after ${retryDelay/1000}s`);
+            
+            // Re-add to queue with delay
+            const retryNarration = {
+              ...narration,
+              timestamp: new Date(Date.now() + retryDelay)
+            };
+            this.state.narrationQueue.push(retryNarration);
+            this.emit('queue:updated', this.state.narrationQueue);
+          }
+          
           this.emit('narration:error', narration.id, error);
           
-          // Set cooldown timestamp and clear current narration
-          this.lastNarrationCompletedAt = Date.now();
+          // Clear current narration
           this.state.currentNarration = null;
+          this.lastNarrationCompletedAt = Date.now();
           
+          // Continue processing after delay
           setTimeout(() => {
             if (this.state.isActive) {
               this.processQueue();
             } else {
               console.log('⏸️ Host agent: Skipping queue processing - service is inactive');
             }
-          }, 1000);
+          }, isRateLimit ? 10000 : isOverloaded ? 5000 : 1000);
         }
       );
       
     } catch (error) {
       console.error(`❌ Error starting live streaming for ${narration.id}:`, error);
+      
+      // Clear timeout on error
+      if (this.narrationTimeout) {
+        clearTimeout(this.narrationTimeout);
+        this.narrationTimeout = null;
+      }
+      
+      // Check if error is due to API overload or rate limit
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMsg = errorMessage.toLowerCase();
+      const isOverloaded = errorMsg.includes('overload');
+      const isRateLimit = errorMsg.includes('429') || errorMsg.includes('rate limit');
+      
+      if (isOverloaded || isRateLimit) {
+        const errorType = isRateLimit ? 'Rate limit (429)' : 'API overload';
+        const retryDelay = isRateLimit ? 10000 : 5000; // 10s for rate limit, 5s for overload
+        
+        console.warn(`⚠️ ${errorType} hit - will retry ${narration.id} after ${retryDelay/1000}s`);
+        
+        // Re-add to queue with delay
+        const retryNarration = {
+          ...narration,
+          timestamp: new Date(Date.now() + retryDelay)
+        };
+        this.state.narrationQueue.push(retryNarration);
+        this.emit('queue:updated', this.state.narrationQueue);
+      }
+      
       this.emit('narration:error', narration.id, error as Error);
+      
+      // Clear current narration
       this.state.currentNarration = null;
+      this.lastNarrationCompletedAt = Date.now();
+      
+      // Process next item after a brief delay
+      setTimeout(() => {
+        if (this.state.isActive) {
+          this.processQueue();
+        }
+      }, isRateLimit ? 10000 : isOverloaded ? 5000 : 1000);
     }
   }
 
@@ -1167,6 +1352,27 @@ Focus on: What's new, why it matters, and how it advances the story.
     });
   }
 
+  // Add method to clear stuck narrations
+  private clearStuckNarration(): void {
+    if (this.narrationTimeout) {
+      clearTimeout(this.narrationTimeout);
+      this.narrationTimeout = null;
+    }
+    
+    const stuckId = this.state.currentNarration?.id;
+    this.state.currentNarration = null;
+    this.lastNarrationCompletedAt = Date.now();
+    
+    console.log(`🧹 Cleared stuck narration: ${stuckId}`);
+    
+    // Emit error event - wrap in try-catch to prevent uncaught errors
+    try {
+      this.emit('narration:error', stuckId || 'unknown', new Error('Narration timeout'));
+    } catch (error) {
+      console.error('❌ Error emitting narration:error event:', error);
+    }
+  }
+
   private async processQueue(): Promise<void> {
     console.log(`🎯 processQueue called: ${this.state.narrationQueue.length} items in queue, current narration: ${this.state.currentNarration?.id || 'none'}, isActive: ${this.state.isActive}`);
     
@@ -1176,9 +1382,16 @@ Focus on: What's new, why it matters, and how it advances the story.
       return;
     }
     
-    // Don't process if queue is empty or we're already processing a narration
-    if (this.state.narrationQueue.length === 0 || this.state.currentNarration) {
-      console.log(`⏸️ processQueue skipping - queue empty: ${this.state.narrationQueue.length === 0}, already processing: ${!!this.state.currentNarration}`);
+    // If there's a current narration, let it complete naturally
+    // The startLiveStreaming() timeout will handle stuck narrations
+    if (this.state.currentNarration) {
+      console.log(`⏳ Current narration ${this.state.currentNarration.id} is processing, waiting for completion...`);
+      return; // Exit early, still processing
+    }
+    
+    // Don't process if queue is empty
+    if (this.state.narrationQueue.length === 0) {
+      console.log(`⏸️ processQueue skipping - queue empty`);
       return;
     }
     
@@ -1192,7 +1405,7 @@ Focus on: What's new, why it matters, and how it advances the story.
       console.log(`🎬 Starting queued narration: ${queuedNarration.id} for item: ${queuedNarration.metadata?.originalItem?.title?.substring(0, 50) || 'unknown'}...`);
       
       this.emit('narration:started', queuedNarration);
-      this.emit('queue:updated', this.state.narrationQueue.length);
+      this.emit('queue:updated', this.state.narrationQueue);
       this.emit('narration:streaming', { narrationId: queuedNarration.id, currentText: '' });
       
       // For queued items, we need to generate the narration live via Claude API

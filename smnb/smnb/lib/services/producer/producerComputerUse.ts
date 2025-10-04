@@ -5,6 +5,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { COMPUTER_USE_CONFIG } from '../../../../../.agents/anthropic.config';
 
 export interface ComputerUseConfig {
   apiKey: string;
@@ -31,13 +32,15 @@ export class ProducerComputerUseService {
   private editorColumnActive: boolean = false;
   
   constructor(config: ComputerUseConfig) {
+    // SECURITY FIX: This should be refactored to use backend API routes
+    // TODO: Migrate to /api/producer-ai route and remove client-side Anthropic usage
     this.client = new Anthropic({ 
-      apiKey: config.apiKey,
-      dangerouslyAllowBrowser: true 
+      apiKey: config.apiKey
+      // dangerouslyAllowBrowser removed - this service should route through backend
     });
     this.config = {
-      model: 'claude-3-5-sonnet-20241022',
-      maxTokens: 4000,
+      model: COMPUTER_USE_CONFIG.model,
+      maxTokens: COMPUTER_USE_CONFIG.maxTokens,
       displayWidth: 1280,
       displayHeight: 800,
       editorPanelSelector: '[data-column="editor"]',

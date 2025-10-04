@@ -13,9 +13,10 @@ import LiveFeedStats from './LiveFeedStats';
 
 interface LiveFeedProps {
   className?: string;
+  sessionId?: string | null; // Session ID to filter stories
 }
 
-export default function LiveFeed({ className }: LiveFeedProps) {
+export default function LiveFeed({ className, sessionId }: LiveFeedProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const {
@@ -39,11 +40,38 @@ export default function LiveFeed({ className }: LiveFeedProps) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Load stories from Convex on mount
+  // Load stories from Convex on mount and when sessionId changes
   useEffect(() => {
-    console.log('📚 Loading stories from Convex for live feed display');
-    loadStoriesFromConvex();
-  }, [loadStoriesFromConvex]);
+    if (!sessionId) {
+      console.warn('⚠️ Live Feed: No session ID provided');
+      return;
+    }
+    
+    console.log(`📚 Live Feed: Loading stories for session: ${sessionId}`);
+    loadStoriesFromConvex(sessionId);
+  }, [loadStoriesFromConvex, sessionId]);
+
+  // ✅ DISPLAY WARNING IF NO SESSION
+  if (!sessionId) {
+    return (
+      <div className={`h-full flex flex-col ${className}`}>
+        {/* Fixed Header */}
+        <div className="flex-shrink-0 bg-[#191919] backdrop-blur-sm border-b border-border/20 flex items-center justify-between px-4 py-2">
+          <div className="text-sm font-light text-muted-foreground font-sans">
+            No Active Session
+          </div>
+        </div>
+        
+        {/* Message */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-neutral-500 px-4">
+            <p className="text-lg mb-2">No session selected</p>
+            <p className="text-sm">Select a session and click &ldquo;Go Live&rdquo; to view stories</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`h-full flex flex-col ${className}`}>
@@ -116,7 +144,7 @@ export default function LiveFeed({ className }: LiveFeedProps) {
             <div className="space-y-4 px-2 pt-2 relative z-10">
               {/* Stories */}
               <div className="space-y-3">
-                {storyHistory.map((story, index) => (
+                {storyHistory.map((story) => (
                   <StoryCard
                     key={story.id}
                     story={story}
