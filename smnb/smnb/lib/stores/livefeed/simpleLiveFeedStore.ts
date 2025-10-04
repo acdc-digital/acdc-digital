@@ -89,6 +89,9 @@ export interface CompletedStory {
   topics?: string[];
   summary?: string;
   
+  // Session tracking - link story to specific session
+  session_id?: string; // ID of the session this story was created in
+  
   // Story thread fields
   threadId?: string; // ID of the story thread this story belongs to
   isThreadUpdate?: boolean; // Whether this story is an update to existing thread
@@ -149,12 +152,13 @@ interface SimpleLiveFeedStore {
   addTestStory: () => void; // For testing
   
   // Convex integration
-  loadStoriesFromConvex: () => Promise<void>;
+  loadStoriesFromConvex: (sessionId?: string) => Promise<void>;
   saveStoryToConvex: (story: CompletedStory) => Promise<void>;
   clearAllData: () => void;
   
   // Controls
   setIsLive: (isLive: boolean) => void;
+  setCurrentSessionId: (sessionId: string) => void;
   setContentMode: (mode: 'sfw' | 'nsfw') => void;
   setSelectedSubreddits: (subreddits: string[]) => void;
   setRefreshInterval: (interval: number) => void;
@@ -551,17 +555,18 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
   
   // Controls
   setIsLive: (isLive) => {
-    set((state) => ({
-      isLive,
-      // Generate new session ID when starting live feed
-      currentSessionId: isLive ? `session-${Date.now()}` : state.currentSessionId
-    }));
+    set({ isLive });
     // Don't clear posts when toggling live feed - keep existing posts
     if (!isLive) {
       console.log('⏸️ Live feed paused - keeping existing posts');
     } else {
       console.log('▶️ Live feed resumed - will add new posts to existing ones');
     }
+  },
+  
+  setCurrentSessionId: (sessionId: string) => {
+    set({ currentSessionId: sessionId });
+    console.log(`📋 Live feed store: Session ID set to ${sessionId}`);
   },
   
   setContentMode: (contentMode) => {
@@ -685,20 +690,25 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
   },
 
   // Convex integration methods
-  loadStoriesFromConvex: async () => {
+  loadStoriesFromConvex: async (sessionId?: string) => {
     try {
+      // ✅ WARN IF NO SESSION PROVIDED
+      if (!sessionId) {
+        console.warn('⚠️ Loading stories without session filter - this may show mixed content from multiple sessions');
+        // Set empty state and return - don't load unfiltered stories
+        set({ storyHistory: [] });
+        return;
+      }
+      
       const convexClient = await getConvexClient();
       const { api } = await import('@/convex/_generated/api');
       
-      // Always fetch fresh data from Convex, don't use cached posts
-      const convexStories = await convexClient.query(api.host.storyHistory.getRecentStories, { 
-        hours: 24 
-      });
+      console.log(`📚 Loading stories from Convex for session: ${sessionId}`);
       
-      // Clear existing posts before loading new ones
-      set({ 
-        posts: [], 
-        storyHistory: []
+      // ✅ USE SESSION-FILTERED QUERY
+      const convexStories = await convexClient.query(api.host.storyHistory.getStoriesBySession, {
+        sessionId,
+        limit: 100
       });
       
       // Convert Convex stories to CompletedStory format
@@ -710,6 +720,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
         priority: story.priority,
         timestamp: new Date(story.completed_at),
         duration: story.duration,
+        session_id: story.session_id, // ✅ Session linkage preserved
         originalItem: story.original_item,
         sentiment: story.sentiment,
         topics: story.topics,
@@ -717,14 +728,24 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       }));
       
       set({ storyHistory: stories });
-      console.log(`📚 Loaded ${stories.length || 0} fresh stories from Convex`);
+      console.log(`✅ Loaded ${stories.length} stories for session ${sessionId}`);
     } catch (error) {
       console.error('❌ Failed to load stories from Convex:', error);
+      set({ error: error instanceof Error ? error.message : 'Failed to load stories' });
     }
   },
 
   saveStoryToConvex: async (story: CompletedStory) => {
     try {
+      // ✅ VALIDATE SESSION ID EXISTS
+      if (!story.session_id) {
+        console.error('❌ Cannot save story to Convex: No session_id provided', {
+          storyId: story.id,
+          narrative: story.narrative.substring(0, 50) + '...'
+        });
+        throw new Error('Story must have a session_id to be saved');
+      }
+      
       const convexClient = await getConvexClient();
       const { api } = await import('@/convex/_generated/api');
       
@@ -750,13 +771,18 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
         summary: story.summary,
         created_at: Date.now(),
         completed_at: story.timestamp.getTime(),
+        session_id: story.session_id, // ✅ GUARANTEED NON-NULL (validated above)
         original_item: story.originalItem,
       });
       
-      console.log(`💾 Saved story to Convex: ${story.id} (${agentType})`);
+      console.log(`💾 Saved story to Convex: ${story.id} (${agentType}) [Session: ${story.session_id}]`);
     } catch (error) {
       console.error('❌ Failed to save story to Convex:', error);
-      // Don't throw - this shouldn't break the normal flow
+      // Re-throw if it's a session validation error
+      if (error instanceof Error && error.message.includes('session_id')) {
+        throw error;
+      }
+      // Don't throw for other errors - this shouldn't break the normal flow
     }
   },
 }));

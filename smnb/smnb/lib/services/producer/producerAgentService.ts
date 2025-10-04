@@ -406,8 +406,13 @@ export class ProducerAgentService extends EventEmitter {
             this.circuitBreakerOpen = true;
             this.circuitBreakerResetTime = Date.now() + 60000;
           }
+          // Return empty results instead of throwing - this is not critical
+          console.log('⚠️ Rate limited on contextual search - continuing without context');
+          return [];
         }
-        throw new Error(`API request failed: ${response.status}`);
+        // For other errors, log but don't throw
+        console.warn(`⚠️ Contextual search failed with status ${response.status} - continuing without context`);
+        return [];
       }
       
       const data = await response.json();

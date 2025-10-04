@@ -82,7 +82,15 @@ const config: Config = {
             transform: 'scale(1.2)',
             opacity: '0.8'
           }
-        }
+        },
+        'collapsible-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-collapsible-content-height)' },
+        },
+        'collapsible-up': {
+          from: { height: 'var(--radix-collapsible-content-height)' },
+          to: { height: '0' },
+        },
       },
       animation: {
         'slide-in-top': 'slide-in-top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
@@ -93,6 +101,8 @@ const config: Config = {
         'scale-in-delayed': 'scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both',
         'scale-in-delayed-2': 'scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both',
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'collapsible-down': 'collapsible-down 0.2s ease-out',
+        'collapsible-up': 'collapsible-up 0.2s ease-out',
       }
     },
   },

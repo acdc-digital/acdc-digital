@@ -19,6 +19,7 @@
     "@anthropic-ai/sdk": "^0.60.0",
     "@clerk/nextjs": "^6.12.6",
     "@hookform/resolvers": "^5.2.1",
+    "@radix-ui/react-collapsible": "^1.1.2",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-progress": "^1.1.7",
     "@radix-ui/react-select": "^2.2.6",
@@ -42,6 +43,7 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.3.1",
+    "use-stick-to-bottom": "^1.1.1",
     "zod": "^4.1.5",
     "zustand": "^5.0.8"
   },

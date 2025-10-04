@@ -37,6 +37,8 @@ export class EnhancedProcessingPipeline {
   private isRunning = false;
   private publishInterval: number | null = null;
   private stats: PipelineStats = this.createEmptyStats();
+  private lastStatsUpdate: Map<string, number> = new Map(); // Track last update time per stage
+  private readonly STATS_UPDATE_INTERVAL = 60000; // Only update stats every 60 seconds
 
   constructor() {
     console.log('🏗️ Enhanced Processing Pipeline initialized');
@@ -774,11 +776,25 @@ export class EnhancedProcessingPipeline {
   }
 
   /**
-   * Update pipeline health metrics
+   * Update pipeline health metrics (throttled to prevent excessive DB writes)
    */
   private async updatePipelineHealth(stage: 'fetch' | 'enrichment' | 'scoring' | 'scheduling' | 'publishing', isHealthy: boolean, error?: any) {
     try {
       const now = Date.now();
+      const lastUpdate = this.lastStatsUpdate.get(stage) || 0;
+      const timeSinceLastUpdate = now - lastUpdate;
+      
+      // Only update if:
+      // 1. It's been more than 60 seconds since last update, OR
+      // 2. There's an actual error object (critical failure)
+      const hasActualError = error && error instanceof Error;
+      const shouldUpdate = timeSinceLastUpdate >= this.STATS_UPDATE_INTERVAL || hasActualError;
+      
+      if (!shouldUpdate) {
+        // Skip this update to reduce database writes
+        return;
+      }
+      
       const queueDepth = this.getQueueDepthForStage(stage);
       
       await convex.mutation(api.stats.mutations.updatePipelineStats, {
@@ -792,6 +808,9 @@ export class EnhancedProcessingPipeline {
           last_error: error ? (error instanceof Error ? error.message : String(error)) : undefined
         }
       });
+      
+      // Update the last update timestamp
+      this.lastStatsUpdate.set(stage, now);
     } catch (statsError) {
       console.error(`❌ Failed to update pipeline stats for ${stage}:`, statsError);
     }

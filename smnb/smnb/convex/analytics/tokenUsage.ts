@@ -20,7 +20,7 @@ export const recordTokenUsage = mutation({
     output_tokens: v.number(),
     total_tokens: v.number(),
     estimated_cost: v.number(),
-    request_type: v.union(v.literal("host"), v.literal("producer")),
+    request_type: v.union(v.literal("host"), v.literal("producer"), v.literal("editor")),
     duration: v.optional(v.number()),
     success: v.boolean(),
     error_message: v.optional(v.string()),

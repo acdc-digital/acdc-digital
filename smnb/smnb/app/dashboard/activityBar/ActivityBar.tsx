@@ -23,7 +23,7 @@ interface ActivityBarProps {
   onPanelChange?: (panel: PanelType) => void;
 }
 
-export default function ActivityBar({ activePanel = "home", onPanelChange }: ActivityBarProps) {
+export default function ActivityBar({ activePanel = "archive", onPanelChange }: ActivityBarProps) {
   const mainActivityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
     { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },

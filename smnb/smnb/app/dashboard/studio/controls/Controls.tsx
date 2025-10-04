@@ -6,12 +6,11 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSimpleLiveFeedStore } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 import { useHostAgentStore } from '@/lib/stores/host/hostAgentStore';
-import { useProducerStore } from '@/lib/stores/producer/producerStore';
 import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
-import { useBroadcastSessionStore } from '@/lib/stores/session/broadcastSessionStore';
+import { useBroadcastOrchestrator, useIsBroadcasting, useIsTransitioning, useBroadcastError } from '@/lib/stores/orchestrator/broadcastOrchestrator';
 import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { 
+import {
   Maximize2,
   Minimize2,
   Monitor,
@@ -393,31 +392,21 @@ export default function Controls({ mode }: ControlsProps) {
     }
   }, [domainFeedback.status, profileId, searchDomains, setSearchDomainsMutation]);
   
-  const { 
+  const {
     posts,
-    isLive,
-    setSelectedSubreddits,
-    setIsLive: setLiveFeedLive
+    setSelectedSubreddits
   } = useSimpleLiveFeedStore();
 
   const {
-    isActive: isHostActive,
-    start: startHostBroadcasting,
-    stop: stopHostBroadcasting,
     stats: hostStats,
     processLiveFeedPost
   } = useHostAgentStore();
 
-  const {
-    startBroadcastSession,
-    endBroadcastSession
-  } = useBroadcastSessionStore();
-
-  const {
-    isActive: isProducerActive,
-    startProducer,
-    stopProducer
-  } = useProducerStore();
+  // Orchestrator hooks - centralized broadcast state
+  const { startBroadcast, stopBroadcast } = useBroadcastOrchestrator();
+  const isLive = useIsBroadcasting();
+  const isTransitioning = useIsTransitioning();
+  const broadcastError = useBroadcastError();
 
   const {
     useUserApiKey,
@@ -425,53 +414,31 @@ export default function Controls({ mode }: ControlsProps) {
     hasValidKey: hasValidApiKey
   } = useApiKeyStore();
 
-  // Enhanced setIsLive that integrates with broadcast session management
-  const setIsLive = (live: boolean) => {
-    setLiveFeedLive(live);
-    
-    if (live) {
-      // Start broadcast session when going live - this is for live feed broadcasting
-      startBroadcastSession('general');
-      console.log('🎙️ Starting live feed broadcast session');
-    } else {
-      // End broadcast session when stopping live
-      endBroadcastSession();
-      console.log('⏹️ Ending live feed broadcast session');
-    }
-  };
-
-  // Combined broadcast function that starts/stops the host agent and producer
+  // Simplified broadcast toggle - orchestrator handles all coordination
   const handleBroadcastToggle = async () => {
     try {
-      if (isHostActive) {
-        // Stop host agent and producer
-        console.log('🎙️ CONTROLS: Stopping broadcast - stopping host and producer');
-        await stopHostBroadcasting();
-        if (isProducerActive) {
-          await stopProducer();
-        }
+      if (isLive) {
+        await stopBroadcast();
       } else {
-        // Start host agent and producer
-        console.log('🎙️ CONTROLS: Starting broadcast - starting host and producer');
-        await startHostBroadcasting();
-        if (!isProducerActive) {
-          await startProducer();
-        }
+        // For Controls.tsx, use general session (TODO: integrate with session selector)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await startBroadcast(null as any); // Orchestrator will handle null/general case
       }
     } catch (error) {
       console.error('🎙️ CONTROLS: Error toggling broadcast:', error);
     }
   };
 
-  // Auto-feed live feed posts to host agent when both are active
+  // Auto-feed live feed posts to host agent when live
   useEffect(() => {
-    if (!isLive || !isHostActive || posts.length === 0) {
+    // Orchestrator ensures host is active when isLive is true
+    if (!isLive || posts.length === 0) {
       return;
     }
 
     // Find new posts that haven't been processed yet
     const newPosts = posts.filter(post => !processedPostIds.has(post.id));
-    
+
     if (newPosts.length === 0) {
       return; // No new posts to process
     }
@@ -503,15 +470,15 @@ export default function Controls({ mode }: ControlsProps) {
       }, index * 3000); // 3-second delay between posts for better pacing
     });
 
-  }, [posts, isLive, isHostActive, processLiveFeedPost, processedPostIds]);
+  }, [posts, isLive, processLiveFeedPost, processedPostIds]);
 
-  // Reset processed posts when host agent state changes
+  // Reset processed posts when broadcast stops
   useEffect(() => {
-    if (!isHostActive) {
-      setProcessedPostIds(new Set()); // Clear processed posts when agent stops
+    if (!isLive) {
+      setProcessedPostIds(new Set()); // Clear processed posts when broadcast stops
       console.log('🗑️ HOST FEED: Cleared processed posts cache');
     }
-  }, [isHostActive, setProcessedPostIds]);
+  }, [isLive, setProcessedPostIds]);
 
   useEffect(() => {
     if (!controlsResponse) {
@@ -551,24 +518,28 @@ export default function Controls({ mode }: ControlsProps) {
             </div>
             {/* Live Button in collapsed view */}
             <button
-              onClick={() => {
-                if (isLive && isHostActive) {
-                  setIsLive(false);
-                  handleBroadcastToggle();
-                } else {
-                  if (!isLive) setIsLive(true);
-                  if (!isHostActive) handleBroadcastToggle();
-                }
-              }}
+              onClick={handleBroadcastToggle}
+              disabled={isTransitioning}
               className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1 ${
-                (isLive && isHostActive)
+                isLive
                   ? 'bg-red-500 text-white hover:bg-red-600'
                   : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
-              }`}
+              } ${isTransitioning ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
-              <span>{(isLive && isHostActive) ? 'LIVE' : 'Live'}</span>
+              {isTransitioning ? (
+                <div className="w-2 h-2 border border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
+              )}
+              <span>{isLive ? 'LIVE' : 'Live'}</span>
             </button>
+
+            {/* Error Display */}
+            {broadcastError && (
+              <div className="text-xs text-red-400 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded">
+                {broadcastError}
+              </div>
+            )}
           </div>
           <button
             title="Expand Panel"
@@ -588,29 +559,6 @@ export default function Controls({ mode }: ControlsProps) {
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-3">
           <span className="text-sm font-light text-muted-foreground font-sans">Control Panel</span>
-          
-          {/* Live Button moved from System column */}
-          <button
-            onClick={() => {
-              if (isLive && isHostActive) {
-                // Stop when active
-                setIsLive(false);
-                handleBroadcastToggle();
-              } else {
-                // Start when inactive
-                if (!isLive) setIsLive(true);
-                if (!isHostActive) handleBroadcastToggle();
-              }
-            }}
-            className={`px-3 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1 ${
-              (isLive && isHostActive)
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
-            }`}
-          >
-            <div className={`w-2 h-2 rounded-full ${(isLive && isHostActive) ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
-            <span>{(isLive && isHostActive) ? 'LIVE' : 'Live'}</span>
-          </button>
         </div>
         
         <div className="flex items-center gap-1">

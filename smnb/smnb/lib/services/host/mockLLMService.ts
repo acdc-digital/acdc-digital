@@ -18,10 +18,25 @@ interface EngagementData {
 export class MockLLMService {
   private isEnabled: boolean;
   private delay: number;
+  private currentSessionId: string | null = null;
 
   constructor(isEnabled = true, responseDelay = 500) {
     this.isEnabled = isEnabled;
     this.delay = responseDelay;
+  }
+
+  /**
+   * Set the current session ID for tracking token usage
+   */
+  setSessionId(sessionId: string | null): void {
+    this.currentSessionId = sessionId;
+  }
+
+  /**
+   * Get the current session ID
+   */
+  getSessionId(): string | null {
+    return this.currentSessionId;
   }
 
   async generate(

@@ -3,7 +3,7 @@
 
 'use client';
 
-import React from "react";
+import React, { useEffect } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { TokenCounter } from "@/components/ui/TokenCounter";
 import { RuntimeCounter } from "@/components/ui/RuntimeCounter";
@@ -20,6 +20,9 @@ import Wiki from "./studio/wiki/Wiki";
 import { Sessions } from "./studio/sessions/Sessions";
 import Settings from "./studio/settings/Settings";
 import Users from "./studio/user/Users";
+import { useBroadcastOrchestrator } from "@/lib/stores/orchestrator/broadcastOrchestrator";
+// import { BroadcastStateMonitor } from "@/components/debug/BroadcastStateMonitor"; // Commented out for now
+import { startValidationMonitoring } from "@/lib/validation/broadcastStateValidator";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,6 +30,33 @@ interface DashboardLayoutProps {
 
 function DashboardContent({}: DashboardLayoutProps) {
   const { activePanel, setActivePanel } = useDashboard();
+  
+  // Initialize broadcast orchestrator (replaces old individual store initialization)
+  // Orchestrator coordinates all stores: host, producer, livefeed, session
+  const { initialize } = useBroadcastOrchestrator();
+  
+  useEffect(() => {
+    console.log('�️ DASHBOARD: Initializing broadcast orchestrator...');
+    
+    // Initialize the orchestrator (handles all services)
+    initialize().catch(error => {
+      console.error('❌ DASHBOARD: Orchestrator initialization failed:', error);
+    });
+    
+    // Start state validation monitoring in development
+    let stopValidation: (() => void) | undefined;
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 DASHBOARD: Starting state validation monitoring...');
+      stopValidation = startValidationMonitoring(5000); // Check every 5 seconds
+    }
+    
+    return () => {
+      console.log('🧹 DASHBOARD: Cleanup on unmount...');
+      if (stopValidation) {
+        stopValidation();
+      }
+    };
+  }, [initialize]);
 
   return (
     <div className="flex flex-col h-screen font-sf text-xs overflow-hidden">
@@ -88,6 +118,9 @@ function DashboardContent({}: DashboardLayoutProps) {
           <RuntimeCounter className="flex" />
         </div>
       </footer>
+      
+      {/* State Monitor (Development Only) - Commented out for now, uncomment if needed */}
+      {/* {process.env.NODE_ENV === 'development' && <BroadcastStateMonitor />} */}
     </div>
   );
 }

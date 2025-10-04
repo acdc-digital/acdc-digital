@@ -13,10 +13,17 @@ import { useState } from "react";
 import { User, Bot, ChevronDown, ChevronRight, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NexusMessage } from "@/lib/hooks/useNexusAgent";
+import {
+  Reasoning,
+  ReasoningTrigger,
+  ReasoningContent,
+} from "@/components/ai/reasoning";
+import { Response } from "@/components/ai/response";
 
 export interface NexusChatMessageProps {
   message: NexusMessage;
   className?: string;
+  isStreaming?: boolean; // For reasoning auto-open/close
 }
 
 // Tool name to display label and icon mapping
@@ -36,7 +43,7 @@ const formatValue = (value: unknown): string => {
   return JSON.stringify(value, null, 2);
 };
 
-export function NexusChatMessage({ message, className }: NexusChatMessageProps) {
+export function NexusChatMessage({ message, className, isStreaming = false }: NexusChatMessageProps) {
   const [expandedTools, setExpandedTools] = useState<Set<number>>(new Set());
 
   // Debug: Log the actual message content length
@@ -44,6 +51,7 @@ export function NexusChatMessage({ message, className }: NexusChatMessageProps) 
     role: message.role,
     contentLength: message.content?.length || 0,
     contentPreview: message.content?.substring(0, 100) || '',
+    thinkingLength: message.thinking?.length || 0,
     toolCallCount: message.toolCalls?.length || 0,
   });
 
@@ -60,7 +68,7 @@ export function NexusChatMessage({ message, className }: NexusChatMessageProps) 
   };
 
   return (
-    <div className={cn("flex gap-4", message.role === "assistant" && "flex-row-reverse", className)}>
+    <div className={cn("flex gap-4", message.role === "user" && "flex-row-reverse", className)}>
       {/* Avatar */}
       <div className={cn(
         "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
@@ -77,83 +85,106 @@ export function NexusChatMessage({ message, className }: NexusChatMessageProps) 
 
       {/* Message Content */}
       <div className={cn(
-        "flex-1 max-w-3xl",
-        message.role === "assistant" && "text-right"
+        "flex-1 max-w-3xl space-y-2",
+        message.role === "user" && "text-right"
       )}>
+        {/* Reasoning/Thinking Block (if present) */}
+        {message.thinking && message.role === "assistant" && (
+          <Reasoning
+            isStreaming={isStreaming && !message.content}
+            defaultOpen={false}
+            className="inline-block max-w-full text-left"
+          >
+            <ReasoningTrigger />
+            <ReasoningContent>
+              <Response parseIncompleteMarkdown={isStreaming && !message.content}>
+                {message.thinking}
+              </Response>
+            </ReasoningContent>
+          </Reasoning>
+        )}
+
         {/* Main Text */}
-        <div className={cn(
-          "inline-block px-4 py-3 rounded-lg",
-          message.role === "user"
-            ? "bg-neutral-900 text-white border border-neutral-800"
-            : "bg-purple-400/10 text-purple-100 border border-purple-400/20"
-        )}>
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+        {message.content && (
+          <div className={cn(
+            "inline-block px-4 py-3 rounded-lg",
+            message.role === "user"
+              ? "bg-neutral-900 text-white border border-neutral-800"
+              : "bg-purple-400/10 text-purple-100 border border-purple-400/20"
+          )}>
+            <Response
+              parseIncompleteMarkdown={isStreaming}
+              className="text-sm"
+            >
+              {message.content}
+            </Response>
 
-          {/* Tool Executions */}
-          {message.toolCalls && message.toolCalls.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-purple-400/20 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-purple-300">
-                <Activity className="w-3 h-3" />
-                <span>Tools Used ({message.toolCalls.length})</span>
-              </div>
-              
-              {message.toolCalls.map((tool, idx) => {
-                const toolInfo = TOOL_INFO[tool.name] || { 
-                  label: tool.name, 
-                  icon: '🔧', 
-                  color: 'bg-gray-500/10 text-gray-400 border-gray-400/30' 
-                };
-                const isExpanded = expandedTools.has(idx);
+            {/* Tool Executions */}
+            {message.toolCalls && message.toolCalls.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-purple-400/20 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-purple-300">
+                  <Activity className="w-3 h-3" />
+                  <span>Tools Used ({message.toolCalls.length})</span>
+                </div>
+                
+                {message.toolCalls.map((tool, idx) => {
+                  const toolInfo = TOOL_INFO[tool.name] || {
+                    label: tool.name,
+                    icon: '🔧',
+                    color: 'bg-gray-500/10 text-gray-400 border-gray-400/30'
+                  };
+                  const isExpanded = expandedTools.has(idx);
 
-                return (
-                  <div key={idx} className={cn(
-                    "rounded-lg border overflow-hidden transition-all",
-                    toolInfo.color
-                  )}>
-                    {/* Tool Header */}
-                    <button
-                      onClick={() => toggleTool(idx)}
-                      className="w-full px-3 py-2 flex items-center justify-between hover:bg-white/5 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 text-sm">
-                        <span>{toolInfo.icon}</span>
-                        <span className="font-medium">{toolInfo.label}</span>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {/* Tool Details (Expandable) */}
-                    {isExpanded && (
-                      <div className="px-3 pb-3 space-y-3 text-xs">
-                        {/* Input */}
-                        <div>
-                          <div className="font-semibold mb-1 text-neutral-300">Input:</div>
-                          <pre className="bg-black/30 rounded p-2 overflow-x-auto text-neutral-300 font-mono">
-                            <code><span>{formatValue(tool.input)}</span></code>
-                          </pre>
+                  return (
+                    <div key={idx} className={cn(
+                      "rounded-lg border overflow-hidden transition-all",
+                      toolInfo.color
+                    )}>
+                      {/* Tool Header */}
+                      <button
+                        onClick={() => toggleTool(idx)}
+                        className="w-full px-3 py-2 flex items-center justify-between hover:bg-white/5 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 text-sm">
+                          <span>{toolInfo.icon}</span>
+                          <span className="font-medium">{toolInfo.label}</span>
                         </div>
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </button>
 
-                        {/* Result */}
-                        {tool.result && (
+                      {/* Tool Details (Expandable) */}
+                      {isExpanded && (
+                        <div className="px-3 pb-3 space-y-3 text-xs">
+                          {/* Input */}
                           <div>
-                            <div className="font-semibold mb-1 text-neutral-300">Result:</div>
-                            <pre className="bg-black/30 rounded p-2 overflow-x-auto text-neutral-300 font-mono max-h-64">
-                              <code><span>{formatValue(tool.result)}</span></code>
+                            <div className="font-semibold mb-1 text-neutral-300">Input:</div>
+                            <pre className="bg-black/30 rounded p-2 overflow-x-auto text-neutral-300 font-mono">
+                              <code>{formatValue(tool.input)}</code>
                             </pre>
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+
+                          {/* Result */}
+                          {tool.result && (
+                            <div>
+                              <div className="font-semibold mb-1 text-neutral-300">Result:</div>
+                              <pre className="bg-black/30 rounded p-2 overflow-x-auto text-neutral-300 font-mono max-h-64">
+                                <code>{formatValue(tool.result as string)}</code>
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Timestamp */}
         {message.timestamp && (

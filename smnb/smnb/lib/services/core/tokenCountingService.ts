@@ -31,6 +31,10 @@ export interface TokenUsageMetrics {
   duration?: number; // milliseconds
   success: boolean;
   error?: string;
+  // Session and source tracking
+  sessionId?: string; // Link to session
+  sourcePostId?: string; // Link to originating post
+  metadata?: string; // Additional metadata as JSON
   // Enhanced tool tracking
   toolsUsed?: string[]; // Names of tools used in request
   toolDefinitionsTokens?: number; // Tokens consumed by tool definitions
@@ -294,8 +298,12 @@ export class TokenCountingService {
    * Store token usage in Convex database
    */
   private async storeInConvex(metrics: TokenUsageMetrics): Promise<void> {
-    if (!this.convexClient) return;
+    if (!this.convexClient) {
+      console.warn('⚠️ Convex client not initialized - cannot store token usage');
+      return;
+    }
 
+    console.log(`📊 Attempting to store token usage in Convex: ${metrics.requestId}`);
     try {
       await this.convexClient.mutation(api.analytics.tokenUsage.recordTokenUsage, {
         request_id: metrics.requestId,
@@ -310,6 +318,10 @@ export class TokenCountingService {
         duration: metrics.duration,
         success: metrics.success,
         error_message: metrics.error,
+        // Session and source tracking
+        session_id: metrics.sessionId,
+        source_post_id: metrics.sourcePostId,
+        metadata: metrics.metadata,
         // Enhanced tool metadata
         tools_used: metrics.toolsUsed ? metrics.toolsUsed.join(',') : undefined,
         tool_definitions_tokens: metrics.toolDefinitionsTokens,
@@ -318,9 +330,10 @@ export class TokenCountingService {
       });
       
       const toolInfo = metrics.hasTools ? ` with tools: ${metrics.toolsUsed?.join(', ')}` : '';
-      console.log(`📊 Token usage stored in Convex database${toolInfo}`);
+      console.log(`✅ Token usage stored in Convex database${toolInfo}`);
     } catch (error) {
       console.error('❌ Failed to store token usage in Convex:', error);
+      console.error('❌ Metrics that failed:', JSON.stringify(metrics, null, 2));
     }
   }
 
@@ -329,7 +342,10 @@ export class TokenCountingService {
    */
   setConvexClient(client: any): void {
     this.convexClient = client;
-    console.log('📊 Convex client connected to token counting service');
+    console.log('✅ Convex client connected to token counting service', {
+      clientExists: !!client,
+      clientType: typeof client
+    });
   }
 
   /**

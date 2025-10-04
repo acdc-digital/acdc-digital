@@ -31,7 +31,7 @@ export interface AgentRequest {
 /**
  * Streaming chunk types
  */
-export type AgentChunkType = 'content' | 'tool_call' | 'metadata' | 'error';
+export type AgentChunkType = 'thinking' | 'content' | 'tool_call' | 'metadata' | 'error';
 
 /**
  * Streaming chunk structure

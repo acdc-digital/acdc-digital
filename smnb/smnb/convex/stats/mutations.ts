@@ -188,21 +188,53 @@ export const updatePipelineStats = mutation({
   handler: async (ctx, args) => {
     const now = Date.now();
     
-    await ctx.db.insert("pipeline_stats", {
-      stage: args.stage,
-      queue_depth: args.metrics.queue_depth,
-      processing_rate: args.metrics.processing_rate,
-      error_rate: args.metrics.error_rate,
-      avg_processing_time: args.metrics.avg_processing_time,
-      p95_processing_time: args.metrics.avg_processing_time * 1.5, // Placeholder calculation
-      p99_processing_time: args.metrics.avg_processing_time * 2,   // Placeholder calculation
-      is_healthy: args.metrics.is_healthy,
-      last_error: args.metrics.last_error,
-      last_success_at: now,
-      consecutive_errors: args.metrics.last_error ? 1 : 0,
-      timestamp: now,
-      created_at: now
-    });
+    // Find the most recent record for this stage using indexed query
+    const existingRecord = await ctx.db
+      .query("pipeline_stats")
+      .withIndex("by_stage", q => q.eq("stage", args.stage))
+      .order("desc")
+      .first();
+    
+    // Only update if last update was more than 30 seconds ago to prevent excessive writes
+    // This is an additional safeguard on top of client-side throttling
+    if (existingRecord && (now - existingRecord.timestamp) < 30000) {
+      return; // Skip update to reduce database churn
+    }
+    
+    // Instead of inserting, update the existing record if it exists and is recent (< 1 hour old)
+    // This prevents table bloat while maintaining current state
+    if (existingRecord && (now - existingRecord.created_at) < 3600000) {
+      await ctx.db.patch(existingRecord._id, {
+        queue_depth: args.metrics.queue_depth,
+        processing_rate: args.metrics.processing_rate,
+        error_rate: args.metrics.error_rate,
+        avg_processing_time: args.metrics.avg_processing_time,
+        p95_processing_time: args.metrics.avg_processing_time * 1.5,
+        p99_processing_time: args.metrics.avg_processing_time * 2,
+        is_healthy: args.metrics.is_healthy,
+        last_error: args.metrics.last_error,
+        last_success_at: now,
+        consecutive_errors: args.metrics.last_error ? (existingRecord.consecutive_errors || 0) + 1 : 0,
+        timestamp: now,
+      });
+    } else {
+      // Insert new stats record only if no recent record exists (hourly snapshots)
+      await ctx.db.insert("pipeline_stats", {
+        stage: args.stage,
+        queue_depth: args.metrics.queue_depth,
+        processing_rate: args.metrics.processing_rate,
+        error_rate: args.metrics.error_rate,
+        avg_processing_time: args.metrics.avg_processing_time,
+        p95_processing_time: args.metrics.avg_processing_time * 1.5,
+        p99_processing_time: args.metrics.avg_processing_time * 2,
+        is_healthy: args.metrics.is_healthy,
+        last_error: args.metrics.last_error,
+        last_success_at: now,
+        consecutive_errors: args.metrics.last_error ? 1 : 0,
+        timestamp: now,
+        created_at: now
+      });
+    }
     
     // Only log if unhealthy or has error
     if (!args.metrics.is_healthy || args.metrics.last_error) {

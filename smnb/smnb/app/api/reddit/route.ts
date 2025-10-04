@@ -3,11 +3,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { redditAPI, RedditPost } from '@/lib/reddit/reddit';
+import { generateMockRedditResponse } from '@/lib/reddit/mockData';
 
 interface SubredditResult {
   subreddit: string;
   posts: RedditPost[];
 }
+
+// Check if we should use mock data
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_REDDIT === 'true';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -15,6 +19,22 @@ export async function GET(request: NextRequest) {
   const sort = searchParams.get('sort') || 'hot';
   const limit = parseInt(searchParams.get('limit') || '10');
   const query = searchParams.get('q'); // Search query parameter
+
+  // MOCK DATA MODE - bypass Reddit API entirely
+  if (USE_MOCK_DATA) {
+    console.log(`📝 MOCK MODE: Generating ${limit} mock posts for r/${subreddit}`);
+    const mockResponse = generateMockRedditResponse(subreddit, limit);
+    
+    return NextResponse.json({
+      success: true,
+      posts: mockResponse.data.children.map((child) => child.data),
+      pagination: {
+        after: mockResponse.data.after,
+        before: mockResponse.data.before,
+      },
+      mock: true, // Flag to indicate this is mock data
+    });
+  }
 
   try {
     let response;

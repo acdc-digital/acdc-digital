@@ -9,6 +9,7 @@
  */
 
 import { tokenCountingService } from '../core/tokenCountingService';
+import { ANTHROPIC_MODELS } from '../../../../../.agents/anthropic.config';
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -48,7 +49,7 @@ export class SessionChatService {
     this.defaultOptions = {
       temperature: 0.7,
       maxTokens: 1000,
-      model: 'claude-3-5-haiku-20241022',
+      model: ANTHROPIC_MODELS.HAIKU_LATEST,
       systemPrompt: 'You are a helpful AI assistant in a conversational setting. Provide clear, informative, and engaging responses.',
       stream: false,
       ...defaultOptions

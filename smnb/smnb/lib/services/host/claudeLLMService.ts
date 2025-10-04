@@ -12,6 +12,7 @@
 import { HostNarration } from '@/lib/types/hostAgent';
 import { tokenCountingService, TokenUsageMetrics } from '../core/tokenCountingService';
 import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
+import { ANTHROPIC_MODELS } from '../../../../../.agents/anthropic.config';
 
 export interface LLMOptions {
   temperature?: number;
@@ -30,11 +31,23 @@ export interface LLMAnalysis {
 export class ClaudeLLMService {
   private isEnabled: boolean;
   private apiEndpoint: string;
+  private currentSessionId: string | null = null; // Track current session for token attribution
 
   constructor(apiEndpoint: string = '/api/claude') {
     this.apiEndpoint = apiEndpoint;
     this.isEnabled = true; // We'll check server availability when needed
     console.log('✅ Claude LLM service initialized (client-side)');
+  }
+  
+  // Set session ID for token attribution
+  setSessionId(sessionId: string | null): void {
+    this.currentSessionId = sessionId;
+    console.log(`🔖 Claude LLM service session ID set to: ${sessionId}`);
+  }
+  
+  // Get current session ID
+  getSessionId(): string | null {
+    return this.currentSessionId;
   }
 
   // Helper method to get API key from store
@@ -63,7 +76,7 @@ export class ClaudeLLMService {
       console.log('🤖 Generating narration with Claude...');
       const startTime = Date.now();
       const requestId = `generate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const model = 'claude-3-5-haiku-20241022';
+      const model = ANTHROPIC_MODELS.HAIKU_LATEST;
       
       const systemPrompt = options.systemPrompt || this.getDefaultSystemPrompt();
       
@@ -110,7 +123,8 @@ export class ClaudeLLMService {
           outputTokens,
           requestType: 'host',
           duration,
-          success: true
+          success: true,
+          sessionId: this.currentSessionId || undefined, // Link to session
         });
         
         console.log(`✅ Generated narration: ${data.text.substring(0, 50)}... (${inputTokens}→${outputTokens} tokens, ${duration}ms)`);
@@ -124,13 +138,14 @@ export class ClaudeLLMService {
       // Record failed request
       tokenCountingService.recordUsage({
         requestId: `failed-${Date.now()}`,
-        model: 'claude-3-5-haiku-20241022',
+        model: ANTHROPIC_MODELS.HAIKU_LATEST,
         action: 'generate',
         inputTokens: 0,
         outputTokens: 0,
         requestType: 'host',
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        sessionId: this.currentSessionId || undefined, // Link to session
       });
       
       throw error;
@@ -149,10 +164,22 @@ export class ClaudeLLMService {
     onError?: (error: Error) => void
   ): Promise<string> {
     try {
+      // Check if we have an API key available
+      const apiKey = this.getApiKey();
+      const hasEnvKey = !!process.env.NEXT_PUBLIC_HAS_ANTHROPIC_KEY; // Set this in .env if you have a server key
+      
+      if (!apiKey && !hasEnvKey) {
+        const error = new Error('No Anthropic API key configured. Please add ANTHROPIC_API_KEY to your .env.local file or provide a key in the UI.');
+        console.error('❌ MISSING API KEY:', error.message);
+        onError?.(error);
+        throw error;
+      }
+      
       console.log('🤖 Starting streaming narration with Claude...');
       const startTime = Date.now();
       const requestId = `stream-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const model = 'claude-3-5-haiku-20241022';
+      const model = ANTHROPIC_MODELS.HAIKU_LATEST;
+      const CLIENT_TIMEOUT_MS = 35000; // 35 seconds (slightly more than server timeout)
       
       const systemPrompt = options?.systemPrompt || this.getDefaultSystemPrompt();
       
@@ -163,100 +190,170 @@ export class ClaudeLLMService {
         messages: [{ role: 'user', content: prompt }]
       });
       
-      const response = await fetch(this.apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(this.prepareRequestBody({
-          action: 'stream',
-          prompt,
-          options: {
-            ...options,
-            systemPrompt
+      // Set up AbortController for timeout
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.error('⏰ CLIENT TIMEOUT: Aborting Claude stream after 35s');
+        abortController.abort();
+      }, CLIENT_TIMEOUT_MS);
+      
+      try {
+        console.log('📤 CLIENT: Sending streaming request to /api/claude...');
+        const response = await fetch(this.apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.prepareRequestBody({
+            action: 'stream',
+            prompt,
+            enableMCP: false, // Disable MCP to test if it's causing the hang
+            options: {
+              ...options,
+              systemPrompt
+            }
+          })),
+          signal: abortController.signal // Add abort signal
+        });
+        
+        clearTimeout(timeoutId); // Clear timeout if fetch succeeds
+        console.log('✅ CLIENT: Fetch completed, checking response status...');
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { error: errorText };
           }
-        }))
-      });
+          console.error('❌ Claude streaming request failed:', response.status, errorData);
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+        console.log('✅ CLIENT: Response OK, creating reader...');
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No response body reader');
+        }
+        console.log('✅ CLIENT: Reader created, starting to read stream...');
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response body reader');
-      }
+        let fullText = '';
+        const decoder = new TextDecoder();
+        let readCount = 0;
 
-      let fullText = '';
-      const decoder = new TextDecoder();
+        console.log('🔄 CLIENT: Entering read loop...');
+        while (true) {
+          const { done, value } = await reader.read();
+          readCount++;
+          
+          if (readCount === 1) {
+            console.log('✅ CLIENT: First read() completed');
+          }
+          
+          if (done) {
+            console.log(`✅ CLIENT: Stream done after ${readCount} reads`);
+            break;
+          }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          
+          if (readCount === 1) {
+            console.log(`📦 CLIENT: First chunk received: ${lines.length} lines`);
+          }
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              
-              if (data.type === 'chunk' && data.text) {
-                fullText += data.text;
-                onChunk?.(data.text);
-              } else if (data.type === 'complete') {
-                console.log('✅ Streaming narration completed');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
                 
-                // Record token usage for completed stream
-                const outputTokens = tokenCountingService.estimateOutputTokens(fullText);
-                const duration = Date.now() - startTime;
-                
-                tokenCountingService.recordUsage({
-                  requestId,
-                  model,
-                  action: 'stream',
-                  inputTokens,
-                  outputTokens,
-                  requestType: 'host',
-                  duration,
-                  success: true
-                });
-                
-                console.log(`🎯 Stream completed: ${fullText.length} chars (${inputTokens}→${outputTokens} tokens, ${duration}ms)`);
-                onComplete?.(fullText);
-                return fullText;
-              } else if (data.type === 'error') {
-                throw new Error(data.error);
+                if (data.type === 'chunk' && data.text) {
+                  fullText += data.text;
+                  onChunk?.(data.text);
+                } else if (data.type === 'complete') {
+                  console.log('✅ Streaming narration completed');
+                  
+                  // Record token usage for completed stream
+                  const outputTokens = tokenCountingService.estimateOutputTokens(fullText);
+                  const duration = Date.now() - startTime;
+                  
+                  tokenCountingService.recordUsage({
+                    requestId,
+                    model,
+                    action: 'stream',
+                    inputTokens,
+                    outputTokens,
+                    requestType: 'host',
+                    duration,
+                    success: true,
+                    sessionId: this.currentSessionId || undefined, // Link to session
+                  });
+                  
+                  console.log(`🎯 Stream completed: ${fullText.length} chars (${inputTokens}→${outputTokens} tokens, ${duration}ms)`);
+                  onComplete?.(fullText);
+                  return fullText;
+                } else if (data.type === 'error') {
+                  // Parse the error to check for overload
+                  let errorMessage = data.error;
+                  let isOverloaded = false;
+                  
+                  if (typeof data.error === 'object') {
+                    errorMessage = JSON.stringify(data.error);
+                    isOverloaded = data.error.type === 'overloaded_error';
+                  } else if (typeof data.error === 'string') {
+                    isOverloaded = data.error.toLowerCase().includes('overload');
+                  }
+                  
+                  if (isOverloaded) {
+                    console.warn('⚠️ Claude API is overloaded - will retry next item');
+                  }
+                  
+                  throw new Error(errorMessage);
+                }
+              } catch {
+                // Skip invalid JSON lines
               }
-            } catch {
-              // Skip invalid JSON lines
             }
           }
         }
-      }
 
-      return fullText;
-      
-    } catch (error) {
-      console.error('❌ Claude streaming failed:', error);
-      
-      // Record failed streaming request
-      tokenCountingService.recordUsage({
-        requestId: `stream-failed-${Date.now()}`,
-        model: 'claude-3-5-haiku-20241022',
-        action: 'stream',
-        inputTokens: 0, // Will count if available
-        outputTokens: 0,
-        requestType: 'host',
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      const err = error instanceof Error ? error : new Error('Unknown error');
-      onError?.(err);
-      // Fall back to regular generation
-      return await this.generate(prompt, options);
+        return fullText;
+        
+      } catch (error) {
+        clearTimeout(timeoutId); // Ensure timeout is cleared
+        
+        // Handle abort/timeout specifically
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.error('⏰ Claude streaming aborted due to timeout');
+          const timeoutError = new Error('Claude streaming timed out after 35 seconds');
+          onError?.(timeoutError);
+          throw timeoutError;
+        }
+        
+        console.error('❌ Claude streaming failed:', error);
+        
+        // Record failed streaming request
+        tokenCountingService.recordUsage({
+          requestId: `stream-failed-${Date.now()}`,
+          model: ANTHROPIC_MODELS.HAIKU_LATEST,
+          action: 'stream',
+          inputTokens: 0,
+          outputTokens: 0,
+          requestType: 'host',
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          sessionId: this.currentSessionId || undefined, // Link to session
+        });
+        
+        const err = error instanceof Error ? error : new Error('Unknown error');
+        onError?.(err);
+        throw err; // Re-throw instead of falling back
+      }
+    } catch (outerError) {
+      // This catches errors from the entire generateStream function
+      console.error('❌ Fatal error in generateStream:', outerError);
+      throw outerError;
     }
   }
 
@@ -265,7 +362,7 @@ export class ClaudeLLMService {
       console.log('🧠 Analyzing content with Claude...');
       const startTime = Date.now();
       const requestId = `analyze-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const model = 'claude-3-5-haiku-20241022';
+      const model = ANTHROPIC_MODELS.HAIKU_LATEST;
       
       // Count input tokens (rough estimate for analysis prompt)
       const inputTokens = tokenCountingService.estimateTokens(content + ' Analysis request');
@@ -294,7 +391,8 @@ export class ClaudeLLMService {
           outputTokens: 0,
           requestType: 'host',
           success: false,
-          error: `HTTP ${response.status}`
+          error: `HTTP ${response.status}`,
+          sessionId: this.currentSessionId || undefined, // Link to session
         });
         
         return this.getSimpleAnalysis(content);
@@ -315,7 +413,8 @@ export class ClaudeLLMService {
           outputTokens,
           requestType: 'host',
           duration,
-          success: true
+          success: true,
+          sessionId: this.currentSessionId || undefined, // Link to session
         });
         
         console.log(`✅ Content analysis completed (${inputTokens}→${outputTokens} tokens, ${duration}ms)`);
@@ -336,7 +435,7 @@ export class ClaudeLLMService {
   }
 
   public getModel(): string {
-    return 'claude-3-5-haiku-20241022';
+    return ANTHROPIC_MODELS.HAIKU_LATEST;
   }
 
   // Test the connection to our API endpoint

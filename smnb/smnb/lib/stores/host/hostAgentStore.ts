@@ -84,6 +84,7 @@ interface HostAgentState {
   // State
   isActive: boolean;
   currentNarration: HostNarration | null;
+  currentSessionId: string | null; // Current broadcast session ID
   
   // UI State
   showSettings: boolean;
@@ -116,12 +117,14 @@ interface HostAgentState {
   // Configuration
   config: HostAgentConfig;
   
-  // Actions
+    // Actions
   initializeHostAgent: () => void;
-  start: () => void;
+  start: (sessionId?: string) => Promise<void>;
   stop: () => void;
+  getCurrentSessionId: () => string | null;
   processRedditPost: (post: EnhancedRedditPost) => Promise<void>;
   processLiveFeedPost: (post: EnhancedRedditPost) => void;
+  getSessionQueueLength: (sessionId: string | null) => number;
   
   // UI Actions
   toggleSettings: () => void;
@@ -154,6 +157,7 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   hostAgent: null,
   isActive: false,
   currentNarration: null,
+  currentSessionId: null,
   
   // UI State
   showSettings: false,
@@ -186,12 +190,19 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   initializeHostAgent: () => {
     const { hostAgent } = get();
     
-    // Don't re-initialize if already exists
-    if (hostAgent) return;
+    console.log('🤖 [HOST STORE] initializeHostAgent called, current hostAgent:', hostAgent ? 'EXISTS' : 'NULL');
     
-    console.log('🤖 Initializing host agent service...');
+    // Don't re-initialize if already exists
+    if (hostAgent) {
+      console.log('🤖 [HOST STORE] Host agent already exists, skipping initialization');
+      return;
+    }
+    
+    console.log('🤖 [HOST STORE] Creating new HostAgentService...');
     
     const agent = new HostAgentService(get().config);
+    
+    console.log('🤖 [HOST STORE] HostAgentService created, setting up event listeners...');
     
     // Set up event listeners for streaming
     agent.on('narration:started', (narration: HostNarration) => {
@@ -269,23 +280,25 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
     });
     
     agent.on('host:started', () => {
-      console.log('📡 Host broadcasting started');
-      set({ isActive: true });
+      console.log('� HOST STORE: Host started event received');
+      const sessionId = agent.getCurrentSessionId();
+      set({ isActive: true, currentSessionId: sessionId });
+      get().startCountdown(5); // Initial countdown before first story
     });
     
     agent.on('host:stopped', () => {
-      console.log('📴 Host broadcasting stopped');
-      set({ 
-        isActive: false, 
-        currentNarration: null 
-      });
+      console.log('⚫ HOST STORE: Host stopped event received');
+      set({ isActive: false, currentSessionId: null });
+      // PRESERVE QUEUE - don't clear narrationQueue so we can resume
+      get().stopCountdown();
     });
     
-    agent.on('queue:updated', (queueLength: number) => {
+    agent.on('queue:updated', (queue: HostNarration[]) => {
       set(state => ({
+        narrationQueue: queue,
         stats: {
           ...state.stats,
-          queueLength
+          queueLength: queue.length
         }
       }));
     });
@@ -299,20 +312,21 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
       }));
     });
     
+    console.log('🤖 [HOST STORE] Event listeners set up, storing agent in state...');
     set({ hostAgent: agent });
-    console.log('✅ Host agent service initialized');
+    console.log('✅ [HOST STORE] Host agent service initialized and stored, hostAgent is now:', get().hostAgent ? 'SET' : 'NULL');
   },
   
   // Start broadcasting
-  startBroadcasting: () => {
+  startBroadcasting: (sessionId?: string) => {
     const { hostAgent } = get();
     if (!hostAgent) {
       console.error('❌ Host agent not initialized');
       return;
     }
     
-    console.log('📡 Starting host broadcast...');
-    hostAgent.start();
+    console.log('📡 Starting host broadcast...', sessionId ? `with session: ${sessionId}` : '');
+    hostAgent.start(sessionId);
   },
   
   // Stop broadcasting
@@ -366,11 +380,60 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   },
   
   // Start the host agent
-  start: () => {
+  start: async (sessionId?: string) => {
     const { hostAgent } = get();
-    if (hostAgent) {
-      hostAgent.start();
+    if (!hostAgent) {
+      console.error('❌ Cannot start: Host agent not initialized');
+      return;
     }
+    
+    // ✅ VALIDATE SESSION ID IS PROVIDED
+    if (!sessionId) {
+      console.error('❌ Cannot start: No session ID provided - stories will not be linked to a session');
+      throw new Error('Session ID is required to start host agent');
+    }
+    
+    console.log('🎙️ HOST STORE: Calling hostAgent.start() with session:', sessionId);
+    
+    // Call the service start (which is synchronous but emits 'host:started' event)
+    hostAgent.start(sessionId);
+    
+    console.log('🎙️ HOST STORE: hostAgent.start() returned, waiting for isActive...');
+    console.log('🎙️ HOST STORE: Current store isActive state:', get().isActive);
+    
+    // Wait for isActive to become true (the event listener sets this)
+    const startTime = Date.now();
+    let checkCount = 0;
+    while (!get().isActive && Date.now() - startTime < 5000) {
+      checkCount++;
+      if (checkCount % 10 === 0) {
+        console.log(`🎙️ HOST STORE: Still waiting... (${checkCount * 50}ms, isActive=${get().isActive})`);
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    
+    console.log('🎙️ HOST STORE: Wait loop ended. isActive:', get().isActive);
+    
+    // Fallback: If event didn't fire, manually check and set state
+    // The service sets its internal state.isActive, so if that's true but ours isn't,
+    // the event listener failed and we need to manually sync
+    if (!get().isActive) {
+      console.warn('⚠️ HOST STORE: Event listener did not fire, manually setting isActive');
+      set({ isActive: true });
+    }
+    
+    if (!get().isActive) {
+      throw new Error('Host agent failed to activate within 5 seconds');
+    }
+    
+    // ✅ VERIFY SESSION ID WAS STORED CORRECTLY
+    const storedSessionId = get().getCurrentSessionId();
+    if (storedSessionId !== sessionId) {
+      console.error(`❌ Session ID mismatch: expected=${sessionId}, stored=${storedSessionId}`);
+      throw new Error(`Host Agent failed to store session ID correctly`);
+    }
+    
+    console.log(`✅ Host agent start completed - Session validated: ${storedSessionId}`);
   },
   
   // Stop the host agent  
@@ -379,6 +442,19 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
     if (hostAgent) {
       hostAgent.stop();
     }
+  },
+
+  // Get current session ID
+  getCurrentSessionId: () => {
+    const { hostAgent } = get();
+    return hostAgent?.getCurrentSessionId() ?? null;
+  },
+  
+  // ✅ NEW: Validate session is active and properly set
+  isSessionActive: () => {
+    const { isActive } = get();
+    const sessionId = get().getCurrentSessionId();
+    return isActive && sessionId !== null;
   },
   
   // Process a Reddit post
@@ -427,6 +503,7 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
           priority: narration.priority,
           timestamp: new Date(),
           duration: narration.duration,
+          session_id: narration.metadata?.session_id ?? undefined, // Link story to session (convert null to undefined)
           originalItem: narration.metadata?.originalItem ? {
             title: narration.metadata.originalItem.title || '',
             author: narration.metadata.originalItem.author,
@@ -440,7 +517,7 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
         
         const { addCompletedStory } = module.useSimpleLiveFeedStore.getState();
         addCompletedStory(completedStory);
-        console.log(`📋 HOST: Added completed story to live feed history: "${narration.narrative.substring(0, 50)}..."`);
+        console.log(`📋 HOST: Added completed story to live feed history: "${narration.narrative.substring(0, 50)}..." [Session: ${narration.metadata?.session_id || 'none'}]`);
       });
       
       return { narrationHistory: newHistory };
@@ -559,6 +636,18 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
     }));
     
     console.log('✅ Complete host agent state reset completed');
+  },
+  
+  // Get queue length for specific session
+  getSessionQueueLength: (sessionId) => {
+    if (!sessionId) return 0;
+    
+    const { hostAgent } = get();
+    if (!hostAgent) return 0;
+    
+    // Get the session-specific queue from the service
+    const sessionQueue = hostAgent.getSessionQueue(sessionId);
+    return sessionQueue.length;
   },
   
   // UI Actions

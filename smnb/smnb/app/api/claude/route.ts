@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { SESSION_MANAGER_CONFIG } from '../../../../../.agents/anthropic.config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,11 +20,11 @@ export async function POST(request: NextRequest) {
     // Use provided API key or fall back to environment variable
     const effectiveApiKey = apiKey || process.env.ANTHROPIC_API_KEY;
     
-    // Log which API key source is being used
+    // SECURITY FIX: Removed partial API key logging
     if (apiKey) {
-      console.log('🔑 SERVER: Using client-provided API key:', apiKey.slice(0, 12) + '...');
+      console.log('🔑 SERVER: Using client-provided API key');
     } else if (process.env.ANTHROPIC_API_KEY) {
-      console.log('🔑 SERVER: Using environment API key:', process.env.ANTHROPIC_API_KEY.slice(0, 12) + '...');
+      console.log('🔑 SERVER: Using environment API key');
     } else {
       console.log('❌ SERVER: No API key available');
     }
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     if (action === 'chat' || action === 'generate') {
       // Prepare request configuration
       const requestConfig = {
-        model: options?.model || 'claude-3-5-haiku-20241022',
+        model: options?.model || SESSION_MANAGER_CONFIG.model,
         max_tokens: options?.maxTokens || 1000,
         temperature: options?.temperature || 0.7,
         messages: messages || [
@@ -135,38 +136,92 @@ export async function POST(request: NextRequest) {
         })
       };
 
-      // Create a streaming response
+      // Create a streaming response with timeout protection
+      const STREAM_TIMEOUT_MS = 30000; // 30 second timeout
+      let streamTimeout: NodeJS.Timeout;
+      
       const stream = new ReadableStream({
         async start(controller) {
+          console.log('📡 SERVER: Starting Claude stream...');
+          
+          // Set up timeout to prevent hanging streams
+          streamTimeout = setTimeout(() => {
+            console.error('⏰ SERVER: Stream timeout after 30s - forcing completion');
+            try {
+              const timeoutData = JSON.stringify({
+                type: 'error',
+                error: 'Stream timeout - response took too long'
+              });
+              controller.enqueue(new TextEncoder().encode(`data: ${timeoutData}\n\n`));
+              controller.close();
+            } catch (e) {
+              console.error('Error closing timed-out stream:', e);
+            }
+          }, STREAM_TIMEOUT_MS);
+          
           try {
             const response = await anthropic.messages.stream(requestConfig);
+            console.log('📡 SERVER: Claude stream created, processing chunks...');
 
+            let chunkCount = 0;
+            let totalChars = 0;
+            
             // Handle streaming response
             for await (const chunk of response) {
+              chunkCount++;
+              
               if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+                totalChars += chunk.delta.text.length;
                 const data = JSON.stringify({
                   type: 'chunk',
                   text: chunk.delta.text
                 });
                 controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
+                
+                if (chunkCount % 20 === 0) {
+                  console.log(`📡 SERVER: Streamed ${chunkCount} chunks, ${totalChars} chars...`);
+                }
               } else if (chunk.type === 'message_stop') {
+                console.log(`✅ SERVER: Claude stream completed - ${chunkCount} chunks, ${totalChars} chars`);
+                clearTimeout(streamTimeout);
                 const data = JSON.stringify({
                   type: 'complete',
-                  mcp_enabled: useMCP
+                  mcp_enabled: useMCP,
+                  stats: { chunks: chunkCount, chars: totalChars }
                 });
                 controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
                 break;
               }
             }
+            console.log('✅ SERVER: Stream processing finished successfully');
           } catch (error) {
+            console.error('❌ SERVER: Stream error:', error);
+            
+            // Check if it's a rate limit error (429)
+            if (error instanceof Error && error.message.includes('429')) {
+              console.warn('⚠️ SERVER: Rate limit hit (429) - checking headers...');
+              // The error should contain rate limit info if available
+            }
+            
+            clearTimeout(streamTimeout);
             const errorData = JSON.stringify({
               type: 'error',
-              error: error instanceof Error ? error.message : 'Unknown error'
+              error: error instanceof Error ? error.message : 'Unknown streaming error'
             });
             controller.enqueue(new TextEncoder().encode(`data: ${errorData}\n\n`));
           } finally {
-            controller.close();
+            console.log('🏁 SERVER: Closing stream controller');
+            clearTimeout(streamTimeout);
+            try {
+              controller.close();
+            } catch (e) {
+              console.log('Stream already closed');
+            }
           }
+        },
+        cancel() {
+          console.log('❌ SERVER: Stream cancelled by client');
+          clearTimeout(streamTimeout);
         }
       });
 
@@ -195,7 +250,7 @@ Return only valid JSON, no additional text.
       `.trim();
 
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: SESSION_MANAGER_CONFIG.model,
         max_tokens: 150,
         temperature: 0.3,
         system: 'You are a content analysis assistant. Always respond with valid JSON only.',
@@ -234,7 +289,7 @@ Return only valid JSON, no additional text.
       const { model, system, messages, tools, thinking } = body;
       
       const countRequest = {
-        model: model || 'claude-3-5-haiku-20241022',
+        model: model || SESSION_MANAGER_CONFIG.model,
         messages: messages || [],
         ...(system && { system }),
         ...(tools && { tools }),
@@ -250,7 +305,7 @@ Return only valid JSON, no additional text.
     } else if (action === 'test') {
       // Simple connection test
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: SESSION_MANAGER_CONFIG.model,
         max_tokens: 50,
         messages: [
           {

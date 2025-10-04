@@ -41,7 +41,12 @@
     "start:ruuf": "pnpm --filter ruff start",
     "lint:ruuf": "pnpm --filter ruff lint",
     "type-check:ruuf": "pnpm --filter ruff type-check",
-    "convex:ruuf": "cd ruuf/ruff && npx convex dev"
+    "convex:ruuf": "cd ruuf/ruff && npx convex dev",
+    "dev:grapes": "pnpm --filter grapes dev",
+    "build:grapes": "pnpm --filter grapes build",
+    "start:grapes": "pnpm --filter grapes start",
+    "lint:grapes": "pnpm --filter grapes lint",
+    "convex:grapes": "cd grapes/grapes && npx convex dev"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -59,6 +64,7 @@
   "author": "ACDC Digital",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
     "zustand": "^5.0.8"
   }
 }
