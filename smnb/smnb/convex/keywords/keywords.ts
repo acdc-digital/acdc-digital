@@ -4,6 +4,13 @@
 import { mutation, query, internalQuery } from "../_generated/server";
 import { v } from "convex/values";
 import { Doc } from "../_generated/dataModel";
+import { 
+  extractKeywordsFromPostEnhanced,
+  recordKeywordOccurrences,
+  upsertKeywordTrend
+} from "./extraction";
+import { KeywordExtractionOptions } from "./types";
+import { calculateEngagementWeight } from "./utils";
 
 // Process and store keywords from recent posts
 export const processKeywordsFromPosts = mutation({
@@ -272,6 +279,131 @@ export const processKeywordsFromPosts = mutation({
       runId,
       processed: processedCount,
       extracted: extractedCount
+    };
+  }
+});
+
+// ENHANCED: Process keywords with finance awareness
+export const processKeywordsWithFinance = mutation({
+  args: {
+    timeWindowHours: v.optional(v.number()),
+    minOccurrences: v.optional(v.number()),
+    mode: v.optional(v.union(
+      v.literal("general"),
+      v.literal("financeFocused"),
+      v.literal("hybrid")
+    )),
+    includeOccurrences: v.optional(v.boolean())
+  },
+  returns: v.object({
+    runId: v.string(),
+    processed: v.number(),
+    extracted: v.number(),
+    financeKeywords: v.number()
+  }),
+  handler: async (ctx, args) => {
+    const timeWindow = args.timeWindowHours || 24;
+    const minOccurrences = args.minOccurrences || 2;
+    const runId = `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = Date.now();
+    
+    // Create extraction run record
+    await ctx.db.insert("keyword_extraction_runs", {
+      run_id: runId,
+      started_at: now,
+      posts_processed: 0,
+      keywords_extracted: 0,
+      new_keywords_found: 0,
+      keywords_updated: 0,
+      extraction_config: {
+        min_keyword_length: 3,
+        max_keyword_length: 50,
+        min_occurrence_threshold: minOccurrences,
+        time_window_hours: timeWindow,
+        use_llm_enrichment: false
+      },
+      status: "running",
+      created_at: now,
+      updated_at: now
+    });
+    
+    // Get recent posts
+    const recentPosts = await ctx.db
+      .query("live_feed_posts")
+      .withIndex("by_addedAt")
+      .order("desc")
+      .take(50); // Process more posts with enhanced extraction
+    
+    // Extraction options
+    const options: Partial<KeywordExtractionOptions> = {
+      mode: args.mode || 'hybrid',
+      includeFinanceEntities: true,
+      linkToTickers: true,
+      financeBoostFactor: 1.5,
+      returnOccurrences: args.includeOccurrences || false
+    };
+    
+    let processedCount = 0;
+    let extractedCount = 0;
+    let financeKeywordCount = 0;
+    
+    for (const post of recentPosts) {
+      processedCount++;
+      
+      // Get post stats if available
+      const stats = await ctx.db
+        .query("post_stats")
+        .withIndex("by_post")
+        .filter(q => q.eq(q.field("post_id"), post.id))
+        .first();
+      
+      // Extract keywords using enhanced function
+      const keywords = await extractKeywordsFromPostEnhanced(ctx, post, stats || undefined, options);
+      
+      if (keywords.length === 0) continue;
+      
+      extractedCount += keywords.length;
+      
+      // Calculate engagement weight
+      const engagementWeights = calculateEngagementWeight(post, options);
+      
+      // Record occurrences if requested
+      if (options.returnOccurrences) {
+        await recordKeywordOccurrences(ctx, post, keywords, engagementWeights.total);
+      }
+      
+      // Upsert keywords to trends table
+      for (const keyword of keywords) {
+        await upsertKeywordTrend(ctx, keyword, post, engagementWeights.total);
+        
+        if (keyword.finance && keyword.finance.relevanceScore > 0.5) {
+          financeKeywordCount++;
+        }
+      }
+    }
+    
+    // Update extraction run
+    const run = await ctx.db
+      .query("keyword_extraction_runs")
+      .filter(q => q.eq(q.field("run_id"), runId))
+      .first();
+    
+    if (run) {
+      await ctx.db.patch(run._id, {
+        completed_at: Date.now(),
+        posts_processed: processedCount,
+        keywords_extracted: extractedCount,
+        processing_duration_ms: Date.now() - now,
+        status: "completed",
+        updated_at: Date.now()
+      });
+    }
+    
+    return {
+      runId,
+      processed: processedCount,
+      extracted: extractedCount,
+      financeKeywords: financeKeywordCount
     };
   }
 });

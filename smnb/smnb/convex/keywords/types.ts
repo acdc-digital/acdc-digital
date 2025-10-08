@@ -54,7 +54,7 @@ export interface KeywordExtractionOptions {
 export interface ExtractedKeyword {
   text: string;
   normalized: string;
-  type: 'phrase' | 'entity' | 'topic' | 'ticker' | 'hashtag';
+  type: 'phrase' | 'entity' | 'topic' | 'hashtag';
   
   // Frequency in this context
   occurrences: number;
