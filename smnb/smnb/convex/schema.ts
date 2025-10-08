@@ -977,6 +977,13 @@ export default defineSchema({
     weekly_distribution: v.optional(v.array(v.number())), // 7-day pattern
     seasonal_relevance: v.optional(v.string()), // If keyword is seasonal
     
+    // Finance-specific fields for Nasdaq-100 correlation
+    mapped_tickers: v.optional(v.array(v.string())), // Tickers associated with this keyword
+    finance_relevance_score: v.optional(v.number()), // 0-1 score for financial relevance
+    index_contribution_last_window: v.optional(v.number()), // Contribution to index sentiment
+    last_velocity_calc_at: v.optional(v.number()), // Last velocity calculation timestamp
+    last_slice_id: v.optional(v.string()), // Reference to latest sentiment slice
+    
     // Metadata
     created_at: v.number(),
     updated_at: v.number(),
@@ -989,6 +996,7 @@ export default defineSchema({
     .index("by_category", ["primary_category", "total_engagement_score"])
     .index("by_recency", ["last_seen_at"])
     .index("by_engagement", ["total_engagement_score"])
+    .index("by_finance_relevance", ["finance_relevance_score"])
     .searchIndex("search_keywords", {
       searchField: "keyword",
       filterFields: ["primary_category", "trend_status", "performance_tier"]
@@ -1031,6 +1039,193 @@ export default defineSchema({
   })
     .index("by_status", ["status", "created_at"])
     .index("by_created", ["created_at"]),
+
+  // 📊 NASDAQ-100 SENTIMENT CORRELATION TABLES
+  
+  // Finance entities - Nasdaq-100 knowledge base
+  finance_entities: defineTable({
+    entity_id: v.string(), // Unique entity identifier
+    entity_type: v.union(
+      v.literal("ticker"),
+      v.literal("company"),
+      v.literal("executive"),
+      v.literal("product"),
+      v.literal("sector")
+    ),
+    canonical_symbol: v.string(), // Primary ticker symbol (e.g., "NVDA")
+    name: v.string(), // Full name (e.g., "NVIDIA Corporation")
+    aliases: v.array(v.string()), // Alternative names/abbreviations
+    sector: v.optional(v.string()), // Market sector
+    industry: v.optional(v.string()), // Industry classification
+    primary_ticker: v.optional(v.string()), // For executives/products, link to ticker
+    market_cap_weight: v.optional(v.number()), // Market cap weight in index (0-1)
+    active: v.boolean(), // Currently active in index
+    created_at: v.number(),
+    updated_at: v.number(),
+    kb_version: v.string(), // Knowledge base version for recalculation
+  })
+    .index("by_entity_id", ["entity_id"])
+    .index("by_symbol", ["canonical_symbol"])
+    .index("by_type", ["entity_type"])
+    .index("by_active", ["active"])
+    .searchIndex("search_entities", {
+      searchField: "name",
+      filterFields: ["entity_type", "active", "sector"]
+    }),
+  
+  // Keyword occurrences - Detailed tracking of each mention
+  keyword_occurrences: defineTable({
+    keyword_id: v.string(), // Reference to keyword in keyword_trends
+    post_id: v.string(), // Reference to live_feed_posts
+    subreddit: v.string(),
+    occurrence_time: v.number(), // Unix timestamp
+    
+    // Sentiment snapshot at time of occurrence
+    sentiment_snapshot: v.object({
+      positive: v.number(),
+      negative: v.number(),
+      neutral: v.number(),
+      mixed: v.number(),
+      confidence: v.number()
+    }),
+    
+    // Engagement weighting
+    engagement_weight: v.number(), // Derived from post stats
+    post_score: v.number(),
+    comment_count: v.number(),
+    upvote_ratio: v.number(),
+    
+    // Finance mapping
+    mapped_tickers: v.array(v.string()), // Tickers mentioned in same context
+    
+    // Optional position data
+    in_title: v.optional(v.boolean()),
+    in_body: v.optional(v.boolean()),
+    
+    created_at: v.number(),
+  })
+    .index("by_keyword", ["keyword_id", "occurrence_time"])
+    .index("by_post", ["post_id"])
+    .index("by_time", ["occurrence_time"])
+    .index("by_subreddit", ["subreddit", "occurrence_time"])
+    .index("by_ticker_time", ["mapped_tickers", "occurrence_time"]),
+  
+  // Ticker sentiment slices - Time-bucketed sentiment aggregation
+  ticker_sentiment_slices: defineTable({
+    ticker: v.string(), // Ticker symbol
+    interval_start: v.number(), // Bucket start timestamp
+    interval_granularity: v.union(
+      v.literal("5m"),
+      v.literal("15m"),
+      v.literal("1h"),
+      v.literal("4h"),
+      v.literal("1d")
+    ),
+    
+    // Aggregated sentiment metrics
+    weighted_sentiment: v.number(), // -1 to 1 composite score
+    sentiment_confidence: v.number(), // 0 to 1
+    raw_counts: v.object({
+      positive: v.number(),
+      negative: v.number(),
+      neutral: v.number(),
+      mixed: v.number()
+    }),
+    
+    // Engagement metrics
+    total_mentions: v.number(),
+    engagement_sum: v.number(),
+    unique_posts: v.number(),
+    unique_subreddits: v.number(),
+    
+    // Trend metrics
+    velocity: v.number(), // Rate of change from previous window
+    acceleration: v.number(), // Rate of change of velocity
+    
+    // Volatility-adjusted (optional)
+    vol_adj_sentiment: v.optional(v.number()),
+    
+    computed_at: v.number(),
+    created_at: v.number(),
+  })
+    .index("by_ticker_time", ["ticker", "interval_start"])
+    .index("by_time_granularity", ["interval_start", "interval_granularity"])
+    .index("by_ticker_granularity", ["ticker", "interval_granularity", "interval_start"]),
+  
+  // Nasdaq sentiment index - Index-level aggregation
+  nasdaq_sentiment_index: defineTable({
+    timestamp: v.number(), // Snapshot timestamp
+    interval_granularity: v.union(
+      v.literal("5m"),
+      v.literal("15m"),
+      v.literal("1h"),
+      v.literal("4h"),
+      v.literal("1d")
+    ),
+    
+    // Index-level metrics
+    index_weighted_sentiment: v.number(), // Market-cap weighted sentiment
+    breadth: v.number(), // % of tickers with positive sentiment (0-1)
+    dispersion: v.number(), // Std dev of ticker sentiments
+    
+    // Top contributors
+    top_contributors: v.array(v.object({
+      ticker: v.string(),
+      contribution: v.number(),
+      sentiment: v.number()
+    })),
+    
+    // Regime classification
+    regime_tag: v.union(
+      v.literal("bullish"),
+      v.literal("bearish"),
+      v.literal("uncertain"),
+      v.literal("low-signal")
+    ),
+    
+    // Lagged features for modeling
+    lag_features: v.optional(v.array(v.number())), // [t-1, t-2, t-3] sentiments
+    
+    // Volume metrics
+    total_mentions: v.number(),
+    total_engagement: v.number(),
+    active_tickers_count: v.number(),
+    
+    created_at: v.number(),
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_granularity_time", ["interval_granularity", "timestamp"])
+    .index("by_regime", ["regime_tag", "timestamp"]),
+  
+  // Keyword graph edges - Co-occurrence relationships
+  keyword_graph_edges: defineTable({
+    source_keyword: v.string(), // Normalized keyword
+    target_keyword: v.string(), // Normalized keyword
+    window_start: v.number(), // Time window start
+    window_length: v.number(), // Window duration in ms (e.g., 3600000 for 1h)
+    
+    // Co-occurrence metrics
+    co_occurrence_count: v.number(),
+    source_total_count: v.number(), // Source keyword count in window
+    target_total_count: v.number(), // Target keyword count in window
+    
+    // Strength metrics
+    strength: v.number(), // PMI, Jaccard, or normalized frequency
+    pmi_score: v.optional(v.number()), // Pointwise Mutual Information
+    jaccard_score: v.optional(v.number()), // Jaccard similarity
+    
+    // Finance relevance
+    finance_relevance_score: v.optional(v.number()), // 0-1 if finance-related
+    shared_tickers: v.optional(v.array(v.string())), // Common tickers mentioned
+    
+    created_at: v.number(),
+    updated_at: v.number(),
+  })
+    .index("by_source", ["source_keyword", "window_start"])
+    .index("by_target", ["target_keyword", "window_start"])
+    .index("by_window", ["window_start"])
+    .index("by_strength", ["strength"])
+    .index("by_finance_relevance", ["finance_relevance_score"]),
 
   // Model usage tracking for cost analysis
   model_usage_logs: defineTable({
