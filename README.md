@@ -1,22 +1,5 @@
 ## 💾 Hi there! I'm Matthew. Owner/ Founder of ACDC.digital.
 
-#### This is where you'll find what we're working on, our developing projects, and our architectural foundation. Our playbook is simple:
-352,728 lines of code across 5.5GB of projects
-
-| Project | Lines of Code | % of Codebase | Size | % of Space | Primary Focus |
-|---------|--------------|---------------|------|------------|---------------|
-| **smnb** | 98,569 | 27.9% | 491MB | 8.6% | News Management & Content Processing |
-| **aura** | 71,993 | 20.4% | 183MB | 3.2% | Collaborative Document Editing |
-| **lifeOS** | 54,164 | 15.4% | 1.9GB | 33.5% | Comprehensive Productivity Suite |
-| **soloist** | 53,484 | 15.2% | 29MB | 0.5% | Personal Analytics & Forecasting |
-| **solov2** | 14,838 | 4.2% | 625MB | 11.0% | Enhanced Analytics Platform |
-| **ruuf** | 11,312 | 3.2% | 164MB | 2.9% | Python-based Framework |
-| **tradies** | 10,925 | 3.1% | 578MB | 10.2% | Documentation & Notebooks |
-| **acdc-digital** | 10,170 | 2.9% | 375MB | 6.6% | Core Framework & Infrastructure |
-| **donut** | 9,966 | 2.8% | 655MB | 11.5% | Web Application Platform |
-| **grapes** | 9,591 | 2.7% | 146MB | 2.6% | Python Utilities |
-| **home** | 7,716 | 2.2% | 531MB | 9.4% | Home Website & Portfolio |
-
 <img src="public/ghRepoLogo.png" alt="ACDC Digital Logo" width="320" height="160">
 
 ![Profile views](https://komarev.com/ghpvc/?username=acdc-digital&color=blue&style=flat-square&label=Profile+views)
@@ -41,7 +24,22 @@
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=plastic&logo=github&logoColor=white&labelColor=0d1117)
 ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=plastic&logo=figma&logoColor=white&labelColor=c03d15)
 
-##
+#### This is where you'll find what we're working on, our developing projects, and our architectural foundation. Our playbook is simple:
+352,728 lines of code across 5.5GB of projects
+
+| Project | Lines of Code | % of Codebase | Size | % of Space | Primary Focus |
+|---------|--------------|---------------|------|------------|---------------|
+| **smnb** | 98,569 | 27.9% | 491MB | 8.6% | News Management & Content Processing |
+| **aura** | 71,993 | 20.4% | 183MB | 3.2% | Collaborative Document Editing |
+| **lifeOS** | 54,164 | 15.4% | 1.9GB | 33.5% | Comprehensive Productivity Suite |
+| **soloist** | 53,484 | 15.2% | 29MB | 0.5% | Personal Analytics & Forecasting |
+| **solov2** | 14,838 | 4.2% | 625MB | 11.0% | Enhanced Analytics Platform |
+| **ruuf** | 11,312 | 3.2% | 164MB | 2.9% | Python-based Framework |
+| **tradies** | 10,925 | 3.1% | 578MB | 10.2% | Documentation & Notebooks |
+| **acdc-digital** | 10,170 | 2.9% | 375MB | 6.6% | Core Framework & Infrastructure |
+| **donut** | 9,966 | 2.8% | 655MB | 11.5% | Web Application Platform |
+| **grapes** | 9,591 | 2.7% | 146MB | 2.6% | Python Utilities |
+| **home** | 7,716 | 2.2% | 531MB | 9.4% | Home Website & Portfolio |
 
 ## ACDC.digital - Full Service Agentic Framework Studio
 
