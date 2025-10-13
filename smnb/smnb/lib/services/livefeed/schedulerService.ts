@@ -39,10 +39,13 @@ export class SchedulerService {
     const now = Date.now();
     const oneHourAgo = now - (60 * 60 * 1000);
     
-    // Count recent posts by subreddit
+    // Count recent posts by subreddit - ONLY count actually published posts
     const recentBySubreddit = new Map<string, number>();
     this.publishedPosts
-      .filter(post => (post.published_at || 0) > oneHourAgo)
+      .filter(post =>
+        post.processing_status === 'published' && // Must be published, not just scheduled
+        (post.published_at || 0) > oneHourAgo
+      )
       .forEach(post => {
         const count = recentBySubreddit.get(post.subreddit) || 0;
         recentBySubreddit.set(post.subreddit, count + 1);
@@ -54,7 +57,7 @@ export class SchedulerService {
       return recentCount < this.config.MAX_POSTS_PER_SUBREDDIT_PER_HOUR;
     });
     
-    console.log(`🎯 Diversity filter: ${posts.length} → ${candidates.length} posts`);
+    console.log(`🎯 Diversity filter: ${posts.length} → ${candidates.length} posts (${this.publishedPosts.filter(p => p.processing_status === 'published').length} recently published)`);
     return candidates;
   }
 
@@ -76,11 +79,20 @@ export class SchedulerService {
     // Interleave different categories for variety
     const interleavedPosts = this.interleaveCategories(postsByCategory);
     
+    // Check if we already have posts scheduled soon (within next minute)
+    const now = Date.now();
+    const nextMinute = now + (60 * 1000);
+    const hasImmediatePosts = this.scheduledPosts.some(p =>
+      (p.scheduled_at || 0) >= now && (p.scheduled_at || 0) < nextMinute
+    );
+    
     for (let i = 0; i < Math.min(interleavedPosts.length, 10); i++) {
       const post = interleavedPosts[i];
       
-      // For the first 3 posts, schedule them immediately to show activity
-      const scheduledTime = i < 3 ? Date.now() + (i * 2000) : nextSlot; // First 3 posts: now, +2s, +4s
+      // For the first 3 posts, schedule immediately ONLY if no posts are already scheduled soon
+      const scheduledTime = !hasImmediatePosts && i < 3
+        ? now + (i * 2000) // First 3 posts: now, +2s, +4s
+        : nextSlot;
       
       const scheduledPost: EnhancedRedditPost = {
         ...post,
@@ -90,30 +102,34 @@ export class SchedulerService {
       
       scheduled.push(scheduledPost);
       
-      // Calculate next slot with some variability (only for posts after the first 3)
-      if (i >= 3) {
+      // Calculate next slot with some variability
+      if (scheduledTime === nextSlot) {
         const variability = this.calculateIntervalVariability(post);
         nextSlot += (baseIntervalMinutes + variability) * 60 * 1000;
-      } else {
-        // For immediate posts, next slot starts from now + base interval
-        nextSlot = Date.now() + (baseIntervalMinutes * 60 * 1000);
       }
     }
     
+    console.log(`📅 Scheduled posts: ${scheduled.filter(p => (p.scheduled_at || 0) <= nextMinute).length} immediate, ${scheduled.filter(p => (p.scheduled_at || 0) > nextMinute).length} future`);
+    
     this.scheduledPosts = scheduled;
-    console.log(`📅 Scheduled posts: ${scheduled.filter(p => p.scheduled_at! <= Date.now() + 10000).length} immediate, ${scheduled.length - scheduled.filter(p => p.scheduled_at! <= Date.now() + 10000).length} future`);
     return scheduled;
   }
 
   private getNextAvailableSlot(): number {
     const now = Date.now();
     const minNext = now + (this.config.MIN_POST_INTERVAL_MINUTES * 60 * 1000);
+    const fiveMinutesFromNow = now + (5 * 60 * 1000);
     
-    // Find the last scheduled time
+    // Find the last scheduled time within the next 5 minutes (ignore posts scheduled too far out)
     const lastScheduled = this.scheduledPosts
+      .filter(post => (post.scheduled_at || 0) < fiveMinutesFromNow)
       .reduce((latest, post) => Math.max(latest, post.scheduled_at || 0), 0);
     
-    return Math.max(minNext, lastScheduled + (this.config.MIN_POST_INTERVAL_MINUTES * 60 * 1000));
+    // If no posts scheduled soon, start from minimum interval
+    // Otherwise, schedule after the last near-term post
+    return lastScheduled > 0
+      ? Math.max(minNext, lastScheduled + (this.config.MIN_POST_INTERVAL_MINUTES * 60 * 1000))
+      : minNext;
   }
 
   private groupByCategory(posts: EnhancedRedditPost[]): Map<string, EnhancedRedditPost[]> {

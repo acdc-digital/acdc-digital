@@ -21,9 +21,24 @@ interface Shape {
 interface MapOverlayProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   onAnalyzeShapes?: (shapes: Shape[], canvasWidth: number, canvasHeight: number, screenshot?: string) => void;
+  searchQuery?: string;
+  onSearchQueryChange?: (query: string) => void;
+  onSearchSubmit?: (e: React.FormEvent) => void;
+  isSearching?: boolean;
+  isMapReady?: boolean;
 }
 
-export function MapOverlay({ children, className, onAnalyzeShapes, ...props }: MapOverlayProps) {
+export function MapOverlay({
+  children,
+  className,
+  onAnalyzeShapes,
+  searchQuery = '',
+  onSearchQueryChange,
+  onSearchSubmit,
+  isSearching = false,
+  isMapReady = false,
+  ...props
+}: MapOverlayProps) {
   const [selectedTool, setSelectedTool] = React.useState<ShapeType>(null);
   const [shapes, setShapes] = React.useState<Shape[]>([]);
   const [currentShape, setCurrentShape] = React.useState<Shape | null>(null);
@@ -387,6 +402,28 @@ export function MapOverlay({ children, className, onAnalyzeShapes, ...props }: M
             </Button>
           </div>
         </div>
+
+        {/* Address Search Row */}
+        {onSearchSubmit && (
+          <form onSubmit={onSearchSubmit} className="flex gap-2 p-2 pt-0">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange?.(e.target.value)}
+              placeholder="Search address or place..."
+              className="flex-1 px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              disabled={!isMapReady || isSearching}
+            />
+            <Button
+              type="submit"
+              disabled={!isMapReady || isSearching || !searchQuery.trim()}
+              size="sm"
+              className="text-xs"
+            >
+              {isSearching ? '🔍' : '🔎'} Search
+            </Button>
+          </form>
+        )}
       </div>
 
       {/* Status Text */}

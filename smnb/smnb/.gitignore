@@ -40,5 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# convex compiled artifacts (should not be committed)
+convex/**/*.js
+convex/**/*.d.ts
+convex/**/*.js.map
+convex/**/*.d.ts.map
+!convex/_generated/**
+
 # clerk configuration (can include secrets)
 /.clerk/

@@ -72,7 +72,7 @@ export default function SubredditManager({
     return (
       <div
         key={subreddit}
-        className="w-full px-2 py-1.25 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-2 bg-[#0d0d0d] text-muted-foreground/50 hover:text-muted-foreground/70 group relative"
+        className="w-full px-2 py-1.25 text-xs rounded-sm transition-colors cursor-move flex items-center gap-2 bg-[#0d0d0d] text-muted-foreground/50 hover:text-muted-foreground/70 group relative"
         onClick={() => handleToggleDefaultSubreddit(subreddit)}
       >
         <div className="w-2 h-2 rounded-full bg-gray-400" />
@@ -134,7 +134,7 @@ export default function SubredditManager({
                   subredditFeedback.status === 'working' ||
                   newSubreddit.trim().length === 0
                 }
-                className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:text-muted-foreground/40"
+                className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-move disabled:cursor-not-allowed disabled:text-muted-foreground/40"
               >
                 {subredditFeedback.status === 'working' ? '…' : '+'}
               </button>
@@ -166,27 +166,26 @@ export default function SubredditManager({
         </div>
       </div>
 
-      {/* Column 2: 7 Subreddit rows (aligned with input) */}
-      <div className="space-y-2 min-w-0">
+      {/* Column 2: All remaining subreddits (scrollable) */}
+      <div className="space-y-2 min-w-0 flex flex-col">
         {showHeaders && (
           <div className="text-xs text-muted-foreground/70 uppercase tracking-wider invisible">Add Subreddits</div>
         )}
-        <div className="rounded-sm px-0 space-y-1">
-          {/* 7 Subreddits (7-13) - starts at top level with input */}
-          <div className="space-y-1">
-            {[0, 1, 2, 3, 4, 5, 6].map((index) => {
-              const subreddit = secondColumnSubreddits[index];
-              return subreddit ? (
-                renderSubredditItem(subreddit)
-              ) : (
+        <div className="rounded-sm px-0 flex-1 overflow-hidden">
+          {/* Scrollable container for all remaining subreddits */}
+          <div className="space-y-1 max-h-[calc(7*2rem)] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-border/40 scrollbar-track-transparent">
+            {secondColumnSubreddits.length > 0 ? (
+              secondColumnSubreddits.map((subreddit) => renderSubredditItem(subreddit))
+            ) : (
+              [0, 1, 2, 3, 4, 5, 6].map((index) => (
                 <div
                   key={`empty-2-${index}`}
                   className="w-full px-2 py-1.25 text-xs rounded-sm border border-border/20 text-muted-foreground/30 italic flex items-center"
                 >
                   subreddit...
                 </div>
-              );
-            })}
+              ))
+            )}
           </div>
         </div>
       </div>

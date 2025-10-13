@@ -9,3 +9,6 @@ export { ContentCorrelationWidget } from './ContentCorrelationWidget';
 export { PostRankingsWidget } from './PostRankingsWidget';
 export { MetricScoringWidget } from './MetricScoringWidget';
 export { TopPostsBySubredditWidget } from './TopPostsBySubredditWidget';
+
+// Trading Metrics
+export { MarketSentimentWidget, MomentumWidget, VolatilityWidget, TradingSignalsWidget } from './TradingMetricsRow';

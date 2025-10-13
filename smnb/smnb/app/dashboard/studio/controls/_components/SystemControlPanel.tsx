@@ -35,7 +35,7 @@ export default function SystemControlPanel({
       <div className="text-xs text-muted-foreground/70 uppercase tracking-wider">System</div>
       <div 
         className={`bg-[#1a1a1a] rounded-sm px-1 py-3 border border-border/20 text-center space-y-2 ${
-          !isSystemActive ? 'cursor-pointer hover:bg-[#1f1f1f] transition-colors' : ''
+          !isSystemActive ? 'cursor-move hover:bg-[#1f1f1f] transition-colors' : ''
         }`}
         onClick={() => {
           // Only handle click if not active (big button to start)
@@ -63,7 +63,7 @@ export default function SystemControlPanel({
               if (!isHostActive) handleBroadcastToggle();
             }
           }}
-          className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer relative ${
+          className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-move relative ${
             isSystemActive
               ? 'bg-red-500 text-white hover:bg-red-600'
               : 'bg-card text-muted-foreground border border-border hover:bg-card/80'

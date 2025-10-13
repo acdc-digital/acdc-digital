@@ -6,24 +6,21 @@
  *
  * Central export point for all session manager components and services
  *
- * NOTES:
- * - Legacy SessionChatAgent removed - use Nexus agents via /api/agents/stream
- * - Legacy mcpClient and nlpMcpParser removed - SessionManagerAgent now uses MCP server HTTP calls
+ * ARCHITECTURE:
+ * - Uses Nexus Framework with SessionManagerAgent
+ * - Streaming via /api/agents/stream endpoint
+ * - MCP Server integration for analytics
+ * - All chat functionality through NexusChat component
  */
 
-// Core service
-export { sessionChatService, SessionChatService } from './sessionChatService';
-export type { 
-  ChatMessage as ServiceChatMessage, 
-  ChatOptions, 
-  ChatResponse 
-} from './sessionChatService';
+// Main Nexus Chat Component (Recommended)
+export { NexusChat } from './NexusChat';
+export type { NexusChatProps } from './NexusChat';
 
-// Main components
+// Legacy components (DEPRECATED - Use NexusChat instead)
 export { Chat } from './Chat';
 export type { ChatProps, ChatState } from './Chat';
 
-// Sub-components
 export { ChatMessage } from './_components/ChatMessage';
 export type { ChatMessageProps } from './_components/ChatMessage';
 

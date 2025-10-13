@@ -25,6 +25,7 @@ export interface NewsItem {
   url?: string;
   subreddit?: string; // For Reddit posts
   title?: string; // For Reddit posts
+  metadata?: Record<string, unknown>; // For storing enriched data (trading analysis, etc.)
 }
 
 export interface HostNarration {

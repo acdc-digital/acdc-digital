@@ -7,6 +7,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { TokenCountingProvider } from "@/components/providers/TokenCountingProvider";
+import { WhistleblowerInit } from "@/components/WhistleblowerInit";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -74,6 +75,7 @@ export default function RootLayout({
           >
             <ConvexClientProvider>
               <TokenCountingProvider>
+                <WhistleblowerInit />
                 {children}
               </TokenCountingProvider>
             </ConvexClientProvider>

@@ -215,7 +215,6 @@ export default function Producer({ onModeChange }: ProducerProps) {
       {/* Computer Use Integration - Hidden monitoring component */}
       <ProducerComputerUseIntegration
         currentColumn={currentView}
-        apiKey={getValidApiKey() || undefined}
         onInteractionStart={() => console.log('🖥️ Producer computer use started')}
         onInteractionComplete={() => console.log('✅ Producer computer use completed')}
         onError={(error) => console.error('❌ Producer computer use error:', error)}
@@ -237,7 +236,7 @@ export default function Producer({ onModeChange }: ProducerProps) {
             <Eye className="w-3 h-3" />
           </button>
 
-          <button
+          {/* <button
             onClick={() => handleViewChange('editor')}
             title="Editor"
             className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors border cursor-pointer ${
@@ -247,7 +246,7 @@ export default function Producer({ onModeChange }: ProducerProps) {
             }`}
           >
             <UserPen className="w-3 h-3" />
-          </button>
+          </button> */}
         </div>
 
         {/* Right-side status indicator */}

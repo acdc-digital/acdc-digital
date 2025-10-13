@@ -14,7 +14,6 @@ export type { EditorInteractionOptions };
 
 interface ProducerComputerUseProps {
   currentColumn: string;
-  apiKey?: string;
   onInteractionStart?: () => void;
   onInteractionComplete?: () => void;
   onError?: (error: Error) => void;
@@ -22,7 +21,6 @@ interface ProducerComputerUseProps {
 
 export const ProducerComputerUseIntegration: React.FC<ProducerComputerUseProps> = ({
   currentColumn,
-  apiKey,
   onInteractionStart,
   onInteractionComplete,
   onError
@@ -32,11 +30,11 @@ export const ProducerComputerUseIntegration: React.FC<ProducerComputerUseProps> 
 
   // Initialize the computer use service
   useEffect(() => {
-    if (!apiKey || isInitialized.current) return;
+    if (isInitialized.current) return;
 
     try {
       serviceRef.current = getComputerUseService({
-        apiKey,
+        apiKey: '', // No longer needed - backend handles authentication
         model: 'claude-3-7-sonnet-20250219',
         maxTokens: 4000,
         displayWidth: 1280,
@@ -51,7 +49,7 @@ export const ProducerComputerUseIntegration: React.FC<ProducerComputerUseProps> 
       console.error('❌ Failed to initialize computer use service:', error);
       onError?.(error as Error);
     }
-  }, [apiKey, onError]);
+  }, [onError]);
 
   // Monitor column changes
   useEffect(() => {
@@ -125,10 +123,10 @@ export const ProducerComputerUseIntegration: React.FC<ProducerComputerUseProps> 
 export const useProducerComputerUse = () => {
   const serviceRef = useRef<ReturnType<typeof getComputerUseService> | null>(null);
 
-  const initializeService = (apiKey: string) => {
+  const initializeService = () => {
     if (!serviceRef.current) {
       serviceRef.current = getComputerUseService({
-        apiKey,
+        apiKey: '', // No longer needed - backend handles authentication
         model: 'claude-3-7-sonnet-20250219',
         maxTokens: 4000,
         displayWidth: 1280,

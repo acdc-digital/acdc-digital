@@ -30,7 +30,9 @@ export const ANTHROPIC_MODELS = {
   
   /** Latest Haiku - Fast and cost-effective for simple tasks */
   HAIKU_LATEST: 'claude-3-5-haiku-20241022',
-  
+  /** Claude Haiku 3.5	$0.80 / MTok	$1 / MTok	$1.6 / MTok	$0.08 / MTok	$4 / MTok
+
+   */
   /** Deprecated models (for reference only) */
   DEPRECATED: {
     SONNET_OCT_2024: 'claude-3-5-sonnet-20241022',

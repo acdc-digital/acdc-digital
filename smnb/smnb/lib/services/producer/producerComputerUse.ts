@@ -1,10 +1,9 @@
 /**
  * Computer Use AI Service for Producer Column Panel
  * Monitors and interacts with TipTap editor only when 'editor' column is selected
- * Uses Anthropic's computer use tool for direct browser interaction
+ * Uses backend API route for secure Anthropic computer use interactions
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import { COMPUTER_USE_CONFIG } from '../../../../../.agents/anthropic.config';
 
 export interface ComputerUseConfig {
@@ -26,18 +25,14 @@ export interface EditorInteractionOptions {
 }
 
 export class ProducerComputerUseService {
-  private client: Anthropic;
   private config: ComputerUseConfig;
   private isMonitoring: boolean = false;
   private editorColumnActive: boolean = false;
+  private apiEndpoint: string = '/api/producer-ai';
   
   constructor(config: ComputerUseConfig) {
-    // SECURITY FIX: This should be refactored to use backend API routes
-    // TODO: Migrate to /api/producer-ai route and remove client-side Anthropic usage
-    this.client = new Anthropic({ 
-      apiKey: config.apiKey
-      // dangerouslyAllowBrowser removed - this service should route through backend
-    });
+    // SECURITY FIX IMPLEMENTED: Now uses backend API routes
+    // API key no longer needed on client side
     this.config = {
       model: COMPUTER_USE_CONFIG.model,
       maxTokens: COMPUTER_USE_CONFIG.maxTokens,
@@ -45,7 +40,7 @@ export class ProducerComputerUseService {
       displayHeight: 800,
       editorPanelSelector: '[data-column="editor"]',
       rateLimitDelay: 3000, // 3 second delay between API calls
-      maxIterations: 4, // Further reduced to avoid rate limits
+      maxIterations: 4, // Reduced to avoid rate limits
       ...config
     };
   }
@@ -113,26 +108,30 @@ export class ProducerComputerUseService {
     console.log(`🤖 Starting computer use interaction: ${options.action}`);
 
     try {
-      // Create the computer use conversation
-      const response = await this.client.beta.messages.create({
-        model: this.config.model!,
-        max_tokens: this.config.maxTokens!,
-        tools: [
-          {
-            type: 'computer_20250124',
-            name: 'computer',
-            display_width_px: this.config.displayWidth!,
-            display_height_px: this.config.displayHeight!,
+      // Call backend API for computer use
+      const apiResponse = await fetch(this.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'computer-use',
+          options: {
+            prompt: this.buildComputerUsePrompt(options),
+            displayWidth: this.config.displayWidth,
+            displayHeight: this.config.displayHeight,
+            model: this.config.model,
+            maxTokens: this.config.maxTokens
           }
-        ],
-        messages: [
-          {
-            role: 'user',
-            content: this.buildComputerUsePrompt(options)
-          }
-        ],
-        betas: ['computer-use-2025-01-24']
+        })
       });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error || 'API request failed');
+      }
+
+      const { response } = await apiResponse.json();
 
       // Process the tool calls in a loop
       await this.processToolCalls(response, options);
@@ -313,49 +312,64 @@ BEGIN by taking a screenshot to see the current state.`;
         await new Promise(resolve => setTimeout(resolve, this.config.rateLimitDelay!));
       }
 
-      // Get Claude's next response with retry on rate limit
+      // Get Claude's next response via backend API with retry on rate limit
       try {
-        response = await this.client.beta.messages.create({
-          model: this.config.model!,
-          max_tokens: this.config.maxTokens!,
-          tools: [
-            {
-              type: 'computer_20250124',
-              name: 'computer',
-              display_width_px: this.config.displayWidth!,
-              display_height_px: this.config.displayHeight!,
-            },
-            {
-              type: 'text_editor_20250124',
-              name: 'str_replace_editor'
+        const apiResponse = await fetch(this.apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'continue-conversation',
+            options: {
+              messages: currentMessages,
+              displayWidth: this.config.displayWidth,
+              displayHeight: this.config.displayHeight,
+              model: this.config.model,
+              maxTokens: this.config.maxTokens
             }
-          ],
-          messages: currentMessages,
-          betas: ['computer-use-2025-01-24']
+          })
         });
+
+        if (!apiResponse.ok) {
+          const errorData = await apiResponse.json();
+          if (apiResponse.status === 429) {
+            throw new Error('rate_limit');
+          }
+          throw new Error(errorData.error || 'API request failed');
+        }
+
+        const data = await apiResponse.json();
+        response = data.response;
       } catch (error: any) {
-        if (error.status === 429) {
+        if (error.message === 'rate_limit') {
           console.warn('⚠️ Rate limit hit, waiting longer and retrying...');
           await new Promise(resolve => setTimeout(resolve, 5000));
           // Try once more with longer delay
-          response = await this.client.beta.messages.create({
-            model: this.config.model!,
-            max_tokens: this.config.maxTokens!,
-            tools: [
-              {
-                type: 'computer_20250124',
-                name: 'computer',
-                display_width_px: this.config.displayWidth!,
-                display_height_px: this.config.displayHeight!,
-              },
-              {
-                type: 'text_editor_20250124',
-                name: 'str_replace_editor'
+          const apiResponse = await fetch(this.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'continue-conversation',
+              options: {
+                messages: currentMessages,
+                displayWidth: this.config.displayWidth,
+                displayHeight: this.config.displayHeight,
+                model: this.config.model,
+                maxTokens: this.config.maxTokens
               }
-            ],
-            messages: currentMessages,
-            betas: ['computer-use-2025-01-24']
+            })
           });
+
+          if (!apiResponse.ok) {
+            const errorData = await apiResponse.json();
+            throw new Error(errorData.error || 'API request failed after retry');
+          }
+
+          const data = await apiResponse.json();
+          response = data.response;
         } else {
           throw error;
         }

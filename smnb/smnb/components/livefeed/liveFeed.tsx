@@ -58,15 +58,15 @@ export default function LiveFeed({ className, sessionId }: LiveFeedProps) {
         {/* Fixed Header */}
         <div className="flex-shrink-0 bg-[#191919] backdrop-blur-sm border-b border-border/20 flex items-center justify-between px-4 py-2">
           <div className="text-sm font-light text-muted-foreground font-sans">
-            No Active Session
+            No Session History
           </div>
         </div>
-        
+
         {/* Message */}
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center text-neutral-500 px-4">
-            <p className="text-lg mb-2">No session selected</p>
-            <p className="text-sm">Select a session and click &ldquo;Go Live&rdquo; to view stories</p>
+            <p className="text-lg mb-2">No session available</p>
+            <p className="text-sm">Start a broadcast to begin generating stories</p>
           </div>
         </div>
       </div>

@@ -178,7 +178,8 @@ interface BroadcastOrchestratorStore {
   } | null;
   
   // Session tracking
-  currentConvexSessionId: Id<"sessions"> | null;
+  currentConvexSessionId: Id<"sessions"> | null; // Active broadcast session (null when stopped)
+  lastSessionId: Id<"sessions"> | null; // Last session used (persists after stop for history view)
   
   // Configuration
   config: OrchestratorConfig;
@@ -294,6 +295,7 @@ export const useBroadcastOrchestrator = create<BroadcastOrchestratorStore>()(
       error: null,
       lastTransition: null,
       currentConvexSessionId: null,
+      lastSessionId: null,
       config: DEFAULT_CONFIG,
       _retryCount: 0,
       _isRecovering: false,
@@ -592,7 +594,10 @@ export const useBroadcastOrchestrator = create<BroadcastOrchestratorStore>()(
           // Step 5: Sync to Convex (if enabled)
           if (config.enableConvexSync && sessionId) {
             _log('Step 5: Syncing state to Convex...');
-            set({ currentConvexSessionId: sessionId });
+            set({
+              currentConvexSessionId: sessionId,
+              lastSessionId: sessionId // Persist for history view
+            });
             
             // Note: Convex sync should be triggered by calling component:
             // const updateBroadcast = useMutation(api.users.sessions.updateBroadcastState);
@@ -681,7 +686,9 @@ export const useBroadcastOrchestrator = create<BroadcastOrchestratorStore>()(
             // const updateBroadcast = useMutation(api.users.sessions.updateBroadcastState);
             // await updateBroadcast(get().getSyncData());
             
+            // Clear active session but keep lastSessionId for history view
             set({ currentConvexSessionId: null });
+            // lastSessionId is intentionally NOT cleared - stories should remain visible
           }
           
           // All steps complete
@@ -727,10 +734,11 @@ export const useBroadcastOrchestrator = create<BroadcastOrchestratorStore>()(
           sessionStore.endBroadcastSession();
           liveFeedStore.setIsLive(false);
           
-          set({ 
+          set({
             state: 'idle',
             error: null,
             currentConvexSessionId: null,
+            // lastSessionId preserved for history view
           });
           
           _log('✅ Emergency stop complete');
@@ -943,6 +951,15 @@ export const useIsTransitioning = () => {
  */
 export const useActiveBroadcastSessionId = () => {
   return useBroadcastOrchestrator(state => state.currentConvexSessionId);
+};
+
+/**
+ * Hook to get the last used session ID
+ * Returns the most recent session ID, even after stopping broadcast
+ * This allows UI components to show session history/stories after broadcast ends
+ */
+export const useLastSessionId = () => {
+  return useBroadcastOrchestrator(state => state.lastSessionId);
 };
 
 /**

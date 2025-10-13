@@ -96,8 +96,6 @@ export default function Controls({ mode }: ControlsProps) {
   const primarySubreddits = combinedSelectedSubreddits.slice(0, 6);
   const secondarySubreddits = combinedSelectedSubreddits.slice(6);
 
-  const defaultPreset = defaultGroups[0];
-
   useEffect(() => {
     if (!controlsResponse) {
       return;
@@ -242,14 +240,6 @@ export default function Controls({ mode }: ControlsProps) {
     },
     [customSubreddits, enabledDefaults, isSavingSelection, persistSelection]
   );
-
-  const handleResetPresets = useCallback(async () => {
-    if (!defaultPreset || isSavingSelection) {
-      return;
-    }
-
-    await persistSelection(defaultPreset.subreddits, [], { activeGroupId: defaultPreset.id, customSelection: false });
-  }, [defaultPreset, isSavingSelection, persistSelection]);
 
   // Parse and clean subreddit input - handles single or multiple subreddits
   const parseSubredditInput = useCallback((input: string): string[] => {
@@ -520,7 +510,7 @@ export default function Controls({ mode }: ControlsProps) {
             <button
               onClick={handleBroadcastToggle}
               disabled={isTransitioning}
-              className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-pointer flex items-center gap-1 ${
+              className={`px-2 py-1 text-xs rounded-sm transition-colors cursor-move flex items-center gap-1 ${
                 isLive
                   ? 'bg-red-500 text-white hover:bg-red-600'
                   : 'bg-card text-muted-foreground border border-border hover:bg-card/80'
@@ -628,10 +618,10 @@ export default function Controls({ mode }: ControlsProps) {
                 key={group.id}
                 onClick={() => handleToggleFilter(group.id)}
                 disabled={isSavingSelection || isLoadingControls}
-                className={`w-full py-1 text-xs rounded-sm transition-colors cursor-pointer disabled:cursor-not-allowed text-center whitespace-nowrap ${
+                className={`w-full py-1 text-xs rounded-sm transition-colors cursor-grab hover:cursor-grab active:cursor-grabbing disabled:cursor-not-allowed text-center whitespace-nowrap border ${
                   !hasCustomSelection && activeFilter === group.id
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70'
+                    ? 'bg-red-500/20 text-red-400 border-red-500/40'
+                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70 border-transparent hover:border-red-500/40'
                 }`}
               >
                 {group.label.split(' ')[0]} {/* Only first word */}
@@ -641,16 +631,6 @@ export default function Controls({ mode }: ControlsProps) {
               <div className="w-full px-1 py-1 text-xs text-muted-foreground/40 border border-border/20 rounded-sm text-center">
                 None
               </div>
-            )}
-            {/* Reset button if custom selection */}
-            {hasCustomSelection && defaultPreset && (
-              <button
-                onClick={handleResetPresets}
-                disabled={isSavingSelection || isLoadingControls}
-                className="w-full px-1 py-1 text-xs text-blue-400 hover:text-blue-300 disabled:text-muted-foreground/40 text-center"
-              >
-                Reset
-              </button>
             )}
           </div>
 

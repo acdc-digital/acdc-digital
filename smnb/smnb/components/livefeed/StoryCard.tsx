@@ -203,11 +203,14 @@ export default function StoryCard({
               >
                 {(() => {
                   try {
-                    return new URL(story.originalItem.url).hostname;
-                  } catch (error) {
-                    // Fallback for invalid URLs
-                    console.warn('Invalid URL:', story.originalItem.url, error);
-                    return story.originalItem.url.length > 30 ? story.originalItem.url.substring(0, 30) + '...' : story.originalItem.url;
+                    // Handle relative URLs by prepending Reddit domain
+                    const fullUrl = story.originalItem.url.startsWith('http')
+                      ? story.originalItem.url
+                      : `https://www.reddit.com${story.originalItem.url}`;
+                    return new URL(fullUrl).hostname;
+                  } catch {
+                    // Fallback for invalid URLs - just show "reddit.com"
+                    return 'reddit.com';
                   }
                 })()}
               </a>
