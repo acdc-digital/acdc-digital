@@ -1,4 +1,4 @@
-# Nexus Framework Implementation Checklist
+# ACDC Framework Implementation Checklist
 **Version:** 2.0 (Updated September 30, 2025)  
 **Status:** Reflects actual SMNB production implementation
 
@@ -7,12 +7,12 @@
 ## ✅ Completed: SMNB Production Implementation
 
 ### Core Architecture (100% Complete)
-- [x] **BaseNexusAgent abstract class** - `/lib/agents/nexus/BaseNexusAgent.ts`
+- [x] **BaseACDCAgent abstract class** - `/lib/agents/acdc/BaseACDCAgent.ts`
 - [x] **Type system** - Complete interfaces (AgentRequest, AgentChunk, Tool, ExecutionContext)
 - [x] **Streaming implementation** - AsyncIterable + SSE working perfectly
 - [x] **SessionManagerAgent** - First production agent with 7 tools
 - [x] **SSE API route** - `/app/api/agents/stream/route.ts`
-- [x] **useNexusAgent hook** - `/lib/hooks/useNexusAgent.ts`
+- [x] **useACDCAgent hook** - `/lib/hooks/useACDCAgent.ts`
 - [x] **Error handling** - Retry logic with exponential backoff
 - [x] **Token tracking** - Complete cost calculation and logging
 
@@ -59,15 +59,15 @@
   - [ ] Pass context through streaming pipeline
 
 ### 1.2 Create Shared Package (5 days)
-- [ ] **Setup `@acdc/nexus-core` package**
-  - [ ] Create `packages/nexus-core/` directory
+- [ ] **Setup `@acdc/acdc-core` package**
+  - [ ] Create `packages/acdc-core/` directory
   - [ ] Initialize package.json with proper config
   - [ ] Setup TypeScript with composite project
   - [ ] Configure pnpm workspace
   - [ ] Setup build pipeline
 
 - [ ] **Move core code to shared package**
-  - [ ] Move `BaseNexusAgent.ts`
+  - [ ] Move `BaseACDCAgent.ts`
   - [ ] Move types (`types/index.ts`)
   - [ ] Move tool interfaces
   - [ ] Move utility functions
@@ -80,7 +80,7 @@
   - [ ] Fix breaking changes
 
 ### 1.3 Build Agent Registry (2 days)
-- [ ] **Implement NexusRegistry class**
+- [ ] **Implement ACDCRegistry class**
   - [ ] Create registry with Map storage
   - [ ] Add `register(agent)` method
   - [ ] Add `getAgent(id)` method
@@ -192,13 +192,13 @@
 
 #### AURA Integration (Week 1-2)
 - [ ] **Install shared package**
-  - [ ] Add `@acdc/nexus-core` dependency
+  - [ ] Add `@acdc/acdc-core` dependency
   - [ ] Configure imports
   - [ ] Test integration
 
 - [ ] **Migrate existing agents**
-  - [ ] FileCreatorAgent to Nexus
-  - [ ] TwitterAgent to Nexus
+  - [ ] FileCreatorAgent to ACDC
+  - [ ] TwitterAgent to ACDC
   - [ ] Test streaming functionality
 
 #### Other Projects (Weeks 3-6)
@@ -212,9 +212,9 @@
 ## Phase 1: Foundation Setup (Weeks 1-2)
 
 ### Core Package Development
-- [x] **Create core interfaces** - BaseNexusAgent exists
+- [x] **Create core interfaces** - BaseACDCAgent exists
 - [x] **Streaming implementation** - AsyncIterable working
-- [ ] **Create `@acdc/nexus-core` package** - NOT YET DONE
+- [ ] **Create `@acdc/acdc-core` package** - NOT YET DONE
   - [ ] Initialize pnpm package
   - [ ] Set up TypeScript configuration
   - [ ] Create proper exports
@@ -284,7 +284,7 @@
 
 ### Immediate (Next 2 weeks) - Critical Gaps
 1. **Real Convex Integration** - All tool handlers use real data
-2. **Shared Package** - `@acdc/nexus-core` ready for multi-project use
+2. **Shared Package** - `@acdc/acdc-core` ready for multi-project use
 3. **Agent Registry** - Dynamic agent loading in API route
 4. **Updated documentation** - Reflects actual implementation state
 
@@ -296,7 +296,7 @@
 
 ### Medium-term (Weeks 6-12) - Ecosystem
 1. **4 new agents** - WorkflowAgent, NewsAgent, EditorAgent, ResearchAgent
-2. **Multi-project rollout** - AURA and LifeOS using Nexus
+2. **Multi-project rollout** - AURA and LifeOS using ACDC
 3. **Advanced features** - Agent chaining, custom tools
 4. **Production hardening** - Load testing, security audit
 
@@ -311,13 +311,13 @@
    - Test with real data
 
 2. **NEXT WEEK**: Build shared package (5 days)
-   - Setup `@acdc/nexus-core` workspace package
-   - Move BaseNexusAgent and types
+   - Setup `@acdc/acdc-core` workspace package
+   - Move BaseACDCAgent and types
    - Migrate SMNB to use package
    - Test complete functionality
 
 3. **WEEK AFTER**: Implement registry (2 days)
-   - Create NexusRegistry class
+   - Create ACDCRegistry class
    - Update API route for dynamic agent selection
    - Register SessionManagerAgent
    - Add error handling
@@ -326,10 +326,10 @@
 
 ## 📚 Related Documentation
 
-- **Architecture**: `/Users/matthewsimon/Projects/acdc-digital/.agents/nexus-unified-architecture.md`
-- **UI Components**: `/Users/matthewsimon/Projects/acdc-digital/.agents/nexus-chat-ui-integration-guide.md`
-- **Best Practices**: `/Users/matthewsimon/Projects/acdc-digital/.agents/nexus-best-practices.md`
-- **Gap Analysis**: `/Users/matthewsimon/Projects/acdc-digital/.agents/nexus-implementation-gap-analysis.md`
+- **Architecture**: `/Users/matthewsimon/Projects/acdc-digital/.agents/acdc-unified-architecture.md`
+- **UI Components**: `/Users/matthewsimon/Projects/acdc-digital/.agents/acdc-chat-ui-integration-guide.md`
+- **Best Practices**: `/Users/matthewsimon/Projects/acdc-digital/.agents/acdc-best-practices.md`
+- **Gap Analysis**: `/Users/matthewsimon/Projects/acdc-digital/.agents/acdc-implementation-gap-analysis.md`
 
 ---
 
@@ -370,28 +370,28 @@
 
 ### Dependency Updates
 - [ ] **Update Package Dependencies**
-  - [ ] Add `@nexus/agents` to AURA package.json
-  - [ ] Add `@nexus/agents` to LifeOS package.json
+  - [ ] Add `@acdc/agents` to AURA package.json
+  - [ ] Add `@acdc/agents` to LifeOS package.json
   - [ ] Update peer dependencies if needed
   - [ ] Configure workspace dependencies properly
   - [ ] Update import paths and references
 
 ### Agent Migration
 - [ ] **AURA Agents**
-  - [ ] Migrate Instructions Agent to Nexus
-  - [ ] Migrate File Creator Agent to Nexus
-  - [ ] Migrate Project Creator Agent to Nexus
-  - [ ] Migrate Twitter Agent (CMO) to Nexus
-  - [ ] Migrate Scheduling Agent to Nexus
-  - [ ] Migrate Preview Agent to Nexus
+  - [ ] Migrate Instructions Agent to ACDC
+  - [ ] Migrate File Creator Agent to ACDC
+  - [ ] Migrate Project Creator Agent to ACDC
+  - [ ] Migrate Twitter Agent (CMO) to ACDC
+  - [ ] Migrate Scheduling Agent to ACDC
+  - [ ] Migrate Preview Agent to ACDC
 
 - [ ] **LifeOS Agents**
-  - [ ] Migrate Instructions Agent to Nexus
-  - [ ] Migrate File Creator Agent to Nexus
-  - [ ] Migrate Project Creator Agent to Nexus
-  - [ ] Migrate Twitter Agent (CMO) to Nexus
-  - [ ] Migrate Scheduling Agent to Nexus
-  - [ ] Migrate Copywriter Agent to Nexus
+  - [ ] Migrate Instructions Agent to ACDC
+  - [ ] Migrate File Creator Agent to ACDC
+  - [ ] Migrate Project Creator Agent to ACDC
+  - [ ] Migrate Twitter Agent (CMO) to ACDC
+  - [ ] Migrate Scheduling Agent to ACDC
+  - [ ] Migrate Copywriter Agent to ACDC
   - [ ] Migrate Research System (Lead/Simple agents)
 
 ### Streaming Implementation
@@ -437,7 +437,7 @@
 
 ### Tool Integration
 - [ ] **Anthropic Tools Integration**
-  - [ ] Map existing SMNB tools to Nexus format
+  - [ ] Map existing SMNB tools to ACDC format
   - [ ] Integrate text_editor_20241022 tool
   - [ ] Add formatting and enhancement tools
   - [ ] Create content analysis tools
@@ -649,6 +649,6 @@
 
 ---
 
-*Nexus Framework Implementation Checklist v1.0*  
+*ACDC Framework Implementation Checklist v1.0*  
 *ACDC Digital - December 2024*  
 *Use this checklist to track progress and ensure nothing is missed during implementation*

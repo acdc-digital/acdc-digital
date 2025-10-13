@@ -1,4 +1,4 @@
-# Nexus Framework Documentation
+# ACDC Framework Documentation
 
 **Last Updated:** September 30, 2025  
 **Status:** SMNB Production Implementation (~40% Complete)
@@ -7,7 +7,7 @@
 
 ## 📖 Documentation Index
 
-This directory contains the comprehensive documentation and **global configuration files** for the **Nexus Framework** - an adaptable agentic system built on Anthropic Claude, Convex, and React.
+This directory contains the comprehensive documentation and **global configuration files** for the **ACDC Framework** - an adaptable agentic system built on Anthropic Claude, Convex, and React.
 
 ---
 
@@ -53,9 +53,9 @@ import { ANTHROPIC_MODELS } from '../../.agents/anthropic.config';
 
 ### Core Documentation
 
-#### 1. **[Nexus Unified Architecture](./nexus-unified-architecture.md)** ⭐ START HERE
+#### 1. **[ACDC Unified Architecture](./acdc-unified-architecture.md)** ⭐ START HERE
 Complete architectural guide covering:
-- Backend architecture (BaseNexusAgent, tools, streaming)
+- Backend architecture (BaseACDCAgent, tools, streaming)
 - Streaming layer (SSE, AsyncIterable, chunks)
 - Frontend architecture (React hooks, UI components)
 - Token tracking and cost management
@@ -66,7 +66,7 @@ Complete architectural guide covering:
 
 ---
 
-#### 2. **[Nexus Chat UI Integration Guide](./nexus-chat-ui-integration-guide.md)**
+#### 2. **[ACDC Chat UI Integration Guide](./acdc-chat-ui-integration-guide.md)**
 Complete UI component library documentation:
 - Conversation component (auto-scrolling)
 - PromptInput component (auto-resize, Enter/Shift+Enter)
@@ -81,7 +81,7 @@ Complete UI component library documentation:
 
 ---
 
-#### 3. **[Nexus Best Practices](./nexus-best-practices.md)**
+#### 3. **[ACDC Best Practices](./acdc-best-practices.md)**
 Production lessons and anti-patterns:
 - What works exceptionally well (streaming ⭐⭐⭐⭐⭐, type safety, tool schemas)
 - Critical mistakes to avoid (placeholder handlers 🚨, no shared package 🚨)
@@ -95,7 +95,7 @@ Production lessons and anti-patterns:
 
 ---
 
-#### 4. **[Nexus Implementation Checklist](./nexus-implementation-checklist.md)**
+#### 4. **[ACDC Implementation Checklist](./acdc-implementation-checklist.md)**
 Current status and roadmap:
 - ✅ Completed features (streaming, chat UI, type system)
 - 🔴 Priority 1: Critical gaps (Convex integration, shared package, registry)
@@ -117,8 +117,8 @@ Current status and roadmap:
 - **[anthropic-compliance-summary.md](./anthropic-compliance-summary.md)** - Quick reference for key issues
 
 #### Analysis & Planning
-- **[nexus-implementation-gap-analysis.md](./nexus-implementation-gap-analysis.md)** - Detailed comparison of documented vs implemented features
-- **[nexus-implementation-analysis-2025-09-29.md](./nexus-implementation-analysis-2025-09-29.md)** - Initial gap analysis that informed the unified architecture
+- **[acdc-implementation-gap-analysis.md](./acdc-implementation-gap-analysis.md)** - Detailed comparison of documented vs implemented features
+- **[acdc-implementation-analysis-2025-09-29.md](./acdc-implementation-analysis-2025-09-29.md)** - Initial gap analysis that informed the unified architecture
 
 #### Implementation Details
 - **[smnb-session-chat-refactor-summary.md](./smnb-session-chat-refactor-summary.md)** - Complete SMNB chat implementation status
@@ -128,12 +128,12 @@ Current status and roadmap:
 ## 🚀 Quick Start
 
 ### For New Developers
-1. **Start with**: [Nexus Unified Architecture](./nexus-unified-architecture.md) - Read Parts 1-3 (Backend, Streaming, Frontend)
-2. **Then review**: [Nexus Best Practices](./nexus-best-practices.md) - Part 1 (What Works) and Part 2 (Mistakes to Avoid)
-3. **Check status**: [Nexus Implementation Checklist](./nexus-implementation-checklist.md) - See what's done and what needs work
+1. **Start with**: [ACDC Unified Architecture](./acdc-unified-architecture.md) - Read Parts 1-3 (Backend, Streaming, Frontend)
+2. **Then review**: [ACDC Best Practices](./acdc-best-practices.md) - Part 1 (What Works) and Part 2 (Mistakes to Avoid)
+3. **Check status**: [ACDC Implementation Checklist](./acdc-implementation-checklist.md) - See what's done and what needs work
 
 ### For UI Developers
-1. **Start with**: [Nexus Chat UI Integration Guide](./nexus-chat-ui-integration-guide.md) - Complete component documentation
+1. **Start with**: [ACDC Chat UI Integration Guide](./acdc-chat-ui-integration-guide.md) - Complete component documentation
 2. **Review**: Architecture guide Part 3 (Frontend Architecture)
 3. **Reference**: Best Practices Part 7 (Testing Strategies)
 
@@ -156,7 +156,7 @@ Current status and roadmap:
 
 ### 🔴 Critical Gaps (Priority 1)
 1. **Convex Integration** - Tool handlers use placeholder data, need real queries (3-5 days)
-2. **Shared Package** - No `@acdc/nexus-core` yet, code duplicated (5 days)
+2. **Shared Package** - No `@acdc/acdc-core` yet, code duplicated (5 days)
 3. **Agent Registry** - Manual instantiation, need dynamic loading (2 days)
 
 ### 📊 Metrics
@@ -177,7 +177,7 @@ Current status and roadmap:
 └─────────────────────┬───────────────────────────────────────┘
                       │
          ┌────────────▼───────────┐
-         │  useNexusAgent Hook    │
+         │  useACDCAgent Hook    │
          │  - State management    │
          │  - SSE connection      │
          │  - Chunk processing    │
@@ -191,7 +191,7 @@ Current status and roadmap:
          └────────────┬───────────┘
                       │
     ┌─────────────────▼──────────────────┐
-    │      BaseNexusAgent.stream()       │
+    │      BaseACDCAgent.stream()       │
     │  1. Prepare messages               │
     │  2. Call Claude API (streaming)    │
     │  3. Parse chunks                   │
@@ -234,20 +234,20 @@ acdc-digital/
 │   ├── anthropic-sdk-compliance-audit.md
 │   ├── anthropic-migration-guide.md
 │   ├── anthropic-compliance-summary.md
-│   ├── nexus-unified-architecture.md
-│   ├── nexus-chat-ui-integration-guide.md
-│   ├── nexus-best-practices.md
-│   └── nexus-implementation-checklist.md
+│   ├── acdc-unified-architecture.md
+│   ├── acdc-chat-ui-integration-guide.md
+│   ├── acdc-best-practices.md
+│   └── acdc-implementation-checklist.md
 │
-├── smnb/                       # SMNB project (Nexus reference implementation)
+├── smnb/                       # SMNB project (ACDC reference implementation)
 │   ├── app/
 │   │   └── api/agents/stream/route.ts  # SSE endpoint
 │   ├── lib/
-│   │   ├── agents/nexus/
-│   │   │   ├── BaseNexusAgent.ts       # Core agent class
+│   │   ├── agents/acdc/
+│   │   │   ├── BaseACDCAgent.ts       # Core agent class
 │   │   │   └── SessionManagerAgent.ts  # First production agent
 │   │   ├── hooks/
-│   │   │   └── useNexusAgent.ts        # React hook
+│   │   │   └── useACDCAgent.ts        # React hook
 │   │   └── types/
 │   │       └── index.ts                # TypeScript interfaces
 │   ├── components/
@@ -256,7 +256,7 @@ acdc-digital/
 │       └── schema.ts                   # Database schema
 │
 └── packages/                   # Future location
-    └── nexus-core/            # To be created (Priority 1.2)
+    └── acdc-core/            # To be created (Priority 1.2)
 ```
 
 ---
@@ -289,22 +289,22 @@ acdc-digital/
 ## 📞 Getting Help
 
 ### For Implementation Questions
-1. Check [Nexus Best Practices](./nexus-best-practices.md) Part 8 (Common Patterns)
-2. Review [Nexus Unified Architecture](./nexus-unified-architecture.md) relevant section
+1. Check [ACDC Best Practices](./acdc-best-practices.md) Part 8 (Common Patterns)
+2. Review [ACDC Unified Architecture](./acdc-unified-architecture.md) relevant section
 3. Look at SMNB implementation examples
 
 ### For Debugging
-1. Check [Nexus Best Practices](./nexus-best-practices.md) Part 4 (Error Handling)
+1. Check [ACDC Best Practices](./acdc-best-practices.md) Part 4 (Error Handling)
 2. Review token tracking and logging patterns
 3. Use browser dev tools for SSE inspection
 
 ### For Planning
-1. Review [Nexus Implementation Checklist](./nexus-implementation-checklist.md)
+1. Review [ACDC Implementation Checklist](./acdc-implementation-checklist.md)
 2. Check critical gaps and priorities
 3. Estimate based on completed features
 
 ---
 
-**Remember:** The Nexus Framework is ~40% complete but the core features are production-ready. Focus on closing the critical gaps (Convex integration, shared package, registry) before expanding the ecosystem.
+**Remember:** The ACDC Framework is ~40% complete but the core features are production-ready. Focus on closing the critical gaps (Convex integration, shared package, registry) before expanding the ecosystem.
 
 **Philosophy:** Ship working software fast, iterate based on real usage, prioritize developer experience and type safety.

@@ -1,4 +1,4 @@
-# Nexus Framework Architecture Diagrams
+# ACDC Framework Architecture Diagrams
 
 ## Core System Architecture
 
@@ -16,7 +16,7 @@ graph TB
         VALIDATION[Input Validation]
     end
     
-    subgraph "Nexus Framework Core"
+    subgraph "ACDC Framework Core"
         REGISTRY[Agent Registry]
         ENGINE[Streaming Engine]
         TOOLS[Tool System]
@@ -81,14 +81,14 @@ graph TB
 sequenceDiagram
     participant Client as React Client
     participant API as Next.js API
-    participant Nexus as Nexus Registry
-    participant Agent as Nexus Agent
+    participant ACDC as ACDC Registry
+    participant Agent as ACDC Agent
     participant Claude as Claude API
     participant DB as Convex DB
     
     Client->>API: POST /api/agents/stream
-    API->>Nexus: getAgent(agentId)
-    Nexus->>Agent: agent.stream(request)
+    API->>ACDC: getAgent(agentId)
+    ACDC->>Agent: agent.stream(request)
     
     Agent->>Claude: anthropic.messages.create()
     Note over Claude: Streaming enabled
@@ -195,7 +195,7 @@ stateDiagram-v2
 ```mermaid
 graph TD
     subgraph "ACDC Digital Ecosystem"
-        NEXUS[Nexus Framework Core]
+        ACDC[ACDC Framework Core]
     end
     
     subgraph "Project Integrations"
@@ -219,10 +219,10 @@ graph TD
         WORKFLOW_AGENT[Workflow Automation Agent]
     end
     
-    NEXUS --> SMNB
-    NEXUS --> AURA
-    NEXUS --> LIFEOS
-    NEXUS --> RUUF
+    ACDC --> SMNB
+    ACDC --> AURA
+    ACDC --> LIFEOS
+    ACDC --> RUUF
     
     SMNB --> NEWS_AGENT
     AURA --> CONTENT_AGENT
@@ -234,7 +234,7 @@ graph TD
     RESEARCH_AGENT --> AI
     WORKFLOW_AGENT --> STORAGE
     
-    style NEXUS fill:#2196f3,color:#ffffff
+    style ACDC fill:#2196f3,color:#ffffff
     style NEWS_AGENT fill:#4caf50,color:#ffffff
     style CONTENT_AGENT fill:#ff9800,color:#ffffff
     style RESEARCH_AGENT fill:#9c27b0,color:#ffffff
@@ -317,7 +317,7 @@ flowchart LR
 
 ```mermaid
 gitgraph
-    commit id: "Initial Nexus Setup"
+    commit id: "Initial ACDC Setup"
     branch feature-agent
     checkout feature-agent
     commit id: "Create BaseAgent"
@@ -353,7 +353,7 @@ gitgraph
 ```mermaid
 graph TB
     subgraph "Application Layer"
-        AGENTS[Nexus Agents]
+        AGENTS[ACDC Agents]
         API[API Routes]
         UI[React Components]
     end
@@ -413,5 +413,5 @@ graph TB
 
 ---
 
-*Architecture diagrams for the Nexus Agentic Framework*  
+*Architecture diagrams for the ACDC Agentic Framework*  
 *ACDC Digital - December 2024*

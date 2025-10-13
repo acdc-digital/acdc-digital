@@ -1,6 +1,6 @@
 # ACDC Digital Unified Agentic Framework Implementation Guide
 
-## The Nexus Agentic Framework
+## The ACDC Agentic Framework
 *A unified, streaming-first AI agent architecture for ACDC Digital's news technology ecosystem*
 
 ---
@@ -22,9 +22,9 @@
 
 ## Framework Overview
 
-### What is the Nexus Agentic Framework?
+### What is the ACDC Agentic Framework?
 
-The **Nexus Agentic Framework** is ACDC Digital's unified AI agent architecture that combines the modularity of class-based agents (AURA/LifeOS) with the streaming capabilities and tool integration of service-based AI (SMNB). Named "Nexus" for its role as the central connection point between different AI capabilities and our news technology ecosystem.
+The **ACDC Agentic Framework** is ACDC Digital's unified AI agent architecture that combines the modularity of class-based agents (AURA/LifeOS) with the streaming capabilities and tool integration of service-based AI (SMNB). Named "ACDC" for its role as the central connection point between different AI capabilities and our news technology ecosystem.
 
 ### Core Philosophy
 
@@ -49,7 +49,7 @@ The **Nexus Agentic Framework** is ACDC Digital's unified AI agent architecture 
 
 ### Architecture Principles
 
-The Nexus Framework follows a **hybrid agent-service architecture** that unifies three core components:
+The ACDC Framework follows a **hybrid agent-service architecture** that unifies three core components:
 
 ```mermaid
 graph TB
@@ -106,7 +106,7 @@ graph TB
 ### Module Structure
 
 ```
-@nexus/agents/
+@acdc/agents/
 ├── core/
 │   ├── BaseAgent.ts              # Abstract agent interface
 │   ├── AgentRegistry.ts          # Command and tool routing
@@ -136,7 +136,7 @@ graph TB
 
 ```typescript
 // Core agent interface supporting both streaming and batch execution
-export interface NexusAgent {
+export interface ACDCAgent {
   readonly id: string;
   readonly name: string;
   readonly description: string;
@@ -177,7 +177,7 @@ export interface AgentChunk {
 ### Pattern 1: News Content Agent
 
 ```typescript
-import { BaseAgent, Tool, AgentRequest, AgentChunk } from '@nexus/agents';
+import { BaseAgent, Tool, AgentRequest, AgentChunk } from '@acdc/agents';
 
 export class NewsAgent extends BaseAgent {
   readonly id = 'news-agent';
@@ -328,10 +328,10 @@ export class EditorAgent extends BaseAgent {
 ```typescript
 // app/api/agents/stream/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { NexusRegistry } from '@nexus/agents';
+import { ACDCRegistry } from '@acdc/agents';
 import { auth } from '@clerk/nextjs';
 
-const registry = new NexusRegistry();
+const registry = new ACDCRegistry();
 
 export async function POST(request: NextRequest) {
   try {
@@ -392,7 +392,7 @@ export async function POST(request: NextRequest) {
 // convex/agents.ts
 import { query, mutation, action } from './_generated/server';
 import { v } from 'convex/values';
-import { NexusRegistry } from '@nexus/agents';
+import { ACDCRegistry } from '@acdc/agents';
 
 export const executeAgent = action({
   args: {
@@ -408,7 +408,7 @@ export const executeAgent = action({
     error: v.optional(v.string())
   }),
   handler: async (ctx, args) => {
-    const registry = new NexusRegistry();
+    const registry = new ACDCRegistry();
     
     try {
       const agent = registry.getAgent(args.agentId);
@@ -449,7 +449,7 @@ export const getAgentCapabilities = query({
     metadata: v.any()
   }),
   handler: async (ctx, args) => {
-    const registry = new NexusRegistry();
+    const registry = new ACDCRegistry();
     const agent = registry.getAgent(args.agentId);
     
     if (!agent) {
@@ -468,7 +468,7 @@ export const getAgentCapabilities = query({
 ### Workflow 3: React Component Integration
 
 ```tsx
-// components/NexusAgentInterface.tsx
+// components/ACDCAgentInterface.tsx
 'use client';
 
 import { useState, useCallback } from 'react';
@@ -481,7 +481,7 @@ interface AgentChunk {
   timestamp: number;
 }
 
-export function NexusAgentInterface({ agentId }: { agentId: string }) {
+export function ACDCAgentInterface({ agentId }: { agentId: string }) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<AgentChunk[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -568,9 +568,9 @@ export function NexusAgentInterface({ agentId }: { agentId: string }) {
   }
 
   return (
-    <div className="nexus-agent-interface">
+    <div className="acdc-agent-interface">
       <div className="agent-header">
-        <h3>{agentCapabilities.metadata?.name || 'Nexus Agent'}</h3>
+        <h3>{agentCapabilities.metadata?.name || 'ACDC Agent'}</h3>
         {agentCapabilities.isPremium && (
           <span className="premium-badge">Premium</span>
         )}
@@ -633,7 +633,7 @@ export function NexusAgentInterface({ agentId }: { agentId: string }) {
 sequenceDiagram
     participant U as User Interface
     participant R as Next.js Route
-    participant A as Nexus Agent
+    participant A as ACDC Agent
     participant C as Claude API
     participant D as Convex DB
     
@@ -661,7 +661,7 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph "ACDC Digital Ecosystem"
-        N[Nexus Framework] --> SMNB[Smart News Bot]
+        N[ACDC Framework] --> SMNB[Smart News Bot]
         N --> AURA[Content Editor]
         N --> LIFE[LifeOS Platform]
         N --> RUUF[MCP Integration]
@@ -726,9 +726,9 @@ flowchart TD
 
 ```typescript
 // agents/NewsAgent.ts
-import { BaseNexusAgent, Tool, AgentRequest, AgentChunk } from '@nexus/agents';
+import { BaseACDCAgent, Tool, AgentRequest, AgentChunk } from '@acdc/agents';
 
-export class NewsAgent extends BaseNexusAgent {
+export class NewsAgent extends BaseACDCAgent {
   readonly id = 'news-agent';
   readonly name = 'News Content Specialist';
   readonly description = 'Analyzes news content, identifies trends, and creates summaries';
@@ -824,7 +824,7 @@ export class NewsAgent extends BaseNexusAgent {
 
 ```typescript
 // agents/StreamingAgent.ts
-export abstract class StreamingNexusAgent extends BaseNexusAgent {
+export abstract class StreamingACDCAgent extends BaseACDCAgent {
   
   async *executeToolWithStreaming(
     tool: Tool, 
@@ -939,12 +939,12 @@ export abstract class StreamingNexusAgent extends BaseNexusAgent {
 ```typescript
 // migration/LegacyAgentAdapter.ts
 import { BaseAgent as LegacyBaseAgent } from '@/lib/agents/base';
-import { BaseNexusAgent, Tool, AgentRequest, AgentChunk } from '@nexus/agents';
+import { BaseACDCAgent, Tool, AgentRequest, AgentChunk } from '@acdc/agents';
 
 /**
- * Adapter to wrap legacy AURA/LifeOS agents for Nexus compatibility
+ * Adapter to wrap legacy AURA/LifeOS agents for ACDC compatibility
  */
-export class LegacyAgentAdapter extends BaseNexusAgent {
+export class LegacyAgentAdapter extends BaseACDCAgent {
   private legacyAgent: LegacyBaseAgent;
 
   constructor(legacyAgent: LegacyBaseAgent) {
@@ -968,7 +968,7 @@ export class LegacyAgentAdapter extends BaseNexusAgent {
         parameters: legacyTool.usage?.split(' ').slice(1) || []
       },
       handler: async (input, context) => {
-        // Convert Nexus context to legacy context
+        // Convert ACDC context to legacy context
         const legacyContext = {
           sessionId: context.sessionId,
           userId: context.userId,
@@ -1004,7 +1004,7 @@ export class LegacyAgentAdapter extends BaseNexusAgent {
 }
 
 // Usage example:
-export function migrateLegacyAgent(legacyAgent: LegacyBaseAgent): BaseNexusAgent {
+export function migrateLegacyAgent(legacyAgent: LegacyBaseAgent): BaseACDCAgent {
   return new LegacyAgentAdapter(legacyAgent);
 }
 ```
@@ -1169,7 +1169,7 @@ interface StandardStreamChunk {
 ## Migration Roadmap
 
 ### Phase 1: Foundation Setup (Week 1-2)
-- [ ] Create `@nexus/agents` package structure
+- [ ] Create `@acdc/agents` package structure
 - [ ] Implement core interfaces and base classes
 - [ ] Set up streaming engine and tool system
 - [ ] Create migration utilities for legacy agents
@@ -1181,7 +1181,7 @@ interface StandardStreamChunk {
 - [ ] Test backward compatibility
 
 ### Phase 3: SMNB Integration (Week 5-6)
-- [ ] Wrap SMNB services as Nexus agents
+- [ ] Wrap SMNB services as ACDC agents
 - [ ] Integrate existing streaming infrastructure
 - [ ] Unify tool schemas and execution patterns
 - [ ] Add command pattern support to SMNB
@@ -1201,8 +1201,8 @@ interface StandardStreamChunk {
 ### Migration Checklist
 
 #### For Each Project:
-- [ ] **Dependencies**: Update package.json to include `@nexus/agents`
-- [ ] **Imports**: Replace local agent imports with Nexus imports
+- [ ] **Dependencies**: Update package.json to include `@acdc/agents`
+- [ ] **Imports**: Replace local agent imports with ACDC imports
 - [ ] **API Routes**: Update to use standardized streaming format
 - [ ] **Components**: Upgrade UI components for streaming support
 - [ ] **Tests**: Update test suites for new architecture
@@ -1220,10 +1220,10 @@ class MyAgent extends BaseAgent {
   }
 }
 
-// After (Nexus)
-import { BaseNexusAgent, Tool } from '@nexus/agents';
+// After (ACDC)
+import { BaseACDCAgent, Tool } from '@acdc/agents';
 
-class MyAgent extends BaseNexusAgent {
+class MyAgent extends BaseACDCAgent {
   async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
     // Streaming implementation
   }
@@ -1461,7 +1461,7 @@ class StreamDebugger {
 
 ## Conclusion
 
-The **Nexus Agentic Framework** represents ACDC Digital's evolution toward a unified, streaming-first AI architecture that combines the best aspects of our existing systems while providing a foundation for future innovation in news technology and content management.
+The **ACDC Agentic Framework** represents ACDC Digital's evolution toward a unified, streaming-first AI architecture that combines the best aspects of our existing systems while providing a foundation for future innovation in news technology and content management.
 
 ### Framework Benefits Realized
 
@@ -1472,9 +1472,9 @@ The **Nexus Agentic Framework** represents ACDC Digital's evolution toward a uni
 ✅ **Developer Productivity**: Reduced boilerplate, better debugging tools  
 ✅ **Future-Ready**: Extensible design supports emerging AI capabilities  
 
-### Framework Name: "Nexus"
+### Framework Name: "ACDC"
 
-The name **Nexus** reflects the framework's core purpose as the central connection point (nexus) between:
+The name **ACDC** reflects our organization's identity and the framework's core purpose as the proprietary agentic architecture for ACDC Digital, connecting:
 - Multiple AI capabilities (analysis, generation, editing)
 - Different architectural patterns (commands vs. tools)
 - Various ACDC Digital projects (SMNB, AURA, LifeOS, RUUF)
@@ -1485,12 +1485,12 @@ The name **Nexus** reflects the framework's core purpose as the central connecti
 1. **Immediate**: Begin Phase 1 implementation with core package setup
 2. **Short-term**: Migrate existing agents while maintaining backward compatibility  
 3. **Medium-term**: Expand capabilities with advanced workflows and integrations
-4. **Long-term**: Establish Nexus as the standard for AI development across ACDC Digital
+4. **Long-term**: Establish ACDC as the standard for AI development across ACDC Digital
 
-The Nexus Agentic Framework positions ACDC Digital to rapidly develop and deploy AI-powered features that enhance our news technology platform while maintaining the high standards of performance, reliability, and user experience our organization is known for.
+The ACDC Agentic Framework positions ACDC Digital to rapidly develop and deploy AI-powered features that enhance our news technology platform while maintaining the high standards of performance, reliability, and user experience our organization is known for.
 
 ---
 
-*Nexus Agentic Framework Implementation Guide v1.0*  
+*ACDC Agentic Framework Implementation Guide v1.0*  
 *ACDC Digital - December 2024*  
 *Framework designed for scalable news technology and content management*

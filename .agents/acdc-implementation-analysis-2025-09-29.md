@@ -1,4 +1,4 @@
-# Nexus Framework Implementation Analysis
+# ACDC Framework Implementation Analysis
 **Date:** September 29, 2025  
 **Project:** ACDC Digital - SMNB Session Manager  
 **Analysis Type:** Documentation vs. Implementation Alignment
@@ -17,8 +17,8 @@ The SMNB implementation represents a **solid foundation** but is in **early Phas
 
 | Component | Documentation | Implementation | Status |
 |-----------|--------------|----------------|---------|
-| **BaseAgent Class** | ✅ Defined | ✅ Nexus version | ✅ Good |
-| **Agent Registry** | ✅ Central routing | 🟡 Needs Nexus support | 🟡 Partial |
+| **BaseAgent Class** | ✅ Defined | ✅ ACDC version | ✅ Good |
+| **Agent Registry** | ✅ Central routing | 🟡 Needs ACDC support | 🟡 Partial |
 | **Streaming Support** | ✅ AsyncIterable | ✅ SSE working | ✅ Excellent |
 | **Tool System** | ✅ Three types | 🟡 Only anthropic_tool | 🟡 Partial |
 | **Type Safety** | ✅ Full TypeScript | ✅ Proper types | ✅ Good |
@@ -61,7 +61,7 @@ The SMNB implementation represents a **solid foundation** but is in **early Phas
 - ✅ **SessionManagerAgent** - Analytics and monitoring (smnb)
 - ❌ No NewsAgent, EditorAgent, ResearchAgent, WorkflowAgent
 
-**Gap:** 1 of 8+ documented agents exists in Nexus framework.
+**Gap:** 1 of 8+ documented agents exists in ACDC framework.
 
 ---
 
@@ -101,7 +101,7 @@ async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
 - SessionManagerAgent not registered anywhere
 - Manual instantiation in API route instead
 
-**Gap:** Registry doesn't support Nexus streaming agents. No centralized routing.
+**Gap:** Registry doesn't support ACDC streaming agents. No centralized routing.
 
 ---
 
@@ -109,9 +109,9 @@ async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
 
 **Documented Vision:**
 ```typescript
-// Shared nexus core package
-@acdc/nexus-core
-  - BaseNexusAgent
+// Shared acdc core package
+@acdc/acdc-core
+  - BaseACDCAgent
   - AgentRegistry  
   - StreamingEngine
   - Tool interfaces
@@ -184,15 +184,15 @@ protected createErrorChunk(error: string | Error): AgentChunk {
 
 **✅ Completed:**
 - ✅ Core types and interfaces defined
-- ✅ BaseNexusAgent abstract class
+- ✅ BaseACDCAgent abstract class
 - ✅ Streaming infrastructure with SSE
 - ✅ Basic agent implementation (SessionManagerAgent)
 - ✅ API route with streaming support
 - ✅ React hook for consumption
 
 **❌ Missing:**
-- ❌ Shared core package (`@acdc/nexus-core`)
-- ❌ Unified agent registry for Nexus agents
+- ❌ Shared core package (`@acdc/acdc-core`)
+- ❌ Unified agent registry for ACDC agents
 - ❌ Command and hybrid tool types
 - ❌ Comprehensive error tracking
 - ❌ Telemetry and monitoring hooks
@@ -203,8 +203,8 @@ protected createErrorChunk(error: string | Error): AgentChunk {
 ### **Phase 2: AURA/LifeOS Migration (Weeks 3-4) - 🔴 5% Complete**
 
 **❌ Missing:**
-- ❌ Migration of AURA agents to Nexus framework
-- ❌ Migration of LifeOS agents to Nexus framework
+- ❌ Migration of AURA agents to ACDC framework
+- ❌ Migration of LifeOS agents to ACDC framework
 - ❌ Unified streaming interface across projects
 - ❌ Shared tool library
 - ❌ Cross-project agent registry
@@ -265,7 +265,7 @@ private async handleSessionMetrics(input: unknown): Promise<unknown> {
 **Impact:** Agent looks functional but returns fake data! Seven tool handlers are all placeholders.
 
 **Recommendation:**
-- Create Convex actions in `convex/nexusAgents.ts`
+- Create Convex actions in `convex/acdcAgents.ts`
 - Wire up real database queries
 - Return actual session data
 
@@ -279,13 +279,13 @@ private async handleSessionMetrics(input: unknown): Promise<unknown> {
 - No standardization possible
 
 **Recommendation:**
-- Create `packages/nexus-core` package
-- Export BaseNexusAgent, types, utilities
+- Create `packages/acdc-core` package
+- Export BaseACDCAgent, types, utilities
 - Use pnpm workspace to share across projects
 
 ---
 
-### **3. Registry Doesn't Support Nexus Agents**
+### **3. Registry Doesn't Support ACDC Agents**
 
 **API Route:**
 ```typescript
@@ -293,7 +293,7 @@ private async handleSessionMetrics(input: unknown): Promise<unknown> {
 const agent = new SessionManagerAgent();
 
 // ❌ Should be:
-const agent = nexusRegistry.getAgent('session-manager-agent');
+const agent = acdcRegistry.getAgent('session-manager-agent');
 ```
 
 **Impact:** No centralized routing, no discoverability, no plugin system.
@@ -402,20 +402,20 @@ userId?: string | Id<"users">
 ### **🚨 CRITICAL (Do First)**
 
 1. **Wire Up Convex Actions**
-   - Create `convex/nexusAgents.ts` with real queries
+   - Create `convex/acdcAgents.ts` with real queries
    - Replace all placeholder tool handlers
    - Test with actual session data
    - **Time:** 1-2 days
 
 2. **Create Shared Core Package**
-   - `packages/nexus-core/`
-   - Export BaseNexusAgent, types, utilities
+   - `packages/acdc-core/`
+   - Export BaseACDCAgent, types, utilities
    - Configure pnpm workspace
    - **Time:** 1 day
 
 ### **🔴 HIGH (Do Next)**
 
-3. **Implement Nexus Registry**
+3. **Implement ACDC Registry**
    - Support streaming agent registration
    - Add dynamic agent discovery
    - Update API route to use registry
@@ -424,12 +424,12 @@ userId?: string | Id<"users">
 4. **Add Command & Hybrid Tools**
    - Implement command tool pattern
    - Create hybrid tool examples
-   - Update BaseNexusAgent to support all types
+   - Update BaseACDCAgent to support all types
    - **Time:** 2 days
 
 5. **Migrate AURA Agents**
-   - Convert FileCreatorAgent to Nexus
-   - Convert TwitterAgent to Nexus
+   - Convert FileCreatorAgent to ACDC
+   - Convert TwitterAgent to ACDC
    - Test streaming in AURA project
    - **Time:** 1 week
 
@@ -473,7 +473,7 @@ userId?: string | Id<"users">
 ### **What Needs Attention:**
 1. 🚨 **Placeholder handlers** - wire up real data
 2. 🚨 **No code sharing** - create shared package
-3. 🔴 **Registry doesn't support Nexus** - update it
+3. 🔴 **Registry doesn't support ACDC** - update it
 4. 🔴 **Missing 67% of tool types** - implement command/hybrid
 
 ### **Documentation Quality:**
@@ -488,7 +488,7 @@ The framework documentation is **excellent** - comprehensive, detailed, with cle
 
 ## 🎬 Conclusion
 
-You've built a **solid proof-of-concept** that demonstrates the Nexus framework can work. The streaming implementation is production-quality. However, you're at ~35-40% of the documented vision.
+You've built a **solid proof-of-concept** that demonstrates the ACDC framework can work. The streaming implementation is production-quality. However, you're at ~35-40% of the documented vision.
 
 **The good news:** Your foundation is sound. Fix the critical gaps (Convex wiring, shared package, unified architecture) and you'll accelerate rapidly.
 

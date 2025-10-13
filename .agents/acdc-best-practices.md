@@ -1,4 +1,4 @@
-# Nexus Framework: Best Practices & Lessons Learned
+# ACDC Framework: Best Practices & Lessons Learned
 **Version:** 1.0  
 **Date:** September 30, 2025  
 **Purpose:** Distilled wisdom from production implementation
@@ -7,13 +7,13 @@
 
 ## 📋 Executive Summary
 
-This document captures **critical lessons learned** from implementing the Nexus Framework in production at SMNB. It's organized into what works brilliantly, what to avoid, and how to scale successfully.
+This document captures **critical lessons learned** from implementing the ACDC Framework in production at SMNB. It's organized into what works brilliantly, what to avoid, and how to scale successfully.
 
 **Read this if you:**
-- Are implementing Nexus in a new project
+- Are implementing ACDC in a new project
 - Want to avoid common mistakes
 - Need to understand architectural trade-offs
-- Are scaling Nexus across multiple projects
+- Are scaling ACDC across multiple projects
 
 ---
 
@@ -253,11 +253,11 @@ private getErrorMessage(error: unknown): string {
 ### 1.5 React Hook Pattern (⭐⭐⭐⭐)
 
 **Why it's clean:**
-The `useNexusAgent` hook encapsulates all streaming complexity.
+The `useACDCAgent` hook encapsulates all streaming complexity.
 
 **Pattern:**
 ```typescript
-const { messages, isStreaming, error, sendMessage } = useNexusAgent({
+const { messages, isStreaming, error, sendMessage } = useACDCAgent({
   agentId: 'session-manager-agent',
   sessionId,
 });
@@ -347,14 +347,14 @@ private async handleSessionMetrics(
 ### 2.2 No Shared Package (🚨 CRITICAL)
 
 **The Mistake:**
-Each project duplicates `BaseNexusAgent`, types, utilities.
+Each project duplicates `BaseACDCAgent`, types, utilities.
 
 **Why it's terrible:**
 ```
-smnb/lib/agents/nexus/BaseNexusAgent.ts      ← Copy 1
-aura/lib/agents/nexus/BaseNexusAgent.ts      ← Copy 2 (drift)
-donut/lib/agents/nexus/BaseNexusAgent.ts     ← Copy 3 (drift)
-home/lib/agents/nexus/BaseNexusAgent.ts      ← Copy 4 (drift)
+smnb/lib/agents/acdc/BaseACDCAgent.ts      ← Copy 1
+aura/lib/agents/acdc/BaseACDCAgent.ts      ← Copy 2 (drift)
+donut/lib/agents/acdc/BaseACDCAgent.ts     ← Copy 3 (drift)
+home/lib/agents/acdc/BaseACDCAgent.ts      ← Copy 4 (drift)
 ```
 
 **Problems:**
@@ -366,24 +366,24 @@ home/lib/agents/nexus/BaseNexusAgent.ts      ← Copy 4 (drift)
 **The Fix:**
 ```
 packages/
-  nexus-core/
+  acdc-core/
     package.json
     src/
-      agents/BaseNexusAgent.ts
+      agents/BaseACDCAgent.ts
       types/index.ts
       tools/anthropic.ts
 ```
 
 **Usage:**
 ```typescript
-import { BaseNexusAgent } from '@acdc/nexus-core';
+import { BaseACDCAgent } from '@acdc/acdc-core';
 
-export class SessionManagerAgent extends BaseNexusAgent {
+export class SessionManagerAgent extends BaseACDCAgent {
   // Project-specific implementation
 }
 ```
 
-**Lesson:** Create shared package BEFORE second project adopts Nexus.
+**Lesson:** Create shared package BEFORE second project adopts ACDC.
 
 ---
 
@@ -404,17 +404,17 @@ const agent = new SessionManagerAgent();
 **The Fix:**
 ```typescript
 // ✅ Use registry
-const agent = nexusRegistry.getAgent('session-manager-agent');
+const agent = acdcRegistry.getAgent('session-manager-agent');
 
 // Registry implementation
-class NexusRegistry {
-  private agents = new Map<string, BaseNexusAgent>();
+class ACDCRegistry {
+  private agents = new Map<string, BaseACDCAgent>();
   
-  register(agent: BaseNexusAgent) {
+  register(agent: BaseACDCAgent) {
     this.agents.set(agent.id, agent);
   }
   
-  getAgent(id: string): BaseNexusAgent {
+  getAgent(id: string): BaseACDCAgent {
     const agent = this.agents.get(id);
     if (!agent) {
       throw new Error(`Agent not found: ${id}`);
@@ -424,8 +424,8 @@ class NexusRegistry {
 }
 
 // At startup
-nexusRegistry.register(new SessionManagerAgent());
-nexusRegistry.register(new WorkflowAgent());
+acdcRegistry.register(new SessionManagerAgent());
+acdcRegistry.register(new WorkflowAgent());
 ```
 
 **Lesson:** Build registry before you have 5+ agents.
@@ -562,13 +562,13 @@ private async handleSessionMetrics(
 ### 4.1 When to Create Shared Package
 
 **Create when:**
-- ✅ Second project wants to use Nexus
+- ✅ Second project wants to use ACDC
 - ✅ You have 3+ agents to share
 - ✅ Base agent code is stable
 - ✅ You want consistent behavior
 
 **Don't create when:**
-- ❌ Only one project uses Nexus
+- ❌ Only one project uses ACDC
 - ❌ Still experimenting with API
 - ❌ Less than 2 agents
 - ❌ Agent code changes frequently
@@ -584,7 +584,7 @@ private async handleSessionMetrics(
 1. **Define agent purpose** - What does it do?
 2. **Design tools** - What actions can it take?
 3. **Create Convex queries** - Wire up database access
-4. **Extend BaseNexusAgent** - Implement streaming
+4. **Extend BaseACDCAgent** - Implement streaming
 5. **Test with real data** - No placeholders!
 6. **Register agent** - Add to registry
 7. **Document tools** - Clear descriptions
@@ -597,8 +597,8 @@ private async handleSessionMetrics(
 ### 4.3 Multi-Project Rollout
 
 **Phase 1: Prepare (Week 1)**
-- Create `@acdc/nexus-core` shared package
-- Move BaseNexusAgent to shared package
+- Create `@acdc/acdc-core` shared package
+- Move BaseACDCAgent to shared package
 - Configure pnpm workspace
 - Write comprehensive docs
 
@@ -936,7 +936,7 @@ describe('Agent Streaming', () => {
 
 ## 🎯 Conclusion
 
-The Nexus Framework is **production-ready** when you follow these best practices:
+The ACDC Framework is **production-ready** when you follow these best practices:
 
 ✅ **Do This:**
 - Stream everything (AsyncIterable + SSE)
@@ -966,4 +966,4 @@ The Nexus Framework is **production-ready** when you follow these best practices
 - Add monitoring: 3 days
 - **Total: ~2 weeks** to production-ready
 
-The 40% we've built works brilliantly. Complete the integration, avoid these pitfalls, and Nexus will scale beautifully across your entire ecosystem.
+The 40% we've built works brilliantly. Complete the integration, avoid these pitfalls, and ACDC will scale beautifully across your entire ecosystem.

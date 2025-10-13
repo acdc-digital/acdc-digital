@@ -1,15 +1,15 @@
 # Anthropic TypeScript SDK Compliance Audit
-## Nexus Agent Architecture Review
+## ACDC Agent Architecture Review
 
 **Date**: January 2025  
-**Scope**: SMNB Nexus Agent Architecture  
+**Scope**: SMNB ACDC Agent Architecture  
 **Reference**: `/Users/matthewsimon/Projects/acdc-digital/.github/anthropicTS-SDK-instructions.md`
 
 ---
 
 ## Executive Summary
 
-This audit reviews the Nexus agent architecture against Anthropic's official TypeScript SDK best practices. The codebase demonstrates good architectural patterns overall, but several areas need updates to align with modern SDK recommendations.
+This audit reviews the ACDC agent architecture against Anthropic's official TypeScript SDK best practices. The codebase demonstrates good architectural patterns overall, but several areas need updates to align with modern SDK recommendations.
 
 ### Overall Assessment: 🟡 NEEDS ATTENTION
 
@@ -279,7 +279,7 @@ const analyzeSessionMetricsTool = betaTool({
 
 2. **Create New Tool Definitions** (example):
    ```typescript
-   // lib/agents/nexus/tools/sessionTools.ts
+   // lib/agents/acdc/tools/sessionTools.ts
    
    import { betaTool } from '@anthropic-ai/sdk/helpers/json-schema';
    
@@ -485,7 +485,7 @@ const finalMessage = await stream.finalMessage();
 #### 🔧 Fix 4: Adopt SDK Streaming Helpers
 
 **Option A: Keep Custom Orchestration** (if UI requires custom chunks)
-- Current approach is functional for Nexus architecture
+- Current approach is functional for ACDC architecture
 - Custom chunk types (`thinking`, `content`, `tool_call`) are valuable
 - Continue using manual approach but document as intentional
 
@@ -1042,7 +1042,7 @@ console.log('Request ID:', message._request_id);  // For debugging
 
 1. ✏️ `lib/services/editor/editorAIService.ts` - Remove browser client, update models
 2. ✏️ `lib/services/producer/producerComputerUse.ts` - Remove browser client, update models
-3. ✏️ `lib/agents/nexus/SessionManagerAgent.ts` - Update models, add error types
+3. ✏️ `lib/agents/acdc/SessionManagerAgent.ts` - Update models, add error types
 4. ✏️ `app/api/claude/route.ts` - Remove key logging, add error types
 5. ✏️ `lib/services/sessionManager/sessionChatService.ts` - Update models
 6. ✏️ `lib/services/host/claudeLLMService.ts` - Update models (7 instances)
@@ -1052,7 +1052,7 @@ console.log('Request ID:', message._request_id);  // For debugging
 
 1. ➕ `lib/config/anthropic.config.ts` - Centralized configuration
 2. ➕ `lib/config/anthropic-models.ts` - Model version constants
-3. ➕ `lib/agents/nexus/tools/sessionTools.ts` - betaTool definitions (optional)
+3. ➕ `lib/agents/acdc/tools/sessionTools.ts` - betaTool definitions (optional)
 4. ➕ `.agents/anthropic-migration-guide.md` - Migration documentation
 
 ### Estimated Effort
@@ -1084,7 +1084,7 @@ After implementing fixes:
 
 ## Conclusion
 
-The Nexus agent architecture demonstrates strong foundational patterns, particularly in:
+The ACDC agent architecture demonstrates strong foundational patterns, particularly in:
 - Multi-turn conversation handling
 - Token usage tracking
 - Custom streaming for UI needs
