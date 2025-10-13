@@ -15,6 +15,11 @@ interface SubredditMemberStat {
   postCount: number;
   storyCount: number;
   totalContent: number;
+  mentions: number;
+  uniqueTickers: number;
+  avgImpactScore: number;
+  tradingRelevance: number;
+  overallSentiment: string;
 }
 
 function formatNumber(num: number): string {
@@ -27,7 +32,7 @@ function formatNumber(num: number): string {
 }
 
 export function SubredditMemberStatsWidget() {
-  const data = useQuery(api.stats.subredditStats.getSubredditMemberStats);
+  const data = useQuery(api.stats.tradingEnhanced.getSubredditMemberStatsByMentions);
 
   if (!data) {
     return (
@@ -54,13 +59,17 @@ export function SubredditMemberStatsWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <Users className="w-4 h-4 text-muted-foreground" />
-          Subreddit Members
+          Subreddit Trading Activity
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+            {data.totalMentions}
+          </Badge>
+          {' '}mentions •{' '}
+          <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalContent}
           </Badge>
-          {' '}total pieces from{' '}
+          {' '}pieces •{' '}
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalSubreddits}
           </Badge>
@@ -89,19 +98,30 @@ export function SubredditMemberStatsWidget() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="px-1 py-0.5 bg-purple-500/20 text-purple-400 rounded">
+                      {stat.mentions}m
+                    </span>
                     <span className="px-1 py-0.5 bg-blue-500/20 text-blue-400 rounded">
                       {stat.postCount}p
                     </span>
                     <span className="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded">
                       {stat.storyCount}s
                     </span>
+                    {stat.overallSentiment !== 'neutral' && (
+                      <Badge 
+                        variant={stat.overallSentiment === 'bullish' ? 'default' : 'destructive'}
+                        className="text-[8px] px-1 py-0"
+                      >
+                        {stat.overallSentiment}
+                      </Badge>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="font-medium text-emerald-400 text-xs">
                       {formatNumber(stat.subscribers)}
                     </div>
                     <div className="text-[10px] text-muted-foreground">
-                      {stat.totalContent} pieces
+                      TR:{stat.tradingRelevance.toFixed(0)} • {stat.uniqueTickers}t
                     </div>
                   </div>
                 </div>

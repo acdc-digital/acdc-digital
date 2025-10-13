@@ -5,24 +5,31 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3 } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 interface SubredditStat {
   subreddit: string;
   postCount: number;
+  mentionCount: number;
+  uniqueTickers: string[];
+  avgSentiment: number;
+  topMentions: Array<{ ticker: string; count: number; sentiment: number }>;
+  mentionDensity: number;
+  sentimentStrength: string;
+  avgImpactScore: number;
   percentage: number;
 }
 
 export function SubredditStatsWidget() {
-  const data = useQuery(api.stats.subredditStats.getSubredditStats);
+  const data = useQuery(api.stats.tradingEnhanced.getSubredditsByNasdaqMentions, { timeRange: "7d" });
 
   if (!data) {
     return (
       <Card className="bg-card border border-border">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
-            <BarChart3 className="w-4 h-4" />
-            Subreddit Distribution
+            <TrendingUp className="w-4 h-4" />
+            NASDAQ-100 Subreddit Activity
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -40,14 +47,14 @@ export function SubredditStatsWidget() {
     <Card className="bg-card border border-border">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-          <BarChart3 className="w-4 h-4 text-muted-foreground" />
-          Subreddit Distribution
+          <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          NASDAQ-100 Subreddit Activity
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-            {data.totalPosts}
+            {data.totalMentions}
           </Badge>
-          {' '}posts from{' '}
+          {' '}company mentions from{' '}
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalSubreddits}
           </Badge>
@@ -58,25 +65,37 @@ export function SubredditStatsWidget() {
         <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <div className="space-y-2 p-4">
             {data.subredditStats.map((stat: SubredditStat, index: number) => (
-              <div key={stat.subreddit} className="flex items-center justify-between text-xs">
+              <div key={stat.subreddit} className="flex items-center justify-between text-xs p-2 hover:bg-muted/20 rounded">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="text-muted-foreground font-mono text-[10px] w-6 text-right">
                     #{index + 1}
                   </span>
-                  <span className="font-medium text-foreground truncate">
-                    r/{stat.subreddit}
-                  </span>
+                  <div>
+                    <div className="font-medium text-foreground truncate">
+                      r/{stat.subreddit}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {stat.uniqueTickers.length} tickers • {stat.mentionDensity.toFixed(1)} mentions/post
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="w-16 bg-muted rounded-full h-1.5 overflow-hidden">
-                    <div 
-                      className="h-full bg-primary transition-all duration-300"
-                      style={{ width: `${Math.max(stat.percentage, 2)}%` }}
-                    />
+                  {stat.sentimentStrength !== "neutral" && (
+                    <Badge 
+                      variant={stat.sentimentStrength === "bullish" ? "default" : "destructive"}
+                      className="text-[8px] px-1 py-0"
+                    >
+                      {stat.sentimentStrength}
+                    </Badge>
+                  )}
+                  <div className="text-right">
+                    <div className="font-bold text-emerald-400">
+                      {stat.mentionCount}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      mentions
+                    </div>
                   </div>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 min-w-[2rem] text-center">
-                    {stat.postCount}
-                  </Badge>
                 </div>
               </div>
             ))}

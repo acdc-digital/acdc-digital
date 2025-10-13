@@ -5,27 +5,30 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 interface SubredditCorrelation {
   subreddit: string;
   postCount: number;
   storyCount: number;
+  mentionCount: number;
+  uniqueTickers: number;
   conversionRate: number;
-  postsWithStories: number;
-  postsWithoutStories: number;
+  tradingRelevance: number;
+  avgImpactScore: number;
+  sentimentStrength: string;
 }
 
 export function ContentCorrelationWidget() {
-  const data = useQuery(api.stats.subredditStats.getSubredditContentCorrelation);
+  const data = useQuery(api.stats.tradingEnhanced.getTradingContentCorrelation);
 
   if (!data) {
     return (
       <Card className="bg-card border border-border">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
-            <Link className="w-4 h-4" />
-            Content Correlation
+            <TrendingUp className="w-4 h-4" />
+            Trading Correlation
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -43,21 +46,21 @@ export function ContentCorrelationWidget() {
     <Card className="bg-card border border-border">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-          <Link className="w-4 h-4 text-muted-foreground" />
-          Content Correlation
+          <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          Trading Correlation
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-            {data.conversionRate.toFixed(1)}%
+            {data.tradingRelevanceRate.toFixed(1)}%
           </Badge>
-          {' '}overall conversion rate
+          {' '}posts have NASDAQ-100 mentions
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <div className="space-y-2 p-4">
             {data.subredditCorrelations.map((stat: SubredditCorrelation, index: number) => (
-              <div key={stat.subreddit} className="flex items-center justify-between text-xs">
+              <div key={stat.subreddit} className="flex items-center justify-between text-xs p-2 hover:bg-muted/20 rounded">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="text-muted-foreground font-mono text-[10px] w-6 text-right">
                     #{index + 1}
@@ -66,29 +69,38 @@ export function ContentCorrelationWidget() {
                     <div className="font-medium text-foreground truncate">
                       r/{stat.subreddit}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground">
-                        {stat.postCount} posts → {stat.storyCount} stories
-                      </span>
+                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
+                      <span>{stat.postCount} posts → {stat.storyCount} stories</span>
+                      <span className="text-[8px]">•</span>
+                      <span>{stat.uniqueTickers} tickers</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <Badge 
-                    variant="outline" 
-                    className={`text-xs px-1.5 py-0 ${
-                      stat.conversionRate >= 75 ? 'text-green-400 border-green-400/50' :
-                      stat.conversionRate >= 50 ? 'text-yellow-400 border-yellow-400/50' :
-                      stat.conversionRate >= 25 ? 'text-orange-400 border-orange-400/50' :
-                      'text-red-400 border-red-400/50'
-                    }`}
-                  >
-                    {stat.conversionRate.toFixed(1)}%
-                  </Badge>
-                  <div className="flex items-center gap-1 text-[10px]">
-                    <span className="text-green-400">✓{stat.postsWithStories}</span>
-                    <span className="text-muted-foreground">/</span>
-                    <span className="text-red-400">✗{stat.postsWithoutStories}</span>
+                  {stat.sentimentStrength !== "neutral" && (
+                    <Badge 
+                      variant={stat.sentimentStrength === "bullish" ? "default" : "destructive"}
+                      className="text-[8px] px-1 py-0"
+                    >
+                      {stat.sentimentStrength}
+                    </Badge>
+                  )}
+                  <div className="flex items-center gap-1 text-[9px]">
+                    <span className="text-muted-foreground">TR:</span>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[9px] px-1 py-0 ${
+                        stat.tradingRelevance >= 70 ? 'text-green-400 border-green-400/50' :
+                        stat.tradingRelevance >= 50 ? 'text-yellow-400 border-yellow-400/50' :
+                        stat.tradingRelevance >= 30 ? 'text-orange-400 border-orange-400/50' :
+                        'text-red-400 border-red-400/50'
+                      }`}
+                    >
+                      {stat.tradingRelevance.toFixed(0)}
+                    </Badge>
+                  </div>
+                  <div className="text-[9px] text-muted-foreground">
+                    Impact: {stat.avgImpactScore.toFixed(0)}
                   </div>
                 </div>
               </div>

@@ -13,10 +13,15 @@ interface CombinedContentStat {
   storyCount: number;
   totalContent: number;
   percentage: number;
+  mentions: number;
+  uniqueTickers: number;
+  avgImpactScore: number;
+  tradingRelevance: number;
+  overallSentiment: string;
 }
 
 export function CombinedContentStatsWidget() {
-  const data = useQuery(api.stats.subredditStats.getCombinedContentStats);
+  const data = useQuery(api.stats.tradingEnhanced.getTradingCombinedContentStats);
 
   if (!data) {
     return (
@@ -43,13 +48,17 @@ export function CombinedContentStatsWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <Layers3 className="w-4 h-4 text-muted-foreground" />
-          Total Content Distribution
+          Trading Content Distribution
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalContent}
           </Badge>
-          {' '}pieces from{' '}
+          {' '}pieces •{' '}
+          <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+            {data.totalMentions}
+          </Badge>
+          {' '}mentions from{' '}
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalSubreddits}
           </Badge>
@@ -75,6 +84,17 @@ export function CombinedContentStatsWidget() {
                     <span className="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded">
                       {stat.storyCount}s
                     </span>
+                    <span className="px-1 py-0.5 bg-purple-500/20 text-purple-400 rounded">
+                      {stat.mentions}m
+                    </span>
+                    {stat.overallSentiment !== 'neutral' && (
+                      <Badge 
+                        variant={stat.overallSentiment === 'bullish' ? 'default' : 'destructive'}
+                        className="text-[8px] px-1 py-0"
+                      >
+                        {stat.overallSentiment}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -87,6 +107,10 @@ export function CombinedContentStatsWidget() {
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 min-w-[2rem] text-center">
                     {stat.percentage.toFixed(1)}%
                   </Badge>
+                  <div className="flex flex-col items-end text-[8px] text-muted-foreground">
+                    <span>TR: {stat.tradingRelevance.toFixed(0)}</span>
+                    <span>{stat.uniqueTickers}t</span>
+                  </div>
                 </div>
               </div>
             ))}

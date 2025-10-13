@@ -6,6 +6,7 @@ export * from "./mutations";
 export * from "./queries";
 export * from "./aggregation";
 export * from "./subredditStats";
+export * from "./tradingEnhanced"; // NASDAQ-100 Trading-Enhanced Analytics
 export * from "./trading"; // Trading analytics
 
 // Re-export for API access
