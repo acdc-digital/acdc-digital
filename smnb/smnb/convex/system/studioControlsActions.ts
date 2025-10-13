@@ -1,7 +1,7 @@
 "use node";
 
 import { action } from "../_generated/server";
-import { v } from "convex/values";
+import { v, Infer } from "convex/values";
 import { api } from "../_generated/api";
 
 const DEFAULT_PROFILE_ID = "default";
@@ -13,7 +13,23 @@ const groupValidator = v.object({
   subreddits: v.array(v.string()),
 });
 
-const apiAny = api as any;
+type ControlsState = {
+  profileId: string;
+  defaultGroupsVersion: number;
+  defaultGroups: Array<{
+    id: string;
+    label: string;
+    description?: string;
+    subreddits: string[];
+  }>;
+  activeGroupId: string | null;
+  enabledDefaults: string[];
+  customSubreddits: string[];
+  searchDomains: string[];
+  hasCustomizations: boolean;
+  lastSyncedAt: number | null;
+  source: "db" | "default";
+};
 
 type RedditSubredditData = {
   display_name?: string;
@@ -158,7 +174,7 @@ export const addCustomSubreddit = action({
       };
     }
 
-    const currentState = await ctx.runQuery(apiAny.studioControls.getControlsState, {
+    const currentState: ControlsState = await ctx.runQuery(api.system.studioControls.getControlsState, {
       profileId,
     });
 
@@ -197,13 +213,13 @@ export const addCustomSubreddit = action({
 
     const updatedCustom = [...currentState.customSubreddits, canonical];
 
-    await ctx.runMutation(apiAny.studioControls.saveSubredditSelection, {
+    await ctx.runMutation(api.system.studioControls.saveSubredditSelection, {
       profileId,
       enabledDefaults: currentState.enabledDefaults,
       customSubreddits: updatedCustom,
     });
 
-    const nextState = await ctx.runQuery(apiAny.studioControls.getControlsState, {
+    const nextState: ControlsState = await ctx.runQuery(api.system.studioControls.getControlsState, {
       profileId,
     });
 

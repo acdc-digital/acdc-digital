@@ -2,12 +2,17 @@
 // /Users/matthewsimon/Projects/SMNB/smnb/lib/services/livefeed/enhancedProcessingPipeline.ts
 
 import { EnhancedRedditPost } from '@/lib/types/enhancedRedditPost';
-import { enrichmentAgent } from './enrichmentAgent';
+import { tradingEnrichmentAgent } from './tradingEnrichmentAgent';
+import { tradingAggregator } from './tradingAggregator';
 import { scoringAgent } from './scoringAgent';
 import { schedulerService } from './schedulerService';
 import { analyzePostWithProducer } from '@/lib/stores/producer/producerStore';
 import convex from '@/lib/convex/convex';
 import { api } from '@/convex/_generated/api';
+import { whistleblower } from '../monitoring/whistleblowerAgent';
+
+// Export tradingAggregator for use in other modules
+export { tradingAggregator };
 
 export interface PipelineConfig {
   subreddits: string[];
@@ -35,13 +40,35 @@ export class EnhancedProcessingPipeline {
   private posts: EnhancedRedditPost[] = [];
   private publishedPosts: EnhancedRedditPost[] = [];
   private isRunning = false;
+  private currentConfig: PipelineConfig | null = null;
   private publishInterval: number | null = null;
   private stats: PipelineStats = this.createEmptyStats();
   private lastStatsUpdate: Map<string, number> = new Map(); // Track last update time per stage
   private readonly STATS_UPDATE_INTERVAL = 60000; // Only update stats every 60 seconds
 
+  // 🚨 WHISTLEBLOWER: Backpressure flags
+  private pauseIngestion = false;
+  private pausePublishing = false;
+
   constructor() {
     console.log('🏗️ Enhanced Processing Pipeline initialized');
+
+    // 🚨 WHISTLEBLOWER: Listen for backpressure events
+    whistleblower.on('backpressure:activated', (level: string) => {
+      console.log(`🚨 Pipeline: Backpressure activated at ${level} level`);
+      if (level === 'WARNING' || level === 'CRITICAL' || level === 'EMERGENCY') {
+        this.pausePublishing = true;
+      }
+      if (level === 'CRITICAL' || level === 'EMERGENCY') {
+        this.pauseIngestion = true;
+      }
+    });
+
+    whistleblower.on('backpressure:deactivated', () => {
+      console.log('✅ Pipeline: Backpressure deactivated, resuming normal operation');
+      this.pauseIngestion = false;
+      this.pausePublishing = false;
+    });
   }
 
   /**
@@ -53,11 +80,24 @@ export class EnhancedProcessingPipeline {
     onLoading: (loading: boolean) => void,
     config: PipelineConfig
   ) {
+    // Check if already running with same config
     if (this.isRunning) {
+      const configChanged = !this.currentConfig ||
+        JSON.stringify(this.currentConfig) !== JSON.stringify(config);
+      
+      if (!configChanged) {
+        console.log('⏸️ Pipeline already running with same config - ignoring duplicate start');
+        return;
+      }
+      
+      console.log('🔄 Config changed - restarting pipeline');
       this.stop();
+      // Add small delay to ensure clean shutdown
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     this.isRunning = true;
+    this.currentConfig = config;
     console.log('🚀 Enhanced Processing Pipeline: Starting...');
 
     // Log pipeline start event
@@ -91,6 +131,7 @@ export class EnhancedProcessingPipeline {
   stop() {
     console.log('🛑 Enhanced Processing Pipeline: Stopping...');
     this.isRunning = false;
+    this.currentConfig = null;
     
     // Log pipeline stop event
     try {
@@ -155,6 +196,14 @@ export class EnhancedProcessingPipeline {
     const ingestNewPosts = async () => {
       if (!this.isRunning) return;
 
+      // 🚨 WHISTLEBLOWER: Check backpressure before ingesting
+      if (this.pauseIngestion) {
+        console.log('⏸️ Pipeline: Skipping ingestion due to backpressure');
+        const scheduledCount = this.posts.filter(post => post.processing_status === 'scheduled').length;
+        whistleblower.reportMetric('pipeline', 'scheduledPosts', scheduledCount);
+        return;
+      }
+
       try {
         onLoading(true);
         
@@ -182,6 +231,9 @@ export class EnhancedProcessingPipeline {
       } catch (error) {
         consecutiveErrors++;
         console.error(`❌ Data ingestion error (attempt ${consecutiveErrors}):`, error);
+        
+        // 🚨 WHISTLEBLOWER: Report API errors
+        whistleblower.reportError('reddit', error instanceof Error ? error : new Error(String(error)));
         
         // Update pipeline health for fetch errors
         this.updatePipelineHealth('fetch', false, error);
@@ -261,14 +313,33 @@ export class EnhancedProcessingPipeline {
    * Process pipeline and publish next ready post
    */
   private async processAndPublishNext(onNewPost: (post: EnhancedRedditPost) => void) {
+    // 🚨 WHISTLEBLOWER: Check backpressure before publishing
+    if (this.pausePublishing) {
+      console.log('⏸️ Pipeline: Skipping publishing due to backpressure');
+      const scheduledCount = this.posts.filter(post => post.processing_status === 'scheduled').length;
+      whistleblower.reportMetric('pipeline', 'scheduledPosts', scheduledCount);
+      return;
+    }
+
     // Run the processing pipeline
     await this.runProcessingSteps();
 
-    // Find posts ready for publishing
+    // 🚨 WHISTLEBLOWER: Report pipeline metrics
     const scheduledPosts = this.posts.filter(post => post.processing_status === 'scheduled');
+    whistleblower.reportMetric('pipeline', 'scheduledPosts', scheduledPosts.length);
+
+    // Find posts ready for publishing
     const readyToPublish = schedulerService.getPostsReadyForPublishing(scheduledPosts);
 
     console.log(`🔍 Checking for posts to publish: ${scheduledPosts.length} scheduled, ${readyToPublish.length} ready now`);
+    
+    // Debug: Show why posts aren't ready
+    if (scheduledPosts.length > 0 && readyToPublish.length === 0) {
+      const now = Date.now();
+      const nextPost = scheduledPosts[0];
+      const waitTime = (nextPost.scheduled_at || 0) - now;
+      console.log(`⏰ Next post scheduled in ${Math.round(waitTime / 1000)}s (at ${new Date(nextPost.scheduled_at || 0).toLocaleTimeString()})`);
+    }
 
     if (readyToPublish.length > 0) {
       const postToPublish = readyToPublish[0]; // Publish one at a time
@@ -347,23 +418,51 @@ export class EnhancedProcessingPipeline {
    * Run the processing pipeline steps
    */
   private async runProcessingSteps() {
-    // Step 1: Enrich raw posts
+    // Step 1: Enrich raw posts WITH TRADING ANALYSIS
     const rawPosts = this.posts.filter(post => post.processing_status === 'raw');
     if (rawPosts.length > 0) {
       try {
         const enrichStartTime = Date.now();
-        const enrichedPosts = await enrichmentAgent.processRawPosts(rawPosts);
+        
+        // Run TRADING enrichment (includes standard enrichment + NASDAQ-100 analysis)
+        const tradingEnrichedPosts = await tradingEnrichmentAgent.processRawPosts(rawPosts);
         const enrichDuration = Date.now() - enrichStartTime;
         
-        this.updatePostStatuses(enrichedPosts);
+        // Add to 30-day aggregator for rolling window analysis
+        tradingAggregator.addPosts(tradingEnrichedPosts);
+
+        // Log aggregator stats
+        const aggregatorSummary = tradingAggregator.getSummary();
+        console.log(`📊 Trading Aggregator: ${aggregatorSummary.totalTickers} tickers, ${aggregatorSummary.totalDataPoints} data points`);
+
+        // Send market-moving news to Bloomberg trading host
+        const { useHostAgentStore } = await import('@/lib/stores/host/hostAgentStore');
+        const hostStore = useHostAgentStore.getState();
+        if (hostStore.tradingMode) {
+          console.log('📊 [PIPELINE] Checking for market-moving news...');
+          for (const post of tradingEnrichedPosts) {
+            if (post.market_analysis?.companies?.length > 0) {
+              // Check if this is high-impact news worth narrating
+              const hasHighImpact = post.market_analysis.companies.some(c =>
+                c.impactScore > 60 && c.confidence > 0.6
+              );
+              if (hasHighImpact) {
+                console.log(`📊 [PIPELINE] High-impact post detected: ${post.title.substring(0, 50)}...`);
+                await hostStore.processTradingPost(post);
+              }
+            }
+          }
+        }
+
+        this.updatePostStatuses(tradingEnrichedPosts);
       
       // Track enrichment stats
-      enrichedPosts.forEach(async (post) => {
+      tradingEnrichedPosts.forEach(async (post) => {
         try {
           await convex.mutation(api.stats.mutations.trackPostProcessing, {
             postId: post.id,
             stage: "enriched",
-            duration: enrichDuration / enrichedPosts.length,
+            duration: enrichDuration / tradingEnrichedPosts.length,
             metrics: {
               quality_score: post.quality_score,
               sentiment: post.sentiment,
@@ -380,11 +479,11 @@ export class EnhancedProcessingPipeline {
       
       // Producer Analysis: Analyze enriched posts for context and duplicates
       try {
-        console.log(`🏭 Requesting Producer analysis for ${enrichedPosts.length} enriched posts`);
-        for (const post of enrichedPosts) {
+        console.log(`🏭 Requesting Producer analysis for ${tradingEnrichedPosts.length} enriched posts`);
+        for (const post of tradingEnrichedPosts) {
           await analyzePostWithProducer(post);
         }
-        console.log(`🏭 Producer analysis completed for ${enrichedPosts.length} posts`);
+        console.log(`🏭 Producer analysis completed for ${tradingEnrichedPosts.length} posts`);
       } catch (error) {
         console.error('🏭 Producer: Error analyzing posts:', error);
       }
@@ -490,6 +589,8 @@ export class EnhancedProcessingPipeline {
     config: PipelineConfig, 
     maxRetries: number = 2
   ): Promise<EnhancedRedditPost[]> {
+    let circuitBreakerWasOpen = false;
+    
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const response = await fetch(`/api/reddit?subreddit=${subreddit}&limit=10&sort=${sort}`, {
@@ -502,13 +603,19 @@ export class EnhancedProcessingPipeline {
           if (response.status === 503) {
             const data = await response.json().catch(() => ({}));
             if (data.circuitBreakerOpen) {
-              console.log(`🚫 Circuit breaker is open - Reddit API recovery in progress`);
-              // Show user-friendly message if available
-              if (data.userMessage && attempt === maxRetries) {
-                throw new Error(data.userMessage);
+              circuitBreakerWasOpen = true;
+              const retryAfter = data.retryAfter || 30;
+              console.log(`🚫 Circuit breaker open - will retry in ${retryAfter}s to check for auto-reset`);
+              
+              // If this is the last attempt, return empty
+              if (attempt === maxRetries) {
+                console.log(`⏸️ Circuit breaker still open after ${maxRetries} attempts - waiting for next cycle`);
+                return [];
               }
-              // Don't retry when circuit breaker is open, just wait for next cycle
-              return [];
+              
+              // Otherwise, wait and retry to give circuit breaker a chance to reset
+              await new Promise(resolve => setTimeout(resolve, Math.min(retryAfter * 1000, 30000)));
+              continue; // Retry the fetch
             }
           }
           
@@ -619,7 +726,9 @@ export class EnhancedProcessingPipeline {
         // Filter by content mode and duplicates
         const filteredPosts = this.filterNewPosts(enhancedPosts, config.contentMode);
         
-        if (attempt > 0) {
+        if (circuitBreakerWasOpen) {
+          console.log(`🎉 Circuit breaker CLEARED - Reddit API recovered! Fetched ${filteredPosts.length} posts from r/${subreddit}`);
+        } else if (attempt > 0) {
           console.log(`✅ Successfully fetched r/${subreddit} on attempt ${attempt + 1}`);
         }
         
@@ -778,7 +887,7 @@ export class EnhancedProcessingPipeline {
   /**
    * Update pipeline health metrics (throttled to prevent excessive DB writes)
    */
-  private async updatePipelineHealth(stage: 'fetch' | 'enrichment' | 'scoring' | 'scheduling' | 'publishing', isHealthy: boolean, error?: any) {
+  private async updatePipelineHealth(stage: 'fetch' | 'enrichment' | 'scoring' | 'scheduling' | 'publishing', isHealthy: boolean, error?: unknown) {
     try {
       const now = Date.now();
       const lastUpdate = this.lastStatsUpdate.get(stage) || 0;
@@ -801,7 +910,7 @@ export class EnhancedProcessingPipeline {
         stage,
         metrics: {
           queue_depth: queueDepth,
-          processing_rate: this.calculateProcessingRate(stage),
+          processing_rate: this.calculateProcessingRate(),
           error_rate: isHealthy ? 0 : 1,
           avg_processing_time: 1000, // Placeholder - could be calculated
           is_healthy: isHealthy,
@@ -833,7 +942,7 @@ export class EnhancedProcessingPipeline {
     }
   }
   
-  private calculateProcessingRate(stage: string): number {
+  private calculateProcessingRate(): number {
     // Placeholder calculation - could track actual rates over time
     return 1.0; // 1 post per second average
   }
@@ -877,6 +986,34 @@ export class EnhancedProcessingPipeline {
       published: this.publishedPosts.length,
       schedulerStats: schedulerService.getSchedulingStats(),
     };
+  }
+
+  /**
+   * Get current trading signals from 30-day aggregator
+   */
+  getTradingSignals() {
+    return tradingAggregator.getTradingSignals();
+  }
+
+  /**
+   * Get specific ticker metrics
+   */
+  getTickerMetrics(ticker: string) {
+    return tradingAggregator.getTickerMetrics(ticker as never);
+  }
+
+  /**
+   * Export time series data for visualization
+   */
+  exportTimeSeriesData(ticker?: string) {
+    return tradingAggregator.exportTimeSeriesData(ticker as never);
+  }
+
+  /**
+   * Get aggregator summary stats
+   */
+  getAggregatorSummary() {
+    return tradingAggregator.getSummary();
   }
 }
 

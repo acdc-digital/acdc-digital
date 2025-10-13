@@ -1,483 +1,795 @@
-ok, in our new package, ive setup a dashboard page - and id like to setup the page and layout here:
-/Users/matthewsimon/Projects/acdc-digital/solov2/app/dashboard/page.tsx
-and
-/Users/matthewsimon/Projects/acdc-digital/solov2/app/dashboard/layout.tsx
+# SmolAccount Dashboard Architecture
 
-context:
-/Users/matthewsimon/Projects/acdc-digital/.design
+> **VS Code-Inspired Financial Management Interface**  
+> A modern, professional dashboard for tradies to manage invoices, expenses, and financial reporting.
 
-i need your help buidling this out so lets go:
-1. our dashboard page will be made from 5 essential components as listed here:
-/Users/matthewsimon/Projects/acdc-digital/solov2/app/dashboard/_components
+---
 
-ok, lets consider the following:
-note- we're developing in dark mode. refer to our standard brand guidelines for colors, etc. 
+## 📐 Overview
 
-1. the layout should position -
-a. header across the top- then, 
-b. activity bar
-c. sidepanel 
-d. editor
-e. navigation
-f. terminal
-g. footer 
+The SmolAccount dashboard implements a VS Code-inspired interface design pattern, providing tradies with a familiar, powerful environment for financial management. The architecture emphasizes modularity, maintainability, and visual clarity through a dark-mode-first design system.
 
-References and definitions:
-a. the header spans across the top of the page. reference:
-"<header className="h-8 bg-[#181818] border-b border-[#2d2d2d] flex items-center px-0 select-none">
-          {/* Title */}
-          <div className="flex-1 flex justify-start items-center ml-2">
-            <div className="flex items-center gap-2">
-              <Loader className="h-4 w-4 text-[#858585] border border-[#858585] rounded-xs p-0.5" />
-              <span className="text-xs text-[#858585] font-sf">
-                Soloist. | Take control of tomorrow, today.
-              </span>
-            </div>
-          </div>
-          
-          {/* Theme Toggle */}
-          <div className="flex items-center pr-4">
-            <ThemeToggle />
-          </div>
-        </header>"
+### Project Context
+- **Location**: `/tradies/smolaccount/app/dashboard/`
+- **Framework**: Next.js 15+ with React 19
+- **Styling**: Tailwind CSS v4
+- **UI Components**: shadcn/ui + Lucide React icons
+- **Design Philosophy**: Dark mode first, VS Code aesthetics, professional financial management
 
-2. the activity bar begins below the header, and spans down the left side of the page:
-a. the activity bar might reference:
-<aside className="w-12 bg-[#181818] border-r border-[#2d2d2d] flex flex-col">
-      {/* Activity Icons */}
-      <div className="flex flex-col items-center py-2 space-y-1">
-        {activityItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activePanel === item.id;
-          
-          // Special handling for account icon
-          if (item.id === 'account') {
-            return (
-              <button
-                key={item.id}
-                className={`w-9 h-9 rounded-none hover:bg-[#2d2d2d] flex items-center justify-center cursor-pointer ${
-                  isActive
-                    ? 'bg-[#2d2d2d] border-l-2 border-[#007acc]'
-                    : 'border-l-2 border-transparent'
-                }`}
-                onClick={() => handleActivityClick(item.id)}
-                title={item.label}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-medium ${
-                    isActive
-                      ? 'border-[#cccccc] text-[#cccccc]'
-                      : 'border-[#858585] text-[#858585]'
-                  }`}
-                >
-                  {getUserInitial()}
-                </div>
-              </button>
-            );
-          }
-          
-          return (
-            <Button
-              key={item.id}
-              variant="ghost"
-              size="icon"
-              onClick={() => handleActivityClick(item.id)}
-              disabled={!isAuthenticated}
-              className={`
-                w-9 h-9 rounded-none hover:bg-[#2d2d2d] relative
-                ${isActive 
-                  ? 'bg-[#2d2d2d] border-l-2 border-[#007acc]' 
-                  : 'border-l-2 border-transparent'
-                }
-                ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
-              title={isAuthenticated ? item.label : 'Sign in to access'}
-            >
-              <Icon
-                className={`w-5 h-5 ${
-                  isActive ? 'text-[#cccccc]' : 'text-[#858585]'
-                }`}
-              />
-            </Button>
-          );
-        })}
-      </div>
+---
 
-      {/* Bottom Section */}
-      <div className="mt-auto mb-2 flex flex-col items-center space-y-1">
-        {bottomItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activePanel === item.id;
-          
-          return (
-            <Button
-              key={item.id}
-              variant="ghost"
-              size="icon"
-              onClick={() => handleActivityClick(item.id)}
-              disabled={!isAuthenticated}
-              className={`
-                w-9 h-9 rounded-none hover:bg-[#2d2d2d] relative
-                ${isActive 
-                  ? 'bg-[#2d2d2d] border-l-2 border-[#007acc]' 
-                  : 'border-l-2 border-transparent'
-                }
-                ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
-              title={isAuthenticated ? item.label : 'Sign in to access'}
-            >
-              <Icon
-                className={`w-5 h-5 ${
-                  isActive ? 'text-[#cccccc]' : 'text-[#858585]'
-                }`}
-              />
-            </Button>
-          );
-        })}
-      </div>
-    </aside>
-  );
-}
+## 🏗️ Architecture
 
-3. ensure to use shadcn for the sidebar/ sidepanel. 
+### Layout Hierarchy
 
-4. the editor is the main content area. we're displaying large amounts of data visualization here, including a future heatmap, so it will be a big space. 
+```
+┌─────────────────────────────────────────────────────┐
+│                    HEADER (32px)                    │
+├──┬──────────┬───────────────────────────────────────┤
+│  │          │                                        │
+│A │          │                                        │
+│C │   SIDE   │            EDITOR                     │
+│T │   PANEL  │         (Main Content)                │
+│I │  (240px) │                                        │
+│V │          │  ┌─────────────────────────────────┐ │
+│I │          │  │   TERMINAL (Overlay, 250px)     │ │
+│T │          │  └─────────────────────────────────┘ │
+│Y │          │                                        │
+│  │          │                                        │
+│B │          │                                        │
+│A │          │                                        │
+│R │          │                                        │
+│  │          │                                        │
+│48│          │                                        │
+│px│          │                                        │
+├──┴──────────┴───────────────────────────────────────┤
+│                   FOOTER (22px)                     │
+└─────────────────────────────────────────────────────┘
+```
 
-5. the navigation menu is a placeholder for now. we still need to scaffold it into the design, and we'll update the functionality as we go along. heres a reference of a working component- that you can strip down for design requirements.
+### Component Structure
 
-// NAVIGATOR COMPONENT - Main editor panel with tabs and navigation for AURA
-// /Users/matthewsimon/Projects/AURA/AURA/app/_components/editor/Navigator.tsx
+| Component | File Path | Purpose | Dimensions |
+|-----------|-----------|---------|------------|
+| **Header** | `_components/Header.tsx` | Top navigation bar with branding | 32px height |
+| **ActivityBar** | `_components/ActivityBar.tsx` | Left-side icon navigation | 48px width |
+| **SidePanel** | `_components/SidePanel.tsx` | Context-specific sidebar menu | 240px width |
+| **Editor** | `_components/Editor.tsx` | Main content area with tabs | Flex-fill |
+| **Terminal** | `_components/Terminal.tsx` | Collapsible overlay terminal | 35-250px height |
+| **Navigator** | `_components/Navigator.tsx` | Hidden placeholder (future) | Hidden |
+| **Footer** | `_components/Footer.tsx` | Status bar at bottom | 22px height |
+| **Dashboard** | `dashboard.tsx` | Main orchestrator component | Full viewport |
 
-"use client";
+---
 
-import { useEffect, useRef, useState } from "react";
-import { useEditorStore } from "@/lib/store";
-import { useConvexAuth } from "convex/react";
-import { Id } from "@/convex/_generated/dataModel";
-import { ChevronLeft, ChevronRight, Plus, X, FileCode, FileText, Settings, CreditCard, User, Calendar, Bot, Puzzle, Palette } from "lucide-react";
-import { UserProfile } from "@/app/_components/activity/_components/userProfle/UserProfile";
-import { FileExplorerTab } from "@/app/_components/activity/_components/fileExplorer";
-import CalendarTab from "@/app/_components/activity/_components/calendar/CalendarTab";
-import SocialConnectorTab from "@/app/_components/activity/_components/socialConnectors/SocialConnectorTab";
-import { AgentTab } from "@/app/_components/activity/_components/agents";
-import { ExtensionTab } from "@/app/_components/activity/_components/extensions";
-import { FileTabContainer } from "@/app/_components/dashboard/_components/fileTab";
-import { IdentityGuidelinesTab } from "@/app/_components/dashboard/_components/identityTab/IdentityGuidelinesTab";
+## 🎨 Design System
 
+### Color Palette
+
+| Element | Color Code | Usage |
+|---------|-----------|-------|
+| **Background (Deep)** | `#0e0e0e` | Root background |
+| **Background (Dark)** | `#181818` | Header, ActivityBar |
+| **Background (Medium)** | `#1e1e1e` | SidePanel, Editor, Terminal |
+| **Background (Card)** | `#252526` | Badges, highlights |
+| **Border** | `#2d2d2d` | All borders, separators |
+| **Text (Primary)** | `#cccccc` | Active text, headings |
+| **Text (Secondary)** | `#858585` | Inactive text, labels |
+| **Accent (Blue)** | `#007acc` | Active indicators, CTAs |
+| **Accent (Disabled)** | `#3d3d3d` | Disabled elements |
+
+### Typography
+
+- **Font Family**: System default (sans-serif)
+- **Monospace**: For terminal and code display
+- **Scale**:
+  - `text-xs` (12px) - Primary UI text
+  - `text-xl` (20px) - Section headers
+  - `text-3xl` (30px) - Page titles
+
+### Spacing Standards
+
+- **Header**: 32px fixed height
+- **Activity Bar**: 48px width, 48px button height (no padding)
+- **SidePanel**: 240px width
+- **Tab Bar**: 35px height
+- **Terminal (collapsed)**: 35px height
+- **Terminal (expanded)**: 250px height
+- **Footer**: 22px height
+
+---
+
+## 🧩 Component Details
+
+### 1. Header Component
+
+**File**: `_components/Header.tsx`
+
+**Responsibilities**:
+- Display SmolAccount branding with logo
+- Show application title and tagline
+- Future: Theme toggle placement
+
+**Key Features**:
+- SmolTrades logo icon (16px height, auto width)
+- Text: "SmolAccount | Financial Management for Tradies"
+- Background: `#181818`
+- Border: Bottom border `#2d2d2d`
+
+**Implementation**:
+```tsx
+<header className="h-8 bg-[#181818] border-b border-[#2d2d2d]">
+  <SmolTradesLogo className="h-4 w-auto text-[#858585]" />
+  <span className="text-xs text-[#858585]">SmolAccount | ...</span>
+</header>
+```
+
+---
+
+### 2. ActivityBar Component
+
+**File**: `_components/ActivityBar.tsx`
+
+**Responsibilities**:
+- Primary navigation between dashboard sections
+- Visual indicator for active panel
+- User account quick access
+
+**Navigation Items** (Top Section):
+
+| Icon | ID | Label | Description |
+|------|----|----|-------------|
+| 👑 Crown | `dashboard` | Dashboard | Main overview and quick stats |
+| 📄 FileText | `invoices` | Invoices | Invoice management and creation |
+| 💰 DollarSign | `expenses` | Expenses | Expense tracking and categories |
+| 📊 BarChart3 | `reports` | Reports | Financial reports and analytics |
+| 📅 Calendar | `calendar` | Calendar | Schedule and payment dates |
+| 👤 User (Circle) | `account` | Account | User profile and settings |
+
+**Navigation Items** (Bottom Section):
+
+| Icon | ID | Label | Description |
+|------|----|----|-------------|
+| ⚙️ Settings | `settings` | Settings | Application configuration |
+
+**Key Features**:
+- **No padding/spacing**: Each button is 48x48px square
+- **Active indicator**: 1px blue line on RIGHT edge (not left)
+- **Account icon**: Special circular border with user initial
+- **Hover states**: `bg-[#2d2d2d]` on hover
+- **Active states**: Blue indicator + lighter text color
+
+**State Management**:
+```tsx
+export type PanelType = 
+  | "dashboard" | "invoices" | "expenses" 
+  | "reports" | "calendar" | "settings" | "account" | null;
+```
+
+**Design Pattern**:
+```tsx
+// Standard icon button (48x48px, NO padding)
+<button className="w-12 h-12 hover:bg-[#2d2d2d]">
+  <Icon className="w-4.5 h-4.5" />
+  {isActive && <div className="absolute right-0 w-[1px] bg-[#007acc]" />}
+</button>
+
+// Account icon (special case)
+<button className="w-12 h-12">
+  <div className="w-6 h-6 rounded-full border">
+    {getUserInitial()} // Returns 'U'
+  </div>
+</button>
+```
+
+---
+
+### 3. SidePanel Component
+
+**File**: `_components/SidePanel.tsx`
+
+**Responsibilities**:
+- Display context-specific navigation and options
+- Filter and categorization controls
+- Quick actions for active panel
+
+**Content by Panel**:
+
+#### Dashboard Panel
+- Quick Stats
+- Recent Activity
+
+#### Invoices Panel
+- All Invoices
+- Draft
+- Sent
+- Paid
+- Overdue
+
+#### Expenses Panel
+- All Expenses
+- Materials
+- Tools & Equipment
+- Vehicle
+- Other
+
+#### Reports Panel
+- Income Statement
+- Cash Flow
+- Tax Summary
+
+#### Calendar Panel
+- Upcoming Jobs
+- Payment Due Dates
+
+#### Settings Panel
+- Profile
+- Business Details
+- Integrations
+
+#### Account Panel
+- Profile
+- Subscription
+- Sign Out
+
+**Key Features**:
+- 240px fixed width
+- Simple `<div>` wrapper (not shadcn Sidebar component)
+- `flex-shrink-0` to prevent collapse
+- Conditional rendering based on `activePanel`
+
+**Implementation Note**:
+> ⚠️ **Design Decision**: We replaced shadcn's `<Sidebar>` component with a simple `<div>` because the Sidebar uses `fixed` positioning which caused overlay issues with the header and footer. Our custom implementation uses flexbox for proper layout integration.
+
+---
+
+### 4. Editor Component
+
+**File**: `_components/Editor.tsx`
+
+**Responsibilities**:
+- Main content display area
+- Tab management for multiple views
+- Future: Data visualization, heatmaps, invoice editing
+
+**Tab System**:
+- Tab bar: 35px height
+- Tab width: 200px fixed
+- Scroll controls: 8px buttons on left/right
+- Add tab button: Right edge
+
+**Current Content**:
+Two placeholder badges with philosophical quotes:
+1. "this could be my second language."
+2. "gamblers think about profit, traders think about risk."
+
+**Future Content Areas**:
+- Invoice creation/editing forms
+- Expense entry interfaces
+- Financial reports with charts
+- Calendar views
+- Data visualizations (heatmaps)
+- Settings panels
+
+**Tab Bar Layout**:
+```
+┌───┬──────────────────────────────────────┬────┬────┬───┐
+│ ◀ │  [Tab 1]  [Tab 2]  [Tab 3]  ...     │  ▶ │  + │   │
+└───┴──────────────────────────────────────┴────┴────┴───┘
+ 8px           Scrollable area            8px  8px
+```
+
+**Key Features**:
+- Tab scrolling with chevron controls (disabled when no overflow)
+- Hover-to-show close button on tabs
+- Active tab highlighting: `bg-[#1a1a1a]` vs `bg-[#0e0e0e]`
+- Content area: `overflow-auto` for scrolling
+- Background: `#1e1e1e`
+
+---
+
+### 5. Terminal Component
+
+**File**: `_components/Terminal.tsx`
+
+**Responsibilities**:
+- Overlay terminal interface at bottom of editor
+- Expand/collapse functionality
+- Future: Command execution, logs, debugging
+
+**States**:
+
+| State | Height | Behavior |
+|-------|--------|----------|
+| Collapsed | 35px | Header bar only |
+| Expanded | 250px | Full terminal with content |
+
+**Key Features**:
+- **Overlay positioning**: Uses `absolute` positioning with `z-10`
+- **Positioned over Editor only**: Does not extend over SidePanel
+- **Smooth transitions**: `duration-200` animation
+- **Header controls**: 
+  - Chevron up/down: Toggle expand/collapse
+  - X button: Close terminal (also collapses)
+- **Placeholder content**: Terminal prompt and coming soon message
+
+**Implementation**:
+```tsx
+// In Dashboard.tsx
+<div className="absolute bottom-0 left-0 right-0 z-10">
+  <Terminal isCollapsed={isTerminalCollapsed} onToggle={...} />
+</div>
+```
+
+**Design Pattern**:
+> The terminal overlays the editor content rather than pushing it up. This maintains the editor's content position and provides a VS Code-like experience.
+
+---
+
+### 6. Navigator Component
+
+**File**: `_components/Navigator.tsx`
+
+**Status**: Hidden placeholder (`h-0 w-0 opacity-0`)
+
+**Purpose**: Reserved for future implementation of advanced navigation features
+
+**Future Capabilities**:
+- Multi-file management
+- Advanced tab system with file icons
+- Breadcrumb navigation
+- Context-aware toolbars
+
+**Current Implementation**:
+```tsx
 export function Navigator() {
-  const {
-    tabs,
-    activeTabId,
-    setActiveTab,
-    closeTab,
-    openTab
-  } = useEditorStore();
+  return <div className="h-0 w-0 opacity-0" />;
+}
+```
 
-  // Safely handle Convex auth - may not be available during SSR
-  let isAuthenticated = false;
-  try {
-    const convexAuth = useConvexAuth();
-    isAuthenticated = convexAuth?.isAuthenticated || false;
-  } catch (error) {
-    // Convex provider not available - continue with default state
-    console.warn('Convex provider not available:', error);
-  }  const [scrollPosition, setScrollPosition] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+---
 
-  // Calculate the visible area width (container width minus button widths)
-  const TAB_WIDTH = 200;
-  const visibleTabsCount = Math.floor(containerWidth / TAB_WIDTH) || 1;
-  const maxScrollPosition = Math.max(0, tabs.length - visibleTabsCount);
+### 7. Footer Component
 
-  useEffect(() => {
-    const updateContainerWidth = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    };
+**File**: `_components/Footer.tsx`
 
-    updateContainerWidth();
-    window.addEventListener('resize', updateContainerWidth);
-    return () => window.removeEventListener('resize', updateContainerWidth);
-  }, []);
+**Responsibilities**:
+- Display status information
+- Show error counts
+- Display tech stack and version
 
-  // Adjust scroll position if tabs are removed
-  useEffect(() => {
-    if (scrollPosition > maxScrollPosition) {
-      setScrollPosition(maxScrollPosition);
-    }
-  }, [maxScrollPosition, scrollPosition]);
+**Layout**:
 
-  const scrollLeft = () => {
-    setScrollPosition(Math.max(0, scrollPosition - 1));
-  };
+**Left Section**:
+- © ACDC.digital
+- Error count (with AlertCircle icon)
+- Version: "SmolAccount v0.1.0"
 
-  const scrollRight = () => {
-    setScrollPosition(Math.min(maxScrollPosition, scrollPosition + 1));
-  };
+**Right Section**:
+- "▲ Next.js 15"
+- "Financial Management Platform"
 
-  const canScrollLeft = scrollPosition > 0;
-  const canScrollRight = scrollPosition < maxScrollPosition && tabs.length > 0;
+**Styling**:
+- Background: `#2d2d2d` (darker than other components)
+- Text: `#cccccc` primary, `#858585` secondary
+- Height: 22px
+- Font size: `text-xs` (12px)
 
-  const handleNewFile = () => {
-    if (isAuthenticated) {
-      const newTab = {
-        id: `new-file-${Date.now()}`,
-        title: 'Untitled',
-        type: 'file' as const,
-        filePath: undefined
-      };
-      openTab(newTab);
-    }
-  };
+---
 
-  const getTabIcon = (type: string) => {
-    switch (type) {
-      case 'file':
-        return FileCode;
-      case 'welcome':
-        return FileText;
-      case 'settings':
-        return Settings;
-      case 'subscription':
-        return CreditCard;
-      case 'user-profile':
-        return User;
-      case 'calendar':
-        return Calendar;
-      case 'agent':
-        return Bot;
-      case 'extension':
-        return Puzzle;
-      case 'identity-guidelines':
-        return Palette;
-      default:
-        return FileCode;
-    }
-  };
+### 8. Dashboard Container
 
-  const currentTab = tabs.find(tab => tab.id === activeTabId);
+**File**: `dashboard.tsx`
 
-  return (
-    <div className="flex-1 flex flex-col bg-[#1a1a1a] h-full">
-      {/* Tab Bar */}
-      <div className="h-[35px] bg-[#1e1e1e] border-b border-r border-[#2d2d2d] relative flex-shrink-0">
-        {/* Tab Container - Full width with space for buttons */}
-        <div ref={containerRef} className="absolute left-8 right-16 top-0 bottom-0 overflow-hidden bg-[#1e1e1e]">
-          <div 
-            className="flex transition-transform duration-200 h-full"
-            style={{ 
-              transform: `translateX(-${scrollPosition * 200}px)`,
-              // Dynamic transform values require inline styles for reactivity
-            }}
-          >
-            {tabs.map((tab) => (
-              <div
-                key={tab.id}
-                onMouseEnter={() => setHoveredTab(tab.id)}
-                onMouseLeave={() => setHoveredTab(null)}
-                className={`
-                  flex items-center gap-2 px-3 h-[35px] text-xs border-r border-[#2d2d2d] ${isAuthenticated ? 'cursor-pointer' : 'cursor-default'} flex-shrink-0 transition-colors duration-150 w-[200px]
-                  ${activeTabId === tab.id
-                    ? 'bg-[#1a1a1a] text-[#cccccc]'
-                    : 'bg-[#0e0e0e] text-[#858585] hover:bg-[#181818]'
-                  }
-                `}
-                onClick={() => setActiveTab(tab.id)}
-              >
-                {(() => {
-                  const IconComponent = getTabIcon(tab.type);
-                  return <IconComponent className="w-3 h-3 flex-shrink-0" />;
-                })()}
-                <span className={`truncate flex-1 ${tab.isDirty ? 'text-[#cccccc]' : ''}`}>
-                  {tab.title}
-                </span>
-                {tab.isDirty && <div className="w-2 h-2 bg-[#cccccc] rounded-full flex-shrink-0" />}
+**Responsibilities**:
+- Orchestrate all child components
+- Manage global dashboard state
+- Handle layout positioning and overflow
 
-                {/* Close Button - Shows on hover for all tabs when authenticated */}
-                {isAuthenticated && hoveredTab === tab.id && (
-                  <X
-                    className="w-3 h-3 hover:bg-[#2d2d2d] rounded flex-shrink-0 text-[#858585] hover:text-[#cccccc] transition-colors cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeTab(tab.id);
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+**State Management**:
+```tsx
+const [activePanel, setActivePanel] = useState<PanelType>("dashboard");
+const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
+```
 
-        {/* Left Scroll Button - Overlay */}
-        <div className="absolute left-0 z-10 w-8 h-[35px] border-r border-b border-[#2d2d2d] bg-[#1e1e1e]">
-          <button
-            onClick={scrollLeft}
-            disabled={!canScrollLeft}
-            className={`w-full h-full flex items-center justify-center ${canScrollLeft
-                ? 'hover:bg-[#2d2d2d] text-[#858585]'
-                : 'text-[#3d3d3d] opacity-30'
-              }`}
-          >
-            <span className="sr-only">Scroll left</span>
-            <ChevronLeft className="w-3 h-3" />
-          </button>
-        </div>
-
-        {/* Right side buttons container - Overlay */}
-        <div className="absolute right-0 z-10 flex h-[35px] bg-[#1e1e1e] border-b border-[#2d2d2d]">
-          {/* Right Scroll Button */}
-          <div className="w-8 h-[35px] border-l border-[#2d2d2d]">
-            <button
-              onClick={scrollRight}
-              disabled={!canScrollRight}
-              className={`w-full h-full flex items-center justify-center ${canScrollRight
-                  ? 'hover:bg-[#2d2d2d] text-[#858585]'
-                  : 'text-[#3d3d3d] opacity-30'
-                }`}
-            >
-              <span className="sr-only">Scroll right</span>
-              <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-            
-          {/* Add New Tab Button */}
-          <button
-            disabled={!isAuthenticated}
-            className={`flex items-center justify-center w-8 h-[35px] text-xs border-l border-[#2d2d2d] transition-colors ${
-              isAuthenticated
-                ? 'text-[#858585] hover:bg-[#2d2d2d]'
-                : 'text-[#3d3d3d] opacity-50'
-            }`}
-            onClick={handleNewFile}
-          >
-            <span className="sr-only">Create new file</span>
-            <Plus className="w-3 h-3" />
-          </button>
-        </div>
+**Layout Structure**:
+```tsx
+<div className="h-screen w-screen flex flex-col">
+  <Header />
+  
+  <div className="flex-1 flex overflow-hidden">
+    <ActivityBar />
+    <SidePanel />
+    
+    <div className="flex-1 flex flex-col relative">
+      <div className="absolute inset-0">
+        <Editor />
       </div>
-
-      {/* Editor Content - Scrollable */}
-      <div className="flex-1 overflow-auto bg-[#1e1e1e]">
-        {currentTab ? (
-          <>
-            {currentTab.type === 'user-profile' && <UserProfile />}
-            {currentTab.type === 'file' && currentTab.id === 'file-explorer' && <FileExplorerTab />}
-            {currentTab.type === 'calendar' && <CalendarTab />}
-            {currentTab.type === 'social-connector' && <SocialConnectorTab />}
-            {currentTab.type === 'agent' && <AgentTab />}
-            {currentTab.type === 'extension' && <ExtensionTab />}
-            {currentTab.type === 'identity-guidelines' && <IdentityGuidelinesTab />}
-            {currentTab.type === 'subscription' && (
-              <div className="p-8 text-center">
-                <h2 className="text-xl font-semibold text-[#cccccc] mb-4">
-                  Subscription Plans
-                </h2>
-                <p className="text-[#858585]">
-                  Manage your subscription and billing preferences.
-                </p>
-              </div>
-            )}
-            {currentTab.type === 'settings' && (
-              <div className="p-8 text-center">
-                <h2 className="text-xl font-semibold text-[#cccccc] mb-4">
-                  Settings
-                </h2>
-                <p className="text-[#858585]">
-                  Configure your AURA preferences and editor settings.
-                </p>
-              </div>
-            )}
-            {(currentTab.type === 'file' && currentTab.id !== 'file-explorer') && (
-              currentTab.filePath ? (
-                <FileTabContainer
-                  fileId={currentTab.id.replace('file-', '') as Id<"files">}
-                  fileName={currentTab.title}
-                  filePath={currentTab.filePath}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center space-y-4">
-                    <h2 className="text-xl font-semibold text-[#cccccc]">
-                      {currentTab.title}
-                    </h2>
-                    <p className="text-[#858585]">
-                      Edit your file here
-                    </p>
-                  </div>
-                </div>
-              )
-            )}
-            {currentTab.type === 'welcome' && (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center space-y-4">
-                  <h2 className="text-xl font-semibold text-[#cccccc]">
-                    {currentTab.title}
-                  </h2>
-                  <p className="text-[#858585]">
-                    Welcome to AURA!
-                  </p>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4">
-              <h1 className="text-3xl font-bold text-[#cccccc]">
-                {isAuthenticated ? 'Welcome to AURA!' : 'Please sign in'}
-              </h1>
-              <p className="text-[#858585]">
-                {isAuthenticated ? 'Create a new file to get started.' : 'Sign in to access the editor.'}
-              </p>
-              {isAuthenticated && (
-                <button
-                  onClick={handleNewFile}
-                  className="px-4 py-2 bg-[#007acc] text-white rounded hover:bg-[#005a9e] transition-colors"
-                >
-                  Create New File
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="absolute bottom-0 z-10">
+        <Terminal />
       </div>
     </div>
-  );
-}
+  </div>
+  
+  <Navigator /> {/* Hidden */}
+  <Footer />
+</div>
+```
 
-6. our terminal will be an expand/ collapse sidebar on the right side of the page- not our typical activity bar on the left- so we'll implement this using shadcn- similar to the activity bar. 
+**Key Design Decisions**:
 
-7. the footer spans across the bottom, reference:
-{/* Status Bar - 22px */}
-        <footer className="h-[22px] bg-[#2d2d2d] text-[#cccccc] text-xs flex items-center px-2 justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <Copyright className="w-3 h-3" />
-              <span>ACDC.digital</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <AlertCircle className="w-3 h-3" />
-              <span>0</span>
-            </div>
-            <span>AURA Dashboard v1.0.0</span>
-          </div>
+1. **Full viewport container**: `h-screen w-screen` ensures no scroll on body
+2. **Flexbox hierarchy**: Proper stacking without overlaps
+3. **Overflow control**: `overflow-hidden` prevents unwanted scrollbars
+4. **Relative/absolute positioning**: Editor and Terminal use this pattern for overlay
+5. **Z-index layering**: Terminal (`z-10`) over Editor (default)
 
-          <div className="flex items-center space-x-4">
-            <span className="text-[#cccccc]">▲ Next.js ^15 | Convex</span>
-            <span>Anthropic Claude 3.7 Sonnet</span>
-            <span className="text-[#858585]">
-              MCP Server: 0
-            </span>
-          </div>
-        </footer>
+---
 
+## 🔧 Implementation Guide
 
-the dashbaord page is a dedictaed /page, so we need to use the best organizational methods for these components. ensure not only are you using the current structure and expanding:
-/Users/matthewsimon/Projects/acdc-digital/solov2/app/dashboard,
+### File Organization
 
-but that you're also implementing a maintainable architecture that we can expand on the modularity of the concepts we're about to integrate. 
+```
+/app/dashboard/
+├── dashboard.tsx              # Main container orchestrator
+├── page.tsx                   # Next.js page wrapper
+├── layout.tsx                 # Dashboard-specific layout (if needed)
+└── _components/
+    ├── index.ts              # Barrel exports
+    ├── Header.tsx            # Top navigation bar
+    ├── ActivityBar.tsx       # Left icon navigation
+    ├── SidePanel.tsx         # Context sidebar
+    ├── Editor.tsx            # Main content area
+    ├── Navigator.tsx         # Hidden placeholder
+    ├── Terminal.tsx          # Bottom overlay terminal
+    ├── Footer.tsx            # Status bar
+    └── SmolTradesLogo.tsx    # Brand logo component
+```
 
-implement now. 
+### Component Export Pattern
+
+**File**: `_components/index.ts`
+
+```tsx
+export { Header } from "./Header";
+export { ActivityBar, type PanelType } from "./ActivityBar";
+export { SidePanel } from "./SidePanel";
+export { Editor } from "./Editor";
+export { Navigator } from "./Navigator";
+export { Terminal } from "./Terminal";
+export { Footer } from "./Footer";
+```
+
+**Usage**:
+```tsx
+import { Header, ActivityBar, SidePanel, ... } from "./_components";
+```
+
+---
+
+## 📊 State Management
+
+### Current Architecture
+
+**Local State** (Dashboard.tsx):
+- `activePanel`: Tracks which section is active
+- `isTerminalCollapsed`: Terminal expand/collapse state
+
+**Component State**:
+- Editor: Tab management (tabs array, activeTabId)
+- ActivityBar: User initial getter (placeholder for auth)
+- Terminal: Internal UI state
+
+### Future Considerations
+
+As the application grows, consider migrating to:
+
+**Option 1: Zustand**
+```tsx
+// store/dashboardStore.ts
+export const useDashboardStore = create((set) => ({
+  activePanel: "dashboard",
+  isTerminalCollapsed: true,
+  tabs: [],
+  // ... actions
+}));
+```
+
+**Option 2: Jotai**
+```tsx
+// atoms/dashboard.ts
+export const activePanelAtom = atom<PanelType>("dashboard");
+export const terminalCollapsedAtom = atom(true);
+```
+
+**State Migration Plan**:
+1. Create central store for dashboard state
+2. Migrate terminal state
+3. Centralize tab management
+4. Add user preferences persistence
+5. Integrate with Convex for backend state
+
+---
+
+## 🎯 Key Features
+
+### ✅ Implemented
+
+- [x] VS Code-inspired dark theme
+- [x] Activity bar with 7 navigation options
+- [x] Context-specific side panel rendering
+- [x] Tab management in editor
+- [x] Collapsible terminal overlay
+- [x] Brand logo integration (SmolTrades)
+- [x] Responsive layout hierarchy
+- [x] Active state indicators (1px blue right border)
+- [x] No-padding activity buttons (full 48x48px)
+- [x] Proper component architecture
+- [x] Type-safe panel switching
+
+### 🔄 Planned
+
+- [ ] Authentication integration
+- [ ] Real invoice creation/editing
+- [ ] Expense tracking functionality
+- [ ] Financial report generation
+- [ ] Calendar with job scheduling
+- [ ] Data visualization (heatmaps, charts)
+- [ ] Terminal command execution
+- [ ] File/document management
+- [ ] Settings persistence
+- [ ] Theme customization
+- [ ] Mobile responsive layout
+
+---
+
+## 🚀 Development Workflow
+
+### Running the Dashboard
+
+```bash
+# Navigate to project
+cd /tradies/smolaccount
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Access dashboard
+# http://localhost:3000/dashboard
+```
+
+### Adding New Features
+
+**Example: Adding a New Activity Panel**
+
+1. **Update PanelType**:
+```tsx
+// _components/ActivityBar.tsx
+export type PanelType = 
+  | "dashboard" | "invoices" | "expenses"
+  | "reports" | "calendar" | "settings" | "account"
+  | "new-feature"  // Add here
+  | null;
+```
+
+2. **Add Navigation Item**:
+```tsx
+const activityItems = [
+  // ... existing items
+  { id: "new-feature", icon: NewIcon, label: "New Feature" },
+];
+```
+
+3. **Add SidePanel Content**:
+```tsx
+// _components/SidePanel.tsx
+case "new-feature":
+  return <div>New feature sidebar content</div>;
+```
+
+4. **Add Editor Handling**:
+```tsx
+// _components/Editor.tsx
+// Add logic to render content for new feature
+```
+
+### Component Modification Guidelines
+
+1. **Maintain color palette**: Always use defined color codes
+2. **Preserve spacing**: Follow established dimension standards
+3. **Type safety**: Update TypeScript types when adding features
+4. **Accessibility**: Include `title` attributes and ARIA labels
+5. **Performance**: Use React.memo for expensive components
+6. **Testing**: Test with collapsed/expanded terminal states
+
+---
+
+## 📝 Best Practices
+
+### Layout Rules
+
+1. **No overlapping elements**: Use proper flexbox/grid hierarchy
+2. **Fixed dimensions**: Header, ActivityBar, Footer, SidePanel have fixed sizes
+3. **Flexible content**: Editor fills remaining space
+4. **Overlay pattern**: Terminal uses absolute positioning over Editor
+5. **Scroll containment**: Only Editor content area scrolls
+
+### Styling Conventions
+
+1. **Tailwind classes**: Use utility-first approach
+2. **Inline styles**: Avoid unless dynamic (e.g., transform values)
+3. **Color consistency**: Always reference design system colors
+4. **Spacing**: Use Tailwind spacing scale (p-2, p-4, etc.)
+5. **Transitions**: Apply to interactive elements (buttons, panels)
+
+### Component Patterns
+
+1. **Props interface**: Always define TypeScript interfaces
+2. **Client components**: Use `"use client"` directive for interactive components
+3. **Conditional rendering**: Handle null/empty states
+4. **Event handlers**: Prefix with `handle` (e.g., `handleActivityClick`)
+5. **State naming**: Use clear, descriptive names
+
+---
+
+## 🐛 Common Issues & Solutions
+
+### Issue: Sidebar Overlapping Header/Footer
+
+**Problem**: shadcn's `<Sidebar>` component uses `fixed` positioning with `inset-y-0`
+
+**Solution**: Replace with simple `<div>` wrapper:
+```tsx
+<div className="w-[240px] bg-[#1e1e1e] border-r border-[#2d2d2d] flex-shrink-0">
+  {/* Content */}
+</div>
+```
+
+### Issue: Terminal Pushes Content Up
+
+**Problem**: Terminal in flex column layout affects editor height
+
+**Solution**: Use absolute positioning overlay:
+```tsx
+<div className="absolute bottom-0 left-0 right-0 z-10">
+  <Terminal />
+</div>
+```
+
+### Issue: Activity Bar Not Visible
+
+**Problem**: Layout hierarchy causing ActivityBar to be hidden
+
+**Solution**: Ensure ActivityBar is at same flex level as work area:
+```tsx
+<div className="flex-1 flex">
+  <ActivityBar />
+  <SidePanel />
+  <Editor />
+</div>
+```
+
+### Issue: Active Indicator Wrong Position
+
+**Problem**: Blue indicator on left instead of right, or 2px instead of 1px
+
+**Solution**: Use 1px absolute positioned div on right edge:
+```tsx
+{isActive && (
+  <div className="absolute right-0 top-0 bottom-0 w-[1px] bg-[#007acc]" />
+)}
+```
+
+---
+
+## 📚 Additional Resources
+
+### Related Documentation
+
+- [QUICKSTART.md](../../tradies/smolaccount/QUICKSTART.md) - Setup instructions
+- [README.md](../../tradies/smolaccount/README.md) - Project overview
+- [Convex Instructions](../../.github/copilot-instructions.md) - Backend patterns
+
+### Design References
+
+- VS Code interface design
+- Dark theme color systems
+- Financial dashboard best practices
+- Tradie-friendly UX patterns
+
+### Tech Stack Documentation
+
+- [Next.js 15 Docs](https://nextjs.org/docs)
+- [React 19 Docs](https://react.dev)
+- [Tailwind CSS v4](https://tailwindcss.com/docs)
+- [shadcn/ui](https://ui.shadcn.com)
+- [Lucide Icons](https://lucide.dev)
+
+---
+
+## 🎓 Architecture Decisions
+
+### Why VS Code Pattern?
+
+1. **Familiarity**: Many developers use VS Code daily
+2. **Professional**: Clean, modern aesthetic suitable for business software
+3. **Scalable**: Pattern supports complex multi-panel layouts
+4. **Accessible**: Clear visual hierarchy and navigation
+5. **Customizable**: Easy to extend with new panels/features
+
+### Why Dark Mode First?
+
+1. **Reduced eye strain**: Better for extended use
+2. **Professional appearance**: Modern, sleek aesthetic
+3. **Battery efficiency**: Lower power consumption on OLED screens
+4. **Brand consistency**: Aligns with tech-forward positioning
+5. **User preference**: Growing expectation in professional tools
+
+### Why Component Modularity?
+
+1. **Maintainability**: Each component has single responsibility
+2. **Testability**: Isolated components easier to test
+3. **Reusability**: Components can be used in multiple contexts
+4. **Scalability**: Easy to add new features without refactoring
+5. **Collaboration**: Multiple developers can work simultaneously
+
+---
+
+## 🔮 Future Enhancements
+
+### Phase 1: Core Functionality (Q1 2025)
+- [ ] Convex backend integration
+- [ ] Authentication system
+- [ ] Invoice CRUD operations
+- [ ] Expense tracking
+- [ ] Basic reporting
+
+### Phase 2: Advanced Features (Q2 2025)
+- [ ] Data visualization (charts, heatmaps)
+- [ ] Calendar scheduling
+- [ ] Payment reminders
+- [ ] Tax calculations
+- [ ] Document attachments
+
+### Phase 3: Automation (Q3 2025)
+- [ ] AI-powered expense categorization
+- [ ] Automated invoice generation
+- [ ] Smart payment predictions
+- [ ] Financial insights dashboard
+- [ ] Integration with accounting software
+
+### Phase 4: Mobile & Extensions (Q4 2025)
+- [ ] Mobile responsive layout
+- [ ] Native mobile app
+- [ ] Browser extensions
+- [ ] API for third-party integrations
+- [ ] White-label options
+
+---
+
+## 📞 Support & Contribution
+
+### Getting Help
+
+- **Issues**: Check common issues section above
+- **Documentation**: Review component details in this file
+- **Code Examples**: See implementation guide section
+
+### Contributing Guidelines
+
+1. Follow established design system
+2. Maintain TypeScript type safety
+3. Write clear commit messages
+4. Test all interactive features
+5. Update documentation for new features
+
+---
+
+**Document Version**: 2.0  
+**Last Updated**: January 2025  
+**Maintained By**: ACDC Digital Development Team  
+**Project**: SmolAccount - Financial Management for Tradies 

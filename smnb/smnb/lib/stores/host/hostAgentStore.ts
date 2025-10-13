@@ -10,8 +10,10 @@
 
 import { create } from 'zustand';
 import { HostAgentService } from '@/lib/services/host/hostAgentService';
+import { TradingHostService } from '@/lib/services/host/tradingHostService';
 import { HostNarration, HostAgentConfig, DEFAULT_HOST_CONFIG, NewsItem } from '@/lib/types/hostAgent';
 import { EnhancedRedditPost } from '@/lib/types/enhancedRedditPost';
+import { EnhancedTradingPost } from '@/lib/services/livefeed/tradingEnrichmentAgent';
 
 // Helper function to convert EnhancedRedditPost to NewsItem
 const convertRedditPostToNewsItem = (post: EnhancedRedditPost): NewsItem => {
@@ -78,8 +80,12 @@ const generateStoryTitle = (narrative: string, tone: string): string => {
 };
 
 interface HostAgentState {
-  // Service instance
+  // Service instances
   hostAgent: HostAgentService | null;
+  tradingHostService: TradingHostService | null;
+  
+  // Trading mode state
+  tradingMode: boolean;
   
   // State
   isActive: boolean;
@@ -126,6 +132,16 @@ interface HostAgentState {
   processLiveFeedPost: (post: EnhancedRedditPost) => void;
   getSessionQueueLength: (sessionId: string | null) => number;
   
+  // Trading mode actions
+  enableTradingMode: () => void;
+  disableTradingMode: () => void;
+  processTradingPost: (post: EnhancedTradingPost) => Promise<void>;
+  getTradingStats: () => {
+    activeTickers: number;
+    topMentionedTickers: Array<{ ticker: string; count: number }>;
+    sectorMomentum: Array<{ sector: string; momentum: number }>;
+  } | null;
+  
   // UI Actions
   toggleSettings: () => void;
   setShowSettings: (show: boolean) => void;
@@ -155,6 +171,8 @@ interface HostAgentState {
 export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   // Initial state
   hostAgent: null,
+  tradingHostService: null,
+  tradingMode: true, // Bloomberg mode enabled by default
   isActive: false,
   currentNarration: null,
   currentSessionId: null,
@@ -188,7 +206,7 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   
   // Initialize the host agent service
   initializeHostAgent: () => {
-    const { hostAgent } = get();
+    const { hostAgent, tradingMode } = get();
     
     console.log('🤖 [HOST STORE] initializeHostAgent called, current hostAgent:', hostAgent ? 'EXISTS' : 'NULL');
     
@@ -198,9 +216,14 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
       return;
     }
     
-    console.log('🤖 [HOST STORE] Creating new HostAgentService...');
+    console.log(`🤖 [HOST STORE] Creating new ${tradingMode ? 'TradingHostService (Bloomberg mode)' : 'HostAgentService (Standard mode)'}...`);
     
-    const agent = new HostAgentService(get().config);
+    const agent = tradingMode ? new TradingHostService() : new HostAgentService(get().config);
+    
+    // Store trading service reference if in trading mode
+    if (tradingMode) {
+      set({ tradingHostService: agent as TradingHostService });
+    }
     
     console.log('🤖 [HOST STORE] HostAgentService created, setting up event listeners...');
     
@@ -657,5 +680,195 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
   
   setShowSettings: (show: boolean) => {
     set({ showSettings: show });
+  },
+  
+  // Trading Mode Actions
+  enableTradingMode: () => {
+    const { hostAgent, tradingHostService, isActive } = get();
+    
+    console.log('📊 [HOST STORE] Enabling Bloomberg trading mode...');
+    
+    // Create trading host service if it doesn't exist
+    if (!tradingHostService) {
+      console.log('📊 [HOST STORE] Creating TradingHostService...');
+      const tradingService = new TradingHostService();
+      
+      // Set up event listeners (same as regular host)
+      tradingService.on('narration:started', (narration: HostNarration) => {
+        set({
+          currentNarration: narration,
+          isStreaming: false,
+          streamingText: '',
+          streamingNarrationId: narration.id,
+          isGenerating: false
+        });
+        console.log('📊 TRADING HOST: Narration started:', narration.narrative.substring(0, 50) + '...');
+      });
+      
+      tradingService.on('narration:streaming', (data: { narrationId: string; currentText: string }) => {
+        const { streamingNarrationId, isStreaming } = get();
+        if (streamingNarrationId === data.narrationId) {
+          if (!isStreaming && data.currentText.length > 0) {
+            get().stopCountdown();
+            set({ isStreaming: true, streamingText: data.currentText });
+          } else {
+            set({ streamingText: data.currentText });
+          }
+        }
+      });
+      
+      tradingService.on('narration:completed', (narrationId: string, fullText: string) => {
+        const { currentNarration } = get();
+        if (currentNarration?.id === narrationId) {
+          const completedNarration: HostNarration = {
+            ...currentNarration,
+            narrative: fullText
+          };
+          
+          get().addNarrationToHistory(completedNarration);
+          console.log('✅ TRADING HOST: Narration completed');
+          
+          set({
+            isStreaming: false,
+            streamingText: '',
+            streamingNarrationId: null,
+            currentNarration: null
+          });
+          
+          const cooldownSeconds = Math.ceil(tradingService.getTimingConfig().NARRATION_COOLDOWN_MS / 1000) + 2;
+          get().startCountdown(cooldownSeconds);
+        }
+      });
+      
+      tradingService.on('narration:error', (narrationId: string, error: Error) => {
+        console.error(`❌ TRADING HOST: Narration error for ${narrationId}:`, error);
+        const { streamingNarrationId } = get();
+        if (streamingNarrationId === narrationId) {
+          set({
+            isStreaming: false,
+            streamingText: '',
+            streamingNarrationId: null
+          });
+        }
+      });
+      
+      set({ tradingHostService: tradingService });
+      console.log('✅ [HOST STORE] TradingHostService created');
+    }
+    
+    // Switch active agent if currently running
+    if (isActive && hostAgent) {
+      console.log('📊 [HOST STORE] Switching to trading host (preserving session)...');
+      const sessionId = hostAgent.getCurrentSessionId();
+      hostAgent.stop();
+      
+      const tradingService = get().tradingHostService!;
+      tradingService.start(sessionId!);
+      
+      set({ hostAgent: tradingService, tradingMode: true });
+      console.log('✅ [HOST STORE] Trading mode enabled and active');
+    } else {
+      // Just switch the agent for next start
+      const tradingService = get().tradingHostService!;
+      set({ hostAgent: tradingService, tradingMode: true });
+      console.log('✅ [HOST STORE] Trading mode enabled (will activate on next start)');
+    }
+  },
+  
+  disableTradingMode: () => {
+    const { hostAgent, isActive } = get();
+
+    console.log('📴 [HOST STORE] Disabling Bloomberg trading mode...');
+
+    // Switch back to standard host
+    if (isActive && hostAgent) {
+      console.log('📴 [HOST STORE] Switching to standard host (preserving session)...');
+      const sessionId = hostAgent.getCurrentSessionId();
+      hostAgent.stop();
+
+      // Create new standard host agent
+      const standardAgent = new HostAgentService(get().config);
+
+      // Set up minimal event listeners
+      standardAgent.on('narration:started', (narration: HostNarration) => {
+        set({
+          currentNarration: narration,
+          isStreaming: false,
+          streamingText: '',
+          streamingNarrationId: narration.id,
+          isGenerating: false
+        });
+      });
+
+      standardAgent.on('narration:streaming', (data: { narrationId: string; currentText: string }) => {
+        const { streamingNarrationId, isStreaming } = get();
+        if (streamingNarrationId === data.narrationId) {
+          if (!isStreaming && data.currentText.length > 0) {
+            get().stopCountdown();
+            set({ isStreaming: true, streamingText: data.currentText });
+          } else {
+            set({ streamingText: data.currentText });
+          }
+        }
+      });
+
+      standardAgent.on('narration:completed', (narrationId: string, fullText: string) => {
+        const { currentNarration } = get();
+        if (currentNarration?.id === narrationId) {
+          const completedNarration: HostNarration = {
+            ...currentNarration,
+            narrative: fullText
+          };
+
+          get().addNarrationToHistory(completedNarration);
+
+          set({
+            isStreaming: false,
+            streamingText: '',
+            streamingNarrationId: null,
+            currentNarration: null
+          });
+
+          const cooldownSeconds = Math.ceil(standardAgent.getTimingConfig().NARRATION_COOLDOWN_MS / 1000) + 2;
+          get().startCountdown(cooldownSeconds);
+        }
+      });
+
+      standardAgent.start(sessionId!);
+      set({ hostAgent: standardAgent, tradingMode: false });
+      console.log('✅ [HOST STORE] Standard mode enabled and active');
+    } else {
+      // Create new standard agent for next start
+      const standardAgent = new HostAgentService(get().config);
+      set({ hostAgent: standardAgent, tradingMode: false });
+      console.log('✅ [HOST STORE] Standard mode enabled (will activate on next start)');
+    }
+  },
+  
+  processTradingPost: async (post: EnhancedTradingPost) => {
+    const { tradingHostService, tradingMode } = get();
+    
+    if (!tradingMode) {
+      console.warn('⚠️ [HOST STORE] Trading mode not enabled, cannot process trading post');
+      return;
+    }
+    
+    if (!tradingHostService) {
+      console.warn('⚠️ [HOST STORE] Trading host service not initialized');
+      return;
+    }
+    
+    console.log(`📊 [HOST STORE] Processing trading post: ${post.title.substring(0, 50)}...`);
+    await tradingHostService.processTradingPost(post);
+  },
+  
+  getTradingStats: () => {
+    const { tradingHostService } = get();
+    
+    if (!tradingHostService) {
+      return null;
+    }
+    
+    return tradingHostService.getTradingStats();
   }
 }));

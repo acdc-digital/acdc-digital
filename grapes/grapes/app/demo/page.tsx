@@ -168,29 +168,7 @@ export default function PreviewDemoPage() {
     <div className="flex h-screen flex-col bg-background">
       {/* Header */}
       <div className="border-b bg-card px-6 py-4">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold">🍇 Grapes Web Preview</h1>
-          
-          {/* Address Search */}
-          <form onSubmit={handleAddressSearch} className="flex gap-2">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search address or place..."
-              className="px-3 py-2 border rounded-md w-64 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              disabled={!isMapReady || isSearching}
-            />
-            <button
-              type="submit"
-              disabled={!isMapReady || isSearching || !searchQuery.trim()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSearching ? '🔍' : '🔎'} Search
-            </button>
-          </form>
-        </div>
-        
+        <h1 className="text-3xl font-bold mb-2">🍇 Grapes Web Preview</h1>
         <p className="text-muted-foreground text-sm">
           Interactive map preview with shape analysis · Default scale: 10km (zoom in only)
           {!isMapReady && <span className="ml-2 text-yellow-500">⏳ Loading map...</span>}
@@ -206,7 +184,15 @@ export default function PreviewDemoPage() {
 
         {/* Main Preview Area */}
         <div className="flex-1 flex flex-col p-6">
-          <MapOverlay className="flex-1" onAnalyzeShapes={handleAnalyzeShapes}>
+          <MapOverlay
+            className="flex-1"
+            onAnalyzeShapes={handleAnalyzeShapes}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            onSearchSubmit={handleAddressSearch}
+            isSearching={isSearching}
+            isMapReady={isMapReady}
+          >
             <GoogleMap
               apiKey={googleMapsApiKey}
               center={{ lat: 56.13, lng: -106.35 }}

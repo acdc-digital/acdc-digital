@@ -64,21 +64,21 @@ export const getStories = query({
   },
   handler: async (ctx, args) => {
     if (args.sessionId) {
-      // Filter by session ID
+      // Filter by session ID - return ALL stories for this session
       const stories = await ctx.db
         .query("story_history")
         .withIndex("by_session_id", (q) => q.eq("session_id", args.sessionId))
         .order("desc")
-        .take(args.limit || 100);
+        .collect(); // No limit - return ALL stories
       return stories;
     }
     
-    // No session filter - return all stories
+    // No session filter - return ALL stories (no limit)
     const stories = await ctx.db
       .query("story_history")
       .withIndex("by_completed_at")
       .order("desc")
-      .take(args.limit || 100);
+      .collect(); // No limit - return ALL stories
     return stories;
   },
 });
@@ -95,23 +95,23 @@ export const getRecentStories = query({
     const cutoffTime = Date.now() - (hoursAgo * 60 * 60 * 1000);
     
     if (args.sessionId) {
-      // Filter by session ID AND time window
+      // Filter by session ID AND time window - return ALL matching stories
       const stories = await ctx.db
         .query("story_history")
         .withIndex("by_session_id", (q) => q.eq("session_id", args.sessionId))
         .filter((q) => q.gte(q.field("completed_at"), cutoffTime))
         .order("desc")
-        .take(args.limit || 100);
+        .collect(); // No limit - return ALL matching stories
       return stories;
     }
     
-    // No session filter - return all recent stories
+    // No session filter - return ALL recent stories (no limit)
     const stories = await ctx.db
       .query("story_history")
       .withIndex("by_completed_at")
       .filter((q) => q.gte(q.field("completed_at"), cutoffTime))
       .order("desc")
-      .take(args.limit || 100);
+      .collect(); // No limit - return ALL matching stories
     
     return stories;
   },
@@ -128,7 +128,7 @@ export const getStoriesBySession = query({
       .query("story_history")
       .withIndex("by_session_id", (q) => q.eq("session_id", args.sessionId))
       .order("desc")
-      .take(args.limit || 100);
+      .collect(); // No limit - return ALL stories for this session
     
     return stories;
   },

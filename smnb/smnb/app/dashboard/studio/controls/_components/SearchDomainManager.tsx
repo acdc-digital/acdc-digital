@@ -76,7 +76,7 @@ export default function SearchDomainManager({
               domainFeedback.status === 'working' ||
               newDomain.trim().length === 0
             }
-            className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+            className="px-1 py-1 text-xs text-blue-400 hover:text-blue-300 transition-colors cursor-move disabled:cursor-not-allowed"
           >
             {domainFeedback.status === 'working' ? '…' : '+'}
           </button>
@@ -131,7 +131,7 @@ export default function SearchDomainManager({
               <Switch
                 checked={configData.useUserApiKey}
                 onCheckedChange={configData.setUseUserApiKey}
-                className="scale-75"
+                className="scale-75 cursor-pointer"
               />
             </div>
             <div className="flex justify-between">

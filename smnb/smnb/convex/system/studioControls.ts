@@ -11,7 +11,7 @@ type SubredditGroup = {
 
 const DEFAULT_PROFILE_ID = "default";
 const DEFAULT_GROUPS_VERSION = 1;
-const MAX_CUSTOM_SUBREDDITS = 100;
+const MAX_CUSTOM_SUBREDDITS = 300;
 const MAX_ENABLED_DEFAULTS = 100;
 const MAX_SEARCH_DOMAINS = 100;
 

@@ -705,10 +705,9 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       
       console.log(`📚 Loading stories from Convex for session: ${sessionId}`);
       
-      // ✅ USE SESSION-FILTERED QUERY
+      // ✅ USE SESSION-FILTERED QUERY - No limit, load all stories
       const convexStories = await convexClient.query(api.host.storyHistory.getStoriesBySession, {
-        sessionId,
-        limit: 100
+        sessionId
       });
       
       // Convert Convex stories to CompletedStory format

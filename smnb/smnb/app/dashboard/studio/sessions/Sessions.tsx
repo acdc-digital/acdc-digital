@@ -83,6 +83,24 @@ export function Sessions() {
   const isBroadcasting = isLive;
 
   // ========================================================================
+  // SESSION PERSISTENCE - Restore from localStorage on mount
+  // ========================================================================
+  useEffect(() => {
+    // Only restore if authenticated and no session selected yet
+    if (!isAuthenticated || selectedSessionId) return;
+    
+    try {
+      const persistedSessionId = localStorage.getItem('smnb_last_session_id');
+      if (persistedSessionId) {
+        console.log(`💾 SESSIONS: Restoring persisted session: ${persistedSessionId}`);
+        setSelectedSessionId(persistedSessionId as Id<"sessions">);
+      }
+    } catch (error) {
+      console.error('❌ Failed to restore session from localStorage:', error);
+    }
+  }, [isAuthenticated, selectedSessionId]);
+
+  // ========================================================================
   // BROADCAST TOGGLE (Using Orchestrator)
   // ========================================================================
   const handleToggleLive = async () => {
@@ -121,6 +139,27 @@ export function Sessions() {
     }
   };
 
+  // ========================================================================
+  // SYNC SELECTED SESSION - Save to localStorage and orchestrator
+  // ========================================================================
+  useEffect(() => {
+    if (!selectedSessionId) return;
+    
+    try {
+      // Persist to localStorage for browser refresh
+      localStorage.setItem('smnb_last_session_id', selectedSessionId);
+      
+      // Sync to orchestrator's lastSessionId so LiveFeed can load stories
+      const orchestrator = useBroadcastOrchestrator.getState();
+      if (orchestrator.lastSessionId !== selectedSessionId) {
+        console.log(`🔄 SESSIONS: Syncing session to orchestrator: ${selectedSessionId}`);
+        useBroadcastOrchestrator.setState({ lastSessionId: selectedSessionId });
+      }
+    } catch (error) {
+      console.error('❌ Failed to persist session:', error);
+    }
+  }, [selectedSessionId]);
+
   // Auto-select session logic:
   // 1. If a broadcast is active, ALWAYS select that session (prevent data spillage)
   // 2. If no session selected and sessions exist, select the first one
@@ -149,9 +188,24 @@ export function Sessions() {
     
     if (sessions && selectedSessionId) {
       const sessionExists = sessions.some(session => session._id === selectedSessionId);
-      if (!sessionExists && sessions.length > 0) {
-        console.log(`📺 SESSIONS: Selected session deleted, switching to first available`);
-        setSelectedSessionId(sessions[0]._id);
+      if (!sessionExists) {
+        console.log(`📺 SESSIONS: Selected session deleted or no longer exists`);
+        
+        // Clear from localStorage since it's invalid
+        try {
+          localStorage.removeItem('smnb_last_session_id');
+        } catch (error) {
+          console.error('❌ Failed to clear invalid session from localStorage:', error);
+        }
+        
+        // Switch to first available session if any exist
+        if (sessions.length > 0) {
+          console.log(`📺 SESSIONS: Switching to first available session: ${sessions[0]._id}`);
+          setSelectedSessionId(sessions[0]._id);
+        } else {
+          // No sessions available, clear selection
+          setSelectedSessionId(null);
+        }
       }
     }
   }, [sessions, selectedSessionId, activeBroadcastSessionId]);

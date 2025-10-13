@@ -28,6 +28,7 @@ import { MockLLMService } from './mockLLMService';
 import { ClaudeLLMService } from './claudeLLMService';
 import { api } from '@/convex/_generated/api';
 import convex from '@/lib/convex/convex';
+import { whistleblower } from '../monitoring/whistleblowerAgent';
 
 export class HostAgentService extends EventEmitter {
   private state: HostState;
@@ -270,6 +271,21 @@ export class HostAgentService extends EventEmitter {
 
   public async processNewsItem(item: NewsItem): Promise<void> {
     try {
+      // 🚨 WHISTLEBLOWER: Check backpressure before accepting new items
+      if (whistleblower.isBackpressureActive()) {
+        console.log('⏸️ Whistleblower: Rejecting new item due to backpressure');
+        whistleblower.reportMetric('hostQueue', 'rejection', 1);
+        return;
+      }
+
+      // 🚨 WHISTLEBLOWER: Enforce queue size limit
+      const queueLimit = 50;
+      if (this.state.narrationQueue.length >= queueLimit) {
+        console.log(`⚠️ Whistleblower: Queue at capacity (${this.state.narrationQueue.length}/${queueLimit}), rejecting item`);
+        whistleblower.reportMetric('hostQueue', 'capacityReject', 1);
+        return;
+      }
+
       // Skip if already processed
       if (this.state.processedItems.has(item.id)) {
         console.log(`⏭️ Skipping already processed item: ${item.id}`);
@@ -637,10 +653,29 @@ export class HostAgentService extends EventEmitter {
    * Convert Reddit post to NewsItem format for existing narration pipeline
    */
   private convertRedditPostToNewsItem(post: EnhancedRedditPost): NewsItem {
+    // Determine appropriate content for narration
+    let content = post.selftext;
+    
+    // If selftext is empty or too short, enhance with context
+    if (!content || content.trim().length < 50) {
+      // For questions, provide context that this is a discussion post
+      if (post.title.includes('?')) {
+        content = `A discussion thread asking: "${post.title}" is generating ${post.num_comments} comments in r/${post.subreddit}. The community is actively discussing this topic with a score of ${post.score}.`;
+      }
+      // For link posts (external URLs)
+      else if (post.url && !post.url.includes('reddit.com') && post.domain !== 'self.' + post.subreddit) {
+        content = `A link to ${post.domain} titled "${post.title}" has been shared in r/${post.subreddit}, gaining ${post.score} upvotes and ${post.num_comments} comments.`;
+      }
+      // For very short posts, use title with context
+      else {
+        content = `${post.title}. This post in r/${post.subreddit} has received ${post.score} upvotes and sparked ${post.num_comments} comments.`;
+      }
+    }
+    
     return {
       id: post.id,
       title: post.title,
-      content: post.selftext || post.title, // Use selftext or fallback to title
+      content: content,
       author: post.author,
       platform: 'reddit',
       timestamp: new Date(post.created_utc * 1000),
@@ -1015,7 +1050,7 @@ export class HostAgentService extends EventEmitter {
           finalText += chunk;
           // Don't emit chunks immediately - we'll stream character-by-character at the end
         },
-        // onComplete callback  
+        // onComplete callback - called when Claude API finishes generating text
         async (fullText: string) => {
           // Check if service is still active before continuing
           if (!this.state.isActive) {
@@ -1023,10 +1058,14 @@ export class HostAgentService extends EventEmitter {
             return;
           }
           
-          console.log(`🤖 LLM generation completed, starting controlled streaming of ${fullText.length} characters...`);
+          console.log(`🤖 LLM generation completed (${fullText.length} chars), starting controlled streaming at ${Math.round(60000 / (this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS * 5))} WPM...`);
           
           // Start character-by-character streaming for precise WPM control
+          // CRITICAL: This awaits the full streaming to complete before continuing
           await streamCharacterByCharacter(fullText);
+          
+          // ✅ NOW the streaming is actually complete
+          console.log(`✅ Character-by-character streaming completed for: ${narration.id}`);
           
           // Update the current narration with final content
           if (this.state.currentNarration && this.state.currentNarration.id === narration.id) {
@@ -1034,14 +1073,13 @@ export class HostAgentService extends EventEmitter {
             this.state.currentNarration.duration = this.estimateReadingTime(fullText);
             this.state.currentNarration.segments = this.splitIntoSegments(fullText);
           }
-
-          console.log(`✅ Live streaming completed for: ${narration.id}`);
           
           // Save to host document database (async, don't block)
           this.saveNarrationToDatabase(narration, fullText).catch(error => {
             console.error('❌ Failed to save host narration to database:', error);
           });
           
+          // ✅ Emit completion AFTER streaming is done
           this.emit('narration:completed', narration.id, fullText);
           
           // Set cooldown timestamp and clear current narration
@@ -1150,6 +1188,12 @@ export class HostAgentService extends EventEmitter {
   }
 
   private buildPrompt(item: NewsItem): string {
+    // Check if custom prompt exists in metadata (for Bloomberg trading mode)
+    if (item.metadata?.customPrompt && typeof item.metadata.customPrompt === 'string') {
+      console.log('📊 [HOST AGENT] Using custom Bloomberg trading prompt');
+      return item.metadata.customPrompt;
+    }
+    
     const contextSummary = this.summarizeContext();
     const personality = HOST_PERSONALITIES[this.config.personality];
     const verbosity = VERBOSITY_LEVELS[this.config.verbosity];
@@ -1376,17 +1420,34 @@ Focus on: What's new, why it matters, and how it advances the story.
   private async processQueue(): Promise<void> {
     console.log(`🎯 processQueue called: ${this.state.narrationQueue.length} items in queue, current narration: ${this.state.currentNarration?.id || 'none'}, isActive: ${this.state.isActive}`);
     
+    // 🚨 WHISTLEBLOWER: Report queue metrics
+    whistleblower.reportMetric('hostQueue', 'length', this.state.narrationQueue.length);
+    
     // FIRST CHECK: Don't process if service is inactive
     if (!this.state.isActive) {
       console.log(`⏸️ processQueue skipping - service is inactive`);
       return;
     }
     
-    // If there's a current narration, let it complete naturally
-    // The startLiveStreaming() timeout will handle stuck narrations
+    // 🚨 WHISTLEBLOWER: Check for stuck narrations and clear if needed
     if (this.state.currentNarration) {
-      console.log(`⏳ Current narration ${this.state.currentNarration.id} is processing, waiting for completion...`);
-      return; // Exit early, still processing
+      const narrationAge = Date.now() - this.state.currentNarration.timestamp.getTime();
+      whistleblower.reportMetric('hostQueue', 'currentNarrationAge', narrationAge);
+      
+      // Clear stuck narrations (over 60 seconds for more aggressive clearing)
+      if (narrationAge > 60000) {
+        console.log(`🚨 Whistleblower: Clearing stuck narration ${this.state.currentNarration.id} (age: ${Math.round(narrationAge / 1000)}s)`);
+        this.state.currentNarration = null;
+        whistleblower.reportMetric('hostQueue', 'stuckCleared', 1);
+        // Don't return - continue to process queue
+      } else {
+        // Narration is recent, let it continue
+        console.log(`⏳ Current narration ${this.state.currentNarration.id} is processing, waiting for completion...`);
+        return; // Exit early, still processing
+      }
+    } else {
+      // No current narration - clear the age metric to prevent false positives
+      whistleblower.reportMetric('hostQueue', 'currentNarrationAge', 0);
     }
     
     // Don't process if queue is empty

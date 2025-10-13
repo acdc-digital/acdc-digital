@@ -1046,6 +1046,116 @@ export default defineSchema({
     .index("by_model", ["model", "timestamp"])
     .index("by_purpose", ["purpose", "timestamp"]),
 
+  // 💹 TRADING ANALYSIS TABLES - NASDAQ-100 sentiment tracking
+
+  // Trading time series data - stores daily aggregates per ticker
+  trading_time_series: defineTable({
+    ticker: v.string(), // NASDAQ-100 ticker symbol
+    date: v.string(), // ISO date string (YYYY-MM-DD) for daily aggregation
+    
+    // Daily metrics
+    mentions: v.number(), // Number of times mentioned this day
+    total_engagement: v.number(), // Sum of upvotes + comments
+    avg_virality: v.number(), // Average virality score (0-100)
+    sentiment: v.number(), // Daily average sentiment (-1 to 1)
+    
+    // Post references
+    post_ids: v.array(v.string()), // Reddit post IDs that mentioned this ticker
+    
+    // Metadata
+    created_at: v.number(),
+    updated_at: v.number()
+  })
+    .index("by_ticker_and_date", ["ticker", "date"])
+    .index("by_ticker", ["ticker"])
+    .index("by_date", ["date"])
+    .index("by_mentions", ["mentions"])
+    .index("by_sentiment", ["sentiment"]),
+
+  // Trading signals - calculated signals and aggregates
+  trading_signals: defineTable({
+    ticker: v.string(), // NASDAQ-100 ticker symbol
+    
+    // Aggregate metrics (30-day rolling window)
+    total_mentions: v.number(),
+    avg_sentiment: v.number(), // Simple average
+    weighted_sentiment: v.number(), // Volume-weighted
+    momentum_score: v.number(), // Recent vs older sentiment
+    volatility_index: v.number(), // Sentiment variance
+    last_7day_sentiment: v.number(),
+    last_24hour_sentiment: v.number(),
+    
+    // Trading signal
+    signal_action: v.union(
+      v.literal("strong_buy"),
+      v.literal("buy"),
+      v.literal("hold"),
+      v.literal("sell"),
+      v.literal("strong_sell")
+    ),
+    signal_confidence: v.number(), // 0-1 confidence score
+    signal_reasons: v.array(v.string()), // Array of reason strings
+    price_target_trend: v.union(
+      v.literal("bullish"),
+      v.literal("bearish"),
+      v.literal("neutral")
+    ),
+    
+    // Sector context
+    sector: v.string(),
+    
+    // Calculation metadata
+    data_points_count: v.number(), // Number of daily data points used
+    window_start_date: v.string(), // ISO date
+    window_end_date: v.string(), // ISO date
+    
+    // Timestamps
+    calculated_at: v.number(),
+    created_at: v.number(),
+    updated_at: v.number()
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_signal", ["signal_action", "signal_confidence"])
+    .index("by_sector", ["sector"])
+    .index("by_confidence", ["signal_confidence"])
+    .index("by_calculated", ["calculated_at"]),
+
+  // Company mentions - detailed mention tracking per post
+  company_mentions: defineTable({
+    post_id: v.string(), // Reddit post ID
+    ticker: v.string(), // NASDAQ-100 ticker
+    
+    // Mention details
+    confidence: v.number(), // 0-1 confidence score
+    mention_type: v.union(
+      v.literal("direct"), // Ticker or company name
+      v.literal("indirect"), // Related news
+      v.literal("sector"), // Sector-wide impact
+      v.literal("competitor") // Competitor mention
+    ),
+    sentiment: v.union(
+      v.literal("bullish"),
+      v.literal("bearish"),
+      v.literal("neutral")
+    ),
+    context: v.string(), // Text snippet around mention
+    impact_score: v.number(), // 0-100 potential market impact
+    
+    // Post metadata (denormalized for performance)
+    post_title: v.string(),
+    post_subreddit: v.string(),
+    post_score: v.number(),
+    post_created_at: v.number(),
+    
+    created_at: v.number()
+  })
+    .index("by_post", ["post_id"])
+    .index("by_ticker", ["ticker", "created_at"])
+    .index("by_ticker_and_type", ["ticker", "mention_type"])
+    .index("by_confidence", ["confidence"])
+    .index("by_impact", ["impact_score"])
+    .index("by_sentiment", ["ticker", "sentiment"]),
+
   // Generated Reddit posts tracking
   generated_posts: defineTable({
     // Post Content

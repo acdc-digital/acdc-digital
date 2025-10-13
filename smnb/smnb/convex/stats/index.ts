@@ -6,6 +6,7 @@ export * from "./mutations";
 export * from "./queries";
 export * from "./aggregation";
 export * from "./subredditStats";
+export * from "./trading"; // Trading analytics
 
 // Re-export for API access
 export { default as scheduled } from "./scheduled";

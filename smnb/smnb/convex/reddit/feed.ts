@@ -125,7 +125,8 @@ export const createHostSession = mutation({
       .first();
 
     if (existing) {
-      throw new Error(`Host session ${args.session_id} already exists`);
+      console.log(`♻️ Host session ${args.session_id} already exists, returning existing session`);
+      return existing._id;
     }
 
     // Create new session

@@ -68,7 +68,7 @@ export default function ConfigPanel({
             <Switch
               checked={useUserApiKey}
               onCheckedChange={setUseUserApiKey}
-              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-600"
+              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-600 cursor-pointer"
               style={{ transform: 'scale(0.7)' }}
             />
             {useUserApiKey && (

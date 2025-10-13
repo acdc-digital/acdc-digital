@@ -6,11 +6,13 @@
 import React from "react";
 import LiveFeed from "@/components/livefeed/liveFeed";
 import Aggregator from "@/components/aggregator/aggregator";
-import { useBroadcastOrchestrator } from "@/lib/stores/orchestrator/broadcastOrchestrator";
+import { useLastSessionId } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 
 export default function FeedSidebar() {
-  // Get current session ID from broadcast orchestrator
-  const currentSessionId = useBroadcastOrchestrator(state => state.currentConvexSessionId);
+  // Use lastSessionId instead of currentConvexSessionId
+  // This persists the session even after stopping broadcast,
+  // allowing users to see story history from the last session
+  const sessionId = useLastSessionId();
 
   return (
     <aside className="relative basis-1/4 min-w-[280px] max-w-[380px] border-r border-black/10 dark:border-white/10 flex flex-col min-h-0 bg-[#181818] overflow-hidden">
@@ -19,9 +21,9 @@ export default function FeedSidebar() {
       
       {/* Content Area - Always show LiveFeed (handles header + content switching) */}
       <div className="flex-1 overflow-auto pt-0 pb-0">
-        <LiveFeed 
-          className="h-full" 
-          sessionId={currentSessionId} 
+        <LiveFeed
+          className="h-full"
+          sessionId={sessionId}
         />
       </div>
     </aside>
