@@ -10,18 +10,17 @@ import { Calculator, Star, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 interface SubredditScore {
   subreddit: string;
   storyYield: number;
-  feedContribution: number;
-  engagementPotential: number;
-  relevanceConsistency: number;
-  noveltyIndex: number;
-  trendPropagation: number;
-  volumeReliability: number;
-  signalDensity: number;
-  conversionMomentum: number;
+  tradingRelevance: number;
+  mentionDensity: number;
+  avgImpactScore: number;
+  sentimentScore: number;
+  tickerDiversity: number;
   overallScore: number;
   tier: "Tier 1" | "Tier 2" | "Tier 3" | "Tier 4";
   posts: number;
   stories: number;
+  mentions: number;
+  uniqueTickers: number;
 }
 
 function getTierIcon(tier: string) {
@@ -64,7 +63,7 @@ function getScoreColor(score: number): string {
 }
 
 export function MetricScoringWidget() {
-  const data = useQuery(api.stats.subredditStats.getMetricScoringMatrix);
+  const data = useQuery(api.stats.tradingEnhanced.getTradingMetricScoringMatrix);
 
   if (!data) {
     return (
@@ -72,7 +71,7 @@ export function MetricScoringWidget() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
             <Calculator className="w-4 h-4" />
-            Metric Scoring Matrix
+            NASDAQ-100 Scoring Matrix
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -91,13 +90,13 @@ export function MetricScoringWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <Calculator className="w-4 h-4 text-muted-foreground" />
-          Metric Scoring Matrix
+          NASDAQ-100 Scoring Matrix
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-            9 metrics
+            6 trading metrics
           </Badge>
-          {' '}performance analysis per subreddit
+          {' '}market sentiment analysis per subreddit
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -118,7 +117,7 @@ export function MetricScoringWidget() {
                   </div>
                   
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {getMomentumIcon(score.conversionMomentum)}
+                    {getMomentumIcon(score.tradingRelevance)}
                     <Badge 
                       variant="outline" 
                       className={`text-[10px] px-1.5 py-0 ${getTierColor(score.tier)}`}
@@ -131,16 +130,16 @@ export function MetricScoringWidget() {
                 {/* Key Metrics Row */}
                 <div className="grid grid-cols-3 gap-2 text-[9px] text-muted-foreground">
                   <div className="flex items-center justify-between">
-                    <span>SY</span>
-                    <span className={getScoreColor(score.storyYield)}>{score.storyYield.toFixed(1)}%</span>
+                    <span>TR</span>
+                    <span className={getScoreColor(score.tradingRelevance)}>{score.tradingRelevance.toFixed(1)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>RC</span>
-                    <span className={getScoreColor(score.relevanceConsistency)}>{score.relevanceConsistency.toFixed(1)}%</span>
+                    <span>IMP</span>
+                    <span className={getScoreColor(score.avgImpactScore)}>{score.avgImpactScore.toFixed(1)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>EP</span>
-                    <span className={getScoreColor(score.engagementPotential)}>{score.engagementPotential.toFixed(1)}</span>
+                    <span>SENT</span>
+                    <span className={getScoreColor(score.sentimentScore)}>{score.sentimentScore.toFixed(0)}</span>
                   </div>
                 </div>
                 
@@ -149,22 +148,26 @@ export function MetricScoringWidget() {
                 <div className="mt-1">
                   <div className="flex items-center gap-1 text-[8px]">
                     <div className="flex items-center gap-0.5">
-                      <div className={`w-1 h-1 rounded-full ${score.storyYield > 50 ? 'bg-purple-500' : 'bg-muted'}`} />
-                      <span>SY</span>
+                      <div className={`w-1 h-1 rounded-full ${score.tradingRelevance > 50 ? 'bg-purple-500' : 'bg-muted'}`} />
+                      <span>TR</span>
                     </div>
                     <div className="flex items-center gap-0.5">
-                      <div className={`w-1 h-1 rounded-full ${score.relevanceConsistency > 50 ? 'bg-blue-500' : 'bg-muted'}`} />
-                      <span>RC</span>
+                      <div className={`w-1 h-1 rounded-full ${score.avgImpactScore > 50 ? 'bg-blue-500' : 'bg-muted'}`} />
+                      <span>IMP</span>
                     </div>
                     <div className="flex items-center gap-0.5">
-                      <div className={`w-1 h-1 rounded-full ${score.engagementPotential > 50 ? 'bg-green-500' : 'bg-muted'}`} />
-                      <span>EP</span>
+                      <div className={`w-1 h-1 rounded-full ${score.sentimentScore > 50 ? 'bg-green-500' : 'bg-muted'}`} />
+                      <span>SENT</span>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <div className={`w-1 h-1 rounded-full ${score.tickerDiversity > 30 ? 'bg-yellow-500' : 'bg-muted'}`} />
+                      <span>DIV</span>
                     </div>
                   </div>
                 </div>                {/* Stats Summary */}
                 <div className="flex items-center justify-between mt-1 text-[8px] text-muted-foreground">
                   <span>{score.posts}p → {score.stories}s</span>
-                  <span>FC:{score.feedContribution.toFixed(1)}% • NI:{score.noveltyIndex.toFixed(1)}%</span>
+                  <span>{score.mentions}m • {score.uniqueTickers}t • MD:{score.mentionDensity.toFixed(2)}</span>
                 </div>
                 
                 {/* Separator */}

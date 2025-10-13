@@ -35,6 +35,7 @@ import type * as stats_scheduled from "../stats/scheduled.js";
 import type * as stats_subredditStats from "../stats/subredditStats.js";
 import type * as stats_test from "../stats/test.js";
 import type * as stats_trading from "../stats/trading.js";
+import type * as stats_tradingEnhanced from "../stats/tradingEnhanced.js";
 import type * as system_apiHealth from "../system/apiHealth.js";
 import type * as system_clearDatabase from "../system/clearDatabase.js";
 import type * as system_debug from "../system/debug.js";
@@ -88,6 +89,7 @@ declare const fullApi: ApiFromModules<{
   "stats/subredditStats": typeof stats_subredditStats;
   "stats/test": typeof stats_test;
   "stats/trading": typeof stats_trading;
+  "stats/tradingEnhanced": typeof stats_tradingEnhanced;
   "system/apiHealth": typeof system_apiHealth;
   "system/clearDatabase": typeof system_clearDatabase;
   "system/debug": typeof system_debug;

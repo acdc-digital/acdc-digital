@@ -22,9 +22,12 @@ interface TopPostBySubreddit {
     num_comments: number;
     overallScore: number;
     postRank: number;
+    mentionCount: number;
+    topTickers: string[];
   };
   totalPosts: number;
   totalStories: number;
+  totalMentions: number;
 }
 
 function truncateTitle(title: string, maxLength: number = 45): string {
@@ -55,7 +58,7 @@ function getTierIcon(tier: string) {
 }
 
 export function TopPostsBySubredditWidget() {
-  const data = useQuery(api.stats.subredditStats.getTopPostsBySubreddit);
+  const data = useQuery(api.stats.tradingEnhanced.getTopTradingPostsBySubreddit);
 
   if (!data) {
     return (
@@ -82,13 +85,13 @@ export function TopPostsBySubredditWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <Crown className="w-4 h-4 text-muted-foreground" />
-          Top Posts by Subreddit
+          Top Trading Posts by Subreddit
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalSubreddits}
           </Badge>
-          {' '}subreddits with their highest-ranked posts
+          {' '}subreddits with top NASDAQ-100 mention posts
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -147,6 +150,16 @@ export function TopPostsBySubredditWidget() {
                             {item.topPost.score} pts • {item.topPost.num_comments} comments
                           </span>
                         </div>
+                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                          {item.topPost.topTickers?.slice(0, 5).map((ticker, idx) => (
+                            <Badge key={`${item.topPost?.id}-${ticker}-${idx}`} variant="secondary" className="text-[7px] px-1 py-0">
+                              ${ticker}
+                            </Badge>
+                          ))}
+                          {(item.topPost.topTickers?.length || 0) > 5 && (
+                            <span className="text-[7px] text-muted-foreground">+{(item.topPost.topTickers?.length || 0) - 5}</span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex-shrink-0">
                         <Badge variant="secondary" className="text-[8px] px-1 py-0">
@@ -161,9 +174,17 @@ export function TopPostsBySubredditWidget() {
                   </div>
                 )}
                 
-                {/* Stats */}
-                <div className="ml-8 mt-1 text-[8px] text-muted-foreground">
-                  {item.totalPosts} posts • {item.totalStories} stories
+                {/* Trading Stats */}
+                <div className="ml-8 mt-1 flex items-center gap-2 text-[8px] text-muted-foreground">
+                  <span>{item.totalPosts}p • {item.totalStories}s</span>
+                  <span>•</span>
+                  <span>{item.totalMentions} mentions</span>
+                  {item.topPost?.topTickers && item.topPost.topTickers.length > 0 && (
+                    <>
+                      <span>•</span>
+                      <span className="text-purple-400">Top: ${item.topPost.topTickers[0]}</span>
+                    </>
+                  )}
                 </div>
                 
                 {/* Separator */}

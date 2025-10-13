@@ -17,9 +17,10 @@ interface PostRanking {
   score: number;
   num_comments: number;
   created_utc: number;
-  qualityScore?: number;
-  engagementScore?: number;
-  priorityScore?: number;
+  mentionedTickers: Array<{ ticker: string; sentiment: string; confidence: number; impactScore: number }>;
+  tradingRelevance: number;
+  marketImpact: string;
+  overallSentiment: string;
   overallScore: number;
   rank: number;
   rankChange: "up" | "down" | "stable";
@@ -50,8 +51,14 @@ function getScoreColor(score: number, maxScore: number, minScore: number): strin
   return 'text-red-400 border-red-400/50';
 }
 
+function getMarketImpactColor(impact: string): string {
+  if (impact === "high") return 'text-red-400 border-red-400/50';
+  if (impact === "medium") return 'text-yellow-400 border-yellow-400/50';
+  return 'text-blue-400 border-blue-400/50';
+}
+
 export function PostRankingsWidget() {
-  const data = useQuery(api.stats.subredditStats.getPostRankings);
+  const data = useQuery(api.stats.tradingEnhanced.getTradingPostRankings);
 
   if (!data) {
     return (
@@ -81,13 +88,13 @@ export function PostRankingsWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <BarChart3 className="w-4 h-4 text-muted-foreground" />
-          Post Rankings
+          Trading Post Rankings
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">
             {data.totalPosts}
           </Badge>
-          {' '}posts ranked by performance score
+          {' '}posts ranked by trading relevance & sentiment
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -97,8 +104,8 @@ export function PostRankingsWidget() {
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium border-b border-border/50 pb-2 mb-2">
               <div className="w-8 text-center">Rank</div>
               <div className="w-4"></div> {/* Trend icon */}
-              <div className="flex-1 min-w-0">Subreddit / Post Title</div>
-              <div className="w-16 text-right">Score</div>
+              <div className="flex-1 min-w-0">Subreddit / Post Title / Tickers</div>
+              <div className="w-24 text-right">Trading / Impact</div>
             </div>
             
             {/* Post Rows */}
@@ -126,13 +133,21 @@ export function PostRankingsWidget() {
                     <span className="text-muted-foreground text-[10px]">
                       u/{post.author}
                     </span>
+                    {post.overallSentiment !== "neutral" && (
+                      <Badge 
+                        variant={post.overallSentiment === "bullish" ? "default" : "destructive"}
+                        className="text-[8px] px-1 py-0"
+                      >
+                        {post.overallSentiment}
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 mt-0.5">
                     <a 
                       href={post.permalink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-foreground hover:text-blue-400 transition-colors truncate max-w-[500px] text-[11px] font-medium"
+                      className="text-foreground hover:text-blue-400 transition-colors truncate max-w-[400px] text-[11px] font-medium"
                       title={post.title}
                     >
                       {truncateTitle(post.title)}
@@ -143,22 +158,43 @@ export function PostRankingsWidget() {
                     <span className="text-[9px] text-muted-foreground">
                       {post.score} pts • {post.num_comments} comments
                     </span>
+                    {post.mentionedTickers.length > 0 && (
+                      <>
+                        <span className="text-muted-foreground text-[8px]">|</span>
+                        <div className="flex gap-1">
+                          {post.mentionedTickers.slice(0, 3).map((ticker, idx) => (
+                            <Badge key={`${post.id}-${ticker.ticker}-${idx}`} variant="outline" className="text-[8px] px-1 py-0">
+                              ${ticker.ticker}
+                            </Badge>
+                          ))}
+                          {post.mentionedTickers.length > 3 && (
+                            <span className="text-[8px] text-muted-foreground">+{post.mentionedTickers.length - 3}</span>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
                 
-                {/* Performance Score */}
-                <div className="w-16 text-right">
-                  <Badge 
-                    variant="outline" 
-                    className={`text-[10px] px-1.5 py-0 ${getScoreColor(post.overallScore, maxScore, minScore)}`}
-                  >
-                    {post.overallScore.toFixed(1)}
-                  </Badge>
-                  {post.qualityScore !== undefined && (
-                    <div className="text-[8px] text-muted-foreground mt-0.5">
-                      Q:{post.qualityScore.toFixed(0)} E:{post.engagementScore?.toFixed(0) || 0}
-                    </div>
-                  )}
+                {/* Trading Metrics */}
+                <div className="w-24 text-right">
+                  <div className="flex items-center gap-1 justify-end">
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[10px] px-1.5 py-0 ${getScoreColor(post.overallScore, maxScore, minScore)}`}
+                    >
+                      {post.overallScore.toFixed(1)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1 justify-end mt-0.5">
+                    <span className="text-[8px] text-muted-foreground">TR:</span>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[8px] px-1 py-0 ${getMarketImpactColor(post.marketImpact)}`}
+                    >
+                      {post.tradingRelevance.toFixed(0)}
+                    </Badge>
+                  </div>
                 </div>
               </div>
             ))}
