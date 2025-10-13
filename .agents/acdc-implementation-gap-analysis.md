@@ -1,4 +1,4 @@
-# Nexus Framework: Design Intent vs. SMNB Implementation
+# ACDC Framework: Design Intent vs. SMNB Implementation
 **Date:** September 29, 2025  
 **Post-Legacy Cleanup Analysis**
 
@@ -25,9 +25,9 @@
 
 ### Layer 1: Base Agent Class
 
-| Aspect | Nexus Design Intent | SMNB Implementation | Status |
+| Aspect | ACDC Design Intent | SMNB Implementation | Status |
 |--------|---------------------|---------------------|--------|
-| **Abstract Base** | `BaseAgent` with core methods | ✅ `BaseNexusAgent` exists | ✅ Match |
+| **Abstract Base** | `BaseAgent` with core methods | ✅ `BaseACDCAgent` exists | ✅ Match |
 | **Streaming Method** | `async *stream()` required | ✅ Abstract method defined | ✅ Match |
 | **Execute Method** | Batch mode fallback | ✅ Collects chunks from stream | ✅ Match |
 | **Tool Registration** | `getTools()` lazy init | ✅ Lazy `_tools` pattern | ✅ Match |
@@ -41,7 +41,7 @@
 
 ### Layer 2: Tool System
 
-| Aspect | Nexus Design Intent | SMNB Implementation | Status |
+| Aspect | ACDC Design Intent | SMNB Implementation | Status |
 |--------|---------------------|---------------------|--------|
 | **Tool Types** | `command`, `anthropic_tool`, `hybrid` | ❌ Only `anthropic_tool` | 🔴 33% |
 | **Command Tools** | Slash commands like `/help` | ❌ Not implemented | 🔴 Missing |
@@ -58,16 +58,16 @@
 
 ### Layer 3: Agent Registry
 
-| Aspect | Nexus Design Intent | SMNB Implementation | Status |
+| Aspect | ACDC Design Intent | SMNB Implementation | Status |
 |--------|---------------------|---------------------|--------|
 | **Centralized Registry** | Single `AgentRegistry` class | ❌ Manual agent instantiation | 🔴 Missing |
-| **Agent Registration** | `register(agent)` method | ❌ No registry for Nexus agents | 🔴 Missing |
+| **Agent Registration** | `register(agent)` method | ❌ No registry for ACDC agents | 🔴 Missing |
 | **Agent Discovery** | `getAgent(id)` lookup | ❌ Direct import required | 🔴 Missing |
 | **Route Mapping** | Map requests to agents | ❌ Hardcoded in API route | 🔴 Missing |
 | **Dynamic Loading** | Load agents on-demand | ❌ Static imports | 🔴 Missing |
 | **Agent Listing** | `getAllAgents()` | ❌ Not available | 🔴 Missing |
 
-**Score: 0% - Registry system not implemented for Nexus**
+**Score: 0% - Registry system not implemented for ACDC**
 
 **Impact:** High - Forces hardcoded agent selection, prevents dynamic agent ecosystems
 
@@ -75,13 +75,13 @@
 
 ### Layer 4: Streaming Infrastructure
 
-| Aspect | Nexus Design Intent | SMNB Implementation | Status |
+| Aspect | ACDC Design Intent | SMNB Implementation | Status |
 |--------|---------------------|---------------------|--------|
 | **AsyncIterable** | Yield chunks over time | ✅ Perfect implementation | ✅ Match |
 | **Chunk Types** | `content`, `tool_call`, `metadata`, `error` | ✅ All 4 types supported | ✅ Match |
 | **SSE Endpoint** | Server-sent events API | ✅ `/api/agents/stream` working | ✅ Match |
 | **ReadableStream** | Transform AsyncIterable | ✅ Perfect conversion | ✅ Match |
-| **Client Hook** | React hook for consumption | ✅ `useNexusAgent` working | ✅ Match |
+| **Client Hook** | React hook for consumption | ✅ `useACDCAgent` working | ✅ Match |
 | **Multi-turn** | Tool chaining support | ✅ Fully implemented | ✅ Match |
 | **Error Handling** | Graceful error chunks | ✅ Try-catch with error chunks | ✅ Match |
 | **Type Safety** | Strong typing throughout | ✅ Full TypeScript support | ✅ Match |
@@ -94,7 +94,7 @@
 
 ### Layer 5: Convex Integration
 
-| Aspect | Nexus Design Intent | SMNB Implementation | Status |
+| Aspect | ACDC Design Intent | SMNB Implementation | Status |
 |--------|---------------------|---------------------|--------|
 | **Direct Queries** | Tool handlers call Convex | ❌ Handlers return mock data | 🔴 Critical |
 | **Mutation Access** | Tools can write to DB | ❌ No mutations wired | 🔴 Missing |
@@ -189,9 +189,9 @@ private async handleSessionMetrics(input: unknown, ctx?: ExecutionContext): Prom
 ### Design Intent: Shared Core Package
 
 ```
-@acdc/nexus-core/
+@acdc/acdc-core/
 ├── agents/
-│   ├── BaseNexusAgent.ts      ← Shared base class
+│   ├── BaseACDCAgent.ts      ← Shared base class
 │   ├── registry.ts            ← Universal registry
 │   └── types.ts               ← Common types
 ├── tools/
@@ -213,18 +213,18 @@ private async handleSessionMetrics(input: unknown, ctx?: ExecutionContext): Prom
 ### Current Reality: Project Duplication
 
 ```
-smnb/lib/agents/nexus/          ← SMNB-specific
-├── BaseNexusAgent.ts
+smnb/lib/agents/acdc/          ← SMNB-specific
+├── BaseACDCAgent.ts
 ├── SessionManagerAgent.ts
 └── types.ts
 
-aura/lib/agents/nexus/          ← Would need to duplicate
-├── BaseNexusAgent.ts           ← Copy from SMNB
+aura/lib/agents/acdc/          ← Would need to duplicate
+├── BaseACDCAgent.ts           ← Copy from SMNB
 ├── NewsAgent.ts
 └── types.ts                    ← Copy from SMNB
 
-donut/lib/agents/nexus/         ← Would need to duplicate
-├── BaseNexusAgent.ts           ← Copy from SMNB
+donut/lib/agents/acdc/         ← Would need to duplicate
+├── BaseACDCAgent.ts           ← Copy from SMNB
 ├── EditorAgent.ts
 └── types.ts                    ← Copy from SMNB
 ```
@@ -313,7 +313,7 @@ donut/lib/agents/nexus/         ← Would need to duplicate
 - ✅ Multi-turn tool chaining working
 - ✅ Error handling comprehensive
 - ✅ Type safety throughout
-- ✅ Client hook (`useNexusAgent`) excellent
+- ✅ Client hook (`useACDCAgent`) excellent
 
 **Code Quality Example:**
 ```typescript
@@ -492,9 +492,9 @@ async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
 ---
 
 ### Week 2: Enable Framework Scaling
-- [ ] Create `@acdc/nexus-core` shared package
-- [ ] Move BaseNexusAgent + types to shared package
-- [ ] Implement Nexus-compatible registry
+- [ ] Create `@acdc/acdc-core` shared package
+- [ ] Move BaseACDCAgent + types to shared package
+- [ ] Implement ACDC-compatible registry
 - [ ] Migrate SMNB to use shared package
 
 **Outcome:** Framework can be used in other projects
@@ -565,7 +565,7 @@ async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
 
 ## 🎬 Conclusion
 
-The SMNB Nexus implementation demonstrates **solid architectural decisions** and **excellent streaming patterns**, but falls short of the documented vision in **data integration** and **multi-project scaling**.
+The SMNB ACDC implementation demonstrates **solid architectural decisions** and **excellent streaming patterns**, but falls short of the documented vision in **data integration** and **multi-project scaling**.
 
 **Strengths:**
 - ✅ Streaming is production-ready

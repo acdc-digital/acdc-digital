@@ -1,13 +1,13 @@
-# Nexus Chat UI Integration Guide
+# ACDC Chat UI Integration Guide
 **Version:** 1.0  
 **Date:** September 30, 2025  
-**Focus:** Complete UI Component Library for Nexus Agents
+**Focus:** Complete UI Component Library for ACDC Agents
 
 ---
 
 ## 📋 Overview
 
-This guide documents the **complete chat UI component system** that integrates with the Nexus Framework. These components provide a professional, production-ready interface for conversational AI applications with streaming support, auto-scrolling, reasoning displays, and more.
+This guide documents the **complete chat UI component system** that integrates with the ACDC Framework. These components provide a professional, production-ready interface for conversational AI applications with streaming support, auto-scrolling, reasoning displays, and more.
 
 **Component Library:**
 1. **Conversation** - Auto-scrolling message container
@@ -93,12 +93,12 @@ Floating button to jump to bottom.
 |------|------|-------------|
 | `className` | `string` | Additional CSS classes |
 
-### Integration with Nexus
+### Integration with ACDC
 
 ```tsx
 "use client";
 
-import { useNexusAgent } from '@/lib/hooks/useNexusAgent';
+import { useACDCAgent } from '@/lib/hooks/useACDCAgent';
 import {
   Conversation,
   ConversationContent,
@@ -107,8 +107,8 @@ import {
 import { Message, MessageContent } from "@/components/ai/message";
 import { Response } from "@/components/ai/response";
 
-export function NexusConversation({ sessionId }: { sessionId: string }) {
-  const { messages, isStreaming } = useNexusAgent({
+export function ACDCConversation({ sessionId }: { sessionId: string }) {
+  const { messages, isStreaming } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -297,12 +297,12 @@ export function AdvancedPromptInput() {
 }
 ```
 
-### Integration with Nexus
+### Integration with ACDC
 
 ```tsx
-export function NexusPromptInput() {
+export function ACDCPromptInput() {
   const [input, setInput] = useState("");
-  const { sendMessage, isStreaming } = useNexusAgent({
+  const { sendMessage, isStreaming } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -411,12 +411,12 @@ Content container.
 | `children` | `string \| ReactNode` | **Required** - Reasoning text |
 | `className` | `string` | Additional CSS classes |
 
-### Integration with Nexus: Tool Call Display
+### Integration with ACDC: Tool Call Display
 
-The **key innovation** for Nexus is using Reasoning components to show tool execution:
+The **key innovation** for ACDC is using Reasoning components to show tool execution:
 
 ```tsx
-export function NexusMessageWithTools({ message }: { message: NexusMessage }) {
+export function ACDCMessageWithTools({ message }: { message: ACDCMessage }) {
   return (
     <Message from={message.role}>
       <MessageContent>
@@ -501,7 +501,7 @@ For showing tools as they execute:
 
 ```tsx
 export function StreamingToolDisplay() {
-  const { messages, isStreaming } = useNexusAgent({
+  const { messages, isStreaming } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
     onChunk: (chunk) => {
@@ -613,11 +613,11 @@ The Response component intelligently handles incomplete markdown:
 - `![incomplete alt` → Hidden until `]` arrives
 - Preserves code block boundaries
 
-### Integration with Nexus
+### Integration with ACDC
 
 ```tsx
-export function NexusResponse() {
-  const { messages } = useNexusAgent({
+export function ACDCResponse() {
+  const { messages } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -744,11 +744,11 @@ Individual clickable chip.
 | `size` | `ButtonSize` | `"sm"` | Button size |
 | `className` | `string` | - | Additional CSS classes |
 
-### Integration with Nexus: Starter Prompts
+### Integration with ACDC: Starter Prompts
 
 ```tsx
-export function NexusStarterPrompts() {
-  const { sendMessage } = useNexusAgent({
+export function ACDCStarterPrompts() {
+  const { sendMessage } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -790,7 +790,7 @@ Generate dynamic suggestions based on conversation:
 
 ```tsx
 export function DynamicSuggestions() {
-  const { messages, sendMessage } = useNexusAgent({
+  const { messages, sendMessage } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -863,13 +863,13 @@ function generateFollowUps(content: string): string[] {
 
 ## 🎯 Part 6: Complete Integration Example
 
-### Full Nexus Chat Component
+### Full ACDC Chat Component
 
 ```tsx
 "use client";
 
 import { useState } from "react";
-import { useNexusAgent } from '@/lib/hooks/useNexusAgent';
+import { useACDCAgent } from '@/lib/hooks/useACDCAgent';
 import {
   Conversation,
   ConversationContent,
@@ -907,7 +907,7 @@ const TOOL_LABELS: Record<string, string> = {
   analyze_costs: '💰 Cost Analysis',
 };
 
-export function NexusChat({ sessionId }: { sessionId: string }) {
+export function ACDCChat({ sessionId }: { sessionId: string }) {
   const [input, setInput] = useState("");
   
   const {
@@ -915,7 +915,7 @@ export function NexusChat({ sessionId }: { sessionId: string }) {
     isStreaming,
     error,
     sendMessage,
-  } = useNexusAgent({
+  } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -1245,7 +1245,7 @@ All components are open source and available in your project:
 
 ## 🎯 Conclusion
 
-The Nexus Chat UI component library provides a **complete, production-ready interface** for conversational AI applications. Key benefits:
+The ACDC Chat UI component library provides a **complete, production-ready interface** for conversational AI applications. Key benefits:
 
 ✅ **Auto-scrolling conversations** - No manual scrolling needed  
 ✅ **Smart input handling** - Enter/Shift+Enter works correctly  
@@ -1254,4 +1254,4 @@ The Nexus Chat UI component library provides a **complete, production-ready inte
 ✅ **Mobile-friendly** - Works great on all devices  
 ✅ **Fully customizable** - Theme and style to match your brand  
 
-These components integrate seamlessly with the Nexus Framework to create professional, trustworthy AI experiences.
+These components integrate seamlessly with the ACDC Framework to create professional, trustworthy AI experiences.

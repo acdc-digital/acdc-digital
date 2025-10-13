@@ -1,4 +1,4 @@
-# Nexus Framework Quick Reference
+# ACDC Framework Quick Reference
 
 ## Core Concepts
 
@@ -18,9 +18,9 @@
 ### 1. Create a Basic Agent
 
 ```typescript
-import { BaseNexusAgent, Tool, AgentRequest, AgentChunk } from '@nexus/agents';
+import { BaseACDCAgent, Tool, AgentRequest, AgentChunk } from '@acdc/agents';
 
-export class MyAgent extends BaseNexusAgent {
+export class MyAgent extends BaseACDCAgent {
   readonly id = 'my-agent';
   readonly name = 'My Custom Agent';
   readonly description = 'Description of what this agent does';
@@ -64,10 +64,10 @@ export class MyAgent extends BaseNexusAgent {
 
 ```typescript
 // In your application startup
-import { NexusRegistry } from '@nexus/agents';
+import { ACDCRegistry } from '@acdc/agents';
 import { MyAgent } from './agents/MyAgent';
 
-const registry = new NexusRegistry();
+const registry = new ACDCRegistry();
 registry.register(new MyAgent());
 ```
 
@@ -75,12 +75,12 @@ registry.register(new MyAgent());
 
 ```typescript
 // app/api/agents/stream/route.ts
-import { NexusRegistry } from '@nexus/agents';
+import { ACDCRegistry } from '@acdc/agents';
 
 export async function POST(request: Request) {
   const { agentId, toolId, input } = await request.json();
   
-  const registry = new NexusRegistry();
+  const registry = new ACDCRegistry();
   const agent = registry.getAgent(agentId);
   
   const stream = new ReadableStream({
@@ -179,7 +179,7 @@ async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
 ### Error Handling with Retry
 
 ```typescript
-import { StandardErrorHandler } from '@nexus/agents';
+import { StandardErrorHandler } from '@acdc/agents';
 
 async executeToolWithRetry(tool: Tool, input: any): Promise<any> {
   return StandardErrorHandler.withRetry(
@@ -193,7 +193,7 @@ async executeToolWithRetry(tool: Tool, input: any): Promise<any> {
 ### Premium Feature Gating
 
 ```typescript
-export class PremiumAgent extends BaseNexusAgent {
+export class PremiumAgent extends BaseACDCAgent {
   readonly isPremium = true;
 
   async *stream(request: AgentRequest): AsyncIterable<AgentChunk> {
@@ -210,13 +210,13 @@ export class PremiumAgent extends BaseNexusAgent {
 ### Legacy Agent Migration
 
 ```typescript
-import { LegacyAgentAdapter } from '@nexus/agents';
+import { LegacyAgentAdapter } from '@acdc/agents';
 import { OldAuraAgent } from './legacy/OldAuraAgent';
 
 // Wrap legacy agent
 const modernAgent = new LegacyAgentAdapter(new OldAuraAgent());
 
-// Register with Nexus
+// Register with ACDC
 registry.register(modernAgent);
 ```
 
@@ -256,10 +256,10 @@ interface ExecutionContext {
 ### Registry Methods
 
 ```typescript
-class NexusRegistry {
-  register(agent: BaseNexusAgent): void
-  getAgent(agentId: string): BaseNexusAgent | undefined
-  getAllAgents(): BaseNexusAgent[]
+class ACDCRegistry {
+  register(agent: BaseACDCAgent): void
+  getAgent(agentId: string): BaseACDCAgent | undefined
+  getAllAgents(): BaseACDCAgent[]
   executeAgent(agentId: string, request: AgentRequest): Promise<AgentResponse>
   streamAgent(agentId: string, request: AgentRequest): AsyncIterable<AgentChunk>
 }
@@ -268,7 +268,7 @@ class NexusRegistry {
 ### Base Agent Methods
 
 ```typescript
-abstract class BaseNexusAgent {
+abstract class BaseACDCAgent {
   abstract readonly id: string;
   abstract readonly name: string;
   abstract readonly description: string;
@@ -291,8 +291,8 @@ abstract class BaseNexusAgent {
 ### Package Installation
 
 ```bash
-# Install Nexus framework
-pnpm add @nexus/agents
+# Install ACDC framework
+pnpm add @acdc/agents
 
 # Peer dependencies
 pnpm add @anthropic-ai/sdk convex next react
@@ -315,7 +315,7 @@ CLERK_SECRET_KEY=your_clerk_secret_key
 {
   "compilerOptions": {
     "paths": {
-      "@nexus/*": ["./node_modules/@nexus/*/dist"]
+      "@acdc/*": ["./node_modules/@acdc/*/dist"]
     }
   }
 }
@@ -326,7 +326,7 @@ CLERK_SECRET_KEY=your_clerk_secret_key
 ### Enable Debug Logging
 
 ```typescript
-import { AgentTracer, StreamDebugger } from '@nexus/agents/debug';
+import { AgentTracer, StreamDebugger } from '@acdc/agents/debug';
 
 // Trace agent execution
 const result = await AgentTracer.trace('my-agent', async () => {
@@ -374,7 +374,7 @@ class OptimizedClaudeProvider {
 ### Cache Responses
 
 ```typescript
-import { CacheManager } from '@nexus/agents/cache';
+import { CacheManager } from '@acdc/agents/cache';
 
 async executeWithCache(request: AgentRequest): Promise<any> {
   const cacheKey = `agent:${this.id}:${JSON.stringify(request)}`;
@@ -444,5 +444,5 @@ async function checkAgentHealth(agentId: string): Promise<boolean> {
 
 ---
 
-*Nexus Framework Quick Reference v1.0*  
+*ACDC Framework Quick Reference v1.0*  
 *ACDC Digital - December 2024*

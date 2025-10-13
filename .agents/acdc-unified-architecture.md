@@ -1,4 +1,4 @@
-# Nexus Agentic Framework - Unified Architecture Guide
+# ACDC Agentic Framework - Unified Architecture Guide
 **Version:** 2.0 (Updated September 30, 2025)  
 **Project:** ACDC Digital Ecosystem  
 **Status:** Production Implementation Guide
@@ -7,9 +7,9 @@
 
 ## 📋 Executive Summary
 
-The Nexus Framework is an **adaptable agentic system** that combines AI-powered tool execution with streaming responses and a rich UI component library. This guide reflects our **actual production implementation** in SMNB, incorporating lessons learned and architectural improvements.
+The ACDC Framework is an **adaptable agentic system** that combines AI-powered tool execution with streaming responses and a rich UI component library. This guide reflects our **actual production implementation** in SMNB, incorporating lessons learned and architectural improvements.
 
-**What Nexus Provides:**
+**What ACDC Provides:**
 - 🤖 **Streaming AI Agents** - Real-time Claude integration with tool execution
 - 🔧 **Flexible Tool System** - AI-powered analytics with structured schemas
 - 🎨 **Rich Chat UI** - Professional React components for conversations
@@ -26,7 +26,7 @@ The Nexus Framework is an **adaptable agentic system** that combines AI-powered 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    NEXUS FRAMEWORK                          │
+│                    ACDC FRAMEWORK                          │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  │
@@ -48,7 +48,7 @@ The Nexus Framework is an **adaptable agentic system** that combines AI-powered 
 ```
 User Message Input
     ↓
-React Component (useNexusAgent hook)
+React Component (useACDCAgent hook)
     ↓
 POST /api/agents/stream (SSE endpoint)
     ↓
@@ -67,14 +67,14 @@ Real-time UI Updates
 
 ## 🎯 Part 1: Backend Architecture
 
-### 1.1 BaseNexusAgent Class
+### 1.1 BaseACDCAgent Class
 
 **Purpose:** Abstract base class that all agents inherit from.
 
-**Location:** `/lib/agents/nexus/BaseNexusAgent.ts`
+**Location:** `/lib/agents/acdc/BaseACDCAgent.ts`
 
 ```typescript
-export abstract class BaseNexusAgent {
+export abstract class BaseACDCAgent {
   // Agent metadata
   abstract readonly id: string;
   abstract readonly name: string;
@@ -491,7 +491,7 @@ private async handleSessionMetrics(
 **Location:** `/app/api/agents/stream/route.ts`
 
 ```typescript
-import { SessionManagerAgent } from '@/lib/agents/nexus/SessionManagerAgent';
+import { SessionManagerAgent } from '@/lib/agents/acdc/SessionManagerAgent';
 import { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -519,7 +519,7 @@ export async function POST(req: NextRequest) {
         
         controller.close();
       } catch (error) {
-        console.error('[NexusAPI] Stream error:', error);
+        console.error('[ACDCAPI] Stream error:', error);
         const errorChunk = {
           type: 'error',
           data: { message: 'Stream failed' },
@@ -605,14 +605,14 @@ export interface AgentChunk {
 
 ## 🎨 Part 3: Frontend Architecture
 
-### 3.1 useNexusAgent Hook
+### 3.1 useACDCAgent Hook
 
 **Purpose:** React hook that manages agent communication and state.
 
-**Location:** `/lib/hooks/useNexusAgent.ts`
+**Location:** `/lib/hooks/useACDCAgent.ts`
 
 ```typescript
-export function useNexusAgent(options: UseNexusAgentOptions) {
+export function useACDCAgent(options: UseACDCAgentOptions) {
   const { agentId, sessionId, onChunk } = options;
   
   const messagesRef = useRef<Message[]>([]);
@@ -623,7 +623,7 @@ export function useNexusAgent(options: UseNexusAgentOptions) {
   
   const sendMessage = useCallback(async (input: string) => {
     if (isStreaming) {
-      console.warn('[useNexusAgent] Already streaming, ignoring new message');
+      console.warn('[useACDCAgent] Already streaming, ignoring new message');
       return;
     }
     
@@ -909,7 +909,7 @@ const starterPrompts = [
 ```tsx
 "use client";
 
-import { useNexusAgent } from '@/lib/hooks/useNexusAgent';
+import { useACDCAgent } from '@/lib/hooks/useACDCAgent';
 import {
   Conversation,
   ConversationContent,
@@ -930,7 +930,7 @@ import {
 import { Suggestions, Suggestion } from "@/components/ai/suggestion";
 import { useState } from "react";
 
-export function NexusChat({ sessionId }: { sessionId: string }) {
+export function ACDCChat({ sessionId }: { sessionId: string }) {
   const [input, setInput] = useState("");
   
   const {
@@ -938,7 +938,7 @@ export function NexusChat({ sessionId }: { sessionId: string }) {
     isStreaming,
     error,
     sendMessage,
-  } = useNexusAgent({
+  } = useACDCAgent({
     agentId: 'session-manager-agent',
     sessionId,
   });
@@ -1240,19 +1240,19 @@ private async handleSessionMetrics(
 
 #### 🔴 No Shared Package
 **The Problem:**
-- Each project duplicates BaseNexusAgent
+- Each project duplicates BaseACDCAgent
 - Version drift across projects
 - Bug fixes require N changes
 
 **The Solution:**
 ```
 packages/
-  nexus-core/
+  acdc-core/
     package.json
     tsconfig.json
     src/
       agents/
-        BaseNexusAgent.ts
+        BaseACDCAgent.ts
       types/
         index.ts
       tools/
@@ -1273,9 +1273,9 @@ packages:
 
 **Usage in projects:**
 ```typescript
-import { BaseNexusAgent } from '@acdc/nexus-core';
+import { BaseACDCAgent } from '@acdc/acdc-core';
 
-export class SessionManagerAgent extends BaseNexusAgent {
+export class SessionManagerAgent extends BaseACDCAgent {
   // Project-specific implementation
 }
 ```
@@ -1290,17 +1290,17 @@ const agent = new SessionManagerAgent();
 **The Solution:**
 ```typescript
 // ✅ Use registry
-const agent = nexusRegistry.getAgent('session-manager-agent');
+const agent = acdcRegistry.getAgent('session-manager-agent');
 
 // Registry implementation
-class NexusRegistry {
-  private agents = new Map<string, BaseNexusAgent>();
+class ACDCRegistry {
+  private agents = new Map<string, BaseACDCAgent>();
   
-  register(agent: BaseNexusAgent) {
+  register(agent: BaseACDCAgent) {
     this.agents.set(agent.id, agent);
   }
   
-  getAgent(id: string): BaseNexusAgent {
+  getAgent(id: string): BaseACDCAgent {
     const agent = this.agents.get(id);
     if (!agent) {
       throw new Error(`Agent not found: ${id}`);
@@ -1308,14 +1308,14 @@ class NexusRegistry {
     return agent;
   }
   
-  getAllAgents(): BaseNexusAgent[] {
+  getAllAgents(): BaseACDCAgent[] {
     return Array.from(this.agents.values());
   }
 }
 
 // Register agents at startup
-nexusRegistry.register(new SessionManagerAgent());
-nexusRegistry.register(new WorkflowAgent());
+acdcRegistry.register(new SessionManagerAgent());
+acdcRegistry.register(new WorkflowAgent());
 ```
 
 ---
@@ -1324,9 +1324,9 @@ nexusRegistry.register(new WorkflowAgent());
 
 #### For Adding New Agents
 
-1. **Extend BaseNexusAgent**
+1. **Extend BaseACDCAgent**
 ```typescript
-export class NewsAgent extends BaseNexusAgent {
+export class NewsAgent extends BaseACDCAgent {
   readonly id = 'news-agent';
   readonly name = 'News Agent';
   readonly description = 'Aggregates and summarizes news';
@@ -1369,12 +1369,12 @@ export class NewsAgent extends BaseNexusAgent {
 
 2. **Register Agent**
 ```typescript
-nexusRegistry.register(new NewsAgent());
+acdcRegistry.register(new NewsAgent());
 ```
 
 3. **Use in UI**
 ```typescript
-const { messages, sendMessage } = useNexusAgent({
+const { messages, sendMessage } = useACDCAgent({
   agentId: 'news-agent',
   sessionId,
 });
@@ -1394,14 +1394,14 @@ const { messages, sendMessage } = useNexusAgent({
 
 ### Backend (High Priority)
 
-- [ ] **Create shared `@acdc/nexus-core` package**
-  - [ ] Move BaseNexusAgent to shared package
+- [ ] **Create shared `@acdc/acdc-core` package**
+  - [ ] Move BaseACDCAgent to shared package
   - [ ] Move types to shared package
   - [ ] Configure pnpm workspace
   - [ ] Update imports in SMNB
 
-- [ ] **Implement Nexus Registry**
-  - [ ] Create NexusRegistry class
+- [ ] **Implement ACDC Registry**
+  - [ ] Create ACDCRegistry class
   - [ ] Support agent registration
   - [ ] Dynamic agent discovery
   - [ ] Update API route to use registry
@@ -1472,19 +1472,19 @@ const { messages, sendMessage } = useNexusAgent({
 
 ## 🚀 Part 7: Quick Start Guide
 
-### For Developers: Adding Nexus to Your Project
+### For Developers: Adding ACDC to Your Project
 
 #### Step 1: Install Shared Package (Future)
 ```bash
-pnpm add @acdc/nexus-core
+pnpm add @acdc/acdc-core
 ```
 
 #### Step 2: Create Your Agent
 ```typescript
 // lib/agents/MyAgent.ts
-import { BaseNexusAgent } from '@acdc/nexus-core';
+import { BaseACDCAgent } from '@acdc/acdc-core';
 
-export class MyAgent extends BaseNexusAgent {
+export class MyAgent extends BaseACDCAgent {
   readonly id = 'my-agent';
   readonly name = 'My Agent';
   readonly description = 'Does something useful';
@@ -1517,10 +1517,10 @@ export async function POST(req: NextRequest) {
 #### Step 4: Use in UI
 ```tsx
 // components/MyChat.tsx
-import { useNexusAgent } from '@acdc/nexus-core/react';
+import { useACDCAgent } from '@acdc/acdc-core/react';
 
 export function MyChat() {
-  const { messages, sendMessage, isStreaming } = useNexusAgent({
+  const { messages, sendMessage, isStreaming } = useACDCAgent({
     agentId: 'my-agent',
     sessionId: 'session-123',
   });
@@ -1533,7 +1533,7 @@ export function MyChat() {
 
 ## 📊 Conclusion
 
-The Nexus Framework provides a **production-ready foundation** for building agentic AI systems with streaming responses and rich UI. While we're at ~40% of the original vision, the implemented features are **battle-tested** and **scalable**.
+The ACDC Framework provides a **production-ready foundation** for building agentic AI systems with streaming responses and rich UI. While we're at ~40% of the original vision, the implemented features are **battle-tested** and **scalable**.
 
 **Strengths:**
 - ✅ Streaming architecture is gold standard

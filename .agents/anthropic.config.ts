@@ -1,6 +1,6 @@
 /**
  * Centralized Anthropic SDK Configuration
- * Single source of truth for all AI/LLM settings across the Nexus framework
+ * Single source of truth for all AI/LLM settings across the ACDC framework
  * 
  * Reference: /.github/anthropicTS-SDK-instructions.md
  * Audit: /.agents/anthropic-sdk-compliance-audit.md
@@ -9,7 +9,7 @@
  * - smnb: Session management and analytics
  * - acdc-digital: Content generation
  * - donut: Community engagement
- * - Other Nexus framework projects
+ * - Other ACDC Framework projects
  */
 
 import Anthropic from '@anthropic-ai/sdk';

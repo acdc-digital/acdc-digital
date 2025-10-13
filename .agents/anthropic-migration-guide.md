@@ -1,5 +1,5 @@
 # Anthropic SDK Migration Guide
-## Nexus Agent Architecture Updates
+## ACDC Agent Architecture Updates
 
 **Status**: 🟡 In Progress  
 **Priority**: 🔴 Critical (Security) + 🟡 High (Models)  
@@ -9,7 +9,7 @@
 
 ## Overview
 
-This guide provides step-by-step instructions for migrating the Nexus agent architecture to comply with Anthropic TypeScript SDK best practices.
+This guide provides step-by-step instructions for migrating the ACDC agent architecture to comply with Anthropic TypeScript SDK best practices.
 
 **Related Documents**:
 - Audit Report: `/.agents/anthropic-sdk-compliance-audit.md`
@@ -333,7 +333,7 @@ console.log('🔑 SERVER: API key configured');
 
 #### Step 2.1: Import Configuration
 
-**Update** `lib/agents/nexus/SessionManagerAgent.ts`:
+**Update** `lib/agents/acdc/SessionManagerAgent.ts`:
 
 ```typescript
 // Add at top
@@ -507,12 +507,12 @@ await storeMessageMetadata({
 
 **Trade-offs**:
 - Requires refactoring tool definitions
-- May need custom layer for Nexus architecture
+- May need custom layer for ACDC architecture
 
 **Example**:
 
 ```typescript
-// lib/agents/nexus/tools/sessionTools.ts
+// lib/agents/acdc/tools/sessionTools.ts
 
 import { betaTool } from '@anthropic-ai/sdk/helpers/json-schema';
 
@@ -558,7 +558,7 @@ export const sessionTools = [
 
 **Trade-offs**:
 - May not fit custom UI chunk requirements
-- Would need streaming layer for Nexus architecture
+- Would need streaming layer for ACDC architecture
 
 **Decision**: Evaluate based on team preference and UI needs.
 
