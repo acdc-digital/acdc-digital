@@ -5,11 +5,12 @@ import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { TrendingUp, Hash, X, Activity, Sparkles } from "lucide-react";
+import { TrendingUp, Hash, X, Activity, Sparkles, LayoutGrid, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useCallback } from "react";
 import { useAction } from "convex/react";
 import Instructions from "./components/Instructions";
+import { KeywordFlowView } from "./components/KeywordFlowView";
 
 // Performance tier styles matching heatmap design
 const TIER_STYLES = {
@@ -78,6 +79,8 @@ interface ColumnState {
 
 export default function Generator() {
 
+  // View mode state
+  const [viewMode, setViewMode] = useState<'columns' | 'flow'>('columns');
   
   // Drag state management
   const [draggedItem, setDraggedItem] = useState<KeywordItem | null>(null);
@@ -351,6 +354,25 @@ export default function Generator() {
     );
   };
 
+  // Add keyword to column (for flow view)
+  const addKeywordToColumn = useCallback((keyword: KeywordItem, columnId: string) => {
+    setColumns(prevColumns =>
+      prevColumns.map(col => {
+        if (col.id === columnId) {
+          // Check if item already exists in this column
+          const exists = col.items.some(item => item.keyword === keyword.keyword);
+          if (!exists) {
+            return {
+              ...col,
+              items: [...col.items, keyword]
+            };
+          }
+        }
+        return col;
+      })
+    );
+  }, []);
+
   // Handle status change for instructions
   const handleInstructionsStatusChange = useCallback((columnId: string, hasInstructions: boolean) => {
     console.log(`Status change for ${columnId}:`, hasInstructions);
@@ -512,6 +534,47 @@ export default function Generator() {
     <div className="flex-1 flex flex-col bg-[#1a1a1a] overflow-hidden">
       <div className="flex-1 overflow-y-auto p-6">
 
+        {/* View Mode Toggle */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === 'columns' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('columns')}
+              className="gap-2"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              Columns
+            </Button>
+            <Button
+              variant={viewMode === 'flow' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('flow')}
+              className="gap-2"
+            >
+              <GitBranch className="h-4 w-4" />
+              Flow View
+            </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {viewMode === 'columns' ? 'Drag & drop keywords into columns' : 'Connect keywords to columns in flow view'}
+          </div>
+        </div>
+
+        {/* Conditional rendering based on view mode */}
+        {viewMode === 'flow' ? (
+          // Flow View - Full height container
+          <div className="h-[calc(100vh-200px)] w-full">
+            <KeywordFlowView
+              keywords={displayTrends || []}
+              columns={columns}
+              onAddKeywordToColumn={addKeywordToColumn}
+              onGeneratePost={handleGeneratePost}
+            />
+          </div>
+        ) : (
+          // Original Columns View
+          <>
         {/* Trending Keywords Section */}
         {!displayTrends ? (
           <div className="flex flex-wrap gap-2 mb-6">
@@ -780,6 +843,8 @@ export default function Generator() {
             </Card>
           ))}
         </div>
+          </>
+        )}
       </div>
     </div>
   );
