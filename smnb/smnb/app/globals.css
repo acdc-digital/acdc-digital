@@ -440,3 +440,77 @@
 .dark .ProseMirror div.newsletter-display {
   color: #ffffff !important;
 }
+
+/* React Flow Custom Styles for Dark Theme */
+.react-flow-dark {
+  background-color: #1a1a1a;
+}
+
+.react-flow-dark .react-flow__node {
+  color: #ffffff;
+}
+
+.react-flow-dark .react-flow__edge-path {
+  stroke: #818384;
+  stroke-width: 2px;
+}
+
+.react-flow-dark .react-flow__edge.selected .react-flow__edge-path {
+  stroke: #007acc;
+  stroke-width: 3px;
+}
+
+.react-flow-dark .react-flow__handle {
+  background: #007acc;
+  border: 2px solid #ffffff;
+  width: 10px;
+  height: 10px;
+}
+
+.react-flow-dark .react-flow__handle:hover {
+  background: #0098ff;
+}
+
+.react-flow-dark .react-flow__controls {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+}
+
+.react-flow-dark .react-flow__controls-button {
+  background: #252526;
+  border: 1px solid #343536;
+  color: #ffffff;
+}
+
+.react-flow-dark .react-flow__controls-button:hover {
+  background: #343536;
+}
+
+.react-flow-dark .react-flow__minimap {
+  background: #252526;
+  border: 1px solid #343536;
+}
+
+.react-flow-dark .react-flow__attribution {
+  background: rgba(37, 37, 38, 0.9);
+  color: #808080;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+/* Node animation on hover */
+.react-flow-dark .react-flow__node:hover {
+  filter: brightness(1.2);
+  transition: filter 0.2s ease;
+}
+
+/* Edge animation */
+.react-flow-dark .react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
