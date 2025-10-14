@@ -145,6 +145,28 @@ export const executeAgent = action({
           };
         }
 
+        case 'vector_search_feds': {
+          const { query, category, limit, minScore } = input as {
+            query: string;
+            category?: string;
+            limit?: number;
+            minScore?: number;
+          };
+          const result: unknown = await ctx.runAction(api.feds.embeddings.semanticSearch, {
+            query,
+            category,
+            verificationStatus: 'verified', // Only search verified documents
+            limit: limit || 5,
+            minScore: minScore || 0.7,
+          });
+          return {
+            success: true,
+            data: result,
+            toolId,
+            executedAt: Date.now(),
+          };
+        }
+
         default:
           throw new Error(`Unknown tool: ${toolId}`);
       }
@@ -230,6 +252,12 @@ export const getAgentCapabilities = action({
           id: 'analyze_costs',
           name: 'Cost Analysis',
           description: 'Analyze spending, costs, and budget projections',
+          requiresPremium: false,
+        },
+        {
+          id: 'vector_search_feds',
+          name: 'FEDS Corpus Search',
+          description: 'Search the FEDS corpus for relevant statistics, reports, and expert information using semantic similarity',
           requiresPremium: false,
         },
       ],

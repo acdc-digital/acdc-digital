@@ -268,6 +268,57 @@ export default defineSchema({
       filterFields: ["agent_type", "priority", "tone", "sentiment"]
     }),
 
+  // 📚 FEDS CORPUS - Document corpus for vector search
+  feds_documents: defineTable({
+    // Document content
+    title: v.string(),
+    content: v.string(), // Full text content
+    summary: v.optional(v.string()), // Short summary
+    
+    // Document metadata
+    documentType: v.union(
+      v.literal("statistic"),
+      v.literal("report"),
+      v.literal("guideline"),
+      v.literal("policy"),
+      v.literal("fact")
+    ),
+    category: v.string(), // e.g., "mental-health", "productivity", "technology"
+    tags: v.array(v.string()),
+    source: v.optional(v.string()), // Source URL or reference
+    
+    // Embedding data
+    embedding: v.array(v.number()), // Vector embedding (1536 dimensions for OpenAI)
+    embeddingModel: v.string(), // e.g., "text-embedding-3-small"
+    
+    // Quality metrics
+    relevanceScore: v.optional(v.number()), // 0-100 quality/relevance score
+    verificationStatus: v.union(
+      v.literal("verified"),
+      v.literal("pending"),
+      v.literal("draft")
+    ),
+    
+    // Timestamps
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastAccessedAt: v.optional(v.number()),
+    accessCount: v.optional(v.number()),
+  })
+    .index("by_category", ["category"])
+    .index("by_type", ["documentType"])
+    .index("by_verification", ["verificationStatus"])
+    .index("by_created", ["createdAt"])
+    .searchIndex("search_content", {
+      searchField: "content",
+      filterFields: ["category", "documentType", "verificationStatus"]
+    })
+    .vectorIndex("by_embedding", {
+      vectorField: "embedding",
+      dimensions: 1536,
+      filterFields: ["category", "documentType", "verificationStatus"]
+    }),
+
   // 📊 STATS SYSTEM TABLES - Track comprehensive analytics
   
   // 1. Post Processing Stats - Track lifecycle of each post
