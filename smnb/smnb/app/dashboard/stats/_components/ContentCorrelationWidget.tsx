@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp } from 'lucide-react';
@@ -20,7 +20,11 @@ interface SubredditCorrelation {
 }
 
 export function ContentCorrelationWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getTradingContentCorrelation);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getTradingContentCorrelation,
+    {},
+    "content-correlation"
+  );
 
   if (!data) {
     return (

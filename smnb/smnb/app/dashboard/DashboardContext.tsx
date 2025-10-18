@@ -17,8 +17,8 @@ interface DashboardProviderProps {
   children: ReactNode;
 }
 
-export function DashboardProvider({ children }: DashboardProviderProps) {
-  const [activePanel, setActivePanel] = useState<PanelType>("archive");
+export function DashboardProvider({ children }: { children: React.ReactNode }) {
+  const [activePanel, setActivePanel] = useState<PanelType>("landmark");
 
   const handleSetActivePanel = (panel: PanelType) => {
     console.log('🔄 Dashboard Context: Panel changing from', activePanel, 'to', panel);

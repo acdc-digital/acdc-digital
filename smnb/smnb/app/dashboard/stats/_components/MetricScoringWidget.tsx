@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calculator, Star, TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -63,7 +63,11 @@ function getScoreColor(score: number): string {
 }
 
 export function MetricScoringWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getTradingMetricScoringMatrix);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getTradingMetricScoringMatrix,
+    {},
+    "metric-scoring-matrix"
+  );
 
   if (!data) {
     return (

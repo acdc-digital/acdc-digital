@@ -26,10 +26,10 @@ import {
 
 export default function Home() {
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative">
+    <div className="min-h-screen w-full text-white overflow-x-hidden relative">
       {/* Main Background Pattern - BMW M-Series Inspired Grayscale */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#191919] via-[#1f1f1f] to-[#262626]"></div>
+      <div className="absolute inset-0 w-full">
+        <div className="absolute inset-0 w-full bg-gradient-to-br from-[#191919] via-[#1f1f1f] to-[#262626]"></div>
         <div className="absolute inset-0 opacity-15">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl animate-float"></div>
           <div className="absolute top-3/4 right-1/4 w-80 h-80 bg-purple-500/8 rounded-full blur-3xl animate-float animate-delay-2"></div>
@@ -40,7 +40,7 @@ export default function Home() {
       </div>
       
       {/* Content Layer */}
-      <div className="relative z-10">
+      <div className="relative z-10 w-full">
       <style jsx global>{`
         @keyframes marquee {
           0% { transform: translateX(100%); }
@@ -333,11 +333,11 @@ export default function Home() {
 
       {/* Revolutionary Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden" id="platform">
-        <div className="relative z-10 max-w-7xl mx-auto px-8">
-          <div className="grid lg:grid-cols-12 gap-12 items-start lg:items-start">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
             
             {/* Hero Content */}
-            <div className="lg:col-span-6 space-y-8">
+            <div className="space-y-8">
               <div className="space-y-0">
                 <div className="inline-flex items-center space-x-3 glass-card px-6 py-3 mb-4 rounded-full">
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse-glow"></div>
@@ -390,7 +390,7 @@ export default function Home() {
             </div>
             
             {/* Interactive Console Demo */}
-            <div className="lg:col-span-6 lg:pt-0 lg:mt-0">
+            <div className="lg:pt-0 lg:mt-0">
               <div className="glass-strong rounded-2xl overflow-hidden shadow-strong animate-float">
                 {/* Terminal Header - BMW M-Series Medium Dark */}
                 <div className="bg-[#262626] border-b border-blue-400/20 px-8 py-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Eye, Edit3, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,11 +18,72 @@ export default function MarkdownEditor({
   const [content, setContent] = useState(initialContent);
   const [isPreview, setIsPreview] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
+  const mermaidRef = useRef<HTMLDivElement>(null);
+  const [mermaidLoaded, setMermaidLoaded] = useState(false);
 
   useEffect(() => {
     setContent(initialContent);
     setHasChanges(false);
   }, [initialContent]);
+
+  // Dynamically load Mermaid
+  useEffect(() => {
+    let isMounted = true;
+    
+    import('mermaid').then((mod) => {
+      if (isMounted) {
+        const mermaid = mod.default;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'dark',
+          themeVariables: {
+            darkMode: true,
+            background: '#1a1a1a',
+            primaryColor: '#4CAF50',
+            primaryTextColor: '#fff',
+            primaryBorderColor: '#2E7D32',
+            lineColor: '#fff',
+            secondaryColor: '#2196F3',
+            tertiaryColor: '#FF9800',
+            fontSize: '14px',
+          },
+        });
+        setMermaidLoaded(true);
+      }
+    }).catch((error) => {
+      console.error('Failed to load Mermaid:', error);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Render Mermaid diagrams when content changes
+  useEffect(() => {
+    if (!mermaidLoaded || !isPreview || !mermaidRef.current) return;
+
+    const renderDiagrams = async () => {
+      const mermaid = (await import('mermaid')).default;
+      const mermaidElements = mermaidRef.current!.querySelectorAll('.mermaid-diagram');
+      
+      mermaidElements.forEach(async (element, index) => {
+        const code = element.getAttribute('data-mermaid-code');
+        if (code) {
+          try {
+            const id = `mermaid-${Date.now()}-${index}`;
+            const { svg } = await mermaid.render(id, code);
+            element.innerHTML = svg;
+          } catch (error: any) {
+            console.error('Mermaid rendering error:', error);
+            element.innerHTML = `<pre class="text-red-400 p-4 bg-black/50 rounded">Error rendering diagram: ${error.message}</pre>`;
+          }
+        }
+      });
+    };
+
+    renderDiagrams();
+  }, [content, isPreview, mermaidLoaded]);
 
   const handleContentChange = (value: string) => {
     setContent(value);
@@ -38,6 +99,16 @@ export default function MarkdownEditor({
 
   // Enhanced markdown to HTML conversion
   const renderMarkdown = (markdown: string) => {
+    // Handle raw HTML/CSS sections
+    if (markdown.includes('<div class="agent-card-container">') || markdown.includes('<style>')) {
+      return (
+        <div 
+          className="wiki-content"
+          dangerouslySetInnerHTML={{ __html: markdown }}
+        />
+      );
+    }
+    
     const sections = markdown.split('\n\n');
     
     return sections.map((section, i) => {
@@ -129,7 +200,21 @@ export default function MarkdownEditor({
       
       // Code blocks
       if (trimmed.startsWith('```') && trimmed.endsWith('```')) {
-        const code = trimmed.slice(3, -3).trim();
+        const firstLine = trimmed.split('\n')[0];
+        const language = firstLine.slice(3).trim();
+        const code = trimmed.slice(firstLine.length + 1, -3).trim();
+        
+        // Handle Mermaid diagrams
+        if (language === 'mermaid') {
+          return (
+            <div 
+              key={i} 
+              className="mermaid-diagram my-8 flex justify-center bg-[#0a0a0a] border border-white/10 p-6 rounded-lg overflow-x-auto"
+              data-mermaid-code={code}
+            />
+          );
+        }
+        
         return (
           <pre key={i} className="bg-black/50 border border-white/10 p-4 rounded-lg mb-4 overflow-x-auto">
             <code className="text-sm text-green-400 font-mono">{code}</code>
@@ -200,7 +285,7 @@ export default function MarkdownEditor({
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6" ref={mermaidRef}>
         {!isPreview && editable ? (
           <textarea
             value={content}

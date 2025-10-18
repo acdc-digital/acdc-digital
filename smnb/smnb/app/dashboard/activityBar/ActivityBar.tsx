@@ -9,14 +9,16 @@ import {
   Wallpaper,
   Haze,
   BarChart3,
-  Network,
+  Hash,
   NotebookPen,
   Settings,
   User,
-  Archive
+  Archive,
+  Landmark,
+  ChartSpline
 } from "lucide-react";
 
-export type PanelType = "archive" | "home" | "stats" | "heatmap" | "network" | "docs" | "settings" | "account";
+export type PanelType = "archive" | "home" | "stats" | "heatmap" | "spline" | "keywords" | "landmark" | "docs" | "settings" | "account";
 
 interface ActivityBarProps {
   activePanel?: PanelType;
@@ -25,11 +27,14 @@ interface ActivityBarProps {
 
 export default function ActivityBar({ activePanel = "archive", onPanelChange }: ActivityBarProps) {
   const mainActivityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
+    { id: "landmark", icon: Landmark, label: "Landmark" },
     { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },
     { id: "stats", icon: BarChart3, label: "Stats" },
-    { id: "heatmap", icon: Haze, label: "Heatmap" },
-    { id: "network", icon: Network, label: "Network" },
+        { id: "heatmap" as PanelType, icon: Haze, label: "Market Heatmap" },
+    { id: "spline" as PanelType, icon: ChartSpline, label: "Spline Chart" },
+    { id: "keywords" as PanelType, icon: Hash, label: "Keywords" },
+    
     { id: "docs", icon: NotebookPen, label: "Docs" },
     { id: "account", icon: User, label: "Account" },
   ];

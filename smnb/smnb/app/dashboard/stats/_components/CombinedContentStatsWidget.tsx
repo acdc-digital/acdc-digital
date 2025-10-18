@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Layers3 } from 'lucide-react';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 
 interface CombinedContentStat {
   subreddit: string;
@@ -21,7 +21,11 @@ interface CombinedContentStat {
 }
 
 export function CombinedContentStatsWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getTradingCombinedContentStats);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getTradingCombinedContentStats,
+    {},
+    "combined-content-stats"
+  );
 
   if (!data) {
     return (
@@ -69,42 +73,38 @@ export function CombinedContentStatsWidget() {
         <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <div className="space-y-2 p-4">
             {data.contentStats.map((stat: CombinedContentStat, index: number) => (
-              <div key={stat.subreddit} className="flex items-center justify-between text-xs">
+              <div key={stat.subreddit} className="flex items-center justify-between text-xs p-2 hover:bg-muted/20 rounded transition-colors">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span className="text-muted-foreground font-mono text-[10px] w-6 text-right">
                     #{index + 1}
                   </span>
-                  <span className="font-medium text-foreground truncate">
-                    r/{stat.subreddit}
-                  </span>
-                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                    <span className="px-1 py-0.5 bg-blue-500/20 text-blue-400 rounded">
-                      {stat.postCount}p
-                    </span>
-                    <span className="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded">
-                      {stat.storyCount}s
-                    </span>
-                    <span className="px-1 py-0.5 bg-purple-500/20 text-purple-400 rounded">
-                      {stat.mentions}m
-                    </span>
-                    {stat.overallSentiment !== 'neutral' && (
-                      <Badge 
-                        variant={stat.overallSentiment === 'bullish' ? 'default' : 'destructive'}
-                        className="text-[8px] px-1 py-0"
-                      >
-                        {stat.overallSentiment}
-                      </Badge>
-                    )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-foreground truncate">
+                      r/{stat.subreddit}
+                    </div>
+                    <div className="flex items-center gap-1 text-[9px] text-muted-foreground mt-0.5">
+                      <span className="px-1 py-0.5 bg-blue-500/20 text-blue-400 rounded">
+                        {stat.postCount}p
+                      </span>
+                      <span className="px-1 py-0.5 bg-orange-500/20 text-orange-400 rounded">
+                        {stat.storyCount}s
+                      </span>
+                      <span className="px-1 py-0.5 bg-purple-500/20 text-purple-400 rounded">
+                        {stat.mentions}m
+                      </span>
+                      {stat.overallSentiment !== 'neutral' && (
+                        <Badge
+                          variant={stat.overallSentiment === 'bullish' ? 'default' : 'destructive'}
+                          className="text-[8px] px-1 py-0"
+                        >
+                          {stat.overallSentiment}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="w-16 bg-muted rounded-full h-1.5 overflow-hidden">
-                    <div 
-                      className="h-full bg-purple-500 transition-all duration-300"
-                      style={{ width: `${Math.max(stat.percentage, 2)}%` }}
-                    />
-                  </div>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 min-w-[2rem] text-center">
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 min-w-[2.5rem] text-center">
                     {stat.percentage.toFixed(1)}%
                   </Badge>
                   <div className="flex flex-col items-end text-[8px] text-muted-foreground">

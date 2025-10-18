@@ -1393,4 +1393,140 @@ export default defineSchema({
       filterFields: ["sessionId", "role", "messageType"]
     }),
 
+  // Keyword extraction cache
+  keywordCache: defineTable({
+    sourceType: v.string(), // "posts", "mentions", "stories", "combined"
+    sourceHash: v.string(), // Hash of source parameters
+    keywords: v.array(v.object({
+      term: v.string(),
+      count: v.number(),
+      sources: v.array(v.string()), // Which subreddits/posts
+      sentiment: v.union(v.string(), v.null()),
+      relatedTickers: v.array(v.string()),
+      category: v.string(), // "ticker", "sector", "topic"
+    })),
+    extractedAt: v.number(),
+    expiresAt: v.number(), // TTL for cache
+  })
+    .index("by_sourceHash", ["sourceHash"])
+    .index("by_expiresAt", ["expiresAt"]),
+
+  // Sentiment Excerpts - AI-generated analysis for tickers
+  sentiment_excerpts: defineTable({
+    ticker: v.string(), // Stock ticker symbol
+    excerpt: v.string(), // Generated analysis text
+    generated_at: v.number(), // When it was generated
+    expires_at: v.number(), // Cache expiration (24 hours)
+    token_usage_id: v.optional(v.id("token_usage")), // Link to token tracking
+    
+    // Context used for generation
+    sentiment_score: v.number(),
+    multiplier: v.number(),
+    change_percent: v.number(),
+    weight: v.number(),
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_ticker_and_generated_at", ["ticker", "generated_at"])
+    .index("by_expires_at", ["expires_at"]),
+
+  // Finlight News Summaries - Real-world news summaries from Finlight.me API
+  finlight_news_summaries: defineTable({
+    ticker: v.string(), // Stock ticker symbol
+    summary: v.string(), // Generated news summary text
+    news_sentiment_score: v.optional(v.number()), // News sentiment score (0-100, 50=neutral)
+    generated_at: v.number(), // When it was generated
+    expires_at: v.number(), // Cache expiration (24 hours)
+    articles_count: v.number(), // Number of articles summarized
+    sources: v.array(v.string()), // News sources used
+    weight: v.number(), // Index weight
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_ticker_and_generated_at", ["ticker", "generated_at"])
+    .index("by_expires_at", ["expires_at"]),
+
+  // Sentiment Scores - Calculated sentiment scores for Nasdaq-100 tickers
+  sentiment_scores: defineTable({
+    ticker: v.string(), // Stock ticker symbol
+    weight: v.number(), // Index weight (0.1 - 9.0%)
+    
+    // Sentiment metrics from Reddit data
+    mention_count: v.number(), // Number of times mentioned
+    average_sentiment: v.number(), // Average sentiment (0-1)
+    total_engagement: v.number(), // Total engagement score
+    momentum: v.number(), // Momentum percentage (-100 to +100)
+    
+    // Calculated score
+    calculated_score: v.number(), // Final sentiment score
+    multiplier: v.number(), // Performance multiplier (0.5-1.5)
+    
+    // Change tracking
+    previous_score: v.optional(v.number()), // Previous sentiment score
+    score_change_percent: v.optional(v.number()), // % change from previous score
+    
+    // Timestamps
+    calculated_at: v.number(), // When score was calculated
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_calculated_at", ["calculated_at"])
+    .index("by_ticker_and_calculated_at", ["ticker", "calculated_at"])
+    .index("by_score", ["calculated_score"]),
+
+  // Stock Price Cache - Real-time stock prices from Yahoo Finance API
+  stock_prices: defineTable({
+    ticker: v.string(), // Stock ticker symbol
+    
+    // Price data
+    current_price: v.number(), // Current stock price
+    previous_close: v.number(), // Previous closing price
+    change: v.number(), // Price change ($)
+    change_percent: v.number(), // Price change (%)
+    
+    // Additional quote data
+    day_high: v.optional(v.number()), // Day's high
+    day_low: v.optional(v.number()), // Day's low
+    volume: v.optional(v.number()), // Trading volume
+    market_cap: v.optional(v.number()), // Market capitalization
+    
+    // Timestamps
+    fetched_at: v.number(), // When data was fetched
+    expires_at: v.number(), // Cache expiration (24 hours)
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_ticker_and_fetched_at", ["ticker", "fetched_at"])
+    .index("by_expires_at", ["expires_at"]),
+
+  // Historical Chart Data - Hourly price data for charting
+  historical_chart_data: defineTable({
+    ticker: v.string(), // Stock ticker symbol
+    timestamp: v.number(), // Unix timestamp for this data point
+    datetime: v.string(), // ISO datetime string for readability
+    
+    // OHLCV data
+    open: v.number(), // Opening price
+    high: v.number(), // High price
+    low: v.number(), // Low price
+    close: v.number(), // Closing price
+    volume: v.number(), // Trading volume
+    
+    // Calculated differentials
+    price_change: v.number(), // Change from previous period
+    price_change_percent: v.number(), // % change from previous period
+    
+    // Metadata
+    period_type: v.string(), // "1h", "1d", etc.
+    data_source: v.string(), // "yahoo_finance"
+    
+    // Reference period info
+    reference_start: v.number(), // Start of reference period
+    reference_end: v.number(), // End of reference period
+    
+    // Timestamps
+    fetched_at: v.number(), // When data was fetched
+  })
+    .index("by_ticker", ["ticker"])
+    .index("by_ticker_and_timestamp", ["ticker", "timestamp"])
+    .index("by_ticker_and_datetime", ["ticker", "datetime"])
+    .index("by_reference_period", ["ticker", "reference_start", "reference_end"])
+    .index("by_timestamp", ["timestamp"]),
+
 });

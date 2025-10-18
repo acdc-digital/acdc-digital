@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, BarChart3, ExternalLink } from 'lucide-react';
@@ -58,7 +58,11 @@ function getMarketImpactColor(impact: string): string {
 }
 
 export function PostRankingsWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getTradingPostRankings);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getTradingPostRankings,
+    {},
+    "post-rankings"
+  );
 
   if (!data) {
     return (

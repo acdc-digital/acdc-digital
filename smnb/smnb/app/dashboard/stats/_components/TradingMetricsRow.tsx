@@ -1,14 +1,18 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Activity, Target, BarChart3 } from 'lucide-react';
 
 export function MarketSentimentWidget() {
-  const data = useQuery(api.stats.trading.getMarketSentimentMetrics, {});
+  const data = useCachedQuery(
+    api.stats.trading.getMarketSentimentMetrics,
+    {},
+    "market-sentiment-metrics"
+  );
 
   if (!data) {
     return (
@@ -79,7 +83,11 @@ export function MarketSentimentWidget() {
 }
 
 export function MomentumWidget() {
-  const data = useQuery(api.stats.trading.getMomentumIndicators, {});
+  const data = useCachedQuery(
+    api.stats.trading.getMomentumIndicators,
+    {},
+    "momentum-indicators"
+  );
 
   if (!data) {
     return (
@@ -148,7 +156,11 @@ export function MomentumWidget() {
 }
 
 export function VolatilityWidget() {
-  const data = useQuery(api.stats.trading.getVolatilityMetrics, {});
+  const data = useCachedQuery(
+    api.stats.trading.getVolatilityMetrics,
+    {},
+    "volatility-metrics"
+  );
 
   if (!data) {
     return (
@@ -216,7 +228,11 @@ export function VolatilityWidget() {
 }
 
 export function TradingSignalsWidget() {
-  const data = useQuery(api.stats.trading.getTradingSignalsSummary, {});
+  const data = useCachedQuery(
+    api.stats.trading.getTradingSignalsSummary,
+    {},
+    "trading-signals-summary"
+  );
 
   if (!data) {
     return (

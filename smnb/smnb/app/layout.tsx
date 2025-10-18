@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville, Work_Sans, Playfair_Display, Crimson_Text, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { ClerkProvider } from '@clerk/nextjs';
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -30,6 +31,12 @@ const workSans = Work_Sans({
   variable: "--font-work-sans",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
+const newsreader = localFont({
+  src: "../../../.fonts/Newsreader/Newsreader-VariableFont_opsz,wght.ttf",
+  variable: "--font-newsreader",
+  weight: "200 800",
 });
 
 // Newsletter fonts
@@ -64,7 +71,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} ${workSans.variable} ${playfairDisplay.variable} ${crimsonText.variable} ${inter.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${libreBaskerville.variable} ${workSans.variable} ${newsreader.variable} ${playfairDisplay.variable} ${crimsonText.variable} ${inter.variable} antialiased`}
       >
         <ClerkProvider>
           <ThemeProvider
