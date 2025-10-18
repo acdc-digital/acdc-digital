@@ -204,7 +204,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
   
   // Story history
   storyHistory: [],
-  maxStoryHistory: 100,
+  maxStoryHistory: Infinity, // No limit - load ALL stories
   
   // Thread-aware state
   activeThreads: [],
@@ -619,10 +619,9 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
   addCompletedStory: (story) => {
     set((state) => {
       const newHistory = [story, ...state.storyHistory];
-      // Keep only the most recent stories within the limit
-      const trimmedHistory = newHistory.slice(0, state.maxStoryHistory);
-      console.log(`📚 Added completed story: "${story.narrative.substring(0, 50)}..." (${trimmedHistory.length} total)`);
-      return { storyHistory: trimmedHistory };
+      // No limit - keep all stories
+      console.log(`📚 Added completed story: "${story.narrative.substring(0, 50)}..." (${newHistory.length} total)`);
+      return { storyHistory: newHistory };
     });
     
     // Also save to Convex asynchronously
@@ -658,9 +657,9 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
     
     set((state) => {
       const newHistory = [testStory, ...state.storyHistory];
-      const trimmedHistory = newHistory.slice(0, state.maxStoryHistory);
+      // No limit - keep all stories
       console.log(`🧪 Added test story for demonstration purposes`);
-      return { storyHistory: trimmedHistory };
+      return { storyHistory: newHistory };
     });
   },
 

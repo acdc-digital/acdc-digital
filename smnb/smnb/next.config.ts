@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       'img.clerk.com',
-      'images.clerk.dev'
+      'images.clerk.dev',
+      'raw.githubusercontent.com'
     ],
   },
 };

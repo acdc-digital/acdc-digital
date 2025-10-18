@@ -982,43 +982,7 @@ export class HostAgentService extends EventEmitter {
     }, this.NARRATION_TIMEOUT_MS);
     
     const prompt = this.buildPrompt(item);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let finalText = ''; // Accumulates chunks from LLM (used in callback below)
-    let streamingBuffer = '';
-    let isStreaming = false;
-    
-    // Character-by-character streaming function for precise WPM control
-    const streamCharacterByCharacter = async (text: string) => {
-      if (isStreaming) return; // Prevent overlapping streams
-      
-      isStreaming = true;
-      console.log(`📡 Starting character-by-character streaming at ${Math.round(1000/(this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS/5))} WPM...`);
-      
-      for (let i = 0; i < text.length; i++) {
-        // Check if service is still active before each character
-        if (!this.state.isActive) {
-          console.log('⏸️ Host agent: Stopping character streaming - service is inactive');
-          isStreaming = false;
-          return;
-        }
-        
-        streamingBuffer += text[i];
-        
-        // Emit each character addition
-        this.emit('narration:streaming', {
-          narrationId: narration.id,
-          currentText: streamingBuffer
-        });
-        
-        // Wait between characters for precise WPM timing
-        if (i < text.length - 1) { // Don't delay after the last character
-          await new Promise(resolve => setTimeout(resolve, this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS));
-        }
-      }
-      
-      isStreaming = false;
-      console.log(`✅ Character streaming completed (${text.length} characters)`);
-    };
     
     try {
       // Rate limit protection: ensure minimum 1.2s between requests (50 RPM)
@@ -1038,7 +1002,7 @@ export class HostAgentService extends EventEmitter {
           maxTokens: VERBOSITY_LEVELS[this.config.verbosity].maxTokens,
           systemPrompt: HOST_PERSONALITIES[this.config.personality].systemPrompt
         },
-        // onChunk callback - collect chunks but don't stream them immediately
+        // onChunk callback - stream chunks as they arrive
         (chunk: string) => {
           // Clear timeout on first chunk received - streaming has started!
           if (this.narrationTimeout) {
@@ -1048,7 +1012,12 @@ export class HostAgentService extends EventEmitter {
           }
           
           finalText += chunk;
-          // Don't emit chunks immediately - we'll stream character-by-character at the end
+          
+          // ✅ Emit chunks immediately as they arrive from Claude
+          this.emit('narration:streaming', {
+            narrationId: narration.id,
+            currentText: finalText
+          });
         },
         // onComplete callback - called when Claude API finishes generating text
         async (fullText: string) => {
@@ -1058,14 +1027,9 @@ export class HostAgentService extends EventEmitter {
             return;
           }
           
-          console.log(`🤖 LLM generation completed (${fullText.length} chars), starting controlled streaming at ${Math.round(60000 / (this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS * 5))} WPM...`);
+          console.log(`🤖 LLM generation completed (${fullText.length} chars) - streaming is already done!`);
           
-          // Start character-by-character streaming for precise WPM control
-          // CRITICAL: This awaits the full streaming to complete before continuing
-          await streamCharacterByCharacter(fullText);
-          
-          // ✅ NOW the streaming is actually complete
-          console.log(`✅ Character-by-character streaming completed for: ${narration.id}`);
+          // NO CHARACTER-BY-CHARACTER STREAMING - chunks were emitted as they arrived!
           
           // Update the current narration with final content
           if (this.state.currentNarration && this.state.currentNarration.id === narration.id) {
@@ -1079,7 +1043,7 @@ export class HostAgentService extends EventEmitter {
             console.error('❌ Failed to save host narration to database:', error);
           });
           
-          // ✅ Emit completion AFTER streaming is done
+          // ✅ Emit completion immediately - streaming already finished
           this.emit('narration:completed', narration.id, fullText);
           
           // Set cooldown timestamp and clear current narration

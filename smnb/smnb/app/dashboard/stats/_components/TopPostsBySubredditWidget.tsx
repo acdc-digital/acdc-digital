@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Crown, ExternalLink, Star } from 'lucide-react';
@@ -58,7 +58,11 @@ function getTierIcon(tier: string) {
 }
 
 export function TopPostsBySubredditWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getTopTradingPostsBySubreddit);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getTopTradingPostsBySubreddit,
+    {},
+    "top-posts-by-subreddit"
+  );
 
   if (!data) {
     return (

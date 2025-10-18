@@ -327,7 +327,6 @@ export class AnalyticsService {
   getSessionId(): string | undefined {
     return this.sessionId;
   }
-}
 
   // 🎯 HIGH-LEVEL TRACKING METHODS
   async trackLiveFeedInteraction(interaction: {
@@ -445,19 +444,13 @@ export class AnalyticsService {
 }
 
 // Factory function for creating analytics service instances
-export function createAnalyticsService(config: AnalyticsServiceConfig): AnalyticsService {
+export function createAnalyticsService(config: SimpleAnalyticsConfig): AnalyticsService {
   return new AnalyticsService(config);
 }
 
 // Default configuration
-export const defaultAnalyticsConfig: AnalyticsServiceConfig = {
+export const defaultAnalyticsConfig: SimpleAnalyticsConfig = {
   enabled: true,
   userId: undefined,
-  trackPageViews: true,
-  trackUserEvents: true,
-  trackPerformance: true,
-  enableMLTracking: true,
-  batchSize: 50,
-  flushInterval: 30000, // 30 seconds
-  enableDebugLogging: process.env.NODE_ENV === "development"
+  sessionId: undefined,
 };

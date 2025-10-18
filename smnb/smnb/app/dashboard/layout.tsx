@@ -7,6 +7,7 @@ import React, { useEffect } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { TokenCounter } from "@/components/ui/TokenCounter";
 import { RuntimeCounter } from "@/components/ui/RuntimeCounter";
+import { DailySentiment } from "@/components/ui/DailySentiment";
 import { ApiKeyInput } from "@/components/ui/ApiKeyInput";
 import ActivityBar from "./activityBar/ActivityBar";
 import { Fingerprint } from "lucide-react";
@@ -14,15 +15,19 @@ import { DashboardProvider, useDashboard } from "./DashboardContext";
 import FeedSidebar from "./feed/FeedSidebar";
 import Studio from "./studio/Studio";
 import StatsPage from "./stats/Stats";
+import KeywordsPage from "./studio/keywords/Keywords";
 import Heatmap from "./studio/heatmap/Heatmap";
-import Generator from "./studio/generator/Generator";
+import Spline from "./studio/spline/Spline";
+
 import Wiki from "./studio/wiki/Wiki";
 import { Sessions } from "./studio/sessions/Sessions";
 import Settings from "./studio/settings/Settings";
 import Users from "./studio/user/Users";
+import Landmark from "./studio/landmark/Landmark";
 import { useBroadcastOrchestrator } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 // import { BroadcastStateMonitor } from "@/components/debug/BroadcastStateMonitor"; // Commented out for now
 import { startValidationMonitoring } from "@/lib/validation/broadcastStateValidator";
+import { TickerProvider } from "./ticker/_context/TickerContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -81,15 +86,19 @@ function DashboardContent({}: DashboardLayoutProps) {
         />
         
         {/* Panel Content */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 min-w-0 overflow-hidden">
           {activePanel === "archive" ? (
             <Sessions />
           ) : activePanel === "stats" ? (
             <StatsPage />
           ) : activePanel === "heatmap" ? (
             <Heatmap />
-          ) : activePanel === "network" ? (
-            <Generator />
+          ) : activePanel === "spline" ? (
+            <Spline />
+          ) : activePanel === "keywords" ? (
+            <KeywordsPage />
+          ) : activePanel === "landmark" ? (
+            <Landmark />
           ) : activePanel === "docs" ? (
             <Wiki />
           ) : activePanel === "settings" ? (
@@ -114,6 +123,7 @@ function DashboardContent({}: DashboardLayoutProps) {
         <div className="flex items-center gap-4 text-foreground/50">
           <span>Status: <span className="text-green-500">Ready</span></span>
           <span className="hidden sm:inline">v0.1.0</span>
+          <DailySentiment />
           <TokenCounter className="hidden md:flex" />
           <RuntimeCounter className="flex" />
         </div>
@@ -128,7 +138,9 @@ function DashboardContent({}: DashboardLayoutProps) {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <DashboardProvider>
-      <DashboardContent>{children}</DashboardContent>
+      <TickerProvider>
+        <DashboardContent>{children}</DashboardContent>
+      </TickerProvider>
     </DashboardProvider>
   );
 }

@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, TrendingUp } from 'lucide-react';
+import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 
 interface StorySubredditStat {
   subreddit: string;
@@ -18,7 +18,11 @@ interface StorySubredditStat {
 }
 
 export function StoryHistoryStatsWidget() {
-  const data = useQuery(api.stats.tradingEnhanced.getStoryHistoryByNasdaqMentions);
+  const data = useCachedQuery(
+    api.stats.tradingEnhanced.getStoryHistoryByNasdaqMentions,
+    {},
+    "story-history-stats"
+  );
 
   if (!data) {
     return (
@@ -26,7 +30,7 @@ export function StoryHistoryStatsWidget() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-medium">
             <BookOpen className="w-4 h-4" />
-            NASDAQ-100 Story Distribution
+            Story Distribution
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -45,7 +49,7 @@ export function StoryHistoryStatsWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-card-foreground">
           <BookOpen className="w-4 h-4 text-muted-foreground" />
-          NASDAQ-100 Story Distribution
+          Story Distribution
         </CardTitle>
         <CardDescription className="text-xs">
           <Badge variant="outline" className="text-xs px-1.5 py-0.5">

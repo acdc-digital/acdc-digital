@@ -135,7 +135,7 @@ export function NexusChat({
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-neutral-950", className)}>
+    <div className={cn("flex flex-col h-full bg-neutral-900", className)}>
       {/* Error Display */}
       {error && (
         <div className="p-4 bg-red-900/20 border-l-4 border-red-500 text-red-200 text-sm flex items-center gap-3">
@@ -226,21 +226,21 @@ export function NexusChat({
       </Conversation>
 
       {/* Input Area */}
-      <div className="border-t border-neutral-800 p-2 bg-neutral-900">
+      <div className="px-4 py-1 bg-neutral-900">
         <div className="max-w-4xl mx-auto">
           <PromptInput onSubmit={handleSend}>
             <PromptInputTextarea
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.currentTarget.value)}
               placeholder={placeholder}
-              minHeight={60}
-              maxHeight={200}
+              minHeight={100}
+              maxHeight={240}
               className="bg-neutral-800 border-neutral-700 text-white focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               disabled={isStreaming || disabled}
             />
           </PromptInput>
           {isStreaming && (
-            <p className="text-xs text-neutral-500 text-center mt-2">
+            <p className="text-xs text-neutral-500 text-center mt-4">
               Agent is processing your request...
             </p>
           )}
@@ -249,11 +249,11 @@ export function NexusChat({
 
       {/* Footer with Settings */}
       {showSettings && (
-        <div className="border-t border-neutral-800 pl-2 bg-neutral-900">
+        <div className="pl-5 pr-4 bg-neutral-900">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-neutral-500 mt-0.5">
-                Nexus Chat: Powered by the Session Manager w/ 7 analytics tools
+              <p className="text-xs text-neutral-500">
+                Your Chat: Powered by the Session Manager w/ 8 analytics tools
               </p>
             </div>
             <div className="flex items-center gap-2">

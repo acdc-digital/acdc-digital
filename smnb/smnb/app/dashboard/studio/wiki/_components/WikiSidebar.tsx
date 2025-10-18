@@ -3,7 +3,13 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { 
-  BookOpen
+  BookOpen,
+  TrendingUp,
+  Bot,
+  Workflow,
+  Wrench,
+  GitBranch,
+  Building2
 } from 'lucide-react';
 
 interface WikiNavItem {
@@ -18,6 +24,36 @@ const wikiNavigation: WikiNavItem[] = [
     id: 'overview',
     label: 'Metric Scoring Matrix Guide',
     icon: <BookOpen className="w-4 h-4" />,
+  },
+  {
+    id: 'sentiment',
+    label: 'Sentiment Scoring System',
+    icon: <TrendingUp className="w-4 h-4" />,
+  },
+  {
+    id: 'agents',
+    label: 'Agent & Tool Profiles',
+    icon: <Bot className="w-4 h-4" />,
+  },
+  {
+    id: 'data-flow',
+    label: 'Data-Flow Architecture',
+    icon: <Workflow className="w-4 h-4" />,
+  },
+  {
+    id: 'agents-tools',
+    label: 'Agents & Tools Reference',
+    icon: <Wrench className="w-4 h-4" />,
+  },
+  {
+    id: 'data-flow-chart',
+    label: 'Data Flow Chart',
+    icon: <GitBranch className="w-4 h-4" />,
+  },
+  {
+    id: 'nasdaq-100',
+    label: 'NASDAQ-100 Companies',
+    icon: <Building2 className="w-4 h-4" />,
   },
 ];
 

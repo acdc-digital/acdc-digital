@@ -14,7 +14,7 @@ export default function Studio() {
   const [mode, setMode] = useState<StudioMode>('host');
 
   return (
-    <main className="relative flex-1 flex flex-col bg-white/70 dark:bg-[#191919] backdrop-blur supports-[backdrop-filter]:bg-white/40">
+    <main className="relative flex-1 min-w-0 flex flex-col overflow-hidden bg-white/70 dark:bg-[#191919] backdrop-blur supports-[backdrop-filter]:bg-white/40">
       <div className="flex-1 flex flex-col p-2 min-h-0">
         
         {/* Two Column Layout - Takes remaining space above controls */}
