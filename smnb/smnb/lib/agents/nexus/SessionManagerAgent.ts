@@ -238,15 +238,48 @@ export class SessionManagerAgent extends BaseNexusAgent {
         : (request.input as { message?: string })?.message || 'Help me with session management';
 
       // ============================================================================
-      // FLASH MEMORY: Fetch conversation history for context
+      // CONTEXT RETRIEVAL: Two-tier memory system
       // ============================================================================
-      // Get last 10 messages (default) for short-term memory
+      
+      // TIER 1: Flash Memory - Recent conversation history (last 10 messages)
       const conversationHistory = await convex.query(api.nexus.sessionChats.getConversationHistory, {
         sessionId,
-        limit: 10, // Flash memory: last 10 messages
+        limit: 10, // Flash memory: last 10 messages for immediate context
       });
 
-      console.log(`[SessionManagerAgent] Retrieved ${conversationHistory.length} messages from history`);
+      console.log(`[SessionManagerAgent] Retrieved ${conversationHistory.length} messages from flash memory`);
+
+      // TIER 2: Vector Search - Semantic search across chat history + documents
+      yield this.createChunk('thinking', '🔍 Searching vector knowledge base...');
+      
+      const contextRetrieval = await convex.action(api.nexus.actions.retrieveContext.default, {
+        sessionId,
+        query: userMessage,
+        includeChatHistory: true, // Search past conversations
+        includeDocuments: true, // Search uploaded documents
+        globalDocuments: true, // Search ALL documents across all sessions (knowledge base)
+        topK: 5, // Top 5 results from each source
+        minScore: 0.3, // Minimum similarity threshold (lowered for better recall)
+      });
+
+      console.log(`[SessionManagerAgent] Vector search found ${contextRetrieval.totalResults} relevant context items`);
+      console.log(`[SessionManagerAgent] - Chat context: ${contextRetrieval.chatContext.length} items`);
+      console.log(`[SessionManagerAgent] - Document context: ${contextRetrieval.documentContext.length} items`);
+
+      // Show what was found
+      if (contextRetrieval.totalResults > 0) {
+        const contextSummary = [];
+        if (contextRetrieval.chatContext.length > 0) {
+          contextSummary.push(`${contextRetrieval.chatContext.length} relevant conversation${contextRetrieval.chatContext.length > 1 ? 's' : ''}`);
+        }
+        if (contextRetrieval.documentContext.length > 0) {
+          const uniqueDocs = new Set(contextRetrieval.documentContext.map(d => d.documentName).filter(Boolean));
+          contextSummary.push(`${contextRetrieval.documentContext.length} chunk${contextRetrieval.documentContext.length > 1 ? 's' : ''} from ${uniqueDocs.size} document${uniqueDocs.size > 1 ? 's' : ''}`);
+        }
+        yield this.createChunk('thinking', `✅ Found ${contextSummary.join(' and ')}`);
+      } else {
+        yield this.createChunk('thinking', '📭 No relevant context found in knowledge base');
+      }
 
       // Save user message to database
       const userMessageId = await convex.mutation(api.nexus.sessionChats.create, {
@@ -256,6 +289,15 @@ export class SessionManagerAgent extends BaseNexusAgent {
       });
 
       console.log('[SessionManagerAgent] Saved user message:', userMessageId);
+
+      // Generate and save embedding for vector search (fire and forget)
+      convex.action(api.nexus.actions.generateEmbeddings.default, {
+        sessionId,
+        messageId: String(userMessageId),
+        texts: [userMessage],
+      }).catch((e) => {
+        console.warn('[SessionManagerAgent] Failed to generate embedding:', e);
+      });
 
       // If specific tool requested, execute directly
       if (request.toolId) {
@@ -309,16 +351,39 @@ export class SessionManagerAgent extends BaseNexusAgent {
         temperature: 0.7,
         tools,
         messages,
-        system: `You are a Session Manager AI assistant with access to powerful analytics tools.
+        system: `You are a Session Manager AI assistant with access to powerful analytics tools and a comprehensive knowledge base.
 
-When users ask questions about their sessions, metrics, costs, or system status, use the available tools to fetch real data.
+CONTEXT RETRIEVAL SYSTEM:
+You have access to two tiers of memory:
+
+1. FLASH MEMORY (Immediate Context):
+   - Last ${conversationHistory.length} messages from this conversation
+   - Provides immediate conversational context
+   - Already included in your message history
+
+2. VECTOR KNOWLEDGE BASE (Semantic Search):
+   - ${contextRetrieval.totalResults} relevant items retrieved for this query
+   - CHAT HISTORY (${contextRetrieval.chatContext.length} items from THIS session):
+${contextRetrieval.chatContext.map((item, i) =>
+  `     ${i + 1}. [Score: ${item.score.toFixed(3)}] ${item.text.substring(0, 150)}...`
+).join('\n') || '     (No relevant past conversations found)'}
+
+   - GLOBAL KNOWLEDGE BASE (${contextRetrieval.documentContext.length} items from ALL uploaded documents):
+${contextRetrieval.documentContext.map((item, i) =>
+  `     ${i + 1}. [${item.documentName || 'Unknown'}] [Score: ${item.score.toFixed(3)}] ${item.text.substring(0, 150)}...`
+).join('\n') || '     (No relevant documents found)'}
+
+Use this retrieved context to provide more informed and accurate responses. The knowledge base is GLOBAL - documents uploaded by anyone are searchable across all sessions.
 
 IMPORTANT GUIDELINES:
 1. Always use tools to fetch real data when users ask questions about metrics, costs, usage, etc.
-2. Provide clear, friendly explanations of the data
-3. Use markdown formatting for better readability
-4. Include relevant metrics and insights
-5. Be proactive - if you see interesting patterns, mention them
+2. Reference retrieved context when it's relevant to the user's question
+3. When document context is available (score > 0.6), PRIORITIZE it over general knowledge
+4. Cite document sources when using their information: "According to [DocumentName]..."
+5. Provide clear, friendly explanations of the data
+6. Use markdown formatting for better readability
+7. Include relevant metrics and insights
+8. Be proactive - if you see interesting patterns, mention them
 
 Available tools:
 - analyze_session_metrics: Session activity and performance

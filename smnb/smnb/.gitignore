@@ -49,3 +49,4 @@ convex/**/*.d.ts.map
 
 # clerk configuration (can include secrets)
 /.clerk/
+smnb/.models/

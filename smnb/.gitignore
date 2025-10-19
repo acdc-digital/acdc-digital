@@ -46,3 +46,6 @@ out/
 tmp/
 temp/
 .vercel
+
+# ML Models (large ONNX files)
+.models/

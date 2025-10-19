@@ -33,48 +33,57 @@ const conversationFlowSteps = [
   },
   {
     step: 4,
-    phase: "Agent Init",
-    component: "SessionManagerAgent.ts",
-    action: "stream() method called",
-    details: "Builds context with system prompt + 7 available tools",
-    output: "Request to Claude API",
-    nodeId: "5"
+    phase: "Flash Memory",
+    component: "getConversationHistory query",
+    action: "Retrieve last 10 messages from sessionManagerChats",
+    details: "🧠 STAGE #1 IMPLEMENTATION: Query Convex for conversation history by sessionId, ordered chronologically. Provides short-term memory for context-aware follow-up questions.",
+    output: "Array of last 10 messages (user + assistant)",
+    nodeId: "4"
   },
   {
     step: 5,
+    phase: "Agent Init",
+    component: "SessionManagerAgent.ts",
+    action: "stream() method called with history",
+    details: "Builds messages array: flash memory (last 10) + current message. Adds system prompt + 7 available tools",
+    output: "Request to Claude API with conversation history",
+    nodeId: "5"
+  },
+  {
+    step: 6,
     phase: "Claude Decision",
     component: "Claude 3.5 Haiku",
-    action: "Analyzes message + decides response strategy",
-    details: "Options: Direct text, tool execution, or MCP query",
+    action: "Analyzes message + conversation history + decides response strategy",
+    details: "Flash memory provides last 10 messages for context-aware responses. Options: Direct text, tool execution, or MCP query",
     output: "Stream of chunks (thinking/content/tool_use)",
     nodeId: "5-6-9-12",
     subSteps: [
       {
-        subStep: "5.1",
+        subStep: "6.1",
         title: "Context Analysis",
-        description: "Claude receives system prompt defining agent role as 'Session Manager AI' with capabilities for analytics, token tracking, cost analysis, and monitoring",
-        technical: "System prompt + conversation history + 7 tool schemas passed to Claude API"
+        description: "Claude receives system prompt defining agent role as 'Session Manager AI' with capabilities for analytics, token tracking, cost analysis, and monitoring. FLASH MEMORY: Last 10 messages included for conversation continuity.",
+        technical: "System prompt + last 10 messages (flash memory) + current message + 7 tool schemas passed to Claude API"
       },
       {
-        subStep: "5.2",
+        subStep: "6.2",
         title: "Intent Classification",
-        description: "Claude analyzes user query to determine intent: informational (metrics, stats), operational (search, health), or conversational (general chat)",
-        technical: "Natural language understanding via transformer attention mechanisms"
+        description: "Claude analyzes user query in context of conversation history to determine intent: informational (metrics, stats), operational (search, health), conversational (general chat), or follow-up (referencing previous context)",
+        technical: "Natural language understanding via transformer attention mechanisms with conversation history context"
       },
       {
-        subStep: "5.3",
+        subStep: "6.3",
         title: "Strategy Selection",
         description: "Based on intent, Claude chooses: (A) Direct response for simple queries, (B) Single tool for specific data needs, (C) Multiple tools for complex analysis, (D) MCP server for advanced analytics",
         technical: "Tool schema matching + confidence scoring → tool_use blocks or text content"
       },
       {
-        subStep: "5.4",
+        subStep: "6.4",
         title: "Response Planning",
         description: "Claude structures response format: Will it need thinking section? Which data points to highlight? How to present tool results naturally?",
         technical: "Internal reasoning mapped to thinking chunks, content chunks, and metadata"
       },
       {
-        subStep: "5.5",
+        subStep: "6.5",
         title: "Execution Initiation",
         description: "Claude begins streaming response - starts with thinking (if complex), then tool calls (if needed), then content generation",
         technical: "SSE stream starts: thinking → tool_use → content → metadata (complete)"
@@ -82,7 +91,7 @@ const conversationFlowSteps = [
     ]
   },
   {
-    step: 6,
+    step: 7,
     phase: "Tool Execution",
     component: "Tool Handlers",
     action: "Execute chosen tool (if needed)",
@@ -91,7 +100,7 @@ const conversationFlowSteps = [
     nodeId: "6-7-8"
   },
   {
-    step: 7,
+    step: 8,
     phase: "MCP Query",
     component: "MCP Server",
     action: "Query external MCP server (if needed)",
@@ -100,25 +109,25 @@ const conversationFlowSteps = [
     nodeId: "9-10-11"
   },
   {
-    step: 8,
+    step: 9,
     phase: "Response Gen",
     component: "Claude API",
     action: "Generate natural language response",
-    details: "Combines tool results + context → coherent answer",
+    details: "Combines tool results + context + conversation history → coherent answer",
     output: "Content chunks streamed",
     nodeId: "13-14"
   },
   {
-    step: 9,
+    step: 10,
     phase: "Chunk Processing",
     component: "useACDCAgent.ts",
     action: "processChunk() for each SSE chunk",
-    details: "Updates thinking/content/toolCalls in currentMessageRef",
+    details: "Updates thinking/content/toolCalls in currentMessageRef. Callbacks fire: onMessageReceived when complete",
     output: "React state updates",
     nodeId: "13-14-15"
   },
   {
-    step: 10,
+    step: 11,
     phase: "UI Render",
     component: "ACDCChatMessage.tsx",
     action: "Display message with live updates",
@@ -368,7 +377,18 @@ export default function SessionWorkflowChart() {
         
         {/* Legend Footer */}
         <div className="bg-neutral-900 border-t border-neutral-800 p-4">
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Flash Memory Badge */}
+            <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="text-lg">🧠</div>
+                <h4 className="text-xs font-bold text-cyan-300 uppercase tracking-wider">Flash Memory - Stage #1</h4>
+              </div>
+              <p className="text-[10px] text-neutral-300 leading-relaxed">
+                Conversation history (last 10 messages) provides short-term context for follow-up questions and coherent multi-turn conversations.
+              </p>
+            </div>
+
             <h4 className="text-xs font-semibold text-white uppercase tracking-wider">Key Components</h4>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center gap-2">

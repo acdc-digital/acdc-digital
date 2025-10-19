@@ -176,6 +176,50 @@ export default defineSchema({
     .index("by_created_at", ["created_at"])
     .index("by_ended_at", ["ended_at"]),
 
+  // Documents uploaded for context (PDFs, etc.)
+  documents: defineTable({
+    sessionId: v.string(), // Link to host_sessions.session_id
+    name: v.string(), // User-provided name for the document
+    fileUrl: v.string(), // Convex storage URL
+    storageId: v.string(), // Convex storage ID for deletion
+    fileType: v.string(), // MIME type (e.g., application/pdf)
+    fileSize: v.number(), // Size in bytes
+    status: v.union(
+      v.literal("uploading"),
+      v.literal("processing"),
+      v.literal("ready"),
+      v.literal("error")
+    ),
+    chunkCount: v.optional(v.number()), // Number of chunks/embeddings generated
+    errorMessage: v.optional(v.string()),
+    uploadedAt: v.number(),
+    processedAt: v.optional(v.number()),
+    metadata: v.optional(v.string()), // JSON string for additional data
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_status", ["status"])
+    .index("by_sessionId_and_status", ["sessionId", "status"]),
+
+  // Embeddings store for session messages and documents
+  embeddings: defineTable({
+    sessionId: v.string(), // Link to host_sessions.session_id
+    sourceType: v.optional(v.union(v.literal("chat"), v.literal("document"))), // Source of embedding (optional for backward compatibility)
+    messageId: v.optional(v.string()), // Link to chat message (for chat embeddings)
+    documentId: v.optional(v.id("documents")), // Link to document (for document embeddings)
+    chunkIndex: v.optional(v.number()), // Chunk position within document
+    text: v.string(), // Original text that was embedded
+    vector: v.array(v.number()), // Embedding vector (1536 for small, 3072 for large)
+    model: v.string(), // Model used: text-embedding-3-small (chat) or text-embedding-3-large (docs)
+    createdAt: v.number(),
+    metadata: v.optional(v.string()), // Optional JSON string for additional metadata
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_sourceType", ["sourceType"])
+    .index("by_messageId", ["messageId"])
+    .index("by_documentId", ["documentId"])
+    .index("by_sessionId_and_sourceType", ["sessionId", "sourceType"])
+    .index("by_model", ["model"]),
+
   host_documents: defineTable({
     session_id: v.optional(v.string()), // Make optional for migration from old schema
     content_text: v.string(), // Current accumulated content for this session
