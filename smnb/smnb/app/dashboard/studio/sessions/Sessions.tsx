@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { SignInButton } from "@clerk/nextjs";
-import { useAuth } from "@/lib/hooks";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SessionList } from "./_components/SessionList";
@@ -23,9 +23,11 @@ import {
 import { useHostAgentStore } from "@/lib/stores/host/hostAgentStore";
 import { useBroadcastSync } from "@/lib/hooks/useBroadcastSync";
 import { convertLiveFeedPostToEnhanced } from "../controls/_components/types";
+import { useCachedQuery } from "@/lib/context/CacheContext";
 
 export function Sessions() {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { user, isLoaded } = useUser(); // Clerk user - fast, client-side only
+  const isAuthenticated = isLoaded && !!user; // Simple check
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
   const [sessionDuration, setSessionDuration] = useState(0); // Local duration in milliseconds
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -33,7 +35,12 @@ export function Sessions() {
   const lastSyncRef = useRef<number>(0);
   const baselineDurationRef = useRef<number>(0); // Store baseline when timer starts
 
-  const sessions = useQuery(api.users.sessions.list, isAuthenticated ? {} : "skip");
+  // Use cached query for instant tab switching
+  const sessions = useCachedQuery<typeof api.users.sessions.list._returnType>(
+    'sessions-list',
+    api.users.sessions.list,
+    isAuthenticated ? {} : { skip: true }
+  );
   const createSession = useMutation(api.users.sessions.create);
   const selectedSession = useQuery(
     api.users.sessions.get,
@@ -57,6 +64,10 @@ export function Sessions() {
   const broadcastState = useBroadcastState();
   const activeBroadcastSessionId = useActiveBroadcastSessionId(); // Track which session is broadcasting
   
+  // Session Manager should only consider itself "broadcasting" if its selected session is active
+  // This allows Studio host broadcasts to run independently
+  const isThisSessionBroadcasting = isLive && activeBroadcastSessionId === selectedSessionId;
+  
   // Sync broadcast state with Convex backend
   useBroadcastSync({
     sessionId: selectedSessionId,
@@ -79,8 +90,8 @@ export function Sessions() {
   // For now, keeping it local but this causes state loss on tab switch
   const [processedPostIds, setProcessedPostIds] = useState<Set<string>>(new Set());
   
-  // Button shows red when actually broadcasting
-  const isBroadcasting = isLive;
+  // Button shows red when THIS session is actually broadcasting
+  const isBroadcasting = isThisSessionBroadcasting;
 
   // ========================================================================
   // SESSION PERSISTENCE - Restore from localStorage on mount
@@ -105,8 +116,8 @@ export function Sessions() {
   // ========================================================================
   const handleToggleLive = async () => {
     try {
-      if (isLive) {
-        // Currently broadcasting - stop
+      if (isThisSessionBroadcasting) {
+        // Currently broadcasting THIS session - stop
         console.log('📺 SESSIONS: Stopping broadcast via orchestrator');
         await stopBroadcast();
       } else {
@@ -161,17 +172,14 @@ export function Sessions() {
   }, [selectedSessionId]);
 
   // Auto-select session logic:
-  // 1. If a broadcast is active, ALWAYS select that session (prevent data spillage)
+  // 1. If THIS session is broadcasting, keep it selected
   // 2. If no session selected and sessions exist, select the first one
   // 3. If selected session was deleted, select the first available
   useEffect(() => {
-    // Priority 1: If broadcasting, lock to that session
-    if (activeBroadcastSessionId) {
-      if (selectedSessionId !== activeBroadcastSessionId) {
-        console.log(`📺 SESSIONS: Switching to active broadcast session: ${activeBroadcastSessionId}`);
-        setSelectedSessionId(activeBroadcastSessionId);
-      }
-      return; // Don't allow other selections while broadcasting
+    // Priority 1: If THIS session is broadcasting, don't allow switching
+    // (Note: We don't force-select other broadcasting sessions - they can run independently)
+    if (isThisSessionBroadcasting) {
+      return; // Keep current selection locked while broadcasting
     }
     
     // Priority 2: Auto-select first session if none selected
@@ -179,12 +187,12 @@ export function Sessions() {
       console.log(`📺 SESSIONS: Auto-selecting first session: ${sessions[0]._id}`);
       setSelectedSessionId(sessions[0]._id);
     }
-  }, [sessions, selectedSessionId, activeBroadcastSessionId]);
+  }, [sessions, selectedSessionId, isThisSessionBroadcasting]);
 
   // If the selected session no longer exists, select the first available session
   useEffect(() => {
-    // Don't change selection if broadcasting
-    if (activeBroadcastSessionId) return;
+    // Don't change selection if THIS session is broadcasting
+    if (isThisSessionBroadcasting) return;
     
     if (sessions && selectedSessionId) {
       const sessionExists = sessions.some(session => session._id === selectedSessionId);
@@ -208,7 +216,7 @@ export function Sessions() {
         }
       }
     }
-  }, [sessions, selectedSessionId, activeBroadcastSessionId]);
+  }, [sessions, selectedSessionId, isThisSessionBroadcasting]);
 
   // Initialize session duration from database when session changes
   useEffect(() => {
@@ -224,17 +232,17 @@ export function Sessions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSessionId, selectedSession?.totalDuration]);
 
-  // Session timer management: start/pause/update duration - ONLY runs when Live
+  // Session timer management: start/pause/update duration - ONLY runs when THIS session broadcasts
   useEffect(() => {
     if (!selectedSessionId) return;
     
-    // Only start timer when broadcast is Live
-    if (!isLive) {
-      console.log('⏸️ SESSIONS: Timer paused - not live');
+    // Only start timer when THIS session is broadcasting
+    if (!isThisSessionBroadcasting) {
+      console.log('⏸️ SESSIONS: Timer paused - session not broadcasting');
       return;
     }
 
-    console.log('▶️ SESSIONS: Timer started - going live');
+    console.log('▶️ SESSIONS: Timer started - session broadcasting');
     
     // Use the current baseline from ref (already set by initialization effect)
     // If timer was already running, this will continue from where it left off
@@ -288,7 +296,7 @@ export function Sessions() {
       
       console.log('⏹️ SESSIONS: Timer stopped and saved:', formatDuration(finalDuration));
     };
-  }, [selectedSessionId, isLive, startSessionTimer, updateSessionDuration, pauseSessionTimer]);
+  }, [selectedSessionId, isThisSessionBroadcasting, startSessionTimer, updateSessionDuration, pauseSessionTimer]);
 
   // Format duration for display (HH:MM:SS)
   const formatDuration = (ms: number) => {
@@ -299,11 +307,10 @@ export function Sessions() {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Auto-feed posts to host when live - CRITICAL for narration
+  // Auto-process live feed posts for THIS session when broadcasting
   useEffect(() => {
-    // Only run when live and we have posts
-    // Orchestrator ensures host is active when isLive is true
-    if (!isLive || sessionPosts.length === 0) {
+    // Orchestrator ensures host is active when THIS session is broadcasting
+    if (!isThisSessionBroadcasting || sessionPosts.length === 0) {
       return;
     }
 
@@ -341,12 +348,12 @@ export function Sessions() {
       }, index * 3000); // 3 second delay between posts
     });
 
-  }, [isLive, sessionPosts, processedPostIds, processLiveFeedPost]);
+  }, [isThisSessionBroadcasting, sessionPosts, processedPostIds, processLiveFeedPost]);
 
-  // Safeguard: Prevent manual session switching while broadcasting
+  // Safeguard: Prevent manual session switching while THIS session is broadcasting
   const handleSessionSelect = (id: Id<"sessions">) => {
-    if (activeBroadcastSessionId && activeBroadcastSessionId !== id) {
-      console.warn(`⚠️ SESSIONS: Cannot switch from broadcasting session ${activeBroadcastSessionId} to ${id}`);
+    if (isThisSessionBroadcasting && id !== selectedSessionId) {
+      console.warn(`⚠️ SESSIONS: Cannot switch away from broadcasting session ${selectedSessionId}`);
       // Could show a toast notification here
       return;
     }
@@ -354,7 +361,12 @@ export function Sessions() {
   };
 
   const handleCreateSession = async () => {
-    // Allow creating new sessions even when broadcasting (won't auto-select it)
+    // Prevent creating sessions if THIS session is broadcasting (but allow if other sessions broadcast)
+    if (isThisSessionBroadcasting) {
+      console.warn(`⚠️ SESSIONS: Cannot create new session while current session is broadcasting`);
+      return;
+    }
+    
     const id = await createSession({
       name: `Session ${new Date().toLocaleString()}`,
       settings: {
@@ -368,79 +380,61 @@ export function Sessions() {
       }
     });
     
-    // Only auto-select if not broadcasting
-    if (!activeBroadcastSessionId) {
-      setSelectedSessionId(id);
-    }
+    // Auto-select the new session
+    setSelectedSessionId(id);
   };
 
-
-
-  // Handle loading state
-  if (isLoading) {
-    return (
-      <div className="flex h-full bg-black items-center justify-center">
-        <div className="text-center">
-          <Sparkles className="w-8 h-8 text-cyan-400 mx-auto mb-2 animate-pulse" />
-          <p className="text-sm text-neutral-400">Loading session manager...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle unauthenticated state
-  if (!isAuthenticated) {
-    return (
-      <div className="flex h-full bg-black items-center justify-center">
-        <div className="text-center max-w-md">
-          <LogIn className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Sign in to continue</h2>
-          <p className="text-sm text-neutral-400 mb-6">
-            Access your AI sessions and manage your conversations securely
-          </p>
-          <SignInButton mode="modal">
-            <Button className="bg-cyan-400 hover:bg-cyan-500 text-black font-medium">
-              Sign in with Clerk
-            </Button>
-          </SignInButton>
-        </div>
-      </div>
-    );
-  }
-
+  // Render immediately - handle auth/loading states inline
   return (
     <div className="flex h-full w-full bg-black">
-      {/* Left Sidebar - Narrow Session Selector */}
-      <div className="w-64 bg-[#191919] border-r border-neutral-800 flex flex-col">
-        {/* Header */}
-        <div className="p-2.5 border-b border-neutral-800">
-          <div className="flex items-center justify-between mb-0">
-            <div className="flex items-center gap-2">
-              <span className="pl-1 text-sm font-light text-muted-foreground font-sans">SESSIONS</span>
-            </div>
-            <Button
-              onClick={handleCreateSession}
-              size="sm"
-              className="h-6 w-6 p-0 bg-[#191919] hover:bg-[#3d3d3d] rounded transition-colors border border-muted-foreground/70 text-muted-foreground/70 cursor-pointer"
-            >
-              <Plus className="w-3 h-3" />
-            </Button>
+      {/* Handle unauthenticated state inline */}
+      {!isAuthenticated ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="text-center max-w-md">
+            <LogIn className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-white mb-2">Sign in to continue</h2>
+            <p className="text-sm text-neutral-400 mb-6">
+              Access your AI sessions and manage your conversations securely
+            </p>
+            <SignInButton mode="modal">
+              <Button className="bg-cyan-400 hover:bg-cyan-500 text-black font-medium">
+                Sign in with Clerk
+              </Button>
+            </SignInButton>
           </div>
         </div>
+      ) : (
+        <>
+          {/* Left Sidebar - Narrow Session Selector */}
+          <div className="w-64 bg-[#191919] border-r border-neutral-800 flex flex-col">
+            {/* Header */}
+            <div className="p-2.5 border-b border-neutral-800">
+              <div className="flex items-center justify-between mb-0">
+                <div className="flex items-center gap-2">
+                  <span className="pl-1 text-sm font-light text-muted-foreground font-sans">SESSIONS</span>
+                </div>
+                <Button
+                  onClick={handleCreateSession}
+                  size="sm"
+                  className="h-6 w-6 p-0 bg-[#191919] hover:bg-[#3d3d3d] rounded transition-colors border border-muted-foreground/70 text-muted-foreground/70 cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
 
-        {/* Session List - Compact */}
-        <div className="flex-1 overflow-y-auto">
-          <SessionList
-            sessions={sessions || []}
-            selectedId={selectedSessionId}
-            onSelect={handleSessionSelect}
-          />
-        </div>
-      </div>
+            {/* Session List - Compact */}
+            <div className="flex-1 overflow-y-auto">
+              <SessionList
+                sessions={sessions || []}
+                selectedId={selectedSessionId}
+                onSelect={handleSessionSelect}
+              />
+            </div>
+          </div>
 
-      {/* Main Content Area - Uses Full Remaining Space */}
-      <div className="flex-1 flex">
-        {selectedSession ? (
+          {/* Main Content Area - Uses Full Remaining Space */}
+          <div className="flex-1 flex">{selectedSession ? (
           <>
             {/* Center Panel - Chat/Primary Content */}
             <div className="flex-1 flex flex-col min-w-0">
@@ -704,7 +698,9 @@ export function Sessions() {
             </div>
           </div>
         )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

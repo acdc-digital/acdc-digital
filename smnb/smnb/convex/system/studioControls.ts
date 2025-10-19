@@ -224,6 +224,39 @@ export const getControlsState = query({
     const profileId = (args.profileId ?? DEFAULT_PROFILE_ID).toLowerCase();
     const doc = await getControlsDoc(ctx, profileId);
 
+    // Get enabled subreddits from redditSources table
+    const redditSources = await ctx.db
+      .query("redditSources")
+      .withIndex("by_type_and_enabled", (q) =>
+        q.eq("type", "subreddit").eq("enabled", true)
+      )
+      .collect();
+
+    // If we have validated sources, use them instead of the old system
+    if (redditSources.length > 0) {
+      // Sort by relevance score descending
+      redditSources.sort((a, b) => b.relevance_score - a.relevance_score);
+      
+      const validatedSubreddits = redditSources.map(source => source.name);
+      
+      return {
+        profileId,
+        defaultGroupsVersion: DEFAULT_GROUPS_VERSION,
+        defaultGroups: SUBREDDIT_GROUPS.map((group) => ({
+          ...group,
+          subreddits: [...group.subreddits],
+        })),
+        activeGroupId: null,
+        enabledDefaults: validatedSubreddits,
+        customSubreddits: [],
+        searchDomains: doc?.search_domains ?? [],
+        hasCustomizations: true,
+        lastSyncedAt: Date.now(),
+        source: "db" as const,
+      };
+    }
+
+    // Fall back to old system if no validated sources
     if (!doc) {
       return fallbackState(profileId);
     }

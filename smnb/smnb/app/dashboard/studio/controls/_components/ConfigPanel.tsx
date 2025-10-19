@@ -50,19 +50,19 @@ export default function ConfigPanel({
       )}
       <div className="rounded-sm px-0 space-y-0">
         {/* Row 1: Feed */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Feed</span>
           <span className="font-mono text-muted-foreground">{postsCount}</span>
         </div>
 
         {/* Row 2: Queue */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Queue</span>
           <span className="font-mono text-muted-foreground">{queueLength}</span>
         </div>
 
         {/* Row 3: API */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">API</span>
           <div className="flex items-center gap-1">
             <Switch
@@ -82,25 +82,25 @@ export default function ConfigPanel({
         </div>
 
         {/* Row 4: Sources */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Sources</span>
           <span className="font-mono text-muted-foreground">{totalSources}</span>
         </div>
 
         {/* Row 5: Stories */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Stories</span>
           <span className="font-mono text-muted-foreground">{hostStats.totalNarrations}</span>
         </div>
 
         {/* Row 6: Mode */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Mode</span>
           <span className="font-mono text-muted-foreground">{mode.toUpperCase()}</span>
         </div>
 
-        {/* Row 6: Mode */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/20">
+        {/* Row 7: Empty spacer */}
+        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <div className='pt-2.5'></div>
         </div>
 

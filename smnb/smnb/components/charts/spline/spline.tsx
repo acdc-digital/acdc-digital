@@ -1,6 +1,8 @@
 "use client"
 
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 import {
   ChartConfig,
@@ -8,37 +10,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-// Historical MNQ=F data for Oct 8-10, 2025 (26 hours)
-// Data ordered from earliest to latest (Oct 8, 9:41 PM AST to Oct 10, 12:01 AM AST)
-const mnqData = [
-  25331.75,
-  25310.5,
-  25325.5,
-  25340.5,
-  25355.5,
-  25337.25,
-  25337.75,
-  25301,
-  25321,
-  25318,
-  25313.75,
-  25332.5,
-  25279,
-  25250.5,
-  25263,
-  25203.75,
-  25215.75,
-  25235,
-  25294.75,
-  25287.5,
-  25319,
-  25335,
-  25336.5,
-  25351.5,
-  25338.25,
-  25318,
-];
 
 const chartConfig = {
   price: {
@@ -48,22 +19,42 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function MultipleLineChart() {
-  // Create chart data with hour labels
-  const startTime = new Date("2025-10-08T21:41:59-04:00"); // Oct 8, 9:41 PM AST
-  
-  const chartData = mnqData.map((price, index) => {
-    const timestamp = new Date(startTime.getTime() + (index * 60 * 60 * 1000)); // Add hours
-    return {
-      time: timestamp.toLocaleTimeString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        hour: 'numeric',
-        hour12: true 
-      }),
-      hour: `Hour ${index + 1}`,
-      price: price,
-    };
+  // Fetch last 24 hours of ticker data from Convex
+  const tickerData = useQuery(api.stats.getLast24HoursData.getLast24HoursTickerData, {
+    ticker: "MNQ=F"
   });
+
+  // Show loading state
+  if (!tickerData) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center text-muted-foreground">
+        Loading chart data...
+      </div>
+    );
+  }
+
+  // Show empty state if no data
+  if (tickerData.length === 0) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center text-muted-foreground">
+        No data available for the last 24 hours
+      </div>
+    );
+  }
+
+  // Transform data for the chart
+  const chartData = tickerData.map((point) => ({
+    hour: `Hour ${point.hour}`,
+    hourNum: point.hour,
+    price: point.close,
+    timestamp: new Date(point.timestamp).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }),
+  }));
 
   return (
     <ChartContainer config={chartConfig} className="h-[400px] w-full">
@@ -86,6 +77,7 @@ export function MultipleLineChart() {
           angle={-45}
           textAnchor="end"
           height={80}
+          interval={Math.floor(chartData.length / 8)} // Show ~8 labels
         />
         <YAxis
           tickLine={false}
@@ -94,9 +86,14 @@ export function MultipleLineChart() {
           domain={['dataMin - 50', 'dataMax + 50']}
           tickFormatter={(value) => `$${value.toLocaleString()}`}
         />
-        <ChartTooltip 
+        <ChartTooltip
           cursor={{ strokeDasharray: '3 3' }}
-          content={<ChartTooltipContent />} 
+          content={<ChartTooltipContent
+            labelFormatter={(value, payload) => {
+              const data = payload?.[0]?.payload;
+              return data?.timestamp || value;
+            }}
+          />}
         />
         <Line
           dataKey="price"

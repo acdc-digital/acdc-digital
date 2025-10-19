@@ -104,11 +104,17 @@ export default function Aggregator({
       );
     } else {
       console.log('🛑 Stopping Reddit aggregation pipeline');
-      enhancedProcessingPipeline.stop();
+      const result = enhancedProcessingPipeline?.stop();
+      if (result && typeof result.catch === 'function') {
+        result.catch(console.error);
+      }
     }
 
     return () => {
-      enhancedProcessingPipeline.stop();
+      const result = enhancedProcessingPipeline?.stop();
+      if (result && typeof result.catch === 'function') {
+        result.catch(console.error);
+      }
     };
   }, [isLive, selectedSubreddits.length, handleNewPost, handleError, handleLoading, pipelineConfig]);
 

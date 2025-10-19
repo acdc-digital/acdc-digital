@@ -8,7 +8,7 @@ import { LucideIcon } from "lucide-react";
 import {
   Wallpaper,
   Haze,
-  BarChart3,
+  Waypoints,
   Hash,
   NotebookPen,
   Settings,
@@ -30,11 +30,9 @@ export default function ActivityBar({ activePanel = "archive", onPanelChange }: 
     { id: "landmark", icon: Landmark, label: "Landmark" },
     { id: "archive", icon: Archive, label: "Projects" },
     { id: "home", icon: Wallpaper, label: "Home" },
-    { id: "stats", icon: BarChart3, label: "Stats" },
+    // { id: "stats", icon: Waypoints, label: "Stats" },
         { id: "heatmap" as PanelType, icon: Haze, label: "Market Heatmap" },
     { id: "spline" as PanelType, icon: ChartSpline, label: "Spline Chart" },
-    { id: "keywords" as PanelType, icon: Hash, label: "Keywords" },
-    
     { id: "docs", icon: NotebookPen, label: "Docs" },
     { id: "account", icon: User, label: "Account" },
   ];

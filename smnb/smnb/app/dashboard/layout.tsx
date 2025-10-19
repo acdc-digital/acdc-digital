@@ -14,8 +14,6 @@ import { Fingerprint } from "lucide-react";
 import { DashboardProvider, useDashboard } from "./DashboardContext";
 import FeedSidebar from "./feed/FeedSidebar";
 import Studio from "./studio/Studio";
-import StatsPage from "./stats/Stats";
-import KeywordsPage from "./studio/keywords/Keywords";
 import Heatmap from "./studio/heatmap/Heatmap";
 import Spline from "./studio/spline/Spline";
 
@@ -28,6 +26,7 @@ import { useBroadcastOrchestrator } from "@/lib/stores/orchestrator/broadcastOrc
 // import { BroadcastStateMonitor } from "@/components/debug/BroadcastStateMonitor"; // Commented out for now
 import { startValidationMonitoring } from "@/lib/validation/broadcastStateValidator";
 import { TickerProvider } from "./ticker/_context/TickerContext";
+import { CacheProvider } from "@/lib/context/CacheContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -89,14 +88,10 @@ function DashboardContent({}: DashboardLayoutProps) {
         <div className="flex flex-1 min-w-0 overflow-hidden">
           {activePanel === "archive" ? (
             <Sessions />
-          ) : activePanel === "stats" ? (
-            <StatsPage />
           ) : activePanel === "heatmap" ? (
             <Heatmap />
           ) : activePanel === "spline" ? (
             <Spline />
-          ) : activePanel === "keywords" ? (
-            <KeywordsPage />
           ) : activePanel === "landmark" ? (
             <Landmark />
           ) : activePanel === "docs" ? (
@@ -139,7 +134,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <DashboardProvider>
       <TickerProvider>
-        <DashboardContent>{children}</DashboardContent>
+        <CacheProvider>
+          <DashboardContent>{children}</DashboardContent>
+        </CacheProvider>
       </TickerProvider>
     </DashboardProvider>
   );

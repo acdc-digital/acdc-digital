@@ -7,6 +7,9 @@
 /* Import Newsletter Design System */
 @import "../styles/newsletter.css";
 
+/* Import React Flow styles */
+@import "@xyflow/react/dist/style.css";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

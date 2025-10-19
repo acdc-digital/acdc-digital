@@ -94,6 +94,28 @@ export default defineSchema({
   })
     .index("by_profile_id", ["profile_id"]),
 
+  // Reddit source management for subreddit validation and expansion
+  redditSources: defineTable({
+    name: v.string(), // Subreddit or user name (without r/ or u/ prefix)
+    type: v.union(v.literal("subreddit"), v.literal("user")),
+    reason: v.string(), // Why this source is relevant
+    relevance_score: v.number(), // 1-5 score for prioritization
+    segment: v.string(), // Category: market_forums, trading_communities, etc.
+    metadata: v.optional(v.object({
+      subscribers: v.optional(v.number()),
+      active_users: v.optional(v.number()),
+      description: v.optional(v.string()),
+      is_nsfw: v.optional(v.boolean()),
+      is_quarantined: v.optional(v.boolean()),
+      created_utc: v.optional(v.number()),
+    })),
+    last_validated_at: v.optional(v.number()), // Last time we checked if it exists
+    enabled: v.optional(v.boolean()), // Whether to use this source (default true)
+  })
+    .index("by_name", ["name"])
+    .index("by_type_and_enabled", ["type", "enabled"])
+    .index("by_segment", ["segment"]),
+
   editor_documents: defineTable({
     story_id: v.string(), // References the story ID from story_history or live_feed_posts
     blog_content: v.optional(v.string()), // Generated blog post content
@@ -1224,6 +1246,13 @@ export default defineSchema({
     .index("by_keywords", ["source_keywords"])
     .index("by_cost", ["generation_cost"])
     .index("by_user_rating", ["user_rating", "generated_at"]),
+
+  // System-wide state and progress tracking
+  systemState: defineTable({
+    key: v.string(), // e.g., "regeneration_progress"
+    value: v.string(), // JSON string or simple text
+    updatedAt: v.number(),
+  }).index("by_key", ["key"]),
 
   // User Management
   users: defineTable({
