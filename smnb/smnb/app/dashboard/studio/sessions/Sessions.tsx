@@ -416,7 +416,7 @@ export function Sessions() {
                 <Button
                   onClick={handleCreateSession}
                   size="sm"
-                  className="h-6 w-6 p-0 bg-[#191919] hover:bg-[#3d3d3d] rounded transition-colors border border-muted-foreground/70 text-muted-foreground/70 cursor-pointer"
+                  className="h-6 w-6 p-0 bg-[#191919] hover:bg-[#3d3d3d] transition-colors border border-muted-foreground/70 text-muted-foreground/70 cursor-pointer"
                 >
                   <Plus className="w-3 h-3" />
                 </Button>
@@ -439,7 +439,7 @@ export function Sessions() {
             {/* Center Panel - Chat/Primary Content */}
             <div className="flex-1 flex flex-col min-w-0">
               {/* Session Header Bar */}
-              <div className="h-10.25 bg-[#191919] border-b border-neutral-800 flex items-center px-4">
+              <div className="h-11 bg-[#191919] border-b border-neutral-800 flex items-center px-4">
                 <div className="flex-1 flex items-center gap-4">
                   <SessionDetails session={selectedSession} />
                 </div>
@@ -452,12 +452,12 @@ export function Sessions() {
             </div>
 
             {/* Right Sidebar - Unified Design */}
-            <div className="w-105 bg-[#191919] border-l border-neutral-800 flex flex-col">
+            <div className="w-84 bg-[#191919] border-l border-neutral-800 flex flex-col">
               {/* Unified Content Panel */}
               <div className="flex-1 overflow-y-auto">
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Header with Live Button */}
-                  <div className="px-4 pt-3 pb-2 border-b border-neutral-800">
+                  <div className="px-4 py-[7.5px] border-b border-neutral-800">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Button
@@ -475,7 +475,7 @@ export function Sessions() {
                         >
                           {isTransitioning ? (
                             <>
-                              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="w-3 h-3 border-2 border-white border-t-transparent animate-spin" />
                               <span className="text-xs font-medium">
                                 {isBroadcasting ? "Stopping..." : "Starting..."}
                               </span>
@@ -512,7 +512,7 @@ export function Sessions() {
                   </div>
 
                   {/* Session Overview Section */}
-                  <div className="px-4 pt-4">
+                  <div className="px-4 pt-0">
                     <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">
                       Session Overview
                     </h3>

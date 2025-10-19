@@ -18,7 +18,7 @@ import {
   ChartSpline
 } from "lucide-react";
 
-export type PanelType = "archive" | "home" | "stats" | "heatmap" | "spline" | "keywords" | "landmark" | "docs" | "settings" | "account";
+export type PanelType = "archive" | "manager" | "home" | "stats" | "heatmap" | "spline" | "keywords" | "landmark" | "docs" | "settings" | "account";
 
 interface ActivityBarProps {
   activePanel?: PanelType;

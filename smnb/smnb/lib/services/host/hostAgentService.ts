@@ -963,16 +963,16 @@ export class HostAgentService extends EventEmitter {
     
     console.log(`⏲️ Setting ${this.NARRATION_TIMEOUT_MS/1000}s timeout for ${narration.id}`);
     this.narrationTimeout = setTimeout(() => {
-      console.error(`\n🚨 ====== NARRATION TIMEOUT ======`);
-      console.error(`⏱️ Narration ${narration.id} timed out after ${this.NARRATION_TIMEOUT_MS/1000}s`);
-      console.error(`❌ First chunk was NEVER received from Claude API`);
-      console.error(`🔍 This usually means:`);
-      console.error(`   1. Rate limit hit (429) - check if you're on Tier 1 with 50 RPM limit`);
-      console.error(`   2. API key exhausted or invalid`);
-      console.error(`   3. Network issue between server and Claude API`);
-      console.error(`   4. Claude API experiencing outages`);
-      console.error(`📊 Check your Claude Console for rate limit status: https://console.anthropic.com/settings/limits`);
-      console.error(`================================\n`);
+      console.warn(`\n⚠️ ====== NARRATION TIMEOUT ======`);
+      console.warn(`⏱️ Narration ${narration.id} timed out after ${this.NARRATION_TIMEOUT_MS/1000}s`);
+      console.warn(`❌ First chunk was NEVER received from Claude API`);
+      console.warn(`🔍 This usually means:`);
+      console.warn(`   1. Rate limit hit (429) - check if you're on Tier 1 with 50 RPM limit`);
+      console.warn(`   2. API key exhausted or invalid`);
+      console.warn(`   3. Network issue between server and Claude API`);
+      console.warn(`   4. Claude API experiencing outages`);
+      console.warn(`📊 Check your Claude Console for rate limit status: https://console.anthropic.com/settings/limits`);
+      console.warn(`================================\n`);
       this.clearStuckNarration();
       setTimeout(() => {
         if (this.state.isActive) {
@@ -1375,9 +1375,10 @@ Focus on: What's new, why it matters, and how it advances the story.
     
     // Emit error event - wrap in try-catch to prevent uncaught errors
     try {
+      // Note: Still emit as 'narration:error' event for compatibility, but log as warning
       this.emit('narration:error', stuckId || 'unknown', new Error('Narration timeout'));
     } catch (error) {
-      console.error('❌ Error emitting narration:error event:', error);
+      console.warn('⚠️ Error emitting narration:error event:', error);
     }
   }
 

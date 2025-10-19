@@ -28,7 +28,12 @@ export function NewsSummaryCard({ symbol, weight }: NewsSummaryCardProps) {
     try {
       await generateNews({ ticker: symbol, weight });
     } catch (error) {
-      console.error("Error regenerating news:", error);
+      // Connection errors are expected with long-running actions - treat as warnings
+      if (error instanceof Error && error.message.includes('Connection lost')) {
+        console.warn(`⚠️ News generation for ${symbol} may still be processing (connection timeout)`);
+      } else {
+        console.error("Error regenerating news:", error);
+      }
     } finally {
       setIsRegenerating(false);
     }

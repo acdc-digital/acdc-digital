@@ -251,9 +251,18 @@ export const updateHostSessionContent = mutation({
     if (args.source_posts) updates.source_posts = args.source_posts;
     if (args.generation_metadata) updates.generation_metadata = args.generation_metadata;
 
-    await ctx.db.patch(hostDoc._id, updates);
-
-    console.log(`📝 Updated host session content: ${args.session_id} (${wordCount} words)`);
+    try {
+      await ctx.db.patch(hostDoc._id, updates);
+      console.log(`📝 Updated host session content: ${args.session_id} (${wordCount} words)`);
+    } catch (error) {
+      // Log OCC conflicts as warnings instead of errors - they're expected under high concurrency
+      if (error instanceof Error && error.message.includes('OptimisticConcurrencyControlFailure')) {
+        console.warn(`⚠️ Concurrent update on host document ${hostDoc._id} - update may have been applied by another call`);
+      } else {
+        throw error;
+      }
+    }
+    
     return hostDoc._id;
   },
 });

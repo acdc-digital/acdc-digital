@@ -248,14 +248,16 @@ export class TradingEnrichmentAgent {
     const techSubs = ['technology', 'programming', 'machinelearning', 'artificial', 'futurology'];
     const aiSubs = ['openai', 'claudeai', 'anthropic', 'localllama', 'stablediffusion'];
     
-    const subredditLower = post.subreddit.toLowerCase();
-    
-    if (highImpactSubs.some(sub => subredditLower.includes(sub))) {
-      score += 20;
-    } else if (techSubs.some(sub => subredditLower.includes(sub))) {
-      score += 10;
-    } else if (aiSubs.some(sub => subredditLower.includes(sub))) {
-      score += 15;
+    if (post.subreddit) {
+      const subredditLower = post.subreddit.toLowerCase();
+      
+      if (highImpactSubs.some(sub => subredditLower.includes(sub))) {
+        score += 20;
+      } else if (techSubs.some(sub => subredditLower.includes(sub))) {
+        score += 10;
+      } else if (aiSubs.some(sub => subredditLower.includes(sub))) {
+        score += 15;
+      }
     }
     
     // Adjust based on engagement (logarithmic scale)

@@ -55,7 +55,7 @@ class GlobalRateLimiter {
     return GlobalRateLimiter.instance;
   }
 
-  async waitForNextRequest(): Promise<void> {
+  async waitForNextRequest(): Promise<{ blocked: boolean; remainingSeconds?: number }> {
     // Check if circuit breaker should be reset
     if (this.isCircuitBreakerOpen) {
       const timeSinceOpened = Date.now() - this.circuitBreakerOpenedAt;
@@ -65,7 +65,9 @@ class GlobalRateLimiter {
         this.rateLimitBackoff = Math.floor(this.rateLimitBackoff / 2); // Reduce backoff on reset
       } else {
         const remainingTime = this.circuitBreakerResetTime - timeSinceOpened;
-        throw new Error(`Circuit breaker is open - Reddit API calls suspended for ${Math.round(remainingTime / 1000)} more seconds. The system is automatically recovering from rate limits.`);
+        const remainingSeconds = Math.round(remainingTime / 1000);
+        console.warn(`⚠️ Circuit breaker open - Reddit API throttled for ${remainingSeconds}s (auto-recovering)`);
+        return { blocked: true, remainingSeconds };
       }
     }
 
@@ -80,6 +82,7 @@ class GlobalRateLimiter {
     }
     
     this.lastRequestTime = Date.now();
+    return { blocked: false };
   }
 
   increaseBackoff(): void {
@@ -147,7 +150,22 @@ class RedditAPI {
 
     try {
       // Use global rate limiter
-      await this.rateLimiter.waitForNextRequest();
+      const rateLimitStatus = await this.rateLimiter.waitForNextRequest();
+      
+      // If circuit breaker is open, return empty response gracefully
+      if (rateLimitStatus.blocked) {
+        console.warn(`⚠️ Reddit API throttled - returning empty response (recovers in ${rateLimitStatus.remainingSeconds}s)`);
+        return {
+          kind: 'Listing',
+          data: {
+            children: [],
+            after: null,
+            before: null,
+            modhash: '',
+            dist: 0,
+          },
+        };
+      }
       
       console.log(`🌐 Fetching Reddit: ${url} (backoff: ${this.rateLimiter.getCurrentBackoff()}ms)`);
       
@@ -167,20 +185,39 @@ class RedditAPI {
 
       if (!response.ok) {
         const responseText = await response.text();
-        console.error('❌ Reddit API error response:', responseText);
         
         if (response.status === 403) {
           console.warn(`⚠️ Reddit blocked access to r/${subreddit}. This may be due to rate limiting or bot detection.`);
-          throw new Error(`Reddit access blocked for r/${subreddit}. Try again later.`);
+          return {
+            kind: 'Listing',
+            data: {
+              children: [],
+              after: null,
+              before: null,
+              modhash: '',
+              dist: 0,
+            },
+          };
         }
         
         if (response.status === 429) {
           // Increase global backoff
           this.rateLimiter.increaseBackoff();
           const currentBackoff = this.rateLimiter.getCurrentBackoff();
-          throw new Error(`Rate limited by Reddit for r/${subreddit}. Automatic backoff in effect (${currentBackoff}ms delay). The system will automatically adjust request timing.`);
+          console.warn(`⚠️ Rate limited by Reddit for r/${subreddit} - backoff: ${currentBackoff}ms (auto-recovering)`);
+          return {
+            kind: 'Listing',
+            data: {
+              children: [],
+              after: null,
+              before: null,
+              modhash: '',
+              dist: 0,
+            },
+          };
         }
         
+        console.error('❌ Reddit API error response:', responseText);
         throw new Error(`Reddit API error: ${response.status} ${response.statusText}`);
       }
 
@@ -250,7 +287,22 @@ class RedditAPI {
 
     try {
       // Use global rate limiter for search requests too
-      await this.rateLimiter.waitForNextRequest();
+      const rateLimitStatus = await this.rateLimiter.waitForNextRequest();
+      
+      // If circuit breaker is open, return empty response gracefully
+      if (rateLimitStatus.blocked) {
+        console.warn(`⚠️ Reddit search throttled - returning empty response (recovers in ${rateLimitStatus.remainingSeconds}s)`);
+        return {
+          kind: 'Listing',
+          data: {
+            children: [],
+            after: null,
+            before: null,
+            modhash: '',
+            dist: 0,
+          },
+        };
+      }
       
       console.log(`🔍 Searching Reddit: ${url} (backoff: ${this.rateLimiter.getCurrentBackoff()}ms)`);
       
@@ -270,7 +322,20 @@ class RedditAPI {
       if (!response.ok) {
         if (response.status === 429) {
           this.rateLimiter.increaseBackoff();
+          const currentBackoff = this.rateLimiter.getCurrentBackoff();
+          console.warn(`⚠️ Reddit search rate limited - backoff: ${currentBackoff}ms (auto-recovering)`);
+          return {
+            kind: 'Listing',
+            data: {
+              children: [],
+              after: null,
+              before: null,
+              modhash: '',
+              dist: 0,
+            },
+          };
         }
+        console.error(`❌ Reddit search error: ${response.status} ${response.statusText}`);
         throw new Error(`Reddit search error: ${response.status} ${response.statusText}`);
       }
 

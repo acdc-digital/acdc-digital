@@ -29,7 +29,12 @@ export function SentimentAnalysisCard({ symbol, weight }: SentimentAnalysisCardP
     try {
       await generateSentiment({ ticker: symbol, weight });
     } catch (error) {
-      console.error("Error regenerating sentiment:", error);
+      // Connection errors are expected with long-running actions - treat as warnings
+      if (error instanceof Error && error.message.includes('Connection lost')) {
+        console.warn(`⚠️ Sentiment generation for ${symbol} may still be processing (connection timeout)`);
+      } else {
+        console.error("Error regenerating sentiment:", error);
+      }
     } finally {
       setIsRegenerating(false);
     }
