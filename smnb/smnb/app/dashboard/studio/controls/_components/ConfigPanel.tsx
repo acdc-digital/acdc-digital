@@ -16,11 +16,6 @@ interface ConfigPanelProps {
   };
   mode: StudioMode;
   
-  // API Key management
-  useUserApiKey: boolean;
-  setUseUserApiKey: (value: boolean) => void;
-  hasValidApiKey: () => boolean;
-  
   // UI Options
   showHeaders?: boolean;
   
@@ -34,9 +29,6 @@ export default function ConfigPanel({
   customSubredditsCount,
   hostStats,
   mode,
-  useUserApiKey,
-  setUseUserApiKey,
-  hasValidApiKey,
   showHeaders = true,
   postsCount = 0,
   queueLength = 0,
@@ -61,45 +53,25 @@ export default function ConfigPanel({
           <span className="font-mono text-muted-foreground">{queueLength}</span>
         </div>
 
-        {/* Row 3: API */}
-        <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
-          <span className="text-muted-foreground/70">API</span>
-          <div className="flex items-center gap-1">
-            <Switch
-              checked={useUserApiKey}
-              onCheckedChange={setUseUserApiKey}
-              className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-gray-600 cursor-pointer"
-              style={{ transform: 'scale(0.7)' }}
-            />
-            {useUserApiKey && (
-              <span className={`font-mono ${
-                hasValidApiKey() ? 'text-green-400' : 'text-red-400'
-              }`}>
-                {hasValidApiKey() ? 'USER' : 'ERR'}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Row 4: Sources */}
+        {/* Row 3: Sources */}
         <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Sources</span>
           <span className="font-mono text-muted-foreground">{totalSources}</span>
         </div>
 
-        {/* Row 5: Stories */}
+        {/* Row 4: Stories */}
         <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Stories</span>
           <span className="font-mono text-muted-foreground">{hostStats.totalNarrations}</span>
         </div>
 
-        {/* Row 6: Mode */}
+        {/* Row 5: Mode */}
         <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <span className="text-muted-foreground/70">Mode</span>
           <span className="font-mono text-muted-foreground">{mode.toUpperCase()}</span>
         </div>
 
-        {/* Row 7: Empty spacer */}
+        {/* Row 6: Empty spacer */}
         <div className="flex items-center justify-between px-2 py-1.25 text-xs rounded-sm border border-border/40">
           <div className='pt-2.5'></div>
         </div>

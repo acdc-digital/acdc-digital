@@ -71,6 +71,7 @@ import type * as system_debug from "../system/debug.js";
 import type * as system_studioControls from "../system/studioControls.js";
 import type * as system_studioControlsActions from "../system/studioControlsActions.js";
 import type * as system_test from "../system/test.js";
+import type * as ticker_iconCache from "../ticker/iconCache.js";
 import type * as trading from "../trading.js";
 import type * as users_messages from "../users/messages.js";
 import type * as users_sessions from "../users/sessions.js";
@@ -154,6 +155,7 @@ declare const fullApi: ApiFromModules<{
   "system/studioControls": typeof system_studioControls;
   "system/studioControlsActions": typeof system_studioControlsActions;
   "system/test": typeof system_test;
+  "ticker/iconCache": typeof ticker_iconCache;
   trading: typeof trading;
   "users/messages": typeof users_messages;
   "users/sessions": typeof users_sessions;

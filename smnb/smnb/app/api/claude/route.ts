@@ -15,34 +15,28 @@ import { SESSION_MANAGER_CONFIG } from '../../../../../.agents/anthropic.config'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, prompt, options, apiKey, messages, enableMCP = true } = body;
+    const { action, prompt, options, messages, enableMCP = true } = body;
 
-    // Use provided API key or fall back to environment variable
-    const effectiveApiKey = apiKey || process.env.ANTHROPIC_API_KEY;
+    // API key stored securely in environment variable only
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     
-    // SECURITY FIX: Removed partial API key logging
-    if (apiKey) {
-      console.log('🔑 SERVER: Using client-provided API key');
-    } else if (process.env.ANTHROPIC_API_KEY) {
-      console.log('🔑 SERVER: Using environment API key');
-    } else {
-      console.log('❌ SERVER: No API key available');
-    }
-    
-    if (!effectiveApiKey) {
+    if (!apiKey) {
+      console.error('❌ SERVER: ANTHROPIC_API_KEY not configured in environment');
       return NextResponse.json(
-        { error: 'ANTHROPIC_API_KEY not configured. Please provide an API key.' },
+        { error: 'ANTHROPIC_API_KEY not configured on server. Please contact support.' },
         { status: 500 }
       );
     }
+    
+    console.log('🔑 SERVER: Using environment API key');
 
     // MCP server configuration
     const mcpServerUrl = process.env.MCP_SERVER_URL || 'http://localhost:3001';
     const useMCP = enableMCP && process.env.ENABLE_MCP !== 'false';
 
-    // Create Anthropic client with the effective API key and MCP beta header
+    // Create Anthropic client with environment API key and MCP beta header
     const anthropicConfig = {
-      apiKey: effectiveApiKey,
+      apiKey,
       ...(useMCP && {
         defaultHeaders: {
           'anthropic-beta': 'mcp-client-2025-04-04'

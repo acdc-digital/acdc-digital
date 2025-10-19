@@ -5,6 +5,19 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // Ticker icon cache - stores downloaded icon data for fast loading
+  ticker_icon_cache: defineTable({
+    symbol: v.string(), // Ticker symbol (e.g., "AAPL")
+    iconUrl: v.string(), // Original icon URL
+    storageId: v.optional(v.id("_storage")), // Convex storage ID if uploaded
+    cached: v.boolean(), // Whether the icon has been successfully cached
+    lastUpdated: v.number(), // Timestamp of last update
+    fallbackUsed: v.boolean(), // Whether this uses a fallback
+  })
+    .index("by_symbol", ["symbol"])
+    .index("by_cached", ["cached"])
+    .index("by_lastUpdated", ["lastUpdated"]),
+
   // Token usage tracking
   token_usage: defineTable({
     request_id: v.string(), // Unique identifier for the request
@@ -1165,8 +1178,8 @@ export default defineSchema({
     
     // Post metadata (denormalized for performance)
     post_title: v.string(),
-    post_subreddit: v.string(),
-    post_score: v.number(),
+    post_subreddit: v.optional(v.string()),
+    post_score: v.optional(v.number()),
     post_created_at: v.number(),
     
     created_at: v.number()

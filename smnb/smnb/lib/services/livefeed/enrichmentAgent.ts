@@ -98,11 +98,11 @@ export class EnrichmentAgent {
     
     // Domain quality (prefer known good sources)
     const goodDomains = ['github.com', 'stackoverflow.com', 'arxiv.org', 'medium.com', 'youtube.com'];
-    if (goodDomains.some(domain => post.domain.includes(domain))) score += 0.1;
+    if (post.domain && goodDomains.some(domain => post.domain.includes(domain))) score += 0.1;
     
     // Avoid low-quality indicators
-    if (post.title.includes('🚀') || post.title.includes('💎')) score -= 0.1; // Emoji spam
-    if (post.title.toUpperCase() === post.title) score -= 0.2; // ALL CAPS
+    if (post.title && (post.title.includes('🚀') || post.title.includes('💎'))) score -= 0.1; // Emoji spam
+    if (post.title && post.title.toUpperCase() === post.title) score -= 0.2; // ALL CAPS
     
     return Math.max(0, Math.min(1, score)); // Clamp between 0-1
   }

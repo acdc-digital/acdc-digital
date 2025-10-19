@@ -3,6 +3,8 @@
 import React from "react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
+// TODO: Uncomment when Convex API regenerates
+// import { useTickerIcon } from "@/lib/hooks/useTickerIconCache";
 
 interface TickerProps {
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface TickerIconProps {
   src?: string;
   symbol: string;
   className?: string;
+  useCache?: boolean; // Enable caching (default: true)
 }
 
 interface TickerSymbolProps {
@@ -43,11 +46,20 @@ export function Ticker({ children, className = "" }: TickerProps) {
   );
 }
 
-export function TickerIcon({ src, symbol, className = "" }: TickerIconProps) {
+export function TickerIcon({ src, symbol, className = "", useCache = true }: TickerIconProps) {
   const [hasError, setHasError] = React.useState(false);
 
-  // If no src or error occurred, show symbol fallback
-  if (!src || hasError) {
+  // TODO: Enable caching once Convex API regenerates
+  // const { iconUrl, useFallback } = useCache
+  //   ? useTickerIcon(symbol)
+  //   : { iconUrl: src, useFallback: false };
+
+  // For now, use the provided src
+  const iconUrl = src;
+  const useFallback = false;
+
+  // If no src, error occurred, or cache indicates fallback, show symbol fallback
+  if (!iconUrl || hasError || useFallback) {
     return (
       <div className={`w-6 h-6 rounded-full bg-[#252526] border border-[#2d2d2d] flex items-center justify-center ${className}`}>
         <span className="font-sans text-[10px] font-semibold text-[#858585]">
@@ -60,7 +72,7 @@ export function TickerIcon({ src, symbol, className = "" }: TickerIconProps) {
   return (
     <div className={`w-6 h-6 p-1.25 border rounded-full overflow-hidden flex-shrink-0 ${className}`}>
       <Image
-        src={src}
+        src={iconUrl}
         alt={symbol}
         width={24}
         height={24}
