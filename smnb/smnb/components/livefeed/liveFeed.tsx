@@ -135,7 +135,7 @@ export default function LiveFeed({ className, sessionId }: LiveFeedProps) {
           <>
             {/* Absolute positioned background text */}
             <div className="absolute top-2 left-3 pointer-events-none z-0">
-              <p className="text-gray-500 dark:text-slate-500/20 font-work-sans font-semibold text-7xl break-words leading-tight">
+              <p className="text-gray-500 dark:text-slate-500/20 font-newsreader font-bold text-4xl break-words leading-tight">
                 Demo-
                 cratizing AI.
               </p>

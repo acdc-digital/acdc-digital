@@ -9,7 +9,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ComputerUseAIControls } from '@/lib/components/ComputerUseAIControls';
 import { ProducerComputerUseIntegration, useProducerComputerUse } from '@/lib/components/ProducerComputerUseIntegration';
-import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
 
 interface TestResult {
   test: string;
@@ -22,7 +21,6 @@ export const ComputerUseIntegrationTest: React.FC = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const { getValidApiKey } = useApiKeyStore();
   const {
     initializeService,
     interactWithEditor,

@@ -63,16 +63,30 @@ export const WaterfallNarration: React.FC<WaterfallNarrationProps> = React.memo(
     }
   };
 
+  // Determine if narrator is "off air" (show full contrast message)
+  const isOffAir = !isActive || (!isStreaming && !streamingText);
+
   return (
-    <div className={`flex flex-col h-full p-0 ${className}`}>
+    <div className={`flex flex-col h-full p-0 ${className} relative`}>
+      {/* Intermittent "We'll be right back" message */}
+      <div
+        className={`absolute inset-0 flex pt-2 pointer-events-none transition-opacity duration-500 ${
+          isOffAir ? 'opacity-100' : 'opacity-[0.1]'
+        }`}
+      >
+        <p className={styles.intermittentMessage}>
+          We'll be right back.
+        </p>
+      </div>
+
       {/* Scrollable content area - hidden scrollbar, content pushes down */}
-      <div 
-        ref={scrollRef} 
-        className={`flex-1 min-h-0 overflow-y-auto ${styles.hiddenScrollbar}`}
+      <div
+        ref={scrollRef}
+        className={`flex-1 min-h-0 overflow-y-auto ${styles.hiddenScrollbar} relative z-10 pt-2`}
       >
         {/* Current streaming text */}
         {isStreaming && isActive && streamingText && (
-          <div className={`${styles.currentNarration} bg-blue-500/10 rounded-lg mb-6`}>
+          <div className={`${styles.currentNarration} bg-blue-500/10 rounded-lg`}>
             <div className="text-foreground leading-relaxed text-base">
               <Response parseIncompleteMarkdown={true}>
                 {streamingText}

@@ -224,8 +224,8 @@ export const storeBatchCompanyMentions = mutation({
         context: v.string(),
         impact_score: v.number(),
         post_title: v.string(),
-        post_subreddit: v.string(),
-        post_score: v.number(),
+        post_subreddit: v.optional(v.string()),
+        post_score: v.optional(v.number()),
         post_created_at: v.number(),
       })
     ),
@@ -572,8 +572,8 @@ export const getPostCompanyMentions = query({
       context: v.string(),
       impact_score: v.number(),
       post_title: v.string(),
-      post_subreddit: v.string(),
-      post_score: v.number(),
+      post_subreddit: v.optional(v.string()),
+      post_score: v.optional(v.number()),
       post_created_at: v.number(),
       created_at: v.number(),
     })
@@ -615,8 +615,8 @@ export const getTickerMentions = query({
       context: v.string(),
       impact_score: v.number(),
       post_title: v.string(),
-      post_subreddit: v.string(),
-      post_score: v.number(),
+      post_subreddit: v.optional(v.string()),
+      post_score: v.optional(v.number()),
       post_created_at: v.number(),
       created_at: v.number(),
     })

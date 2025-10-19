@@ -71,7 +71,6 @@ function DashboardContent({}: DashboardLayoutProps) {
         <div className="w-2 h-2 rounded-full bg-green-600"></div>
         
         <div className="ml-auto flex items-center gap-4">
-          <ApiKeyInput compact />
           <ThemeToggle />
         </div>
       </div>
@@ -84,29 +83,48 @@ function DashboardContent({}: DashboardLayoutProps) {
           onPanelChange={setActivePanel}
         />
         
-        {/* Panel Content */}
-        <div className="flex flex-1 min-w-0 overflow-hidden">
-          {activePanel === "archive" ? (
+        {/* Panel Content - All panels mounted, visibility controlled by CSS */}
+        <div className="flex flex-1 min-w-0 overflow-hidden relative">
+          {/* Sessions Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "archive" ? "" : "hidden"}`}>
             <Sessions />
-          ) : activePanel === "heatmap" ? (
+          </div>
+          
+          {/* Heatmap Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "heatmap" ? "" : "hidden"}`}>
             <Heatmap />
-          ) : activePanel === "spline" ? (
+          </div>
+          
+          {/* Spline Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "spline" ? "" : "hidden"}`}>
             <Spline />
-          ) : activePanel === "landmark" ? (
+          </div>
+          
+          {/* Landmark Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "landmark" ? "" : "hidden"}`}>
             <Landmark />
-          ) : activePanel === "docs" ? (
+          </div>
+          
+          {/* Wiki Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "docs" ? "" : "hidden"}`}>
             <Wiki />
-          ) : activePanel === "settings" ? (
+          </div>
+          
+          {/* Settings Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "settings" ? "" : "hidden"}`}>
             <Settings />
-          ) : activePanel === "account" ? (
+          </div>
+          
+          {/* Users Panel */}
+          <div className={`absolute inset-0 flex ${activePanel === "account" ? "" : "hidden"}`}>
             <Users />
-          ) : (
-            <>
-              {/* Default Dashboard Content */}
-              <FeedSidebar />
-              <Studio />
-            </>
-          )}
+          </div>
+          
+          {/* Default Dashboard Content (Feed + Studio) */}
+          <div className={`absolute inset-0 flex ${activePanel === "landmark" || activePanel === "archive" || activePanel === "heatmap" || activePanel === "spline" || activePanel === "docs" || activePanel === "settings" || activePanel === "account" ? "hidden" : ""}`}>
+            <FeedSidebar />
+            <Studio />
+          </div>
         </div>
       </div>
 

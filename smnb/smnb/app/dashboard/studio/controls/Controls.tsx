@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSimpleLiveFeedStore } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 import { useHostAgentStore } from '@/lib/stores/host/hostAgentStore';
-import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
 import { useBroadcastOrchestrator, useIsBroadcasting, useIsTransitioning, useBroadcastError } from '@/lib/stores/orchestrator/broadcastOrchestrator';
 import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -145,12 +144,6 @@ export default function Controls({ mode }: ControlsProps) {
   const isLive = useIsBroadcasting();
   const isTransitioning = useIsTransitioning();
   const broadcastError = useBroadcastError();
-
-  const {
-    useUserApiKey,
-    setUseUserApiKey,
-    hasValidKey: hasValidApiKey
-  } = useApiKeyStore();
 
   // Simplified broadcast toggle - orchestrator handles all coordination
   const handleBroadcastToggle = async () => {
@@ -374,9 +367,6 @@ export default function Controls({ mode }: ControlsProps) {
             customSubredditsCount={customSubreddits.length}
             hostStats={{ totalNarrations: hostStats.totalNarrations }}
             mode={mode}
-            useUserApiKey={useUserApiKey}
-            setUseUserApiKey={setUseUserApiKey}
-            hasValidApiKey={hasValidApiKey}
             showHeaders={false}
             postsCount={posts.length}
             queueLength={hostStats.queueLength}

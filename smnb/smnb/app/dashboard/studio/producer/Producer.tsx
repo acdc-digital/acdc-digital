@@ -19,7 +19,6 @@ import Editor from "./_components/Editor";
 import { useEditorStatus, useEditorContent, useEditorStore } from "@/lib/stores/editor/editorStore";
 import { ComputerUseAIControls } from "@/lib/components/ComputerUseAIControls";
 import { ProducerComputerUseIntegration } from "@/lib/components/ProducerComputerUseIntegration";
-import { useApiKeyStore } from "@/lib/stores/auth/apiKeyStore";
 
 interface ProducerProps {
   onModeChange?: (mode: StudioMode) => void;
@@ -139,9 +138,8 @@ export default function Producer({ onModeChange }: ProducerProps) {
   // Story selection state
   const { selectedStory, isPreviewOpen, clearSelection } = useStorySelectionStore();
   
-  // Editor and API key state for computer use
+  // Editor state for computer use
   const { producerContent } = useEditorStore();
-  const { getValidApiKey } = useApiKeyStore();
   
   // Feed stats synchronization - removed to fix infinite loop
 
