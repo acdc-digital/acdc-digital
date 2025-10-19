@@ -1,17 +1,10 @@
-// NEXUS CHAT COMPONENT
-// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/services/sessionManager/NexusChat.tsx
+// ACDC CHAT COMPONENT
+// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/services/sessionManager/ACDCChat.tsx
 
 /**
- * Nexus-Powered Chat Component for Session Manager
+ * ACDC Framework Chat Component for Session Manager
  * 
- * Drop-in replacement for Chat.tsx using Nexus Framew              <Button
-                variant="ghost-minimal"
-                size="xs"
-                onClick={handleClearChat}
-                className="p-1 pr-2 text-neutral-400 hover:text-neutral-200"
-              >
-                Clear
-              </Button>:
+ * Real-time streaming chat interface using ACDC Framework:
  * - Real-time streaming via SSE
  * - Tool execution display
  * - Natural language query understanding
@@ -24,8 +17,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNexusAgent } from "@/lib/hooks/useNexusAgent";
-import { NexusChatMessage } from "./_components/NexusChatMessage";
+import { useACDCAgent } from "@/lib/hooks/useACDCAgent";
+import type { ACDCMessage } from "@/lib/hooks/useACDCAgent";
+import { ACDCChatMessage } from "./_components/ACDCChatMessage";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   Conversation,
   ConversationContent,
@@ -35,7 +31,9 @@ import {
   PromptInput,
   PromptInputTextarea,
 } from "@/components/ai/prompt-input";
-import { Suggestion } from "@/components/ai/suggestion";export interface NexusChatProps {
+import { Suggestion } from "@/components/ai/suggestion";
+
+export interface ACDCChatProps {
   className?: string;
   placeholder?: string;
   agentId?: string;
@@ -47,7 +45,7 @@ import { Suggestion } from "@/components/ai/suggestion";export interface NexusCh
   showSettings?: boolean;
 }
 
-export function NexusChat({
+export function ACDCChat({
   className,
   placeholder = "Ask me about your session data, metrics, costs, or system health...",
   agentId = "session-manager",
@@ -57,18 +55,23 @@ export function NexusChat({
   onResponseReceived,
   disabled = false,
   showSettings = false
-}: NexusChatProps) {
+}: ACDCChatProps) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [showSettingsPanel] = useState(false);
 
-  // Use Nexus agent hook
+  // Flash memory: Mutation to save messages to Convex (not used by useACDCAgent directly)
+  // This is NOT needed since SessionManagerAgent already saves messages
+  // But we keep it here as a reference in case we need frontend-side saving
+  // const saveMessage = useMutation(api.nexus.sessionChats.create);
+
+  // Use ACDC agent hook with flash memory callbacks
   const {
     messages,
     isStreaming,
     error,
     sendMessage,
     clearMessages,
-  } = useNexusAgent({
+  } = useACDCAgent({
     agentId,
     sessionId,
     conversationId,
@@ -79,10 +82,20 @@ export function NexusChat({
         onResponseReceived?.(lastMessage.content);
       }
     },
+    // Flash memory callbacks - NOTE: Messages are already saved by SessionManagerAgent
+    // These callbacks are optional placeholders for frontend-initiated saves if needed
+    onMessageSent: (message: ACDCMessage) => {
+      console.log('[ACDCChat] User message sent (already saved by agent):', message.content.substring(0, 50));
+      // No need to save - SessionManagerAgent already saves user messages
+    },
+    onMessageReceived: (message: ACDCMessage) => {
+      console.log('[ACDCChat] Assistant message received (already saved by agent):', message.content.substring(0, 50));
+      // No need to save - SessionManagerAgent already saves assistant messages
+    },
   });
 
   // DEBUG: Log component render with hook data
-  console.log('[NexusChat] Rendered:', {
+  console.log('[ACDCChat] Rendered:', {
     agentId,
     sessionId,
     conversationId,
@@ -98,7 +111,7 @@ export function NexusChat({
     const messageText = currentMessage.trim();
     
     // DEBUG: Log message send
-    console.log('[NexusChat] Sending message:', { messageText, agentId, sessionId });
+    console.log('[ACDCChat] Sending message:', { messageText, agentId, sessionId });
     
     // Clear input immediately
     setCurrentMessage("");
@@ -106,12 +119,12 @@ export function NexusChat({
     // Notify parent
     onMessageSent?.(messageText);
 
-    // Send to Nexus agent
+    // Send to ACDC agent
     try {
       await sendMessage(messageText);
-      console.log('[NexusChat] Message sent successfully');
+      console.log('[ACDCChat] Message sent successfully');
     } catch (err) {
-      console.error('[NexusChat] Failed to send message:', err);
+      console.error('[ACDCChat] Failed to send message:', err);
     }
   };
 
@@ -121,12 +134,12 @@ export function NexusChat({
     // Notify parent
     onMessageSent?.(suggestion);
 
-    // Send to Nexus agent
+    // Send to ACDC agent
     try {
       await sendMessage(suggestion);
-      console.log('[NexusChat] Suggestion sent successfully:', suggestion);
+      console.log('[ACDCChat] Suggestion sent successfully:', suggestion);
     } catch (err) {
-      console.error('[NexusChat] Failed to send suggestion:', err);
+      console.error('[ACDCChat] Failed to send suggestion:', err);
     }
   };
 
@@ -210,7 +223,7 @@ export function NexusChat({
           )}
           
           {messages.map((msg, index) => (
-            <NexusChatMessage
+            <ACDCChatMessage
               key={msg.id}
               message={msg}
               isStreaming={isStreaming && index === messages.length - 1}
@@ -302,4 +315,4 @@ export function NexusChat({
   );
 }
 
-export default NexusChat;
+export default ACDCChat;

@@ -1,41 +1,6 @@
 // SESSION CHAT COMPONENT
 // /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/services/sessionManager/Chat.tsx
 
-/**
- * ⚠️ DEPRECATED - DO NOT USE ⚠️
- * 
- * This component has been replaced by NexusChat with full Nexus Framework integration.
- * 
- * Migration:
- * ```tsx
- * // Old (don't use):
- * import { Chat } from '@/lib/services/sessionManager/Chat';
- * <Chat systemPrompt="..." />
- * 
- * // New (use this):
- * import { NexusChat } from '@/lib/services/sessionManager/NexusChat';
- * <NexusChat agentId="session-manager-agent" sessionId={id} />
- * ```
- * 
- * Benefits of NexusChat:
- * - 7 built-in analytics tools
- * - MCP Server integration
- * - Streaming responses
- * - Multi-turn conversations
- * - Better error handling
- * 
- * See: lib/services/sessionManager/MIGRATION.md for full guide
- * 
- * @deprecated Use NexusChat instead
- */
-
-/**
- * Main Chat Component for Session Manager (LEGACY)
- * 
- * Provides the primary chat interface that can be embedded in different contexts
- * Uses the sessionChatService for LLM integration
- */
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";

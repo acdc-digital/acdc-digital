@@ -19,6 +19,7 @@ import Spline from "./studio/spline/Spline";
 
 import Wiki from "./studio/wiki/Wiki";
 import { Sessions } from "./studio/sessions/Sessions";
+import { SessionManager } from "./studio/manager/SessionManager";
 import Settings from "./studio/settings/Settings";
 import Users from "./studio/user/Users";
 import Landmark from "./studio/landmark/Landmark";
@@ -85,9 +86,14 @@ function DashboardContent({}: DashboardLayoutProps) {
         
         {/* Panel Content - All panels mounted, visibility controlled by CSS */}
         <div className="flex flex-1 min-w-0 overflow-hidden relative">
-          {/* Sessions Panel */}
+          {/* Sessions Panel (Broadcast) */}
           <div className={`absolute inset-0 flex ${activePanel === "archive" ? "" : "hidden"}`}>
             <Sessions />
+          </div>
+          
+          {/* Session Manager Panel (Chat) */}
+          <div className={`absolute inset-0 flex ${activePanel === "manager" ? "" : "hidden"}`}>
+            <SessionManager />
           </div>
           
           {/* Heatmap Panel */}
@@ -121,7 +127,7 @@ function DashboardContent({}: DashboardLayoutProps) {
           </div>
           
           {/* Default Dashboard Content (Feed + Studio) */}
-          <div className={`absolute inset-0 flex ${activePanel === "landmark" || activePanel === "archive" || activePanel === "heatmap" || activePanel === "spline" || activePanel === "docs" || activePanel === "settings" || activePanel === "account" ? "hidden" : ""}`}>
+          <div className={`absolute inset-0 flex ${activePanel === "landmark" || activePanel === "archive" || activePanel === "manager" || activePanel === "heatmap" || activePanel === "spline" || activePanel === "docs" || activePanel === "settings" || activePanel === "account" ? "hidden" : ""}`}>
             <FeedSidebar />
             <Studio />
           </div>

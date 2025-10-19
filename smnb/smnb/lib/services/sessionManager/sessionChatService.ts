@@ -4,18 +4,18 @@
 /**
  * ⚠️ DEPRECATED - DO NOT USE ⚠️
  * 
- * This file has been replaced by SessionManagerAgent with full Nexus Framework integration.
+ * This file has been replaced by SessionManagerAgent with full ACDC Framework integration.
  * 
  * Migration Path:
  * - Use: SessionManagerAgent (lib/agents/nexus/SessionManagerAgent.ts)
- * - UI: NexusChat (lib/services/sessionManager/NexusChat.tsx)
- * - Hook: useNexusAgent (lib/hooks/useNexusAgent.ts)
+ * - UI: ACDCChat (lib/services/sessionManager/ACDCChat.tsx)
+ * - Hook: useACDCAgent (lib/hooks/useACDCAgent.ts)
  * 
  * Why deprecated:
  * - No tool calling support
  * - Incompatible MCP integration approach
  * - Limited to simple Q&A (no analytics access)
- * - Doesn't follow Nexus Framework patterns
+ * - Doesn't follow ACDC Framework patterns
  * 
  * See: lib/services/sessionManager/MIGRATION.md for details
  * 

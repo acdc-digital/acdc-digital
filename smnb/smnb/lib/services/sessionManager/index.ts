@@ -7,17 +7,17 @@
  * Central export point for all session manager components and services
  *
  * ARCHITECTURE:
- * - Uses Nexus Framework with SessionManagerAgent
+ * - Uses ACDC Framework with SessionManagerAgent
  * - Streaming via /api/agents/stream endpoint
  * - MCP Server integration for analytics
- * - All chat functionality through NexusChat component
+ * - All chat functionality through ACDCChat component
  */
 
-// Main Nexus Chat Component (Recommended)
-export { NexusChat } from './NexusChat';
-export type { NexusChatProps } from './NexusChat';
+// Main ACDC Chat Component (Recommended)
+export { ACDCChat } from './ACDCChat';
+export type { ACDCChatProps } from './ACDCChat';
 
-// Legacy components (DEPRECATED - Use NexusChat instead)
+// Legacy components (DEPRECATED - Use ACDCChat instead)
 export { Chat } from './Chat';
 export type { ChatProps, ChatState } from './Chat';
 

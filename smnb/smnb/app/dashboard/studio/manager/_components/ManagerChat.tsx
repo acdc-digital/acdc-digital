@@ -3,11 +3,11 @@
 import { Id } from "@/convex/_generated/dataModel";
 import { ACDCChat } from "@/lib/services/sessionManager/ACDCChat";
 
-interface SessionChatProps {
+interface ManagerChatProps {
   sessionId: Id<"sessions">;
 }
 
-export function SessionChat({ sessionId }: SessionChatProps) {
+export function ManagerChat({ sessionId }: ManagerChatProps) {
   return (
     <div className="flex flex-col h-full">
       {/* ACDC Chat Component */}

@@ -1,8 +1,8 @@
-// NEXUS AGENT REACT HOOK
-// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/hooks/useNexusAgent.ts
+// ACDC AGENT REACT HOOK
+// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/hooks/useACDCAgent.ts
 
 /**
- * React hook for consuming Nexus agent streams via SSE
+ * React hook for consuming ACDC agent streams via SSE
  * 
  * Provides real-time streaming interface for agent interactions with:
  * - Automatic SSE connection management
@@ -14,7 +14,7 @@
 import { useState, useCallback, useRef } from 'react';
 import type { AgentChunk } from '@/lib/agents/nexus/types';
 
-export interface NexusMessage {
+export interface ACDCMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -28,17 +28,20 @@ export interface NexusMessage {
   metadata?: Record<string, unknown>;
 }
 
-export interface UseNexusAgentOptions {
+export interface UseACDCAgentOptions {
   agentId: string;
   sessionId?: string;
   conversationId?: string;
   onChunk?: (chunk: AgentChunk) => void;
   onError?: (error: Error) => void;
   onComplete?: () => void;
+  // Flash memory: Callbacks to save messages to Convex for conversation history
+  onMessageSent?: (message: ACDCMessage) => void;
+  onMessageReceived?: (message: ACDCMessage) => void;
 }
 
-export interface UseNexusAgentReturn {
-  messages: NexusMessage[];
+export interface UseACDCAgentReturn {
+  messages: ACDCMessage[];
   isStreaming: boolean;
   error: Error | null;
   currentChunk: AgentChunk | null;
@@ -48,11 +51,11 @@ export interface UseNexusAgentReturn {
 }
 
 /**
- * Hook for interacting with Nexus agents via streaming API
+ * Hook for interacting with ACDC agents via streaming API
  * 
  * @example
  * ```tsx
- * const { messages, isStreaming, sendMessage } = useNexusAgent({
+ * const { messages, isStreaming, sendMessage } = useACDCAgent({
  *   agentId: 'session-manager-agent',
  *   sessionId: currentSessionId,
  * });
@@ -61,7 +64,7 @@ export interface UseNexusAgentReturn {
  * await sendMessage('How are my data metrics for the week?');
  * ```
  */
-export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentReturn {
+export function useACDCAgent(options: UseACDCAgentOptions): UseACDCAgentReturn {
   const {
     agentId,
     sessionId,
@@ -69,24 +72,26 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
     onChunk,
     onError,
     onComplete,
+    onMessageSent,
+    onMessageReceived,
   } = options;
 
-  const [messages, setMessages] = useState<NexusMessage[]>([]);
+  const [messages, setMessages] = useState<ACDCMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [currentChunk, setCurrentChunk] = useState<AgentChunk | null>(null);
   
   // Track current message being built
-  const currentMessageRef = useRef<NexusMessage | null>(null);
+  const currentMessageRef = useRef<ACDCMessage | null>(null);
   const lastUserMessageRef = useRef<string>('');
 
   /**
    * Process individual chunks and update state
    */
   const processChunk = useCallback(async (chunk: AgentChunk): Promise<void> => {
-    console.log('[useNexusAgent] Processing chunk:', chunk.type, chunk.data);
+    console.log('[useACDCAgent] Processing chunk:', chunk.type, chunk.data);
     if (!currentMessageRef.current) {
-      console.log('[useNexusAgent] No current message ref, skipping');
+      console.log('[useACDCAgent] No current message ref, skipping');
       return;
     }
 
@@ -94,12 +99,12 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
       case 'thinking':
         // Append thinking content
         if (typeof chunk.data === 'string') {
-          console.log('[useNexusAgent] Appending thinking:', chunk.data.substring(0, 50));
+          console.log('[useACDCAgent] Appending thinking:', chunk.data.substring(0, 50));
           if (!currentMessageRef.current.thinking) {
             currentMessageRef.current.thinking = '';
           }
           currentMessageRef.current.thinking += chunk.data;
-          console.log('[useNexusAgent] Total thinking length now:', currentMessageRef.current.thinking.length);
+          console.log('[useACDCAgent] Total thinking length now:', currentMessageRef.current.thinking.length);
           
           // Update messages with new reference to trigger re-render
           setMessages((prev) => {
@@ -107,7 +112,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
             const lastIndex = updated.length - 1;
             if (lastIndex >= 0 && currentMessageRef.current) {
               updated[lastIndex] = { ...currentMessageRef.current };
-              console.log('[useNexusAgent] Updated message thinking:', updated[lastIndex].thinking?.substring(0, 50));
+              console.log('[useACDCAgent] Updated message thinking:', updated[lastIndex].thinking?.substring(0, 50));
             }
             return updated;
           });
@@ -117,9 +122,9 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
       case 'content':
         // Append text content
         if (typeof chunk.data === 'string') {
-          console.log('[useNexusAgent] Appending content:', chunk.data.substring(0, 50));
+          console.log('[useACDCAgent] Appending content:', chunk.data.substring(0, 50));
           currentMessageRef.current.content += chunk.data;
-          console.log('[useNexusAgent] Total content length now:', currentMessageRef.current.content.length);
+          console.log('[useACDCAgent] Total content length now:', currentMessageRef.current.content.length);
           
           // Update messages with new reference to trigger re-render
           // CRITICAL: Copy from the ref, not from the old state, since ref has the updated content
@@ -129,7 +134,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
             if (lastIndex >= 0 && currentMessageRef.current) {
               // Create a new message object from the ref (which has the updated content)
               updated[lastIndex] = { ...currentMessageRef.current };
-              console.log('[useNexusAgent] Updated message content:', updated[lastIndex].content.substring(0, 50));
+              console.log('[useACDCAgent] Updated message content:', updated[lastIndex].content.substring(0, 50));
             }
             return updated;
           });
@@ -183,7 +188,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
           
           // Check for completion status
           if ('status' in chunk.data && chunk.data.status === 'complete') {
-            console.log('[useNexusAgent] Conversation complete');
+            console.log('[useACDCAgent] Conversation complete');
           }
         }
         break;
@@ -206,7 +211,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
    */
   const sendMessage = useCallback(async (message: string) => {
     if (isStreaming) {
-      console.warn('[useNexusAgent] Already streaming, ignoring new message');
+      console.warn('[useACDCAgent] Already streaming, ignoring new message');
       return;
     }
 
@@ -215,30 +220,33 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
     lastUserMessageRef.current = message;
 
     // Add user message
-    const userMessage: NexusMessage = {
+    const userMessage: ACDCMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: message,
       timestamp: Date.now(),
     };
-    
+
     setMessages((prev) => [...prev, userMessage]);
 
+    // Flash memory: Save user message to Convex
+    onMessageSent?.(userMessage);
+
     // Initialize assistant message
-    const assistantMessage: NexusMessage = {
+    const assistantMessage: ACDCMessage = {
       id: `assistant-${Date.now()}`,
       role: 'assistant',
       content: '',
       timestamp: Date.now(),
       toolCalls: [],
     };
-    
+
     currentMessageRef.current = assistantMessage;
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
       // DEBUG: Log API call
-      console.log('[useNexusAgent] Making API request:', {
+      console.log('[useACDCAgent] Making API request:', {
         agentId,
         message: message.substring(0, 50),
         sessionId,
@@ -259,11 +267,11 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
         }),
       });
 
-      console.log('[useNexusAgent] API response status:', response.status);
+      console.log('[useACDCAgent] API response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('[useNexusAgent] API error:', errorData);
+        console.error('[useACDCAgent] API error:', errorData);
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
@@ -280,7 +288,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
         const { done, value } = await reader.read();
         
         if (done) {
-          console.log('[useNexusAgent] Stream complete');
+          console.log('[useACDCAgent] Stream complete');
           // CRITICAL: Do final state sync to capture any remaining content in ref
           if (currentMessageRef.current) {
             setMessages((prev) => {
@@ -288,10 +296,13 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
               const lastIndex = updated.length - 1;
               if (lastIndex >= 0 && currentMessageRef.current) {
                 updated[lastIndex] = { ...currentMessageRef.current };
-                console.log('[useNexusAgent] Final state sync - content length:', updated[lastIndex].content?.length || 0);
+                console.log('[useACDCAgent] Final state sync - content length:', updated[lastIndex].content?.length || 0);
               }
               return updated;
             });
+
+            // Flash memory: Save assistant message to Convex
+            onMessageReceived?.(currentMessageRef.current);
           }
           break;
         }
@@ -313,7 +324,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
             const chunk = JSON.parse(dataStr) as AgentChunk;
             
             // DEBUG: Log each chunk
-            console.log('[useNexusAgent] Received chunk:', chunk.type, chunk);
+            console.log('[useACDCAgent] Received chunk:', chunk.type, chunk);
             
             setCurrentChunk(chunk);
             onChunk?.(chunk);
@@ -322,7 +333,7 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
             await processChunk(chunk);
 
           } catch (parseError) {
-            console.error('[useNexusAgent] Failed to parse chunk:', parseError);
+            console.error('[useACDCAgent] Failed to parse chunk:', parseError);
           }
         }
       }
@@ -331,14 +342,14 @@ export function useNexusAgent(options: UseNexusAgentOptions): UseNexusAgentRetur
 
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      console.error('[useNexusAgent] Stream error:', error);
+      console.error('[useACDCAgent] Stream error:', error);
       setError(error);
       onError?.(error);
     } finally {
       setIsStreaming(false);
       currentMessageRef.current = null;
     }
-  }, [agentId, sessionId, conversationId, isStreaming, onChunk, onError, onComplete, processChunk]);
+  }, [agentId, sessionId, conversationId, isStreaming, onChunk, onError, onComplete, onMessageSent, onMessageReceived, processChunk]);
 
   /**
    * Clear all messages and reset state

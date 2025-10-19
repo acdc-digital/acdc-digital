@@ -95,6 +95,7 @@ export class ScoringAgent {
       'pics': 0.75,
     };
     
+    if (!subreddit) return 1.0;
     return weights[subreddit.toLowerCase()] || 1.0;
   }
 

@@ -1,8 +1,8 @@
-// NEXUS CHAT MESSAGE COMPONENT
-// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/services/sessionManager/_components/NexusChatMessage.tsx
+// ACDC CHAT MESSAGE COMPONENT
+// /Users/matthewsimon/Projects/acdc-digital/smnb/smnb/lib/services/sessionManager/_components/ACDCChatMessage.tsx
 
 /**
- * Enhanced Chat Message Component for Nexus Framework
+ * Enhanced Chat Message Component for ACDC Framework
  * 
  * Displays messages with tool execution details and expandable results
  */
@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { User, Bot, ChevronDown, ChevronRight, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { NexusMessage } from "@/lib/hooks/useNexusAgent";
+import type { ACDCMessage } from "@/lib/hooks/useACDCAgent";
 import {
   Reasoning,
   ReasoningTrigger,
@@ -20,8 +20,8 @@ import {
 } from "@/components/ai/reasoning";
 import { Response } from "@/components/ai/response";
 
-export interface NexusChatMessageProps {
-  message: NexusMessage;
+export interface ACDCChatMessageProps {
+  message: ACDCMessage;
   className?: string;
   isStreaming?: boolean; // For reasoning auto-open/close
 }
@@ -43,11 +43,11 @@ const formatValue = (value: unknown): string => {
   return JSON.stringify(value, null, 2);
 };
 
-export function NexusChatMessage({ message, className, isStreaming = false }: NexusChatMessageProps) {
+export function ACDCChatMessage({ message, className, isStreaming = false }: ACDCChatMessageProps) {
   const [expandedTools, setExpandedTools] = useState<Set<number>>(new Set());
 
   // Debug: Log the actual message content length
-  console.log('[NexusChatMessage] Rendering message:', {
+  console.log('[ACDCChatMessage] Rendering message:', {
     role: message.role,
     contentLength: message.content?.length || 0,
     contentPreview: message.content?.substring(0, 100) || '',
@@ -197,4 +197,4 @@ export function NexusChatMessage({ message, className, isStreaming = false }: Ne
   );
 }
 
-export default NexusChatMessage;
+export default ACDCChatMessage;

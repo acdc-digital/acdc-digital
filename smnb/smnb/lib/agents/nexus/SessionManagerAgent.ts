@@ -236,14 +236,25 @@ export class SessionManagerAgent extends BaseNexusAgent {
       const userMessage = typeof request.input === 'string'
         ? request.input
         : (request.input as { message?: string })?.message || 'Help me with session management';
-      
+
+      // ============================================================================
+      // FLASH MEMORY: Fetch conversation history for context
+      // ============================================================================
+      // Get last 10 messages (default) for short-term memory
+      const conversationHistory = await convex.query(api.nexus.sessionChats.getConversationHistory, {
+        sessionId,
+        limit: 10, // Flash memory: last 10 messages
+      });
+
+      console.log(`[SessionManagerAgent] Retrieved ${conversationHistory.length} messages from history`);
+
       // Save user message to database
       const userMessageId = await convex.mutation(api.nexus.sessionChats.create, {
         sessionId,
         role: 'user',
         content: userMessage,
       });
-      
+
       console.log('[SessionManagerAgent] Saved user message:', userMessageId);
 
       // If specific tool requested, execute directly
@@ -273,18 +284,31 @@ export class SessionManagerAgent extends BaseNexusAgent {
       });
 
       const tools = this.getTools().map(t => t.schema);
-      
+
+      // ============================================================================
+      // Build messages array with conversation history for context
+      // ============================================================================
+      const messages: MessageParam[] = [
+        // Include conversation history for flash memory (context awareness)
+        ...conversationHistory.map(msg => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+        })),
+        // Add current user message
+        {
+          role: 'user' as const,
+          content: userMessage,
+        }
+      ];
+
+      console.log(`[SessionManagerAgent] Sending ${messages.length} messages to Claude (${conversationHistory.length} history + 1 current)`);
+
       const response = await anthropic.messages.create({
         model: ANTHROPIC_MODELS.HAIKU_LATEST,
         max_tokens: 4096,
         temperature: 0.7,
         tools,
-        messages: [
-          {
-            role: 'user',
-            content: userMessage,
-          }
-        ],
+        messages,
         system: `You are a Session Manager AI assistant with access to powerful analytics tools.
 
 When users ask questions about their sessions, metrics, costs, or system status, use the available tools to fetch real data.

@@ -1117,3 +1117,49 @@ export const getActiveSessionsCount = query({
     };
   },
 });
+
+// ============================================================================
+// Flash Memory - Conversation History
+// ============================================================================
+
+/**
+ * Get conversation history for flash memory (last N messages)
+ * Provides short-term context for follow-up questions
+ */
+export const getConversationHistory = query({
+  args: {
+    sessionId: v.string(),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(v.object({
+    _id: v.id("sessionManagerChats"),
+    _creationTime: v.number(),
+    sessionId: v.string(),
+    role: roleValidator,
+    content: v.string(),
+    toolCalls: v.optional(v.array(toolCallValidator)),
+    tokenUsage: v.optional(v.object({
+      model: v.string(),
+      inputTokens: v.number(),
+      outputTokens: v.number(),
+      totalTokens: v.number(),
+      estimatedCost: v.number(),
+    })),
+    createdAt: v.number(),
+  })),
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 10; // Default to last 10 messages for flash memory
+    
+    // Query messages for this session, ordered by creation time (newest first)
+    const messages = await ctx.db
+      .query("sessionManagerChats")
+      .withIndex("by_sessionId_and_createdAt", (q) =>
+        q.eq("sessionId", args.sessionId)
+      )
+      .order("desc")
+      .take(limit);
+    
+    // Return in chronological order (oldest first) for conversation flow
+    return messages.reverse();
+  },
+});
