@@ -128,14 +128,14 @@ export class EnhancedProcessingPipeline {
   /**
    * Stop the pipeline
    */
-  stop() {
+  async stop() {
     console.log('🛑 Enhanced Processing Pipeline: Stopping...');
     this.isRunning = false;
     this.currentConfig = null;
     
     // Log pipeline stop event
     try {
-      convex.mutation(api.stats.mutations.logSystemEvent, {
+      await convex.mutation(api.stats.mutations.logSystemEvent, {
         event_type: "pipeline_stop",
         severity: "info",
         component: "enhanced_processing_pipeline",

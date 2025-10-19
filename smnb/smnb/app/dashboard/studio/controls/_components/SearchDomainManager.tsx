@@ -68,7 +68,7 @@ export default function SearchDomainManager({
               }
             }}
             disabled={domainFeedback.status === 'working'}
-            className="flex-1 px-1 py-1 text-xs bg-[#1a1a1a] border border-border/20 rounded-sm text-muted-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
+            className="flex-1 px-1 py-1 text-xs bg-[#1a1a1a] border border-border/40 rounded-sm text-muted-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0"
           />
           <button
             onClick={handleAddDomain}

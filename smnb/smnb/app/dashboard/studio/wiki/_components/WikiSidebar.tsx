@@ -3,13 +3,14 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { 
-  BookOpen,
-  TrendingUp,
   Bot,
   Workflow,
   Wrench,
   GitBranch,
-  Building2
+  Building2,
+  MessageSquare,
+  BarChart3,
+  Network
 } from 'lucide-react';
 
 interface WikiNavItem {
@@ -21,19 +22,28 @@ interface WikiNavItem {
 
 const wikiNavigation: WikiNavItem[] = [
   {
-    id: 'overview',
-    label: 'Metric Scoring Matrix Guide',
-    icon: <BookOpen className="w-4 h-4" />,
-  },
-  {
-    id: 'sentiment',
-    label: 'Sentiment Scoring System',
-    icon: <TrendingUp className="w-4 h-4" />,
+    id: 'unified-scoring',
+    label: 'Unified Scoring System',
+    icon: <BarChart3 className="w-4 h-4" />,
+    children: [
+      {
+        id: 'unified-scoring-chart',
+        label: 'Scoring Matrix Chart',
+        icon: <Network className="w-3 h-3" />,
+      },
+    ],
   },
   {
     id: 'agents',
     label: 'Agent & Tool Profiles',
     icon: <Bot className="w-4 h-4" />,
+    children: [
+      {
+        id: 'agent-profile-chart',
+        label: 'Agent Display Cards',
+        icon: <Network className="w-3 h-3" />,
+      },
+    ],
   },
   {
     id: 'data-flow',
@@ -54,6 +64,18 @@ const wikiNavigation: WikiNavItem[] = [
     id: 'nasdaq-100',
     label: 'NASDAQ-100 Companies',
     icon: <Building2 className="w-4 h-4" />,
+  },
+  {
+    id: 'session-manager',
+    label: 'Session Manager',
+    icon: <MessageSquare className="w-4 h-4" />,
+    children: [
+      {
+        id: 'session-workflow-chart',
+        label: 'Conversational Workflow',
+        icon: <Workflow className="w-3 h-3" />,
+      },
+    ],
   },
 ];
 

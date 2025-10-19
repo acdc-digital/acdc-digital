@@ -24,10 +24,13 @@ export default function Spline() {
           {/* Chart Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Desktop vs Mobile Performance</CardTitle>
+              <CardTitle>MNQ=F - Last 24 Hours</CardTitle>
               <CardDescription>
-                Displaying multiple metrics with smooth monotone interpolation
+                Real-time hourly ticker data with live updates from Convex
               </CardDescription>
+              <p className="text-xs text-muted-foreground mt-1">
+                Trading Hours: Sunday 6:00 PM - Friday 5:00 PM ET (23 hours/day, 5 days/week)
+              </p>
             </CardHeader>
             <CardContent className="pl-2">
               <MultipleLineChart />
@@ -44,25 +47,25 @@ export default function Spline() {
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Multiple data series</strong> displaying desktop and mobile metrics simultaneously
+                    <strong>24-hour rolling window</strong> displaying the last 24 hours of hourly ticker data
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Overlapping visualization</strong> with distinct colors for easy comparison
+                    <strong>Real-time updates</strong> from Convex database with automatic refresh
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Monotone interpolation</strong> creating smooth curves for both lines
+                    <strong>Monotone interpolation</strong> creating smooth curves between data points
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Interactive tooltips</strong> showing all series values at each data point
+                    <strong>Interactive tooltips</strong> showing exact timestamp and price at each hour
                   </div>
                 </div>
               </CardContent>
@@ -76,25 +79,25 @@ export default function Spline() {
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Platform comparison</strong> - Compare desktop vs mobile performance metrics
+                    <strong>Intraday trading</strong> - Track hourly price movements for day trading decisions
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Multi-metric dashboards</strong> - Display related KPIs on the same timeline
+                    <strong>Price trend analysis</strong> - Identify short-term patterns in ticker movement
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>A/B testing results</strong> - Visualize control vs variant performance over time
+                    <strong>Volatility monitoring</strong> - See recent price swings hour by hour
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5" />
                   <div>
-                    <strong>Competitive analysis</strong> - Compare multiple products or services simultaneously
+                    <strong>Live market tracking</strong> - Stay updated with the latest hourly data points
                   </div>
                 </div>
               </CardContent>
@@ -107,11 +110,11 @@ export default function Spline() {
               <CardTitle className="text-base">Implementation Notes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>• Data structure requires month field plus numeric values for each series</p>
-              <p>• Chart automatically handles multiple Line components with different dataKeys</p>
-              <p>• Colors are assigned using CSS variables (--chart-1, --chart-2, etc.)</p>
-              <p>• Tooltip displays all series values when hovering over data points</p>
-              <p>• Best suited for comparing 2-4 related data series on same scale</p>
+              <p>• Data fetched from Convex historical_chart_data table with 1-hour intervals</p>
+              <p>• Chart displays hours 1-24, where hour 24 is the most recent hour</p>
+              <p>• Automatically updates when new hourly data becomes available</p>
+              <p>• Uses closing price for each hour to show accurate price movements</p>
+              <p>• Empty state displayed when no data is available for the time period</p>
             </CardContent>
           </Card>
         </div>

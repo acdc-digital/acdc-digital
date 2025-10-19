@@ -53,8 +53,8 @@ export class EnrichmentAgent {
   private detectCategories(post: EnhancedRedditPost): string[] {
     const categories: string[] = [];
     
-    const subreddit = post.subreddit.toLowerCase();
-    const title = post.title.toLowerCase();
+    const subreddit = (post.subreddit || '').toLowerCase();
+    const title = (post.title || '').toLowerCase();
     
     // Technology
     if (['technology', 'programming', 'coding', 'tech', 'javascript', 'python'].some(term => 

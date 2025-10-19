@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSimpleLiveFeedStore } from '@/lib/stores/livefeed/simpleLiveFeedStore';
 import { useHostAgentStore } from '@/lib/stores/host/hostAgentStore';
 import { useApiKeyStore } from '@/lib/stores/auth/apiKeyStore';
@@ -13,16 +13,13 @@ import { api } from '@/convex/_generated/api';
 import {
   Maximize2,
   Minimize2,
-  Monitor,
-  Tablet,
-  Smartphone
+  RefreshCw
 } from "lucide-react";
 
 // Import components
 import {
   SubredditManager,
   SearchDomainManager,
-  Sessions,
   ConfigPanel,
   convertLiveFeedPostToEnhanced,
   ControlsProps,
@@ -33,49 +30,22 @@ export default function Controls({ mode }: ControlsProps) {
   const profileId = 'default';
 
   const controlsResponse = useQuery(api.system.studioControls.getControlsState, { profileId });
-  const saveSelection = useMutation(api.system.studioControls.saveSubredditSelection);
   const setSearchDomainsMutation = useMutation(api.system.studioControls.setSearchDomains);
-  const addCustomSubreddit = useAction(api.system.studioControlsActions.addCustomSubreddit);
+  const regenerateSubreddits = useAction(api.reddit.subredditSources.regenerateSubredditList);
+  const regenerationProgress = useQuery(api.reddit.subredditSourcesMutations.getRegenerationProgress);
+  const isRegeneratingServer = useQuery(api.reddit.subredditSourcesMutations.isRegenerationRunning);
 
-  const [newSubreddit, setNewSubreddit] = useState('');
   const [newDomain, setNewDomain] = useState('');
   const [enabledDefaults, setEnabledDefaults] = useState<string[]>([]);
   const [customSubreddits, setCustomSubreddits] = useState<string[]>([]);
   const [searchDomains, setSearchDomainsState] = useState<string[]>([]);
-  const [hasCustomSelection, setHasCustomSelection] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [isSavingSelection, setIsSavingSelection] = useState(false);
-  const [selectionError, setSelectionError] = useState<string | null>(null);
-  const [subredditFeedback, setSubredditFeedback] = useState<FeedbackState>({ status: 'idle' });
   const [domainFeedback, setDomainFeedback] = useState<FeedbackState>({ status: 'idle' });
   const [processedPostIds, setProcessedPostIds] = useState<Set<string>>(new Set());
-
-  // Responsive design state
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [viewSize, setViewSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide'>('desktop');
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [manualSize, setManualSize] = useState<'compact' | 'tablet' | 'desktop' | 'wide' | null>(null);
-
-  // Size presets for different viewport sizes
-  const SIZE_PRESETS = useMemo(() => ({
-    compact: { cols: 3, hideSecondary: true, hideFilters: true, minWidth: 640 },
-    tablet: { cols: 4, hideSecondary: true, hideFilters: false, minWidth: 768 },
-    desktop: { cols: 5, hideSecondary: false, hideFilters: false, minWidth: 1024 },
-    wide: { cols: 5, hideSecondary: false, hideFilters: false, minWidth: 1280 }
-  }), []);
-
-  const isLoadingControls = controlsResponse === undefined;
-  const defaultGroups = useMemo(() => controlsResponse?.defaultGroups ?? [], [controlsResponse?.defaultGroups]);
-
-  const groupMap = useMemo(() => {
-    const map = new Map<string, string[]>();
-    defaultGroups.forEach((group) => {
-      map.set(group.id, group.subreddits);
-    });
-    return map;
-  }, [defaultGroups]);
-
-
+  const [regenerateStatus, setRegenerateStatus] = useState<string>('');
+  
+  // Use server state for isRegenerating to persist across tab switches
+  const isRegenerating = isRegeneratingServer ?? false;
 
   const combinedSelectedSubreddits = useMemo(() => {
     const merged: string[] = [];
@@ -92,9 +62,9 @@ export default function Controls({ mode }: ControlsProps) {
     return merged;
   }, [enabledDefaults, customSubreddits]);
 
-  // Column 1: Fixed 6 subreddits, Column 2: Remainder (up to 7 more)
-  const primarySubreddits = combinedSelectedSubreddits.slice(0, 6);
-  const secondarySubreddits = combinedSelectedSubreddits.slice(6);
+  // Column 1: First 7 subreddits, Column 2: Remainder (scrollable)
+  const primarySubreddits = combinedSelectedSubreddits.slice(0, 7);
+  const secondarySubreddits = combinedSelectedSubreddits.slice(7);
 
   useEffect(() => {
     if (!controlsResponse) {
@@ -104,16 +74,7 @@ export default function Controls({ mode }: ControlsProps) {
     setEnabledDefaults(controlsResponse.enabledDefaults);
     setCustomSubreddits(controlsResponse.customSubreddits);
     setSearchDomainsState(controlsResponse.searchDomains);
-    setHasCustomSelection(controlsResponse.hasCustomizations);
-    setActiveFilter(controlsResponse.hasCustomizations ? null : controlsResponse.activeGroupId);
   }, [controlsResponse]);
-
-  useEffect(() => {
-    if (subredditFeedback.status === 'success' || subredditFeedback.status === 'error') {
-      const timeout = setTimeout(() => setSubredditFeedback({ status: 'idle' }), 4000);
-      return () => clearTimeout(timeout);
-    }
-  }, [subredditFeedback]);
 
   useEffect(() => {
     if (domainFeedback.status === 'error') {
@@ -121,219 +82,6 @@ export default function Controls({ mode }: ControlsProps) {
       return () => clearTimeout(timeout);
     }
   }, [domainFeedback]);
-
-  // Monitor container width and auto-adjust view size
-  useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const width = entry.contentRect.width;
-        
-        // Auto-adjust view size if no manual override
-        if (!manualSize) {
-          if (width < SIZE_PRESETS.compact.minWidth) {
-            setViewSize('compact');
-          } else if (width < SIZE_PRESETS.tablet.minWidth) {
-            setViewSize('tablet');
-          } else if (width < SIZE_PRESETS.wide.minWidth) {
-            setViewSize('desktop');
-          } else {
-            setViewSize('wide');
-          }
-        } else {
-          setViewSize(manualSize);
-        }
-      }
-    });
-    
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, [manualSize, SIZE_PRESETS]);
-
-  const persistSelection = useCallback(
-    async (nextEnabled: string[], nextCustom: string[], hint?: { activeGroupId?: string | null; customSelection?: boolean }) => {
-      if (hint) {
-        if (hint.customSelection !== undefined) {
-          setHasCustomSelection(hint.customSelection);
-        }
-        if (hint.activeGroupId !== undefined) {
-          setActiveFilter(hint.activeGroupId);
-        }
-      }
-
-      setEnabledDefaults(nextEnabled);
-      setCustomSubreddits(nextCustom);
-      setIsSavingSelection(true);
-      setSelectionError(null);
-
-      try {
-        const result = await saveSelection({
-          profileId,
-          enabledDefaults: nextEnabled,
-          customSubreddits: nextCustom,
-        });
-        setEnabledDefaults(result.enabledDefaults);
-        setCustomSubreddits(result.customSubreddits);
-        setHasCustomSelection(result.hasCustomizations);
-        setActiveFilter(result.hasCustomizations ? null : result.activeGroupId);
-      } catch (error) {
-        console.error('🎛️ CONTROLS: Failed to update subreddit selection', error);
-        setSelectionError((error as Error).message ?? 'Failed to update subreddit selection.');
-        if (controlsResponse) {
-          setEnabledDefaults(controlsResponse.enabledDefaults);
-          setCustomSubreddits(controlsResponse.customSubreddits);
-          setHasCustomSelection(controlsResponse.hasCustomizations);
-          setActiveFilter(controlsResponse.hasCustomizations ? null : controlsResponse.activeGroupId);
-        }
-      } finally {
-        setIsSavingSelection(false);
-      }
-    },
-    [controlsResponse, profileId, saveSelection]
-  );
-
-  const handleToggleFilter = useCallback(
-    async (groupId: string) => {
-      if (!groupMap.has(groupId) || isSavingSelection) {
-        return;
-      }
-
-      const groupSubreddits = groupMap.get(groupId)!;
-      const currentlyActive = !hasCustomSelection && activeFilter === groupId;
-
-      if (currentlyActive) {
-        await persistSelection([], [], { activeGroupId: null, customSelection: true });
-      } else {
-        await persistSelection(groupSubreddits, [], { activeGroupId: groupId, customSelection: false });
-      }
-    },
-    [activeFilter, groupMap, hasCustomSelection, isSavingSelection, persistSelection]
-  );
-
-  const handleToggleDefaultSubreddit = useCallback(
-    async (subreddit: string) => {
-      if (isSavingSelection) {
-        return;
-      }
-
-      const isEnabled = enabledDefaults.includes(subreddit);
-      const nextEnabled = isEnabled
-        ? enabledDefaults.filter((value) => value !== subreddit)
-        : [...enabledDefaults, subreddit];
-
-      await persistSelection(nextEnabled, customSubreddits, { activeGroupId: null, customSelection: true });
-    },
-    [customSubreddits, enabledDefaults, isSavingSelection, persistSelection]
-  );
-
-  const handleRemoveSubreddit = useCallback(
-    async (subreddit: string) => {
-      if (isSavingSelection) {
-        return;
-      }
-
-      const nextEnabled = enabledDefaults.filter((value) => value !== subreddit);
-      const nextCustom = customSubreddits.filter((value) => value !== subreddit);
-
-      await persistSelection(nextEnabled, nextCustom, { activeGroupId: null, customSelection: true });
-    },
-    [customSubreddits, enabledDefaults, isSavingSelection, persistSelection]
-  );
-
-  // Parse and clean subreddit input - handles single or multiple subreddits
-  const parseSubredditInput = useCallback((input: string): string[] => {
-    // Split by comma, semicolon, or whitespace
-    const subreddits = input.split(/[,;\s]+/)
-      .map(sub => {
-        // Remove r/ prefix if present, trim whitespace
-        let cleaned = sub.trim().toLowerCase();
-        if (cleaned.startsWith('r/')) {
-          cleaned = cleaned.substring(2);
-        }
-        // Remove any remaining special characters except alphanumeric and underscore
-        cleaned = cleaned.replace(/[^a-z0-9_]/g, '');
-        return cleaned;
-      })
-      .filter(sub => sub.length > 0); // Remove empty strings
-    
-    return subreddits;
-  }, []);
-
-  const handleAddSubreddit = useCallback(async () => {
-    const value = newSubreddit.trim();
-    if (!value || subredditFeedback.status === 'working') {
-      return;
-    }
-
-    // Parse the input - could be single or multiple subreddits
-    const subredditsToAdd = parseSubredditInput(value);
-    
-    if (subredditsToAdd.length === 0) {
-      setSubredditFeedback({ status: 'error', message: 'Please enter valid subreddit name(s).' });
-      return;
-    }
-
-    setSubredditFeedback({ status: 'working' });
-
-    let successCount = 0;
-    let errorCount = 0;
-    const errors: string[] = [];
-    
-    try {
-      // Process each subreddit individually
-      for (const subreddit of subredditsToAdd) {
-        try {
-          const result = await addCustomSubreddit({ profileId, subreddit });
-
-          if (result.ok) {
-            successCount++;
-            // Update state with the latest result
-            if (result.state) {
-              setEnabledDefaults(result.state.enabledDefaults);
-              setCustomSubreddits(result.state.customSubreddits);
-              setSearchDomainsState(result.state.searchDomains);
-              setHasCustomSelection(result.state.hasCustomizations);
-              setActiveFilter(result.state.hasCustomizations ? null : result.state.activeGroupId);
-            }
-          } else {
-            errorCount++;
-            errors.push(`${subreddit}: ${result.message ?? 'Failed to add'}`);
-          }
-        } catch (subError) {
-          errorCount++;
-          errors.push(`${subreddit}: ${(subError as Error).message ?? 'Unknown error'}`);
-        }
-      }
-
-      // Set appropriate feedback based on results
-      if (successCount > 0 && errorCount === 0) {
-        const message = successCount === 1
-          ? `r/${subredditsToAdd[0]} added successfully.`
-          : `${successCount} subreddits added successfully.`;
-        setSubredditFeedback({ status: 'success', message });
-      } else if (successCount > 0 && errorCount > 0) {
-        setSubredditFeedback({
-          status: 'success',
-          message: `${successCount} added, ${errorCount} failed. ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? '...' : ''}`
-        });
-      } else {
-        setSubredditFeedback({
-          status: 'error',
-          message: `Failed to add subreddit(s). ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? '...' : ''}`
-        });
-      }
-
-      // Clear input only if at least one subreddit was added successfully
-      if (successCount > 0) {
-        setNewSubreddit('');
-      }
-      
-    } catch (error) {
-      console.error('🎛️ CONTROLS: Failed to add subreddit(s)', error);
-      setSubredditFeedback({ status: 'error', message: (error as Error).message ?? 'Failed to add subreddit(s).' });
-    }
-  }, [addCustomSubreddit, newSubreddit, parseSubredditInput, profileId, subredditFeedback.status]);
 
   const handleAddDomain = useCallback(async () => {
     const value = newDomain.trim();
@@ -480,20 +228,10 @@ export default function Controls({ mode }: ControlsProps) {
   }, [controlsResponse, customSubreddits, enabledDefaults, setSelectedSubreddits]);
 
   // Responsive helper functions
-  const getCurrentPreset = () => {
-    return SIZE_PRESETS[manualSize || viewSize] || SIZE_PRESETS.desktop;
-  };
-
-  const preset = getCurrentPreset();
-
   // Dynamic grid columns with fixed widths for consistency
   const getGridCols = () => {
-    const gridCols = {
-      3: 'grid-cols-[200px_200px_50px_200px]', // subreddit1 + subreddit2 + presets + search
-      4: 'grid-cols-[200px_200px_50px_200px_200px]', // subreddit1 + subreddit2 + presets + search + sessions
-      5: 'grid-cols-[200px_200px_50px_200px_200px_210px]' // subreddit1 + subreddit2 + presets + search + sessions + config (wider)
-    } as const;
-    return gridCols[preset.cols as keyof typeof gridCols] || gridCols[5];
+    // 4 columns: SubredditManager (2 cols) + Search (1 col) + Config (1 col)
+    return 'grid-cols-4';
   };
 
   // Render collapsed view
@@ -544,43 +282,54 @@ export default function Controls({ mode }: ControlsProps) {
   }
 
   return (
-    <div ref={containerRef} className="bg-card border border-border rounded-t-xs rounded-b-lg shadow-sm">
+    <div className="bg-card border border-border rounded-t-xs rounded-b-lg shadow-sm">
       {/* Header with responsive controls and Live button */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-3">
           <span className="text-sm font-light text-muted-foreground font-sans">Control Panel</span>
+          
+          {/* Regenerate Subs Button */}
+          <button
+            onClick={async () => {
+              setRegenerateStatus('Starting validation...');
+              try {
+                const result = await regenerateSubreddits({});
+                setRegenerateStatus(result.message);
+                setTimeout(() => setRegenerateStatus(''), 8000);
+              } catch (error) {
+                setRegenerateStatus(`Error: ${(error as Error).message}`);
+                setTimeout(() => setRegenerateStatus(''), 8000);
+              }
+            }}
+            disabled={isRegenerating}
+            className="px-2 py-1 text-xs rounded-sm transition-colors flex items-center gap-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Validate and update subreddit list from Reddit API (~10 min process)"
+          >
+            <RefreshCw className={`w-3 h-3 ${isRegenerating ? 'animate-spin' : ''}`} />
+            <span className="font-medium">{isRegenerating ? 'Validating' : 'Regenerate Subs'}</span>
+          </button>
+          
+          {/* Progress/Status Display */}
+          {isRegenerating && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="text-blue-400 font-mono bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">
+                {regenerationProgress || 'Initializing...'}
+              </div>
+              <div className="text-muted-foreground/70">
+                Est. 8-12 min • Live progress
+              </div>
+            </div>
+          )}
+          
+          {/* Completion Message */}
+          {!isRegenerating && regenerateStatus && (
+            <div className="text-xs text-blue-400 px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded font-medium max-w-lg truncate" title={regenerateStatus}>
+              {regenerateStatus}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-1">
-          {/* Size preset buttons */}
-          <button
-            title="Compact View"
-            onClick={() => setManualSize(manualSize === 'compact' ? null : 'compact')}
-            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
-              (manualSize || viewSize) === 'compact' ? 'text-blue-400' : 'text-muted-foreground/70'
-            }`}
-          >
-            <Smartphone className="w-3 h-3" />
-          </button>
-          <button
-            title="Tablet View"
-            onClick={() => setManualSize(manualSize === 'tablet' ? null : 'tablet')}
-            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
-              (manualSize || viewSize) === 'tablet' ? 'text-blue-400' : 'text-muted-foreground/70'
-            }`}
-          >
-            <Tablet className="w-3 h-3" />
-          </button>
-          <button
-            title="Desktop View"
-            onClick={() => setManualSize(manualSize === 'desktop' ? null : 'desktop')}
-            className={`p-1 hover:bg-[#2d2d2d] rounded transition-colors ${
-              (manualSize || viewSize) === 'desktop' ? 'text-blue-400' : 'text-muted-foreground/70'
-            }`}
-          >
-            <Monitor className="w-3 h-3" />
-          </button>
-          <div className="w-px h-4 bg-border mx-1" />
           <button
             title="Minimize"
             onClick={() => setIsCollapsed(true)}
@@ -594,47 +343,20 @@ export default function Controls({ mode }: ControlsProps) {
       {/* Responsive Grid Layout */}
       <div className="p-3">
         <div className={`grid ${getGridCols()} gap-2`}>
-          {/* Column 1: Subreddit Manager (double column, 8 rows) */}
+          {/* Columns 1-2: Subreddit Manager (2 columns, display only) */}
           <SubredditManager
             enabledDefaults={enabledDefaults}
             customSubreddits={customSubreddits}
             primarySubreddits={primarySubreddits}
             secondarySubreddits={secondarySubreddits}
-            newSubreddit={newSubreddit}
-            setNewSubreddit={setNewSubreddit}
-            subredditFeedback={subredditFeedback}
-            selectionError={selectionError}
-            isLoadingControls={isLoadingControls}
-            handleAddSubreddit={handleAddSubreddit}
-            handleToggleDefaultSubreddit={handleToggleDefaultSubreddit}
-            handleRemoveSubreddit={handleRemoveSubreddit}
-            showHeaders={false} // Remove column headers
+            selectionError={null}
+            isLoadingControls={false}
+            handleToggleDefaultSubreddit={() => {}} // No-op function
+            handleRemoveSubreddit={() => {}} // No-op function
+            showHeaders={false}
           />
 
-          {/* Column 3: Preset Column - Wider column with flexible button widths */}
-          <div className="space-y-1 px-0">
-            {defaultGroups.map((group) => (
-              <button
-                key={group.id}
-                onClick={() => handleToggleFilter(group.id)}
-                disabled={isSavingSelection || isLoadingControls}
-                className={`w-full py-1 text-xs rounded-sm transition-colors cursor-grab hover:cursor-grab active:cursor-grabbing disabled:cursor-not-allowed text-center whitespace-nowrap border ${
-                  !hasCustomSelection && activeFilter === group.id
-                    ? 'bg-red-500/20 text-red-400 border-red-500/40'
-                    : 'bg-[#1a1a1a] text-muted-foreground/50 hover:text-muted-foreground/70 border-transparent hover:border-red-500/40'
-                }`}
-              >
-                {group.label.split(' ')[0]} {/* Only first word */}
-              </button>
-            ))}
-            {defaultGroups.length === 0 && (
-              <div className="w-full px-1 py-1 text-xs text-muted-foreground/40 border border-border/20 rounded-sm text-center">
-                None
-              </div>
-            )}
-          </div>
-
-          {/* Column 4: Search Domain Manager */}
+          {/* Column 3: Search Domain Manager */}
           <SearchDomainManager
             searchDomains={searchDomains}
             newDomain={newDomain}
@@ -642,42 +364,23 @@ export default function Controls({ mode }: ControlsProps) {
             domainFeedback={domainFeedback}
             handleAddDomain={handleAddDomain}
             handleRemoveDomain={handleRemoveDomain}
-            showConfigInline={preset.cols === 3}
-            showHeaders={false} // Remove headers
-            configData={preset.cols === 3 ? {
-              enabledDefaultsCount: enabledDefaults.length,
-              customSubredditsCount: customSubreddits.length,
-              hostStats: { totalNarrations: hostStats.totalNarrations },
-              useUserApiKey,
-              setUseUserApiKey,
-              hasValidApiKey,
-              postsCount: posts.length, // Add feed/queue data
-              queueLength: hostStats.queueLength
-            } : undefined}
+            showConfigInline={false}
+            showHeaders={false}
           />
 
-          {/* Column 5: Sessions - Only in 4+ column mode */}
-          {preset.cols >= 4 && (
-            <Sessions
-              showHeaders={false} // Remove headers
-            />
-          )}
-
-          {/* Column 6: Config Panel - Only in 5+ column mode */}
-          {preset.cols >= 5 && (
-            <ConfigPanel
-              enabledDefaultsCount={enabledDefaults.length}
-              customSubredditsCount={customSubreddits.length}
-              hostStats={{ totalNarrations: hostStats.totalNarrations }}
-              mode={mode}
-              useUserApiKey={useUserApiKey}
-              setUseUserApiKey={setUseUserApiKey}
-              hasValidApiKey={hasValidApiKey}
-              showHeaders={false} // Remove headers
-              postsCount={posts.length} // Add feed/queue data
-              queueLength={hostStats.queueLength}
-            />
-          )}
+          {/* Column 4: Config Panel */}
+          <ConfigPanel
+            enabledDefaultsCount={enabledDefaults.length}
+            customSubredditsCount={customSubreddits.length}
+            hostStats={{ totalNarrations: hostStats.totalNarrations }}
+            mode={mode}
+            useUserApiKey={useUserApiKey}
+            setUseUserApiKey={setUseUserApiKey}
+            hasValidApiKey={hasValidApiKey}
+            showHeaders={false}
+            postsCount={posts.length}
+            queueLength={hostStats.queueLength}
+          />
         </div>
       </div>
     </div>
