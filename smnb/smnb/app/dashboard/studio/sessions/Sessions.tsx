@@ -9,6 +9,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { SessionList } from "./_components/SessionList";
 import { SessionDetails } from "./_components/SessionDetails";
 import { SessionChat } from "./_components/SessionChat";
+import { DocumentUploadModal } from "@/components/session/DocumentUploadModal";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings2, FileText, LogIn, Sparkles, Radio } from "lucide-react";
 import { useSimpleLiveFeedStore } from "@/lib/stores/livefeed/simpleLiveFeedStore";
@@ -29,6 +30,7 @@ export function Sessions() {
   const { user, isLoaded } = useUser(); // Clerk user - fast, client-side only
   const isAuthenticated = isLoaded && !!user; // Simple check
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [sessionDuration, setSessionDuration] = useState(0); // Local duration in milliseconds
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -667,7 +669,10 @@ export function Sessions() {
                           <p className="text-xs text-neutral-500">No context files</p>
                         </div>
                       </div>
-                      <button className="w-full text-xs text-neutral-500 hover:text-cyan-400 transition-colors py-2 px-3 bg-neutral-900/50 rounded-lg border border-neutral-800 hover:border-cyan-400/30 flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="w-full text-xs text-neutral-500 hover:text-cyan-400 transition-colors py-2 px-3 bg-neutral-900/50 rounded-lg border border-neutral-800 hover:border-cyan-400/30 flex items-center justify-center gap-2"
+                      >
                         <Plus className="w-3 h-3" />
                         Add Context
                       </button>
@@ -700,6 +705,15 @@ export function Sessions() {
         )}
           </div>
         </>
+      )}
+      
+      {/* Document Upload Modal */}
+      {selectedSessionId && (
+        <DocumentUploadModal
+          sessionId={selectedSessionId}
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+        />
       )}
     </div>
   );
