@@ -727,7 +727,14 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       
       set({ storyHistory: stories });
       console.log(`✅ Loaded ${stories.length} stories for session ${sessionId}`);
-    } catch (error) {
+    } catch (error: any) {
+      // Check if this is a transient SystemTimeoutError
+      if (error?.code === 'SystemTimeoutError' || error?.message?.includes('timed out')) {
+        console.warn('⚠️ [TRANSIENT] Story query timed out - this is temporary, try reloading the page:', error?.message || error);
+        // Set empty array so UI doesn't break
+        set({ storyHistory: [] });
+        return;
+      }
       console.error('❌ Failed to load stories from Convex:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to load stories' });
     }

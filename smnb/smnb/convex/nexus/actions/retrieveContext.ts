@@ -180,7 +180,7 @@ export default action({
       
       // Log scores for debugging
       if (docSearchResults.length > 0) {
-        console.log(`[retrieveContext] Top document scores:`, docSearchResults.slice(0, 3).map(r => ({
+        console.log(`[retrieveContext] Top document scores:`, docSearchResults.slice(0, 3).map((r: SearchResult) => ({
           score: r.score,
           textPreview: r.text.substring(0, 100),
         })));

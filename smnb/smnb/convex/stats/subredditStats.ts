@@ -21,20 +21,22 @@ export const getSubredditMemberStats = query({
     })),
   }),
   handler: async (ctx) => {
-    // Get all live feed posts
+    // Limit to most recent 1000 posts to prevent timeout
     const posts = await ctx.db
       .query("live_feed_posts")
-      .collect();
+      .order("desc")
+      .take(200);
 
-    // Get all story history documents  
+    // Limit to most recent 1000 stories to prevent timeout
     const stories = await ctx.db
       .query("story_history")
-      .collect();
+      .order("desc")
+      .take(200);
 
     // Count posts by subreddit
     const postMap = new Map<string, number>();
     posts.forEach(post => {
-      const subreddit = post.subreddit;
+      const subreddit = post.subreddit ?? 'unknown';
       postMap.set(subreddit, (postMap.get(subreddit) || 0) + 1);
     });
 
@@ -128,9 +130,9 @@ export const getSubredditHeatmapData = query({
     avgScore: v.number(),
   }),
   handler: async (ctx) => {
-    // Get all posts and stories for calculations
-    const posts = await ctx.db.query("live_feed_posts").collect();
-    const stories = await ctx.db.query("story_history").collect();
+    // Limit to most recent 1000 posts/stories to prevent timeout
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(200);
+    const stories = await ctx.db.query("story_history").order("desc").take(200);
     
     // Calculate subreddit data (reusing logic from scoring matrix)
     const subredditData = new Map<string, { 
@@ -152,7 +154,7 @@ export const getSubredditHeatmapData = query({
       
       const data = subredditData.get(subreddit)!;
       data.posts++;
-      data.totalEngagement += post.score + post.num_comments;
+      data.totalEngagement += (post.score ?? 0) + (post.num_comments ?? 0);
       data.tokensUsed += Math.ceil((post.title.length + post.selftext.length) / 4);
     });
     
@@ -343,12 +345,12 @@ export const getRecentPosts = query({
   returns: v.array(v.object({
     id: v.string(),
     title: v.string(),
-    author: v.string(),
-    subreddit: v.string(),
+    author: v.optional(v.string()),
+    subreddit: v.optional(v.string()),
     url: v.string(),
     permalink: v.string(),
     score: v.number(),
-    num_comments: v.number(),
+    num_comments: v.optional(v.number()), // Optional: some posts may not have comment count
     created_utc: v.number(),
     selftext: v.string(),
     domain: v.string(),
@@ -369,8 +371,8 @@ export const getRecentPosts = query({
       subreddit: post.subreddit,
       url: post.url,
       permalink: post.permalink,
-      score: post.score,
-      num_comments: post.num_comments,
+      score: post.score ?? 0,
+      num_comments: post.num_comments ?? 0,
       created_utc: post.created_utc,
       selftext: post.selftext || '',
       domain: post.domain,

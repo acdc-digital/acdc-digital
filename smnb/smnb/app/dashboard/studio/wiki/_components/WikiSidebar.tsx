@@ -10,7 +10,8 @@ import {
   Building2,
   MessageSquare,
   BarChart3,
-  Network
+  Network,
+  Trophy
 } from 'lucide-react';
 
 interface WikiNavItem {
@@ -76,6 +77,11 @@ const wikiNavigation: WikiNavItem[] = [
         icon: <Workflow className="w-3 h-3" />,
       },
     ],
+  },
+  {
+    id: 'milestones',
+    label: 'Milestones',
+    icon: <Trophy className="w-4 h-4" />,
   },
 ];
 

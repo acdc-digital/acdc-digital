@@ -388,7 +388,18 @@ export class ProducerAgentService extends EventEmitter {
       const searchQuery = keywords.slice(0, 3).join(' ');
       
       // Use API route instead of direct Reddit API call
-      const response = await fetch(`/api/reddit?q=${encodeURIComponent(searchQuery)}&subreddit=all&sort=relevance&t=week&limit=5`);
+      let response;
+      try {
+        response = await fetch(`/api/reddit?q=${encodeURIComponent(searchQuery)}&subreddit=all&sort=relevance&t=week&limit=5`, {
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
+      } catch (fetchError) {
+        // Network failure - mark as circuit breaker and return
+        console.warn(`⚠️ Network error during contextual search: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+        this.circuitBreakerOpen = true;
+        this.circuitBreakerResetTime = Date.now() + 60000; // 60 second cooldown
+        return;
+      }
       
       if (!response.ok) {
         // Handle circuit breaker responses

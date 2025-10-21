@@ -39,12 +39,12 @@ export const getSubredditsByNasdaqMentions = query({
     // Get recent company mentions (limit to avoid document read cap)
     const mentions = await ctx.db.query("company_mentions")
       .order("desc")
-      .take(8000);
+      .take(40);
     
     // Get recent posts for subreddit mapping
     const posts = await ctx.db.query("live_feed_posts")
       .order("desc")
-      .take(3000);
+      .take(80);
     
     // Create post lookup map for efficiency
     const postMap = new Map(posts.map(p => [p.id, p]));
@@ -60,15 +60,15 @@ export const getSubredditsByNasdaqMentions = query({
       const post = postMap.get(mention.post_id);
       if (!post) return;
       
-      if (!subredditMap.has(post.subreddit)) {
-        subredditMap.set(post.subreddit, {
+      if (!subredditMap.has(post.subreddit ?? 'unknown')) {
+        subredditMap.set(post.subreddit ?? 'unknown', {
           postIds: new Set(),
           mentions: [],
           tickers: new Map(),
         });
       }
       
-      const data = subredditMap.get(post.subreddit)!;
+      const data = subredditMap.get(post.subreddit ?? 'unknown')!;
       data.postIds.add(post.id);
       data.mentions.push(mention);
       
@@ -168,9 +168,9 @@ export const getStoryHistoryByNasdaqMentions = query({
   }),
   handler: async (ctx) => {
     // Reduce limits to stay under 32K document cap
-    const stories = await ctx.db.query("story_history").order("desc").take(1000);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(5000);
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(2000);
+    const stories = await ctx.db.query("story_history").order("desc").take(40);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(100);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(60);
     
     // Create mention lookup by post_id
     const mentionsByPost = new Map<string, typeof mentions>();
@@ -300,9 +300,9 @@ export const getTradingContentCorrelation = query({
     })),
   }),
   handler: async (ctx) => {
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(3000);
-    const stories = await ctx.db.query("story_history").order("desc").take(1500);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(6000);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(80);
+    const stories = await ctx.db.query("story_history").order("desc").take(40);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(150);
     
     // Build mention lookup
     const mentionsByPost = new Map<string, typeof mentions>();
@@ -325,8 +325,8 @@ export const getTradingContentCorrelation = query({
     
     // Process posts
     posts.forEach(post => {
-      if (!subredditData.has(post.subreddit)) {
-        subredditData.set(post.subreddit, {
+      if (!subredditData.has(post.subreddit ?? 'unknown')) {
+        subredditData.set(post.subreddit ?? 'unknown', {
           postCount: 0,
           storyCount: 0,
           mentions: [],
@@ -336,7 +336,7 @@ export const getTradingContentCorrelation = query({
         });
       }
       
-      const data = subredditData.get(post.subreddit)!;
+      const data = subredditData.get(post.subreddit ?? 'unknown')!;
       data.postCount++;
       
       const postMentions = mentionsByPost.get(post.id) || [];
@@ -450,12 +450,12 @@ export const getTradingPostRankings = query({
     posts: v.array(v.object({
       id: v.string(),
       title: v.string(),
-      subreddit: v.string(),
-      author: v.string(),
+      subreddit: v.optional(v.string()),
+      author: v.optional(v.string()),
       url: v.string(),
       permalink: v.string(),
       score: v.number(),
-      num_comments: v.number(),
+      num_comments: v.optional(v.number()), // Optional: some posts may not have comment count
       created_utc: v.number(),
       mentionedTickers: v.array(v.object({
         ticker: v.string(),
@@ -477,8 +477,8 @@ export const getTradingPostRankings = query({
       .order("desc")
       .take(Math.min(limit * 2, 500));
     
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(5000);
-    const postStats = await ctx.db.query("post_stats").order("desc").take(3000);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(100);
+    const postStats = await ctx.db.query("post_stats").order("desc").take(80);
     const statsMap = new Map(postStats.map(stat => [stat.post_id, stat]));
     
     const rankedPosts = posts.map(post => {
@@ -503,7 +503,7 @@ export const getTradingPostRankings = query({
           (mentionCount * 10) +
           (maxImpact * 0.5) +
           (avgConfidence * 20) +
-          (post.score / 100)
+          (post.score ?? 0 / 100)
         ) : 0;
       
       let marketImpact: "high" | "medium" | "low";
@@ -521,7 +521,7 @@ export const getTradingPostRankings = query({
       
       const qualityScore = stats?.quality_score || 0;
       const engagementScore = stats?.engagement_score || 0;
-      const redditScore = Math.min(post.score / 1000 * 10, 30);
+      const redditScore = Math.min(post.score ?? 0 / 1000 * 10, 30);
       
       const overallScore = (
         tradingRelevance * 0.50 +
@@ -537,8 +537,8 @@ export const getTradingPostRankings = query({
         author: post.author,
         url: post.url,
         permalink: post.permalink.startsWith('https://') ? post.permalink : `https://reddit.com${post.permalink}`,
-        score: post.score,
-        num_comments: post.num_comments,
+        score: post.score ?? 0,
+        num_comments: post.num_comments ?? 0,
         created_utc: post.created_utc,
         mentionedTickers,
         tradingRelevance: Math.round(tradingRelevance * 10) / 10,
@@ -608,9 +608,9 @@ export const getTradingMetricScoringMatrix = query({
     })),
   }),
   handler: async (ctx) => {
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(5000);
-    const stories = await ctx.db.query("story_history").order("desc").take(3000);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(6000);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(100);
+    const stories = await ctx.db.query("story_history").order("desc").take(80);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(150);
     
     const mentionsByPost = new Map<string, typeof mentions>();
     mentions.forEach(mention => {
@@ -630,8 +630,8 @@ export const getTradingMetricScoringMatrix = query({
     }>();
     
     posts.forEach(post => {
-      if (!subredditData.has(post.subreddit)) {
-        subredditData.set(post.subreddit, {
+      if (!subredditData.has(post.subreddit ?? 'unknown')) {
+        subredditData.set(post.subreddit ?? 'unknown', {
           posts: 0,
           stories: 0,
           mentions: [],
@@ -641,7 +641,7 @@ export const getTradingMetricScoringMatrix = query({
         });
       }
       
-      const data = subredditData.get(post.subreddit)!;
+      const data = subredditData.get(post.subreddit ?? 'unknown')!;
       data.posts++;
       
       const postMentions = mentionsByPost.get(post.id) || [];
@@ -779,11 +779,11 @@ export const getTopTradingPostsBySubreddit = query({
       topPost: v.optional(v.object({
         id: v.string(),
         title: v.string(),
-        author: v.string(),
+        author: v.optional(v.string()),
         url: v.string(),
         permalink: v.string(),
-        score: v.number(),
-        num_comments: v.number(),
+        score: v.optional(v.number()),
+        num_comments: v.optional(v.number()),
         overallScore: v.number(),
         postRank: v.number(),
         mentionCount: v.number(),
@@ -836,8 +836,8 @@ export const getTopTradingPostsBySubreddit = query({
       };
     }
     
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(3000);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(6000);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(80);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(150);
     
     const mentionsByPost = new Map<string, typeof mentions>();
     mentions.forEach(mention => {
@@ -849,10 +849,10 @@ export const getTopTradingPostsBySubreddit = query({
     
     const postsBySubreddit = new Map<string, typeof posts>();
     posts.forEach(post => {
-      if (!postsBySubreddit.has(post.subreddit)) {
-        postsBySubreddit.set(post.subreddit, []);
+      if (!postsBySubreddit.has(post.subreddit ?? 'unknown')) {
+        postsBySubreddit.set(post.subreddit ?? 'unknown', []);
       }
-      postsBySubreddit.get(post.subreddit)!.push(post);
+      postsBySubreddit.get(post.subreddit ?? 'unknown')!.push(post);
     });
     
     const topPostsBySubreddit = scoringData.subredditScores.map((subredditScore, index: number) => {
@@ -866,8 +866,8 @@ export const getTopTradingPostsBySubreddit = query({
           const topTickers = [...new Set(postMentions.map(m => m.ticker))].slice(0, 3);
           
           const tradingScore = mentionCount > 0
-            ? (mentionCount * 10) + (maxImpact * 0.5) + (post.score / 100)
-            : post.score / 100;
+            ? (mentionCount * 10) + (maxImpact * 0.5) + (post.score ?? 0 / 100)
+            : post.score ?? 0 / 100;
           
           return {
             ...post,
@@ -885,8 +885,8 @@ export const getTopTradingPostsBySubreddit = query({
         const allRankedPosts = posts.map(p => {
           const pMentions = mentionsByPost.get(p.id) || [];
           const tradingScore = pMentions.length > 0
-            ? (pMentions.length * 10) + (Math.max(...pMentions.map(m => m.impact_score), 0) * 0.5) + (p.score / 100)
-            : p.score / 100;
+            ? (pMentions.length * 10) + (Math.max(...pMentions.map(m => m.impact_score), 0) * 0.5) + (p.score ?? 0 / 100)
+            : p.score ?? 0 / 100;
           return { id: p.id, tradingScore };
         }).sort((a, b) => b.tradingScore - a.tradingScore);
         
@@ -948,9 +948,9 @@ export const getTradingCombinedContentStats = query({
     })),
   }),
   handler: async (ctx) => {
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(5000);
-    const stories = await ctx.db.query("story_history").order("desc").take(3000);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(6000);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(100);
+    const stories = await ctx.db.query("story_history").order("desc").take(80);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(150);
     
     const mentionsByPost = new Map<string, typeof mentions>();
     mentions.forEach(mention => {
@@ -968,8 +968,8 @@ export const getTradingCombinedContentStats = query({
     }>();
     
     posts.forEach(post => {
-      if (!subredditData.has(post.subreddit)) {
-        subredditData.set(post.subreddit, {
+      if (!subredditData.has(post.subreddit ?? 'unknown')) {
+        subredditData.set(post.subreddit ?? 'unknown', {
           postCount: 0,
           storyCount: 0,
           mentions: [],
@@ -977,7 +977,7 @@ export const getTradingCombinedContentStats = query({
         });
       }
       
-      const data = subredditData.get(post.subreddit)!;
+      const data = subredditData.get(post.subreddit ?? 'unknown')!;
       data.postCount++;
       
       const postMentions = mentionsByPost.get(post.id) || [];
@@ -1082,9 +1082,9 @@ export const getSubredditMemberStatsByMentions = query({
     })),
   }),
   handler: async (ctx) => {
-    const posts = await ctx.db.query("live_feed_posts").order("desc").take(5000);
-    const stories = await ctx.db.query("story_history").order("desc").take(3000);
-    const mentions = await ctx.db.query("company_mentions").order("desc").take(6000);
+    const posts = await ctx.db.query("live_feed_posts").order("desc").take(100);
+    const stories = await ctx.db.query("story_history").order("desc").take(80);
+    const mentions = await ctx.db.query("company_mentions").order("desc").take(150);
     
     const mentionsByPost = new Map<string, typeof mentions>();
     mentions.forEach(mention => {
@@ -1102,8 +1102,8 @@ export const getSubredditMemberStatsByMentions = query({
     }>();
     
     posts.forEach(post => {
-      if (!subredditData.has(post.subreddit)) {
-        subredditData.set(post.subreddit, {
+      if (!subredditData.has(post.subreddit ?? 'unknown')) {
+        subredditData.set(post.subreddit ?? 'unknown', {
           postCount: 0,
           storyCount: 0,
           mentions: [],
@@ -1111,7 +1111,7 @@ export const getSubredditMemberStatsByMentions = query({
         });
       }
       
-      const data = subredditData.get(post.subreddit)!;
+      const data = subredditData.get(post.subreddit ?? 'unknown')!;
       data.postCount++;
       
       const postMentions = mentionsByPost.get(post.id) || [];

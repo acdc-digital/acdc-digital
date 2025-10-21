@@ -37,6 +37,13 @@ export function Sessions() {
   const lastSyncRef = useRef<number>(0);
   const baselineDurationRef = useRef<number>(0); // Store baseline when timer starts
 
+  // Show loading state while Clerk is initializing to prevent hydration errors
+  const [isClientReady, setIsClientReady] = useState(false);
+  
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
+
   // Use cached query for instant tab switching
   const sessions = useCachedQuery<typeof api.users.sessions.list._returnType>(
     'sessions-list',
@@ -389,8 +396,15 @@ export function Sessions() {
   // Render immediately - handle auth/loading states inline
   return (
     <div className="flex h-full w-full bg-black">
-      {/* Handle unauthenticated state inline */}
-      {!isAuthenticated ? (
+      {/* Prevent hydration mismatch - wait for client to be ready */}
+      {!isClientReady || !isLoaded ? (
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="text-center">
+            <Sparkles className="w-8 h-8 text-cyan-400 mx-auto mb-2 animate-pulse" />
+            <p className="text-sm text-neutral-400">Loading...</p>
+          </div>
+        </div>
+      ) : !isAuthenticated ? (
         <div className="flex h-full w-full items-center justify-center">
           <div className="text-center max-w-md">
             <LogIn className="w-12 h-12 text-neutral-600 mx-auto mb-4" />

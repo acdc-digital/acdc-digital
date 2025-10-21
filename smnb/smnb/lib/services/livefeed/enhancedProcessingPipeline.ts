@@ -14,6 +14,46 @@ import { whistleblower } from '../monitoring/whistleblowerAgent';
 // Export tradingAggregator for use in other modules
 export { tradingAggregator };
 
+/**
+ * Helper function to detect and handle transient Convex backend errors
+ * These errors are expected under heavy load and should be warnings, not errors
+ */
+function isTransientConvexError(error: unknown): boolean {
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = String(error);
+    return (
+      message.includes('SystemTimeoutError') ||
+      message.includes('ExpiredInQueue') ||
+      message.includes('InternalServerError') ||
+      message.includes('OptimisticConcurrencyControlFailure')
+    );
+  }
+  // Also check if error has a 'code' property
+  if (error && typeof error === 'object' && 'code' in error) {
+    const code = String((error as any).code);
+    return (
+      code === 'SystemTimeoutError' ||
+      code === 'ExpiredInQueue' ||
+      code === 'InternalServerError' ||
+      code === 'OptimisticConcurrencyControlFailure'
+    );
+  }
+  return false;
+}
+
+/**
+ * Log error with appropriate severity based on whether it's transient
+ */
+function logConvexError(context: string, error: unknown): void {
+  if (isTransientConvexError(error)) {
+    // Transient errors are warnings - expected under heavy load
+    console.warn(`⚠️ ${context} (transient backend issue):`, error);
+  } else {
+    // Real errors are logged as errors
+    console.error(`❌ ${context}:`, error);
+  }
+}
+
 export interface PipelineConfig {
   subreddits: string[];
   contentMode: 'sfw' | 'nsfw';
@@ -362,7 +402,7 @@ export class EnhancedProcessingPipeline {
           }
         });
       } catch (error) {
-        console.error(`❌ Failed to track publishing stats for post ${publishedPost.id}:`, error);
+        logConvexError(`Failed to track publishing stats for post ${publishedPost.id}`, error);
       }
       
       // Save to database
@@ -375,8 +415,8 @@ export class EnhancedProcessingPipeline {
             subreddit: publishedPost.subreddit,
             url: publishedPost.url,
             permalink: publishedPost.permalink,
-            score: publishedPost.score,
-            num_comments: publishedPost.num_comments,
+            score: publishedPost.score ?? 0, // Default to 0 if missing
+            num_comments: publishedPost.num_comments ?? 0, // Default to 0 if missing
             created_utc: publishedPost.created_utc,
             thumbnail: publishedPost.thumbnail || '',
             selftext: publishedPost.selftext || '',
@@ -399,7 +439,7 @@ export class EnhancedProcessingPipeline {
         });
         console.log(`💾 Saved live feed post: ${publishedPost.id}`);
       } catch (error) {
-        console.error(`❌ Failed to save live feed post: ${publishedPost.id}`, error);
+        logConvexError(`Failed to save live feed post: ${publishedPost.id}`, error);
       }
       
       // Send to UI
@@ -470,7 +510,7 @@ export class EnhancedProcessingPipeline {
             }
           });
         } catch (error) {
-          console.error(`❌ Failed to track enrichment stats for post ${post.id}:`, error);
+          logConvexError(`Failed to track enrichment stats for post ${post.id}`, error);
         }
       });
       
@@ -518,7 +558,7 @@ export class EnhancedProcessingPipeline {
             }
           });
         } catch (error) {
-          console.error(`❌ Failed to track scoring stats for post ${post.id}:`, error);
+          logConvexError(`Failed to track scoring stats for post ${post.id}`, error);
         }
       });
       
@@ -555,7 +595,7 @@ export class EnhancedProcessingPipeline {
             }
           });
         } catch (error) {
-          console.error(`❌ Failed to track scheduling stats for post ${post.id}:`, error);
+          logConvexError(`Failed to track scheduling stats for post ${post.id}`, error);
         }
       });
       
@@ -808,7 +848,7 @@ export class EnhancedProcessingPipeline {
           }
         });
       } catch (error) {
-        console.error(`❌ Failed to track fetch stats for post ${post.id}:`, error);
+        logConvexError(`Failed to track fetch stats for post ${post.id}`, error);
       }
     });
     
@@ -921,7 +961,7 @@ export class EnhancedProcessingPipeline {
       // Update the last update timestamp
       this.lastStatsUpdate.set(stage, now);
     } catch (statsError) {
-      console.error(`❌ Failed to update pipeline stats for ${stage}:`, statsError);
+      logConvexError(`Failed to update pipeline stats for ${stage}`, statsError);
     }
   }
   

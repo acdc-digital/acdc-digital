@@ -90,8 +90,8 @@ export const getTopTrends = query({
         
         const data = keywordMap.get(keyword)!;
         data.count++;
-        data.scores.push(post.score);
-        data.subreddits.add(post.subreddit);
+        data.scores.push(post.score ?? 0);
+        data.subreddits.add(post.subreddit ?? 'unknown');
         data.posts.push(post);
       }
     }
@@ -199,17 +199,17 @@ export const getSubredditTrends = query({
     }>();
     
     for (const post of recentPosts) {
-      if (!subredditMap.has(post.subreddit)) {
-        subredditMap.set(post.subreddit, {
+      if (!subredditMap.has(post.subreddit ?? 'unknown')) {
+        subredditMap.set(post.subreddit ?? 'unknown', {
           count: 0,
           scores: [],
           keywords: new Set()
         });
       }
       
-      const data = subredditMap.get(post.subreddit)!;
+      const data = subredditMap.get(post.subreddit ?? 'unknown')!;
       data.count++;
-      data.scores.push(post.score);
+      data.scores.push(post.score ?? 0);
       
       // Extract keywords from title
       const keywords = extractKeywordsFromTitle(post.title);

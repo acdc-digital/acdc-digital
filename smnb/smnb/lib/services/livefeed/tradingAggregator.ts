@@ -89,6 +89,14 @@ export class TradingAggregator {
             })),
           });
         } catch (error) {
+          // Use helper to detect transient errors
+          if (error && typeof error === 'object' && 'message' in error) {
+            const message = String(error);
+            if (message.includes('SystemTimeoutError') || message.includes('ExpiredInQueue') || message.includes('InternalServerError')) {
+              console.warn(`⚠️ Failed to store company mentions for post ${post.id} (transient backend issue):`, error);
+              return; // Don't throw, just warn
+            }
+          }
           console.error(`❌ Failed to store company mentions for post ${post.id}:`, error);
         }
       }
@@ -621,6 +629,14 @@ export class TradingAggregator {
               post_ids: dayData.posts,
             });
           } catch (error) {
+            // Check for transient errors
+            if (error && typeof error === 'object' && 'message' in error) {
+              const message = String(error);
+              if (message.includes('SystemTimeoutError') || message.includes('ExpiredInQueue') || message.includes('InternalServerError')) {
+                console.warn(`⚠️ Failed to persist time series for ${metrics.ticker} (transient backend issue):`, error);
+                continue; // Skip this ticker but continue processing
+              }
+            }
             console.error(`❌ Failed to persist time series for ${metrics.ticker}:`, error);
           }
         }
@@ -653,6 +669,14 @@ export class TradingAggregator {
             window_end_date: windowEnd,
           });
         } catch (error) {
+          // Check for transient errors
+          if (error && typeof error === 'object' && 'message' in error) {
+            const message = String(error);
+            if (message.includes('SystemTimeoutError') || message.includes('ExpiredInQueue') || message.includes('InternalServerError')) {
+              console.warn(`⚠️ Failed to persist trading signal for ${metrics.ticker} (transient backend issue):`, error);
+              continue; // Skip this ticker but continue processing
+            }
+          }
           console.error(`❌ Failed to persist trading signal for ${metrics.ticker}:`, error);
         }
       }

@@ -59,7 +59,7 @@ export const getPostStatsByTicker = query({
     );
     const averageSentiment = totalUpvoteRatio / mentionCount;
     const totalEngagement = relevantPosts.reduce(
-      (sum, p) => sum + p.score + p.num_comments * 2,
+      (sum, p) => sum + (p.score ?? 0) + (p.num_comments ?? 0) * 2,
       0
     );
 
@@ -71,10 +71,10 @@ export const getPostStatsByTicker = query({
     const olderPosts = relevantPosts.filter((p) => p.created_utc < midpointTime);
 
     const recentEngagement =
-      recentPosts.reduce((sum, p) => sum + p.score, 0) /
+      recentPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
         Math.max(recentPosts.length, 1);
     const olderEngagement =
-      olderPosts.reduce((sum, p) => sum + p.score, 0) /
+      olderPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
         Math.max(olderPosts.length, 1);
 
     const momentum =
@@ -146,7 +146,7 @@ export const getPostStatsByTickerInternal = internalQuery({
     );
     const averageSentiment = totalUpvoteRatio / mentionCount;
     const totalEngagement = relevantPosts.reduce(
-      (sum, p) => sum + p.score + p.num_comments * 2,
+      (sum, p) => sum + (p.score ?? 0) + (p.num_comments ?? 0) * 2,
       0
     );
 
@@ -158,10 +158,10 @@ export const getPostStatsByTickerInternal = internalQuery({
     const olderPosts = relevantPosts.filter((p) => p.created_utc < midpointTime);
 
     const recentEngagement =
-      recentPosts.reduce((sum, p) => sum + p.score, 0) /
+      recentPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
         Math.max(recentPosts.length, 1);
     const olderEngagement =
-      olderPosts.reduce((sum, p) => sum + p.score, 0) /
+      olderPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
         Math.max(olderPosts.length, 1);
 
     const momentum =
@@ -237,7 +237,7 @@ export const getAllTickerStats = query({
       );
       const averageSentiment = totalUpvoteRatio / mentionCount;
       const totalEngagement = relevantPosts.reduce(
-        (sum, p) => sum + p.score + p.num_comments * 2,
+        (sum, p) => sum + (p.score ?? 0) + (p.num_comments ?? 0) * 2,
         0
       );
 
@@ -251,10 +251,10 @@ export const getAllTickerStats = query({
       );
 
       const recentEngagement =
-        recentPosts.reduce((sum, p) => sum + p.score, 0) /
+        recentPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
           Math.max(recentPosts.length, 1);
       const olderEngagement =
-        olderPosts.reduce((sum, p) => sum + p.score, 0) /
+        olderPosts.reduce((sum, p) => sum + (p.score ?? 0), 0) /
           Math.max(olderPosts.length, 1);
 
       const momentum =

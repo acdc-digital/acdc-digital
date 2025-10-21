@@ -89,8 +89,8 @@ export const generateRedditPost = action({
         topPosts: topPosts[index]?.posts.map((p: any) => ({
           title: p.title,
           subreddit: `r/${p.subreddit}`,
-          score: p.score,
-          comments: p.num_comments,
+          score: p.score ?? 0,
+          comments: p.num_comments ?? 0,
           ratio: `${Math.round((p.upvote_ratio || 0.85) * 100)}%`,
           link: p.permalink,
           // Extract successful patterns
@@ -497,7 +497,7 @@ function extractSuccessPatterns(topPosts: any[]): string {
       if (post.hasQuestion) patterns.questionTitles++;
       if (post.hasNumbers) patterns.numbersInTitle++;
       patterns.avgTitleLength += post.titleLength || 0;
-      patterns.avgScore += post.score || 0;
+      patterns.avgScore += (post.score ?? 0) || 0;
       patterns.avgComments += post.comments || 0;
       count++;
     });

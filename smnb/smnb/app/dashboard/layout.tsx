@@ -4,9 +4,11 @@
 'use client';
 
 import React, { useEffect } from "react";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { TokenCounter } from "@/components/ui/TokenCounter";
-import { RuntimeCounter } from "@/components/ui/RuntimeCounter";
+import TokenCounter from '@/components/ui/TokenCounter';
+import EmbeddingCounter from '@/components/ui/EmbeddingCounter';
+import { RuntimeCounter } from '@/components/ui/RuntimeCounter';
 import { DailySentiment } from "@/components/ui/DailySentiment";
 import { ApiKeyInput } from "@/components/ui/ApiKeyInput";
 import ActivityBar from "./activityBar/ActivityBar";
@@ -66,10 +68,21 @@ function DashboardContent({}: DashboardLayoutProps) {
   return (
     <div className="flex flex-col h-screen font-sf text-xs overflow-hidden">
       {/* Top thin border / bar */}
-      <div className="w-full h-12 flex items-center gap-3 px-3 text-foreground/60 border-b border-black/10 dark:border-white/10 bg-[#181818]">
-        <Fingerprint className="h-5.25 w-5.25 text-[#858585] border-1 border-[#858585] rounded-xs p-0.5" />
-        <span className="text-[#858585] font-light text-base font-sans">SMNB Terminal</span>
-        <div className="w-2 h-2 rounded-full bg-green-600"></div>
+      <div className="w-full h-12 flex items-center gap-3 px-4 text-foreground/60 border-b border-black/10 dark:border-white/10 bg-[#181818]">
+        <div className="h-5.25 w-5.25 p-0.5 flex items-center justify-center overflow-hidden">
+          <Image 
+            src="/logoFrame.png" 
+            alt="ACDC Logo" 
+            width={14} 
+            height={14}
+            className="object-cover"
+          />
+        </div>
+        <span className="text-[#858585] text-lg font-sans flex items-center gap-3">
+          <span className="font-newsreader font-extrabold text-white text-xl">SMNB</span>
+          <span className="pb-1 font-light font-mono">Terminal</span>
+        </span>
+        <div className="pb-1 w-2 h-2 rounded-full bg-green-600"></div>
         
         <div className="ml-auto flex items-center gap-4">
           <ThemeToggle />
@@ -144,6 +157,7 @@ function DashboardContent({}: DashboardLayoutProps) {
           <span className="hidden sm:inline">v0.1.0</span>
           <DailySentiment />
           <TokenCounter className="hidden md:flex" />
+          <EmbeddingCounter className="hidden md:flex" />
           <RuntimeCounter className="flex" />
         </div>
       </footer>
