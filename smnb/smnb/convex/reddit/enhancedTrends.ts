@@ -20,8 +20,8 @@ export const getEnhancedTrends = query({
     sentiment: v.string(),
     topPosts: v.array(v.object({
       title: v.string(),
-      subreddit: v.string(),
-      score: v.number()
+      subreddit: v.optional(v.string()),
+      score: v.optional(v.number())
     })),
     trending: v.boolean()
   })),
@@ -115,7 +115,7 @@ export const getEnhancedTrends = query({
           category: dominantCategory,
           sentiment: dominantSentiment,
           topPosts: data.posts
-            .sort((a, b) => b.score - a.score)
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
             .slice(0, 3)
             .map(p => ({
               title: p.title,
@@ -187,7 +187,7 @@ export const getEnhancedTrends = query({
           category: dominantCategory,
           sentiment: dominantSentiment,
           topPosts: data.posts
-            .sort((a, b) => b.score - a.score)
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
             .slice(0, 3)
             .map(p => ({
               title: p.title,
@@ -213,7 +213,7 @@ export const getTopPostsForAnalysis = query({
   returns: v.array(v.object({
     id: v.string(),
     title: v.string(),
-    subreddit: v.string(),
+    subreddit: v.optional(v.string()),
     selftext: v.string(),
     score: v.number(),
     created_utc: v.number()
@@ -235,7 +235,7 @@ export const getTopPostsForAnalysis = query({
       title: post.title,
       subreddit: post.subreddit,
       selftext: post.selftext,
-      score: post.score,
+      score: post.score ?? 0,
       created_utc: post.created_utc
     }));
   }
@@ -338,7 +338,7 @@ function extractAdvancedKeywords(text: string): string[] {
 }
 
 // Infer category from subreddit and content
-function inferCategory(subreddit: string, text: string): string {
+function inferCategory(subreddit: string | undefined, text: string): string {
   const techSubreddits = ['technology', 'programming', 'coding', 'webdev', 'reactjs', 'javascript', 'python', 'MachineLearning', 'artificial'];
   const politicsSubreddits = ['politics', 'worldnews', 'news', 'PoliticalDiscussion'];
   const businessSubreddits = ['business', 'entrepreneur', 'investing', 'stocks', 'economics'];
@@ -346,7 +346,7 @@ function inferCategory(subreddit: string, text: string): string {
   const lifestyleSubreddits = ['lifeprotips', 'productivity', 'fitness', 'nutrition', 'selfimprovement'];
   const entertainmentSubreddits = ['movies', 'television', 'music', 'gaming', 'sports'];
   
-  const lowerSubreddit = subreddit.toLowerCase();
+  const lowerSubreddit = (subreddit ?? 'unknown').toLowerCase();
   const lowerText = text.toLowerCase();
   
   if (techSubreddits.some(sub => lowerSubreddit.includes(sub)) || 

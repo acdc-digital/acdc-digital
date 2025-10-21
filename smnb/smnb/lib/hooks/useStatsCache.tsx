@@ -17,7 +17,7 @@ interface StatsCacheContextType {
 
 const StatsCacheContext = createContext<StatsCacheContextType | null>(null);
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes (increased from 5 for better UX)
 const CACHE_KEY_PREFIX = "smnb_stats_cache_";
 
 export function StatsCacheProvider({ children }: { children: ReactNode }) {
@@ -142,13 +142,37 @@ export function useCachedQuery<Query extends FunctionReference<"query">>(
   // Fetch fresh data
   const freshData = useQuery(query, args);
   
+    // Track if query has been loading too long (failsafe)
+  const [hasWaited, setHasWaited] = useState(false);
+  
+  useEffect(() => {
+    // If no data after 1 second, log info (reduced from 2s for faster feedback)
+    const timer = setTimeout(() => {
+      if (freshData === undefined && cachedData === null) {
+        console.log(`⏳ Stats query "${cacheKey}" loading...`);
+      }
+      setHasWaited(true);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [freshData, cachedData, cacheKey]);
+  
   // Update cache when fresh data arrives
   useEffect(() => {
     if (freshData !== undefined && freshData !== null) {
       setCachedData(cacheKey, freshData);
+      setHasWaited(false); // Reset wait flag when data arrives
     }
   }, [freshData, cacheKey, setCachedData]);
   
-  // Return cached data immediately if available, otherwise return fresh data
-  return cachedData !== null ? cachedData : freshData;
+  // Return priority:
+  // 1. Fresh data if available
+  // 2. Cached data if available
+  // 3. undefined if still loading (shows loading state)
+  if (freshData !== undefined) return freshData;
+  if (cachedData !== null) return cachedData;
+  
+  // If we've been waiting too long and there's no cache, return undefined
+  // This allows the component to show its loading state
+  return undefined;
 }

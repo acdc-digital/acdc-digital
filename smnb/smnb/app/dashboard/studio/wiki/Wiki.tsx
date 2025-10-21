@@ -10,6 +10,7 @@ import { agentsContent } from './_content/agentsContent';
 import { dataFlowContent } from './_content/dataFlowContent';
 import { agentsToolsContent } from './_content/agentsToolsContent';
 import { dataFlowChartContent } from './_content/dataFlowChartContent';
+import { milestonesContent } from './_content/milestonesContent';
 
 // Import chart components
 import MetricScoringChart from './_charts/MetricScoringChart';
@@ -36,6 +37,8 @@ export default function Wiki() {
         return <MarkdownEditor content={agentsToolsContent} editable={true} />;
       case 'data-flow-chart':
         return <MarkdownEditor content={dataFlowChartContent} editable={true} />;
+      case 'milestones':
+        return <MarkdownEditor content={milestonesContent} editable={true} />;
       
       // Unified Scoring Chart
       case 'unified-scoring-chart':

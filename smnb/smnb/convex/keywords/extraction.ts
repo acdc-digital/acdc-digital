@@ -131,7 +131,7 @@ export const extractKeywordsFromStats = mutation({
     postsToProcess.forEach((post: {
       title: string;
       mentionedTickers: Array<{ ticker: string; sentiment: string; confidence: number; impactScore: number }>;
-      subreddit: string;
+      subreddit: string | undefined;
       overallSentiment: string;
     }) => {
       const titleKeywords = extractKeywordsFromText(post.title);
@@ -149,7 +149,7 @@ export const extractKeywordsFromStats = mutation({
         }
         const data = keywordMap.get(keyword)!;
         data.count++;
-        data.sources.add(post.subreddit);
+        data.sources.add(post.subreddit ?? 'unknown');
         
         // Link to mentioned tickers
         post.mentionedTickers.forEach((t: { ticker: string; sentiment: string; confidence: number; impactScore: number }) => {

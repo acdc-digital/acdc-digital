@@ -63,12 +63,12 @@ export default defineSchema({
   live_feed_posts: defineTable({
     id: v.string(),
     title: v.string(),
-    author: v.string(),
-    subreddit: v.string(),
+    author: v.optional(v.string()), // Optional: some posts may not have author
+    subreddit: v.optional(v.string()), // Optional: some posts may not have subreddit
     url: v.string(),
     permalink: v.string(),
-    score: v.number(),
-    num_comments: v.number(),
+    score: v.optional(v.number()), // Optional: some posts may not have score
+    num_comments: v.optional(v.number()), // Optional: some posts may not have comment count
     created_utc: v.number(),
     thumbnail: v.string(),
     selftext: v.string(),
@@ -327,7 +327,7 @@ export default defineSchema({
     // Original source information
     original_item: v.optional(v.object({
       title: v.string(),
-      author: v.string(),
+      author: v.optional(v.string()), // Optional: subreddit reference posts don't have authors
       subreddit: v.optional(v.string()),
       url: v.optional(v.string()),
     })),
@@ -1614,5 +1614,26 @@ export default defineSchema({
     .index("by_ticker_and_datetime", ["ticker", "datetime"])
     .index("by_reference_period", ["ticker", "reference_start", "reference_end"])
     .index("by_timestamp", ["timestamp"]),
+
+  // Sentiment Index History - Aggregate sentiment scores across all NASDAQ-100 companies
+  sentiment_index_history: defineTable({
+    sentiment_index: v.number(), // Final Δ score: ((P + M) / 2) - B
+    performance_score: v.number(), // P: Weighted average sentiment
+    momentum_score: v.number(), // M: Rate of change in sentiment
+    baseline: v.number(), // B: Expected neutral baseline
+    
+    // Metadata
+    companies_analyzed: v.number(), // Number of companies with data
+    total_mentions: v.number(), // Total mentions across all companies
+    avg_sentiment: v.number(), // Average sentiment (0-1)
+    avg_momentum: v.number(), // Average momentum (-100 to +100)
+    
+    // Time period
+    timestamp: v.number(), // Unix timestamp for this data point
+    period_type: v.string(), // "hour", "day", "week"
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_period_type", ["period_type", "timestamp"])
+    .index("by_sentiment_index", ["sentiment_index"]),
 
 });

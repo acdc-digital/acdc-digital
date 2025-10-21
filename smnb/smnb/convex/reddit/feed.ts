@@ -10,12 +10,12 @@ export const storeLiveFeedPosts = mutation({
     posts: v.array(v.object({
       id: v.string(),
       title: v.string(),
-      author: v.string(),
-      subreddit: v.string(),
+      author: v.optional(v.string()),
+      subreddit: v.optional(v.string()),
       url: v.string(),
       permalink: v.string(),
-      score: v.number(),
-      num_comments: v.number(),
+      score: v.optional(v.number()), // Optional: some posts may not have score
+      num_comments: v.optional(v.number()), // Optional: some posts may not have comment count
       created_utc: v.number(),
       thumbnail: v.string(),
       selftext: v.string(),
@@ -258,6 +258,8 @@ export const updateHostSessionContent = mutation({
       // Log OCC conflicts as warnings instead of errors - they're expected under high concurrency
       if (error instanceof Error && error.message.includes('OptimisticConcurrencyControlFailure')) {
         console.warn(`⚠️ Concurrent update on host document ${hostDoc._id} - update may have been applied by another call`);
+        // Don't throw - OCC failures are acceptable in high-concurrency scenarios
+        // The other concurrent operation likely succeeded with similar data
       } else {
         throw error;
       }

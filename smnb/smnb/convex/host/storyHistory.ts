@@ -34,7 +34,7 @@ export const addStory = mutation({
     session_id: v.string(), // ✅ REQUIRED - Link story to session (no longer optional)
     original_item: v.optional(v.object({
       title: v.string(),
-      author: v.string(),
+      author: v.optional(v.string()), // Optional: subreddit reference posts don't have authors
       subreddit: v.optional(v.string()),
       url: v.optional(v.string()),
     })),
@@ -124,11 +124,12 @@ export const getStoriesBySession = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const limit = args.limit || 100; // Default to 100 most recent stories to prevent timeout
     const stories = await ctx.db
       .query("story_history")
       .withIndex("by_session_id", (q) => q.eq("session_id", args.sessionId))
       .order("desc")
-      .collect(); // No limit - return ALL stories for this session
+      .take(limit); // Use take() with limit to prevent timeout
     
     return stories;
   },

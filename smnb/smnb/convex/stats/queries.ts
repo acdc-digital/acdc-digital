@@ -24,12 +24,13 @@ export const getDashboardStats = query({
     };
     const since = now - ranges[args.timeRange];
     
-    // Get post stats
+    // Get post stats - limit to 1000 most recent to prevent timeout
     const postStats = await ctx.db
       .query("post_stats")
       .withIndex("by_created")
       .filter(q => q.gte(q.field("created_at"), since))
-      .collect();
+      .order("desc")
+      .take(1000);
     
     // Calculate metrics
     const totalPosts = postStats.length;

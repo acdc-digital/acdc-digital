@@ -258,15 +258,21 @@ export class SessionManagerAgent extends BaseNexusAgent {
         includeChatHistory: true, // Search past conversations
         includeDocuments: true, // Search uploaded documents
         globalDocuments: true, // Search ALL documents across all sessions (knowledge base)
-        topK: 5, // Top 5 results from each source
-        minScore: 0.3, // Minimum similarity threshold (lowered for better recall)
+        topK: 10, // Top 10 results from each source (increased from 5)
+        minScore: 0.2, // Minimum similarity threshold (lowered from 0.3 for better recall)
       });
 
       console.log(`[SessionManagerAgent] Vector search found ${contextRetrieval.totalResults} relevant context items`);
       console.log(`[SessionManagerAgent] - Chat context: ${contextRetrieval.chatContext.length} items`);
       console.log(`[SessionManagerAgent] - Document context: ${contextRetrieval.documentContext.length} items`);
-
-      // Show what was found
+      
+      // Log document context details for debugging
+      if (contextRetrieval.documentContext.length > 0) {
+        console.log(`[SessionManagerAgent] Document context details:`);
+        contextRetrieval.documentContext.forEach((doc, i) => {
+          console.log(`  ${i + 1}. [${doc.documentName}] Score: ${doc.score.toFixed(3)} - ${doc.text.substring(0, 100)}...`);
+        });
+      }      // Show what was found
       if (contextRetrieval.totalResults > 0) {
         const contextSummary = [];
         if (contextRetrieval.chatContext.length > 0) {
@@ -376,14 +382,14 @@ ${contextRetrieval.documentContext.map((item, i) =>
 Use this retrieved context to provide more informed and accurate responses. The knowledge base is GLOBAL - documents uploaded by anyone are searchable across all sessions.
 
 IMPORTANT GUIDELINES:
-1. Always use tools to fetch real data when users ask questions about metrics, costs, usage, etc.
-2. Reference retrieved context when it's relevant to the user's question
-3. When document context is available (score > 0.6), PRIORITIZE it over general knowledge
-4. Cite document sources when using their information: "According to [DocumentName]..."
-5. Provide clear, friendly explanations of the data
-6. Use markdown formatting for better readability
-7. Include relevant metrics and insights
-8. Be proactive - if you see interesting patterns, mention them
+1. **ALWAYS check the retrieved context FIRST** before using tools or providing answers
+2. When document context is available (ANY score > 0.3), **PRIORITIZE it over general knowledge**
+3. **CITE SOURCES**: Always reference document names when using information from them: "According to [DocumentName]..."
+4. Use tools to fetch real-time metrics/analytics data (sessions, costs, tokens, etc.)
+5. **The knowledge base contains uploaded books and papers** - check for relevant content before answering
+6. Provide clear, detailed explanations citing specific sections from documents when available
+7. Use markdown formatting for better readability
+8. If documents contain relevant information, quote key passages and provide page/section references if available
 
 Available tools:
 - analyze_session_metrics: Session activity and performance

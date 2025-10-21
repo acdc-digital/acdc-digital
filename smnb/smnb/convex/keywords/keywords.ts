@@ -104,16 +104,17 @@ export const processKeywordsFromPosts = mutation({
         const agg = keywordAggregation.get(normalized)!;
         agg.occurrences++;
         agg.posts.add(post.id);
-        agg.totalScore += post.score;
-        agg.totalComments += post.num_comments;
+        agg.totalScore += post.score ?? 0;
+        agg.totalComments += post.num_comments ?? 0;
         
         // Track subreddit distribution
-        if (!agg.subreddits.has(post.subreddit)) {
-          agg.subreddits.set(post.subreddit, { count: 0, totalScore: 0 });
+        const subreddit = post.subreddit ?? 'unknown';
+        if (!agg.subreddits.has(subreddit)) {
+          agg.subreddits.set(subreddit, { count: 0, totalScore: 0 });
         }
-        const subData = agg.subreddits.get(post.subreddit)!;
+        const subData = agg.subreddits.get(subreddit)!;
         subData.count++;
-        subData.totalScore += post.score;
+        subData.totalScore += post.score ?? 0;
         
         // Add sentiment if available
         if (stats?.sentiment) {
@@ -421,7 +422,7 @@ function extractKeywordsFromPost(post: Doc<"live_feed_posts">, stats?: Doc<"post
   keywords.push(...phrases);
   
   // Add subreddit as keyword
-  if (post.subreddit) {
+  if (post.subreddit ?? 'unknown') {
     keywords.push(`r/${post.subreddit}`);
   }
   

@@ -13,8 +13,8 @@ export default function WelcomeTab() {
   return (
     <div className="h-full w-full overflow-hidden flex flex-col bg-[#1e1e1e] relative">
       {/* Quote Text - Absolute positioned background */}
-      <div className="absolute top-6 left-6 pointer-events-none z-0">
-        <p className="text-gray-500 dark:text-slate-500/10 font-newsreader font-semibold text-[85.5px] break-words leading-tight">
+      <div className="absolute top-4 left-6 pointer-events-none z-0">
+        <p className="text-gray-500 dark:text-slate-500/10 font-newsreader font-semibold text-[86px] break-words leading-tight">
           &ldquo;Buy to the sound of cannons, sell to the sound of trumpets.&rdquo;
         </p>
       </div>

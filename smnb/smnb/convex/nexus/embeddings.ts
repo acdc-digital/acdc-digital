@@ -130,6 +130,24 @@ export const searchEmbeddings = internalQuery({
   },
 });
 
+// Get total embedding count across all sessions
+export const getTotalEmbeddingCount = query({
+  args: {},
+  returns: v.object({
+    total: v.number(),
+    chat: v.number(),
+    document: v.number(),
+  }),
+  handler: async (ctx) => {
+    const embeddings = await ctx.db.query("embeddings").collect();
+    return {
+      total: embeddings.length,
+      chat: embeddings.filter((e) => e.sourceType === "chat").length,
+      document: embeddings.filter((e) => e.sourceType === "document").length,
+    };
+  },
+});
+
 // Global document search: search across ALL document embeddings (not session-scoped)
 export const searchDocumentsGlobal = internalQuery({
   args: {

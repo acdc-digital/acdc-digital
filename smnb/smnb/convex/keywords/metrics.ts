@@ -13,9 +13,9 @@ export const getTopPostsForKeywords = internalQuery({
       id: v.string(),
       title: v.string(),
       url: v.string(),
-      subreddit: v.string(),
-      score: v.number(),
-      num_comments: v.number(),
+      subreddit: v.optional(v.string()),
+      score: v.optional(v.number()),
+      num_comments: v.optional(v.number()),
       created_utc: v.number(),
       upvote_ratio: v.optional(v.number()),
       permalink: v.string()
@@ -53,8 +53,8 @@ export const getTopPostsForKeywords = internalQuery({
             title: post.title,
             url: post.url,
             subreddit: post.subreddit,
-            score: post.score,
-            num_comments: post.num_comments,
+            score: post.score ?? 0,
+            num_comments: post.num_comments ?? 0,
             created_utc: post.created_utc,
             upvote_ratio: post.upvote_ratio || 0.85, // Remove stats upvote_ratio since it doesn't exist
             permalink: post.permalink.startsWith('http') ? post.permalink : `https://reddit.com${post.permalink}`
@@ -63,7 +63,7 @@ export const getTopPostsForKeywords = internalQuery({
       }
       
       // Sort by score to get top performers
-      posts.sort((a, b) => b.score - a.score);
+      posts.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
       
       results.push({
         keyword,

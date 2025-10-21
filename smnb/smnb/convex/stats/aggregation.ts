@@ -94,7 +94,7 @@ export const aggregateHourlyStats = internalMutation({
         .first();
       
       if (post?.subreddit) {
-        subredditMap.set(post.subreddit, (subredditMap.get(post.subreddit) || 0) + 1);
+        subredditMap.set(post.subreddit ?? 'unknown', (subredditMap.get(post.subreddit ?? 'unknown') || 0) + 1);
       }
     }
     const subreddit_distribution = Array.from(subredditMap.entries())

@@ -3,6 +3,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -220,8 +221,14 @@ export default function Home() {
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3 group cursor-pointer">
                 <div className="relative">
-                  <div className="w-8 h-8 border border-blue-400/40 rounded-md flex items-center justify-center transition-all duration-300 group-hover:border-blue-400 group-hover:bg-blue-400/5">
-                    <Brain className="w-4 h-4 text-blue-400" />
+                  <div className="w-8 h-8 border border-blue-400/40 rounded-md flex items-center justify-center transition-all duration-300 group-hover:border-blue-400 group-hover:bg-blue-400/5 overflow-hidden">
+                    <Image 
+                      src="/logoFrame.png" 
+                      alt="ACDC Logo" 
+                      width={32} 
+                      height={32}
+                      className="object-cover"
+                    />
                   </div>
                   <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-blue-400 rounded-full animate-pulse-glow"></div>
                 </div>

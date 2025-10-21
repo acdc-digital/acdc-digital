@@ -19,7 +19,10 @@ export const getMarketSentimentMetrics = query({
     neutral_signals: v.number(),
   }),
   handler: async (ctx) => {
-    const signals = await ctx.db.query("trading_signals").collect();
+    // Limit to 1000 most recent signals to prevent timeout
+    const signals = await ctx.db.query("trading_signals")
+      .order("desc")
+      .take(100);
     
     if (signals.length === 0) {
       return {
@@ -101,7 +104,10 @@ export const getMomentumIndicators = query({
     momentum_change_24h: v.number(),
   }),
   handler: async (ctx) => {
-    const signals = await ctx.db.query("trading_signals").collect();
+    // Limit to 500 most recent signals to prevent timeout
+    const signals = await ctx.db.query("trading_signals")
+      .order("desc")
+      .take(100);
     
     if (signals.length === 0) {
       return {
@@ -161,7 +167,10 @@ export const getVolatilityMetrics = query({
     volatility_trend: v.string(), // "increasing", "decreasing", "stable"
   }),
   handler: async (ctx) => {
-    const signals = await ctx.db.query("trading_signals").collect();
+    // Limit to 1000 most recent signals to prevent timeout
+    const signals = await ctx.db.query("trading_signals")
+      .order("desc")
+      .take(100);
     
     if (signals.length === 0) {
       return {
@@ -228,7 +237,10 @@ export const getTradingSignalsSummary = query({
     high_confidence_signals: v.number(),
   }),
   handler: async (ctx) => {
-    const signals = await ctx.db.query("trading_signals").collect();
+    // Limit to 1000 most recent signals to prevent timeout
+    const signals = await ctx.db.query("trading_signals")
+      .order("desc")
+      .take(100);
     
     if (signals.length === 0) {
       return {
