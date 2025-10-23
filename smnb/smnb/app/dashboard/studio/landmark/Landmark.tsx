@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { SentimentScore } from "@/app/dashboard/ticker/_components/SentimentScore";
-import { Ticker, TickerIcon, TickerSymbol } from "@/components/ui/Ticker";
+import { Ticker, TickerIcon, TickerSymbol } from "@/app/components/ui/Ticker";
 import { ChevronDown, Search } from "lucide-react";
 import { useTickerContext } from "@/app/dashboard/ticker/_context/TickerContext";
 import WelcomeTab from "@/app/dashboard/ticker/WelcomeTab";

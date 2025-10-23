@@ -4,8 +4,8 @@
 'use client';
 
 import React from "react";
-import LiveFeed from "@/components/livefeed/liveFeed";
-import Aggregator from "@/components/aggregator/aggregator";
+import LiveFeed from "../../components/livefeed/liveFeed";
+import Aggregator from "../../components/aggregator/aggregator";
 import { useLastSessionId } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 
 export default function FeedSidebar() {

@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { api } from '@/convex/_generated/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 import { BookOpen, TrendingUp } from 'lucide-react';
 import { useCachedQuery } from '@/lib/hooks/useStatsCache';
 

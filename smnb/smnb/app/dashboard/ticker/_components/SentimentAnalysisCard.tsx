@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MessageSquare, RefreshCw } from "lucide-react";
-import { Response } from "@/components/ai/response";
+import { Response } from "../../../components/ai/response";
 import { useTickerContext } from "../_context/TickerContext";
 
 interface SentimentAnalysisCardProps {

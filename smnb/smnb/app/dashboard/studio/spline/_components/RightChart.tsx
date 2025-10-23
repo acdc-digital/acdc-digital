@@ -4,8 +4,8 @@
 "use client";
 
 import React from "react";
-import { SentimentIndexChart } from "@/components/charts/spline/sentiment-index";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SentimentIndexChart } from "@/app/components/charts/spline/sentiment-index";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 
 export function RightChart() {
   return (

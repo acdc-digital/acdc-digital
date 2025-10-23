@@ -4,10 +4,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Textarea } from "../../components/ui/textarea";
+import { Badge } from "../../components/ui/badge";
 import { MessageSquare, Bot, Loader2, CheckCircle, XCircle } from "lucide-react";
 
 // Import our agent system

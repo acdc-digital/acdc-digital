@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { FeedbackState } from './types';
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "../../../../components/ui/switch";
 
 interface SearchDomainManagerProps {
   // Domain state

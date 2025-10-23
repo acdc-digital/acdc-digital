@@ -8,7 +8,7 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
 import { Newspaper } from 'lucide-react';
-import NewsletterDisplay from '@/components/editor/NewsletterDisplay';
+import NewsletterDisplay from '@/app/components/editor/NewsletterDisplay';
 import { useEditorActions, useEditorContent } from '@/lib/stores/editor/editorStore';
 import { useEditorStore } from '@/lib/stores/editor/editorStore';
 import { useStorySelectionStore } from '@/lib/stores/livefeed/storySelectionStore';
