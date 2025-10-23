@@ -1374,15 +1374,15 @@ Focus on: What's new, why it matters, and how it advances the story.
     console.log(`🧹 Cleared stuck narration: ${stuckId}`);
     
     // Emit error event - wrap in try-catch to prevent uncaught errors
-    // Use setImmediate to avoid blocking and ensure async error handlers don't crash
-    setImmediate(() => {
+    // Use setTimeout(0) to defer execution (browser-compatible alternative to setImmediate)
+    setTimeout(() => {
       try {
         // Note: Still emit as 'narration:error' event for compatibility, but log as warning
         this.emit('narration:error', stuckId || 'unknown', new Error('Narration timeout'));
       } catch (error) {
         console.warn('⚠️ Error emitting narration:error event:', error);
       }
-    });
+    }, 0);
   }
 
   private async processQueue(): Promise<void> {

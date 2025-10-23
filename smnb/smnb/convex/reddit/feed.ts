@@ -251,17 +251,35 @@ export const updateHostSessionContent = mutation({
     if (args.source_posts) updates.source_posts = args.source_posts;
     if (args.generation_metadata) updates.generation_metadata = args.generation_metadata;
 
-    try {
-      await ctx.db.patch(hostDoc._id, updates);
-      console.log(`📝 Updated host session content: ${args.session_id} (${wordCount} words)`);
-    } catch (error) {
-      // Log OCC conflicts as warnings instead of errors - they're expected under high concurrency
-      if (error instanceof Error && error.message.includes('OptimisticConcurrencyControlFailure')) {
-        console.warn(`⚠️ Concurrent update on host document ${hostDoc._id} - update may have been applied by another call`);
-        // Don't throw - OCC failures are acceptable in high-concurrency scenarios
-        // The other concurrent operation likely succeeded with similar data
-      } else {
-        throw error;
+    // Retry logic for OCC conflicts
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries <= maxRetries) {
+      try {
+        // Re-fetch the document to get latest version
+        const latestDoc = await ctx.db.get(hostDoc._id);
+        if (!latestDoc) {
+          throw new Error(`Host document ${hostDoc._id} was deleted`);
+        }
+        
+        await ctx.db.patch(hostDoc._id, updates);
+        console.log(`📝 Updated host session content: ${args.session_id} (${wordCount} words)${retries > 0 ? ` after ${retries} retries` : ''}`);
+        return hostDoc._id;
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('OptimisticConcurrencyControlFailure')) {
+          retries++;
+          if (retries > maxRetries) {
+            console.warn(`⚠️ Failed to update host document ${hostDoc._id} after ${maxRetries} retries - dropping update to prevent infinite loop`);
+            // Return existing document ID without throwing - prefer stale data over blocking
+            return hostDoc._id;
+          }
+          // Exponential backoff: wait 10ms, 20ms, 40ms
+          await new Promise(resolve => setTimeout(resolve, 10 * Math.pow(2, retries - 1)));
+          console.log(`🔄 Retrying host document update (attempt ${retries + 1}/${maxRetries + 1})...`);
+        } else {
+          throw error;
+        }
       }
     }
     
@@ -585,26 +603,54 @@ export const updateHostDocument = mutation({
       console.log(`📺 Created legacy host document: ${args.document_id}`);
       return id;
     } else {
-      await ctx.db.patch(existingDoc._id, {
-        content_text: contentText,
-        word_count: wordCount,
-        character_count: characterCount,
-        updated_at: Date.now(),
-        last_narration_type: args.narration_type,
-        last_tone: args.tone,
-        last_priority: args.priority,
-        source_posts: args.source_posts,
-        generation_metadata: args.generation_metadata,
-        // Legacy fields
-        title: args.title,
-        version: (existingDoc.version || 1) + 1,
-        generated_by_agent: args.generated_by_agent,
-        narration_type: args.narration_type,
-        tone: args.tone,
-        priority: args.priority,
-      });
+      // Retry logic for OCC conflicts on updates
+      let retries = 0;
+      const maxRetries = 3;
       
-      console.log(`🎙️ Updated legacy host document: ${args.document_id}`);
+      while (retries <= maxRetries) {
+        try {
+          // Re-fetch to get latest version
+          const latestDoc = await ctx.db.get(existingDoc._id);
+          if (!latestDoc) {
+            throw new Error(`Host document ${existingDoc._id} was deleted`);
+          }
+          
+          await ctx.db.patch(existingDoc._id, {
+            content_text: contentText,
+            word_count: wordCount,
+            character_count: characterCount,
+            updated_at: Date.now(),
+            last_narration_type: args.narration_type,
+            last_tone: args.tone,
+            last_priority: args.priority,
+            source_posts: args.source_posts,
+            generation_metadata: args.generation_metadata,
+            // Legacy fields
+            title: args.title,
+            version: (latestDoc.version || 1) + 1,
+            generated_by_agent: args.generated_by_agent,
+            narration_type: args.narration_type,
+            tone: args.tone,
+            priority: args.priority,
+          });
+          
+          console.log(`🎙️ Updated legacy host document: ${args.document_id}${retries > 0 ? ` after ${retries} retries` : ''}`);
+          return existingDoc._id;
+        } catch (error) {
+          if (error instanceof Error && error.message.includes('OptimisticConcurrencyControlFailure')) {
+            retries++;
+            if (retries > maxRetries) {
+              console.warn(`⚠️ Failed to update legacy host document after ${maxRetries} retries - dropping update`);
+              return existingDoc._id;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10 * Math.pow(2, retries - 1)));
+            console.log(`🔄 Retrying legacy document update (attempt ${retries + 1}/${maxRetries + 1})...`);
+          } else {
+            throw error;
+          }
+        }
+      }
+      
       return existingDoc._id;
     }
   },

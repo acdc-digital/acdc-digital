@@ -5,12 +5,12 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import TokenCounter from '@/components/ui/TokenCounter';
-import EmbeddingCounter from '@/components/ui/EmbeddingCounter';
-import { RuntimeCounter } from '@/components/ui/RuntimeCounter';
-import { DailySentiment } from "@/components/ui/DailySentiment";
-import { ApiKeyInput } from "@/components/ui/ApiKeyInput";
+import { ThemeToggle } from "@/app/components/ui/ThemeToggle";
+import TokenCounter from '@/app/components/ui/TokenCounter';
+import EmbeddingCounter from '@/app/components/ui/EmbeddingCounter';
+import { RuntimeCounter } from '@/app/components/ui/RuntimeCounter';
+import { DailySentiment } from "@/app/components/ui/DailySentiment";
+import { ApiKeyInput } from "@/app/components/ui/ApiKeyInput";
 import ActivityBar from "./activityBar/ActivityBar";
 import { Fingerprint } from "lucide-react";
 import { DashboardProvider, useDashboard } from "./DashboardContext";

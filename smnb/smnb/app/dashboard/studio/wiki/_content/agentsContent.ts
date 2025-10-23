@@ -105,7 +105,7 @@ Complete technical specifications for all 15 SMNB agents organized by category.
 | **Agent ID** | \`sentiment-agent\` |
 | **Status** | 🟢 Active |
 | **Category** | AI-Powered Analysis |
-| **Model** | Claude 3.5 Sonnet |
+| **Model** | Claude Haiku 4.5 (claude-haiku-4-5-20251001) |
 | **Version** | v1.3.0 |
 | **Primary Function** | Analyzes sentiment of posts/news |
 | **Input** | Text content, metadata, context |
@@ -113,7 +113,7 @@ Complete technical specifications for all 15 SMNB agents organized by category.
 | **Tools** | NLP Sentiment Analyzer, Entity Extractor, Keyword Extractor |
 | **Latency** | 800-1200ms per analysis |
 | **Token Usage** | ~400-700 tokens/analysis |
-| **Cost** | $0.008-0.015 per analysis |
+| **Cost** | $0.0025 per analysis (100-150 word excerpts) |
 | **Dependencies** | Anthropic API |
 | **Error Handling** | Return neutral sentiment (0.0) on failure |
 

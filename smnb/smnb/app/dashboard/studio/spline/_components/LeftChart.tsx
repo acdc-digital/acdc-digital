@@ -4,8 +4,8 @@
 "use client";
 
 import React from "react";
-import { MultipleLineChart } from "@/components/charts/spline/spline";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MultipleLineChart } from "@/app/components/charts/spline/spline";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 
 export function LeftChart() {
   return (

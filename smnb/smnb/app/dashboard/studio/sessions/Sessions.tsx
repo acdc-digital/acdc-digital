@@ -9,8 +9,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { SessionList } from "./_components/SessionList";
 import { SessionDetails } from "./_components/SessionDetails";
 import { SessionChat } from "./_components/SessionChat";
-import { DocumentUploadModal } from "@/components/session/DocumentUploadModal";
-import { Button } from "@/components/ui/button";
+import { DocumentUploadModal } from "@/app/components/session/DocumentUploadModal";
+import { Button } from "@/app/components/ui/button";
 import { Plus, Settings2, FileText, LogIn, Sparkles, Radio } from "lucide-react";
 import { useSimpleLiveFeedStore } from "@/lib/stores/livefeed/simpleLiveFeedStore";
 import {

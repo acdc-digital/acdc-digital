@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Slider } from "../../../../components/ui/slider";
+import { Label } from "../../../../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../components/ui/select";
+import { Button } from "../../../../components/ui/button";
+import { Card } from "../../../../components/ui/card";
 import { Info, Sparkles, Brain, Gauge } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks";
 import { SignOutButton, useUser } from "@clerk/nextjs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
 import Image from "next/image";
 import { 
   User, 

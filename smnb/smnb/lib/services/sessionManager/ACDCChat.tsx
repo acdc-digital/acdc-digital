@@ -14,7 +14,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useACDCAgent } from "@/lib/hooks/useACDCAgent";
@@ -26,12 +26,12 @@ import {
   Conversation,
   ConversationContent,
   ConversationScrollButton
-} from "@/components/ai/conversation";
+} from "@/app/components/ai/conversation";
 import {
   PromptInput,
   PromptInputTextarea,
-} from "@/components/ai/prompt-input";
-import { Suggestion } from "@/components/ai/suggestion";
+} from "@/app/components/ai/prompt-input";
+import { Suggestion } from "@/app/components/ai/suggestion";
 
 export interface ACDCChatProps {
   className?: string;

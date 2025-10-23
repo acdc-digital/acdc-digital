@@ -4,7 +4,10 @@
 'use client';
 
 import React from 'react';
-import { Switch } from "@/components/ui/switch";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { Settings } from 'lucide-react';
+import { Switch } from "../../../../components/ui/switch";
 import { StudioMode } from '../../Studio';
 
 interface ConfigPanelProps {

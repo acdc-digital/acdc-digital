@@ -5,10 +5,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville, Work_Sans, Playfair_Display, Crimson_Text, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import { ClerkProvider } from '@clerk/nextjs';
-import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { TokenCountingProvider } from "@/components/providers/TokenCountingProvider";
-import { WhistleblowerInit } from "@/components/WhistleblowerInit";
+import ConvexClientProvider from "./components/providers/ConvexClientProvider";
+import { ThemeProvider } from "./components/providers/ThemeProvider";
+import { TokenCountingProvider } from "./components/providers/TokenCountingProvider";
+import { WhistleblowerInit } from "./components/WhistleblowerInit";
 import "./globals.css";
 
 const geistSans = Geist({

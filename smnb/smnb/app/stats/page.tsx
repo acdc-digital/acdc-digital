@@ -29,6 +29,7 @@ export default function StatsPage() {
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
             {/* Trading Metrics Row - Day Trader Focus */}
+            {/* TEMPORARILY DISABLED - No trading data populated yet
             <section>
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 📈 Trading Analytics <span className="text-xs text-muted-foreground/60 font-normal normal-case">(MQN1 NASDAQ-100)</span>
@@ -40,6 +41,7 @@ export default function StatsPage() {
                 <TradingSignalsWidget />
               </div>
             </section>
+            */}
 
             {/* Content Analytics */}
             <section>

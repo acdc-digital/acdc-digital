@@ -12,8 +12,8 @@
 'use client';
 
 import React from "react";
-import { WaterfallNarration } from "@/components/host/WaterfallNarration";
-import { HostSettings } from "@/components/host/HostSettings";
+import { WaterfallNarration } from "@/app/components/host/WaterfallNarration";
+import { HostSettings } from "@/app/components/host/HostSettings";
 import { useHostAgentStore } from "@/lib/stores/host/hostAgentStore";
 import { useIsBroadcasting, useBroadcastState } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 import { Settings } from 'lucide-react';

@@ -11,7 +11,8 @@ import {
   MessageSquare,
   BarChart3,
   Network,
-  Trophy
+  Trophy,
+  BookOpen
 } from 'lucide-react';
 
 interface WikiNavItem {
@@ -22,6 +23,11 @@ interface WikiNavItem {
 }
 
 const wikiNavigation: WikiNavItem[] = [
+  {
+    id: 'getting-started',
+    label: 'Getting Started',
+    icon: <BookOpen className="w-4 h-4" />,
+  },
   {
     id: 'unified-scoring',
     label: 'Unified Scoring System',

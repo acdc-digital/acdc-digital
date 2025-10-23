@@ -11,6 +11,7 @@ import { dataFlowContent } from './_content/dataFlowContent';
 import { agentsToolsContent } from './_content/agentsToolsContent';
 import { dataFlowChartContent } from './_content/dataFlowChartContent';
 import { milestonesContent } from './_content/milestonesContent';
+import { gettingStartedContent } from './_content/gettingStartedContent';
 
 // Import chart components
 import MetricScoringChart from './_charts/MetricScoringChart';
@@ -18,11 +19,13 @@ import SessionWorkflowChart from './_charts/SessionWorkflowChart';
 import AgentProfileChart from './_charts/AgentProfileChart';
 
 export default function Wiki() {
-  const [activeSection, setActiveSection] = useState('unified-scoring');
+  const [activeSection, setActiveSection] = useState('getting-started');
 
   const renderContent = () => {
     // Show the selected section content
     switch (activeSection) {
+      case 'getting-started':
+        return <MarkdownEditor content={gettingStartedContent} editable={true} />;
       case 'unified-scoring':
         return <MarkdownEditor content={unifiedScoringContent} editable={true} />;
       case 'nasdaq-100':

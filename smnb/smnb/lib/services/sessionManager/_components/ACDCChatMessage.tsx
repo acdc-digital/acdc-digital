@@ -17,8 +17,8 @@ import {
   Reasoning,
   ReasoningTrigger,
   ReasoningContent,
-} from "@/components/ai/reasoning";
-import { Response } from "@/components/ai/response";
+} from "@/app/components/ai/reasoning";
+import { Response } from "@/app/components/ai/response";
 
 export interface ACDCChatMessageProps {
   message: ACDCMessage;

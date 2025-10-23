@@ -55,39 +55,69 @@ export const updateAllSentimentScores = internalAction({
         timestamp: number;
       }> = [];
 
-      // Process each ticker
-      for (const ticker of tickers) {
-        // Run the query to get stats for this ticker
-        const stats = await ctx.runQuery(internal.stats.sentimentQueries.getPostStatsByTickerInternal, {
-          ticker,
-          timeRange: 720, // 30 days * 24 hours
-        });
+      // Process tickers in parallel batches to avoid timeout
+      const BATCH_SIZE = 20; // Process 20 tickers at a time
+      const timestamp = Date.now();
+      
+      for (let i = 0; i < tickers.length; i += BATCH_SIZE) {
+        const batch = tickers.slice(i, i + BATCH_SIZE);
+        console.log(`[Sentiment] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(tickers.length / BATCH_SIZE)} (${batch.length} tickers)...`);
+        
+        // Process batch in parallel
+        const batchResults = await Promise.all(
+          batch.map(async (ticker) => {
+            try {
+              // Run the query to get stats for this ticker
+              const stats = await ctx.runQuery(internal.stats.sentimentQueries.getPostStatsByTickerInternal, {
+                ticker,
+                timeRange: 720, // 30 days * 24 hours
+              });
 
-        // Calculate the sentiment score
-        const weight = weights[ticker as keyof typeof weights] || 0.1;
-        const TOTAL_POOL = 288878;
-        const baseAllocation = (weight / 100) * TOTAL_POOL;
+              // Calculate the sentiment score
+              const weight = weights[ticker as keyof typeof weights] || 0.1;
+              const TOTAL_POOL = 288878;
+              const baseAllocation = (weight / 100) * TOTAL_POOL;
 
-        // Calculate multiplier components
-        const mentionScore = Math.min(stats.mentionCount / 100, 1) * 0.2;
-        const sentimentScore = stats.averageSentiment * 0.4;
-        const engagementScore = Math.min(stats.totalEngagement / 10000, 1) * 0.2;
-        const momentumScore = ((Math.max(-100, Math.min(100, stats.momentum)) + 100) / 200) * 0.2;
-        const multiplier = 0.5 + mentionScore + sentimentScore + engagementScore + momentumScore;
+              // Calculate multiplier components
+              const mentionScore = Math.min(stats.mentionCount / 100, 1) * 0.2;
+              const sentimentScore = stats.averageSentiment * 0.4;
+              const engagementScore = Math.min(stats.totalEngagement / 10000, 1) * 0.2;
+              const momentumScore = ((Math.max(-100, Math.min(100, stats.momentum)) + 100) / 200) * 0.2;
+              const multiplier = 0.5 + mentionScore + sentimentScore + engagementScore + momentumScore;
 
-        const calculatedScore = baseAllocation * multiplier;
+              const calculatedScore = baseAllocation * multiplier;
 
-        scores.push({
-          ticker,
-          weight,
-          mentionCount: stats.mentionCount,
-          averageSentiment: stats.averageSentiment,
-          totalEngagement: stats.totalEngagement,
-          momentum: stats.momentum,
-          calculatedScore,
-          multiplier,
-          timestamp: Date.now(),
-        });
+              return {
+                ticker,
+                weight,
+                mentionCount: stats.mentionCount,
+                averageSentiment: stats.averageSentiment,
+                totalEngagement: stats.totalEngagement,
+                momentum: stats.momentum,
+                calculatedScore,
+                multiplier,
+                timestamp,
+              };
+            } catch (error) {
+              console.error(`[Sentiment] Error processing ${ticker}:`, error);
+              // Return zero values for failed tickers to not block entire batch
+              const weight = weights[ticker as keyof typeof weights] || 0.1;
+              return {
+                ticker,
+                weight,
+                mentionCount: 0,
+                averageSentiment: 0,
+                totalEngagement: 0,
+                momentum: 0,
+                calculatedScore: 0,
+                multiplier: 0.5,
+                timestamp,
+              };
+            }
+          })
+        );
+        
+        scores.push(...batchResults);
       }
 
       // Store the calculated scores in the database
