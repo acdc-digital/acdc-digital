@@ -3,15 +3,32 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 
 /**
- * Scheduled action to update all sentiment scores
- /**
- * Runs once per day to analyze Reddit data from the past year
+ * INCREMENTAL sentiment score update - only processes new posts
+ * Uses running totals instead of recalculating from scratch
+ * Runs frequently (every 5-10 minutes) to keep scores current
  */
 export const updateAllSentimentScores = internalAction({
   args: {},
+  returns: v.object({
+    success: v.boolean(),
+    scoresUpdated: v.number(),
+    newPostsProcessed: v.number(),
+    totalScore: v.number(),
+    avgMultiplier: v.number(),
+  }),
   handler: async (ctx) => {
-    console.log("[Sentiment] Starting scheduled sentiment score update...");
-    
+    console.log("[Sentiment] Starting INCREMENTAL sentiment score update...");
+
+    // Get the last processed timestamp from the most recent sentiment score
+    const lastProcessed: number | null = await ctx.runQuery(internal.stats.sentimentQueries.getLastProcessedTimestamp, {});
+    const newPostsOnly = lastProcessed !== null;
+
+    if (newPostsOnly) {
+      console.log(`[Sentiment] Incremental mode: Processing posts since ${new Date(lastProcessed).toISOString()}`);
+    } else {
+      console.log("[Sentiment] Initial mode: Processing all historical posts (this will take longer)");
+    }
+
     // Nasdaq-100 tickers
     const tickers = [
       "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "GOOG", "TSLA", "AVGO", "COST",
@@ -43,103 +60,35 @@ export const updateAllSentimentScores = internalAction({
     } as const;
 
     try {
-      const scores: Array<{
-        ticker: string;
-        weight: number;
-        mentionCount: number;
-        averageSentiment: number;
-        totalEngagement: number;
-        momentum: number;
-        calculatedScore: number;
-        multiplier: number;
-        timestamp: number;
-      }> = [];
-
-      // Process tickers in parallel batches to avoid timeout
-      const BATCH_SIZE = 20; // Process 20 tickers at a time
       const timestamp = Date.now();
-      
-      for (let i = 0; i < tickers.length; i += BATCH_SIZE) {
-        const batch = tickers.slice(i, i + BATCH_SIZE);
-        console.log(`[Sentiment] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(tickers.length / BATCH_SIZE)} (${batch.length} tickers)...`);
-        
-        // Process batch in parallel
-        const batchResults = await Promise.all(
-          batch.map(async (ticker) => {
-            try {
-              // Run the query to get stats for this ticker
-              const stats = await ctx.runQuery(internal.stats.sentimentQueries.getPostStatsByTickerInternal, {
-                ticker,
-                timeRange: 720, // 30 days * 24 hours
-              });
 
-              // Calculate the sentiment score
-              const weight = weights[ticker as keyof typeof weights] || 0.1;
-              const TOTAL_POOL = 288878;
-              const baseAllocation = (weight / 100) * TOTAL_POOL;
-
-              // Calculate multiplier components
-              const mentionScore = Math.min(stats.mentionCount / 100, 1) * 0.2;
-              const sentimentScore = stats.averageSentiment * 0.4;
-              const engagementScore = Math.min(stats.totalEngagement / 10000, 1) * 0.2;
-              const momentumScore = ((Math.max(-100, Math.min(100, stats.momentum)) + 100) / 200) * 0.2;
-              const multiplier = 0.5 + mentionScore + sentimentScore + engagementScore + momentumScore;
-
-              const calculatedScore = baseAllocation * multiplier;
-
-              return {
-                ticker,
-                weight,
-                mentionCount: stats.mentionCount,
-                averageSentiment: stats.averageSentiment,
-                totalEngagement: stats.totalEngagement,
-                momentum: stats.momentum,
-                calculatedScore,
-                multiplier,
-                timestamp,
-              };
-            } catch (error) {
-              console.error(`[Sentiment] Error processing ${ticker}:`, error);
-              // Return zero values for failed tickers to not block entire batch
-              const weight = weights[ticker as keyof typeof weights] || 0.1;
-              return {
-                ticker,
-                weight,
-                mentionCount: 0,
-                averageSentiment: 0,
-                totalEngagement: 0,
-                momentum: 0,
-                calculatedScore: 0,
-                multiplier: 0.5,
-                timestamp,
-              };
-            }
-          })
-        );
-        
-        scores.push(...batchResults);
-      }
-
-      // Store the calculated scores in the database
-      await ctx.runMutation(internal.stats.sentimentActions.storeSentimentScores, {
-        scores,
+      // Use incremental update that only processes new posts
+      const result: {
+        tickersUpdated: number;
+        newPostsProcessed: number;
+        totalScore: number;
+        avgMultiplier: number;
+        topScores: Array<string>;
+      } = await ctx.runMutation(internal.stats.sentimentActions.incrementalUpdateScores, {
+        tickers,
+        weights: Object.fromEntries(Object.entries(weights)),
+        lastProcessedTimestamp: lastProcessed,
+        currentTimestamp: timestamp,
       });
 
-      console.log(`[Sentiment] Successfully updated ${scores.length} sentiment scores`);
-      
-      // Log summary statistics
-      const totalScore = scores.reduce((sum, s) => sum + s.calculatedScore, 0);
-      const avgMultiplier = scores.reduce((sum, s) => sum + s.multiplier, 0) / scores.length;
-      const topScores = scores
-        .sort((a, b) => b.calculatedScore - a.calculatedScore)
-        .slice(0, 5)
-        .map(s => `${s.ticker}: ${s.calculatedScore.toFixed(2)}`);
+      console.log(`[Sentiment] Successfully updated ${result.tickersUpdated} sentiment scores`);
+      console.log(`[Sentiment] Processed ${result.newPostsProcessed} new posts`);
+      console.log(`[Sentiment] Total score: ${result.totalScore.toFixed(2)}`);
+      console.log(`[Sentiment] Avg multiplier: ${result.avgMultiplier.toFixed(3)}`);
+      console.log(`[Sentiment] Top 5: ${result.topScores.join(", ")}`);
 
-      console.log(`[Sentiment] Total score: ${totalScore.toFixed(2)}`);
-      console.log(`[Sentiment] Avg multiplier: ${avgMultiplier.toFixed(3)}`);
-      console.log(`[Sentiment] Top 5: ${topScores.join(", ")}`);
-
-      return { success: true, scoresUpdated: scores.length, totalScore, avgMultiplier };
+      return {
+        success: true,
+        scoresUpdated: result.tickersUpdated,
+        newPostsProcessed: result.newPostsProcessed,
+        totalScore: result.totalScore,
+        avgMultiplier: result.avgMultiplier
+      };
     } catch (error) {
       console.error("[Sentiment] Error updating sentiment scores:", error);
       throw error;
@@ -148,73 +97,169 @@ export const updateAllSentimentScores = internalAction({
 });
 
 /**
- * Store calculated sentiment scores in the database
+ * Incremental mutation that updates running totals
+ * Only processes new posts since last update
  */
-export const storeSentimentScores = internalMutation({
+export const incrementalUpdateScores = internalMutation({
   args: {
-    scores: v.array(
-      v.object({
-        ticker: v.string(),
-        weight: v.number(),
-        mentionCount: v.number(),
-        averageSentiment: v.number(),
-        totalEngagement: v.number(),
-        momentum: v.number(),
-        calculatedScore: v.number(),
-        multiplier: v.number(),
-        timestamp: v.number(),
-      })
-    ),
+    tickers: v.array(v.string()),
+    weights: v.any(), // Record<string, number>
+    lastProcessedTimestamp: v.union(v.number(), v.null()),
+    currentTimestamp: v.number(),
   },
+  returns: v.object({
+    tickersUpdated: v.number(),
+    newPostsProcessed: v.number(),
+    totalScore: v.number(),
+    avgMultiplier: v.number(),
+    topScores: v.array(v.string()),
+  }),
   handler: async (ctx, args) => {
-    // Store each score in a sentiment_scores table with change tracking
-    let scoresWithChanges = 0;
-    let maxChange = 0;
-    
-    for (const score of args.scores) {
-      // Get the most recent score for this ticker to calculate change
-      const previousScore = await ctx.db
+    const { tickers, weights, lastProcessedTimestamp, currentTimestamp } = args;
+    const TOTAL_POOL = 288878;
+    const TIME_WINDOW_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+    const cutoffTime = (currentTimestamp - TIME_WINDOW_MS) / 1000; // Convert to seconds for Reddit timestamps
+
+    // Get new posts since last update (or all posts if first run)
+    const newPostsQuery = lastProcessedTimestamp !== null
+      ? ctx.db
+          .query("live_feed_posts")
+          .withIndex("by_created_utc")
+          .filter(q =>
+            q.and(
+              q.gte(q.field("created_utc"), lastProcessedTimestamp / 1000),
+              q.gte(q.field("created_utc"), cutoffTime)
+            )
+          )
+      : ctx.db
+          .query("live_feed_posts")
+          .withIndex("by_created_utc")
+          .filter(q => q.gte(q.field("created_utc"), cutoffTime));
+
+    const newPosts = await newPostsQuery.collect();
+    console.log(`[Sentiment] Found ${newPosts.length} new posts to process`);
+
+    // Build ticker mention map from new posts
+    const tickerMentions: Record<string, Array<typeof newPosts[0]>> = {};
+    for (const ticker of tickers) {
+      tickerMentions[ticker] = [];
+    }
+
+    // Categorize posts by ticker mentions
+    for (const post of newPosts) {
+      const text = `${post.title} ${post.selftext}`.toLowerCase();
+      for (const ticker of tickers) {
+        if (text.includes(`$${ticker.toLowerCase()}`) || text.includes(ticker.toLowerCase())) {
+          tickerMentions[ticker].push(post);
+        }
+      }
+    }
+
+    // Update scores for each ticker
+    const updatedScores: Array<{
+      ticker: string;
+      calculatedScore: number;
+    }> = [];
+
+    for (const ticker of tickers) {
+      // Get current (most recent) score for this ticker
+      const currentScore = await ctx.db
         .query("sentiment_scores")
-        .withIndex("by_ticker_and_calculated_at", (q) => q.eq("ticker", score.ticker))
+        .withIndex("by_ticker_and_calculated_at", q => q.eq("ticker", ticker))
         .order("desc")
         .first();
 
-      // Calculate change percentage
-      let scoreChangePercent: number | undefined = undefined;
-      let previousScoreValue: number | undefined = undefined;
-
-      if (previousScore) {
-        previousScoreValue = previousScore.calculated_score;
-        const rawChange = ((score.calculatedScore - previousScoreValue) / previousScoreValue) * 100;
-        scoreChangePercent = rawChange;
-        
-        // Track statistics
-        if (Math.abs(rawChange) > Math.abs(maxChange)) {
-          maxChange = rawChange;
-        }
-        if (Math.abs(rawChange) > 0.01) {
-          scoresWithChanges++;
-        }
+      const newMentions = tickerMentions[ticker];
+      const weight = (weights as Record<string, number>)[ticker] || 0.1;
+      
+      // If no new mentions and we have a current score, keep it
+      if (newMentions.length === 0 && currentScore) {
+        // Just refresh the timestamp to show it's still current
+        await ctx.db.insert("sentiment_scores", {
+          ticker,
+          weight,
+          mention_count: currentScore.mention_count,
+          average_sentiment: currentScore.average_sentiment,
+          total_engagement: currentScore.total_engagement,
+          momentum: currentScore.momentum,
+          calculated_score: currentScore.calculated_score,
+          multiplier: currentScore.multiplier,
+          previous_score: currentScore.calculated_score,
+          score_change_percent: 0,
+          calculated_at: currentTimestamp,
+        });
+        updatedScores.push({ ticker, calculatedScore: currentScore.calculated_score });
+        continue;
       }
 
+      // Calculate new incremental stats from new mentions
+      const newMentionCount = newMentions.length;
+      const newTotalSentiment = newMentions.reduce((sum, p) => sum + p.upvote_ratio, 0);
+      const newTotalEngagement = newMentions.reduce(
+        (sum, p) => sum + (p.score ?? 0) + (p.num_comments ?? 0) * 2,
+        0
+      );
+
+      // Combine with running totals
+      const totalMentionCount = (currentScore?.mention_count ?? 0) + newMentionCount;
+      const totalSentiment = (currentScore ? currentScore.average_sentiment * currentScore.mention_count : 0) + newTotalSentiment;
+      const averageSentiment = totalMentionCount > 0 ? totalSentiment / totalMentionCount : 0.5;
+      const totalEngagement = (currentScore?.total_engagement ?? 0) + newTotalEngagement;
+
+      // Calculate momentum (simplified for incremental updates)
+      const momentum = currentScore?.momentum ?? 0; // Keep previous momentum for now
+
+      // Calculate score with multiplier
+      const baseAllocation = (weight / 100) * TOTAL_POOL;
+      const mentionScore = Math.min(totalMentionCount / 100, 1) * 0.2;
+      const sentimentScore = averageSentiment * 0.4;
+      const engagementScore = Math.min(totalEngagement / 10000, 1) * 0.2;
+      const momentumScore = ((Math.max(-100, Math.min(100, momentum)) + 100) / 200) * 0.2;
+      const multiplier = 0.5 + mentionScore + sentimentScore + engagementScore + momentumScore;
+      const calculatedScore = baseAllocation * multiplier;
+
+      // Calculate change
+      const previousScoreValue = currentScore?.calculated_score;
+      const scoreChangePercent = previousScoreValue
+        ? ((calculatedScore - previousScoreValue) / previousScoreValue) * 100
+        : undefined;
+
+      // Insert new score record
       await ctx.db.insert("sentiment_scores", {
-        ticker: score.ticker,
-        weight: score.weight,
-        mention_count: score.mentionCount,
-        average_sentiment: score.averageSentiment,
-        total_engagement: score.totalEngagement,
-        momentum: score.momentum,
-        calculated_score: score.calculatedScore,
-        multiplier: score.multiplier,
+        ticker,
+        weight,
+        mention_count: totalMentionCount,
+        average_sentiment: averageSentiment,
+        total_engagement: totalEngagement,
+        momentum,
+        calculated_score: calculatedScore,
+        multiplier,
         previous_score: previousScoreValue,
         score_change_percent: scoreChangePercent,
-        calculated_at: score.timestamp,
+        calculated_at: currentTimestamp,
       });
+
+      updatedScores.push({ ticker, calculatedScore });
     }
 
-    console.log(`[Sentiment] Scores with changes: ${scoresWithChanges}/${args.scores.length}`);
-    console.log(`[Sentiment] Max change: ${maxChange.toFixed(2)}%`);
+    // Calculate summary stats
+    const totalScore = updatedScores.reduce((sum, s) => sum + s.calculatedScore, 0);
+    const avgMultiplier = updatedScores.length > 0
+      ? updatedScores.reduce((sum, s) => sum + (s.calculatedScore / totalScore), 0) / updatedScores.length
+      : 0;
+    const topScores = updatedScores
+      .sort((a, b) => b.calculatedScore - a.calculatedScore)
+      .slice(0, 5)
+      .map(s => `${s.ticker}: ${s.calculatedScore.toFixed(2)}`);
 
-    return { success: true, stored: args.scores.length, scoresWithChanges, maxChange };
+    return {
+      tickersUpdated: updatedScores.length,
+      newPostsProcessed: newPosts.length,
+      totalScore,
+      avgMultiplier,
+      topScores,
+    };
   },
 });
+
+

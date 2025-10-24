@@ -7,7 +7,11 @@ import { NewsSummaryCard } from "./_components/NewsSummaryCard";
 import { StockPriceDisplay } from "./_components/StockPriceDisplay";
 import { useTickerContext } from "./_context/TickerContext";
 
-export default function WelcomeTab() {
+interface WelcomeTabProps {
+  isActive?: boolean;
+}
+
+export default function WelcomeTab({ isActive = true }: WelcomeTabProps) {
   const { selectedTicker } = useTickerContext();
 
   return (
@@ -48,7 +52,8 @@ export default function WelcomeTab() {
       <div className="flex-1 min-h-0 relative z-10" />
 
       {/* Ticker content - appears at bottom when ticker is selected, with max height constraint */}
-      {selectedTicker && (
+      {/* Only render when both selectedTicker exists AND tab is active to avoid unnecessary queries */}
+      {isActive && selectedTicker && (
         <div className="flex-shrink-0 p-6 pt-0 space-y-4 max-h-[60vh] flex flex-col relative z-10">
           {/* Stock Price Display - outside the badge container */}
           <div className="flex-shrink-0 w-full max-w-2xl">

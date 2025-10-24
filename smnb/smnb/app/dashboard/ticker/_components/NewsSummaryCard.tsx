@@ -14,6 +14,7 @@ interface NewsSummaryCardProps {
 
 export function NewsSummaryCard({ symbol, weight }: NewsSummaryCardProps) {
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const { hasAttemptedGeneration, markGenerationAttempted } = useTickerContext();
   
   const newsSummary = useQuery(api.stats.finlightNewsCache.getCachedSummary, {
@@ -25,6 +26,7 @@ export function NewsSummaryCard({ symbol, weight }: NewsSummaryCardProps) {
 
   const handleRegenerate = async () => {
     setIsRegenerating(true);
+    setHasTimedOut(false);
     try {
       await generateNews({ ticker: symbol, weight });
     } catch (error) {
@@ -47,7 +49,51 @@ export function NewsSummaryCard({ symbol, weight }: NewsSummaryCardProps) {
     }
   }, [newsSummary, isRegenerating, symbol]);
 
+  // Timeout mechanism: if loading for more than 10 seconds, show error state
+  useEffect(() => {
+    if (!newsSummary && !hasTimedOut) {
+      const timer = setTimeout(() => {
+        if (!newsSummary) {
+          setHasTimedOut(true);
+          setIsRegenerating(false);
+          console.warn(`⏱️ News summary for ${symbol} timed out - likely no recent news available`);
+        }
+      }, 10000); // 10 second timeout
+
+      return () => clearTimeout(timer);
+    }
+  }, [newsSummary, symbol, hasTimedOut]);
+
   if (!newsSummary) {
+    // Show timeout error state
+    if (hasTimedOut) {
+      return (
+        <div className="h-full rounded-xl bg-gradient-to-br from-[#252526] to-[#1e1e1e] border-2 border-[#3d3d3d] shadow-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Newspaper className="w-4 h-4 text-orange-400" />
+              <h4 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">News Summary</h4>
+            </div>
+            <button
+              onClick={handleRegenerate}
+              disabled={isRegenerating}
+              className="p-1.5 rounded-md hover:bg-[#2d2d2d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Retry loading news"
+            >
+              <RefreshCw 
+                className={`w-3.5 h-3.5 text-[#00a67d] ${isRegenerating ? 'animate-spin' : ''}`} 
+              />
+            </button>
+          </div>
+          <div className="flex flex-col items-center justify-center h-32 text-center">
+            <p className="text-sm text-orange-400 mb-2">No recent news available</p>
+            <p className="text-xs text-gray-500">Click refresh to try again later</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Show loading state
     return (
       <div className="h-full rounded-xl bg-gradient-to-br from-[#252526] to-[#1e1e1e] border-2 border-[#3d3d3d] shadow-xl p-4">
         <div className="flex items-center justify-between mb-3">

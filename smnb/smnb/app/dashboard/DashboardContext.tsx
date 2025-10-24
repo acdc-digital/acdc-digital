@@ -22,7 +22,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const handleSetActivePanel = (panel: PanelType) => {
     console.log('🔄 Dashboard Context: Panel changing from', activePanel, 'to', panel);
-    console.log('⚡ All panels pre-loaded - switching instantly');
+    console.log('⚡ Conditional rendering - only active panel mounted');
     setActivePanel(panel);
   };
 

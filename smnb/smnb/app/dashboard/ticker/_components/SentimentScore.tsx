@@ -8,6 +8,7 @@ interface SentimentScoreProps {
   symbol: string;
   weight: number; // Percentage weight in the index (0-100)
   className?: string;
+  isActive?: boolean; // Only query when parent component is active
 }
 
 // Total sentiment pool = 288,878 points to distribute
@@ -15,12 +16,14 @@ interface SentimentScoreProps {
 // Based on 30-day Reddit sentiment analysis (calculated once per day)
 const TOTAL_SENTIMENT_POOL = 288878;
 
-export function SentimentScore({ symbol, weight, className = "" }: SentimentScoreProps) {
+export function SentimentScore({ symbol, weight, className = "", isActive = true }: SentimentScoreProps) {
   // Fetch stored sentiment score from database (updated once per day by cron job)
+  // Only query when component is active to prevent concurrent query overload
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const storedScore = useQuery((api as any)["stats/latestSentiment"].getLatestSentimentScore, { 
-    ticker: symbol,
-  });
+  const storedScore = useQuery(
+    (api as any)["stats/latestSentiment"].getLatestSentimentScore,
+    isActive ? { ticker: symbol } : "skip"
+  );
   
   const calculateSentimentScore = React.useMemo(() => {
     // Use the stored calculated_score from the database

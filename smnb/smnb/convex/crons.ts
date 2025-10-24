@@ -3,7 +3,8 @@ import { internal, api } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Run sentiment score updates every 30 minutes
+// Run INCREMENTAL sentiment score updates every 30 minutes
+// Only processes new posts since last update (running total model)
 crons.interval(
   "update-sentiment-scores",
   { minutes: 30 }, // Run every 30 minutes (6:00, 6:30, 7:00, 7:30, etc.)

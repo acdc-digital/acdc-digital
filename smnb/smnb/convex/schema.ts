@@ -1636,4 +1636,129 @@ export default defineSchema({
     .index("by_period_type", ["period_type", "timestamp"])
     .index("by_sentiment_index", ["sentiment_index"]),
 
+  // 🔥 ENGINE - Real-time Incremental Computation System
+  // Append-only event log for all enrichments and stories
+  enrichment_events: defineTable({
+    at: v.number(), // ms epoch
+    kind: v.union(
+      v.literal("post_enriched"),
+      v.literal("story_created"),
+      v.literal("sentiment_updated"),
+      v.literal("engagement_updated")
+    ),
+    post_id: v.string(),
+    story_id: v.optional(v.string()),
+    session_id: v.string(),
+    subreddit: v.optional(v.string()),
+    entities: v.optional(v.array(v.string())),
+    thread_id: v.optional(v.string()),
+    sentiment: v.optional(v.number()),
+    quality: v.optional(v.number()),
+    categories: v.optional(v.array(v.string())),
+    engagement: v.optional(v.object({
+      upvotes: v.optional(v.number()),
+      comments: v.optional(v.number()),
+      shares: v.optional(v.number()),
+    })),
+    story_themes: v.optional(v.array(v.string())),
+    story_concepts: v.optional(v.array(v.string())),
+    is_cross_post: v.optional(v.boolean()),
+    processed: v.boolean(),
+    applied_at: v.optional(v.number()),
+  })
+    .index("by_at", ["at"])
+    .index("by_processed", ["processed", "at"])
+    .index("by_session", ["session_id", "at"])
+    .index("by_kind", ["kind", "at"]),
+
+  // Pre-aggregated time windows with running totals
+  stat_buckets: defineTable({
+    window: v.union(v.literal("1m"), v.literal("5m"), v.literal("15m"), v.literal("60m")),
+    bucket_start: v.number(),
+    dim_kind: v.union(
+      v.literal("global"),
+      v.literal("subreddit"),
+      v.literal("session"),
+      v.literal("entity"),
+      v.literal("thread")
+    ),
+    dim_value: v.optional(v.string()),
+    dim_hash: v.string(),
+    
+    // Core metrics
+    stories_total: v.number(),
+    stories_aligned: v.number(), // RC: Stories matching theme categories
+    rc_percent: v.number(), // Relevance Consistency
+    
+    unique_concepts: v.array(v.string()), // NI: Unique concepts
+    ni_count: v.number(), // Novelty Index
+    
+    stories_cross_post: v.number(), // TP: Cross-post stories
+    tp_percent: v.number(), // Trend Propagation
+    
+    posts_total: v.number(), // CM: Story yield tracking
+    story_yield: v.number(),
+    story_yield_delta: v.optional(v.number()),
+    cm_percent: v.optional(v.number()), // Conversion Momentum
+    
+    // Supporting aggregates
+    sum_sentiment: v.number(),
+    sum_weighted_sentiment: v.number(),
+    sum_weights: v.number(),
+    sum_engagement: v.number(),
+    variance_helper: v.object({
+      sum_x: v.number(),
+      sum_x2: v.number(),
+      n: v.number(),
+    }),
+    
+    last_updated_at: v.number(),
+    event_count: v.number(),
+    last_event_id: v.optional(v.id("enrichment_events")),
+  })
+    .index("by_window_and_bucket", ["window", "bucket_start", "dim_hash"])
+    .index("by_dim", ["dim_kind", "dim_value", "bucket_start"])
+    .index("by_updated", ["last_updated_at"])
+    .index("by_session_window", ["dim_kind", "dim_value", "window", "bucket_start"]),
+
+  // Track what's been processed (idempotent processing)
+  processing_watermarks: defineTable({
+    processor_id: v.string(),
+    last_processed_at: v.number(),
+    last_event_id: v.optional(v.id("enrichment_events")),
+    processed_count: v.number(),
+    last_run_at: v.number(),
+    status: v.union(v.literal("idle"), v.literal("running"), v.literal("error")),
+    error_message: v.optional(v.string()),
+  })
+    .index("by_processor", ["processor_id"]),
+
+  // Frozen stats when broadcast is OFF
+  stats_snapshots: defineTable({
+    snapshot_id: v.string(),
+    session_id: v.optional(v.string()),
+    created_at: v.number(),
+    metrics: v.object({
+      rc_percent: v.number(),
+      ni_count: v.number(),
+      tp_percent: v.number(),
+      cm_percent: v.number(),
+      story_yield: v.number(),
+    }),
+    by_dimension: v.array(v.object({
+      dim_kind: v.string(),
+      dim_value: v.optional(v.string()),
+      metrics: v.object({
+        rc_percent: v.number(),
+        ni_count: v.number(),
+        tp_percent: v.number(),
+        cm_percent: v.number(),
+        story_yield: v.number(),
+      }),
+    })),
+    is_active: v.boolean(),
+  })
+    .index("by_active", ["is_active", "created_at"])
+    .index("by_session", ["session_id", "created_at"]),
+
 });

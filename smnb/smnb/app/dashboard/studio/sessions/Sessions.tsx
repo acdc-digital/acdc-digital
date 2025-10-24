@@ -26,7 +26,11 @@ import { useBroadcastSync } from "@/lib/hooks/useBroadcastSync";
 import { convertLiveFeedPostToEnhanced } from "../controls/_components/types";
 import { useCachedQuery } from "@/lib/context/CacheContext";
 
-export function Sessions() {
+interface SessionsProps {
+  isActive?: boolean;
+}
+
+export function Sessions({ isActive = true }: SessionsProps) {
   const { user, isLoaded } = useUser(); // Clerk user - fast, client-side only
   const isAuthenticated = isLoaded && !!user; // Simple check
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
@@ -44,20 +48,20 @@ export function Sessions() {
     setIsClientReady(true);
   }, []);
 
-  // Use cached query for instant tab switching
+  // Use cached query for instant tab switching - only when panel is active
   const sessions = useCachedQuery<typeof api.users.sessions.list._returnType>(
     'sessions-list',
     api.users.sessions.list,
-    isAuthenticated ? {} : { skip: true }
+    isActive && isAuthenticated ? {} : "skip"
   );
   const createSession = useMutation(api.users.sessions.create);
   const selectedSession = useQuery(
     api.users.sessions.get,
-    selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
+    isActive && selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
   );
   const sessionStats = useQuery(
     api.users.sessions.getSessionStats,
-    selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
+    isActive && selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
   );
   const startSessionTimer = useMutation(api.users.sessions.startSessionTimer);
   const updateSessionDuration = useMutation(api.users.sessions.updateSessionDuration);

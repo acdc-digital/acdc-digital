@@ -2,97 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { useUser } from "@clerk/nextjs";
-import { SignInButton } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/app/components/ui/button";
-import { Plus, Pencil, Check, X, LogIn, Sparkles } from "lucide-react";
+import { Plus, Pencil, Check, X, Sparkles } from "lucide-react";
 import { Input } from "@/app/components/ui/input";
 import { ManagerSessionList } from "./_components/ManagerSessionList";
 import { ManagerChat } from "./_components/ManagerChat";
-import { useCachedQuery } from "@/lib/context/CacheContext";
+import { useSession } from "../../SessionContext";
 
-export function SessionManager() {
-  const { user, isLoaded } = useUser();
-  const isAuthenticated = isLoaded && !!user;
-  const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
+interface SessionManagerProps {
+  isActive?: boolean;
+}
+
+export function SessionManager({ isActive = true }: SessionManagerProps) {
+  // Use global session context instead of local state
+  const {
+    selectedSessionId,
+    setSelectedSessionId,
+    sessions,
+    createSession: createSessionGlobal,
+  } = useSession();
+
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
 
-  // Use cached query for instant tab switching
-  const sessions = useCachedQuery<typeof api.users.sessions.list._returnType>(
-    'sessions-list',
-    api.users.sessions.list,
-    isAuthenticated ? {} : { skip: true }
-  );
-  const createSession = useMutation(api.users.sessions.create);
   const selectedSession = useQuery(
     api.users.sessions.get,
-    selectedSessionId && isAuthenticated ? { id: selectedSessionId } : "skip"
+    isActive && selectedSessionId ? { id: selectedSessionId } : "skip"
   );
   const updateSession = useMutation(api.users.sessions.update);
-
-  // ========================================================================
-  // SESSION PERSISTENCE - Restore from localStorage on mount
-  // ========================================================================
-  useEffect(() => {
-    if (!isAuthenticated || selectedSessionId) return;
-    
-    try {
-      const persistedSessionId = localStorage.getItem('smnb_session_manager_last_session');
-      if (persistedSessionId) {
-        console.log(`💾 SESSION MANAGER: Restoring persisted session: ${persistedSessionId}`);
-        setSelectedSessionId(persistedSessionId as Id<"sessions">);
-      }
-    } catch (error) {
-      console.error('❌ Failed to restore session from localStorage:', error);
-    }
-  }, [isAuthenticated, selectedSessionId]);
-
-  // ========================================================================
-  // SYNC SELECTED SESSION - Save to localStorage
-  // ========================================================================
-  useEffect(() => {
-    if (!selectedSessionId) return;
-    
-    try {
-      localStorage.setItem('smnb_session_manager_last_session', selectedSessionId);
-    } catch (error) {
-      console.error('❌ Failed to persist session:', error);
-    }
-  }, [selectedSessionId]);
-
-  // Auto-select first session if none selected
-  useEffect(() => {
-    if (sessions && sessions.length > 0 && !selectedSessionId) {
-      console.log(`📺 SESSION MANAGER: Auto-selecting first session: ${sessions[0]._id}`);
-      setSelectedSessionId(sessions[0]._id);
-    }
-  }, [sessions, selectedSessionId]);
-
-  // If the selected session no longer exists, select the first available session
-  useEffect(() => {
-    if (sessions && selectedSessionId) {
-      const sessionExists = sessions.some(session => session._id === selectedSessionId);
-      if (!sessionExists) {
-        console.log(`📺 SESSION MANAGER: Selected session deleted or no longer exists`);
-        
-        try {
-          localStorage.removeItem('smnb_session_manager_last_session');
-        } catch (error) {
-          console.error('❌ Failed to clear invalid session from localStorage:', error);
-        }
-        
-        if (sessions.length > 0) {
-          console.log(`📺 SESSION MANAGER: Switching to first available session: ${sessions[0]._id}`);
-          setSelectedSessionId(sessions[0]._id);
-        } else {
-          setSelectedSessionId(null);
-        }
-      }
-    }
-  }, [sessions, selectedSessionId]);
 
   // Sync edited title when session changes
   useEffect(() => {
@@ -107,7 +46,7 @@ export function SessionManager() {
   };
 
   const handleCreateSession = async () => {
-    const id = await createSession({
+    await createSessionGlobal({
       name: `Session ${new Date().toLocaleString()}`,
       settings: {
         model: "claude-3-5-haiku-20241022",
@@ -119,8 +58,6 @@ export function SessionManager() {
         controlMode: "balanced"
       }
     });
-    
-    setSelectedSessionId(id);
   };
 
   const handleStartEditTitle = () => {
@@ -157,25 +94,7 @@ export function SessionManager() {
 
   return (
     <div className="flex h-full w-full bg-black">
-      {/* Handle unauthenticated state */}
-      {!isAuthenticated ? (
-        <div className="flex h-full w-full items-center justify-center">
-          <div className="text-center max-w-md">
-            <LogIn className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-white mb-2">Sign in to continue</h2>
-            <p className="text-sm text-neutral-400 mb-6">
-              Access your AI chat sessions and manage conversations
-            </p>
-            <SignInButton mode="modal">
-              <Button className="bg-cyan-400 hover:bg-cyan-500 text-black font-medium">
-                Sign in with Clerk
-              </Button>
-            </SignInButton>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Left Sidebar - Session List */}
+      {/* Left Sidebar - Session List */}
           <div className="w-64 bg-[#191919] border-r border-neutral-800 flex flex-col">
             {/* Header */}
             <div className="p-2.5 border-b border-neutral-800">
@@ -269,8 +188,6 @@ export function SessionManager() {
               </div>
             )}
           </div>
-        </>
-      )}
     </div>
   );
 }
