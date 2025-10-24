@@ -3,14 +3,15 @@
 
 "use client";
 
+import { SignInButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Button } from "./components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
-import { 
-  Github, 
-  Zap, 
-  Shield, 
-  BarChart3, 
+import {
+  Github,
+  Zap,
+  Shield,
+  BarChart3,
   Database,
   MessageSquare,
   Play,
@@ -369,10 +370,12 @@ export default function Home() {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-6">
-                <Button size="lg" className="bg-blue-400 text-[#191919] font-bold px-10 py-0 rounded-md shadow-strong text-lg hover:bg-blue-500 transition-colors">
-                  <Play className="mr-3 w-5 h-5" />
-                  Start Watching
-                </Button>
+                <SignInButton mode="modal" forceRedirectUrl="/dashboard">
+                  <Button size="lg" className="bg-blue-400 text-[#191919] font-bold px-10 py-0 rounded-md shadow-strong text-lg hover:bg-blue-500 transition-colors">
+                    <Play className="mr-3 w-5 h-5" />
+                    Start Watching
+                  </Button>
+                </SignInButton>
                 <Button variant="outline" size="lg" className="border-2 border-purple-400/30 text-white bg-[#262626] backdrop-blur-sm px-10 py-4 rounded-xl font-bold text-lg hover:border-purple-400 hover:bg-purple-400/10">
                   <Radio className="mr-3 w-5 h-5" />
                   Meet Your AI Host
@@ -1157,10 +1160,12 @@ export default function Home() {
               transforms social media chaos into coherent, intelligent narratives delivered in real-time.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-blue-400 text-[#0f0f1e] hover:bg-blue-500 font-bold px-6 py-3 text-lg transition-all duration-300">
-                <Play className="mr-2 w-5 h-5" />
-                Start Watching Now
-              </Button>
+              <SignInButton mode="modal" forceRedirectUrl="/dashboard">
+                <Button size="lg" className="bg-blue-400 text-[#0f0f1e] hover:bg-blue-500 font-bold px-6 py-3 text-lg transition-all duration-300">
+                  <Play className="mr-2 w-5 h-5" />
+                  Start Watching Now
+                </Button>
+              </SignInButton>
               <Button variant="outline" size="lg" className="bg-purple-400/5 border border-purple-400/20 text-purple-400 hover:bg-purple-400 hover:text-white font-bold px-6 py-3 text-lg transition-all duration-300">
                 <Radio className="mr-2 w-5 h-5" />
                 View Live Demo

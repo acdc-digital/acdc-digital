@@ -80,12 +80,13 @@ export function useCache() {
  * Usage:
  * ```tsx
  * const sessions = useCachedQuery('sessions', api.users.sessions.list, {});
+ * const conditionalData = useCachedQuery('data', api.getData, shouldFetch ? {} : "skip");
  * ```
  */
 export function useCachedQuery<T>(
   cacheKey: string,
   query: FunctionReference<"query">,
-  args: Record<string, unknown>
+  args: Record<string, unknown> | "skip"
 ): T | undefined {
   const cache = useCache();
   

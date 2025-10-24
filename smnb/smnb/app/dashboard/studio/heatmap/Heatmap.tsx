@@ -23,8 +23,13 @@ interface SubredditData {
   tier: number;
 }
 
-export default function Heatmap() {
-  const data = useQuery(api.stats.subredditStats.getSubredditHeatmapData);
+interface HeatmapProps {
+  isActive?: boolean;
+}
+
+export default function Heatmap({ isActive = true }: HeatmapProps) {
+  // Only run query when panel is active to avoid TooManyConcurrentRequests
+  const data = useQuery(api.stats.subredditStats.getSubredditHeatmapData, isActive ? {} : "skip");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [hoveredSubreddit, setHoveredSubreddit] = useState<SubredditData | null>(null);
   const [viewMode, setViewMode] = useState<"score" | "change">("score");

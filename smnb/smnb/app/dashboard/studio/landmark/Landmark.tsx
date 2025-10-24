@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { SentimentScore } from "@/app/dashboard/ticker/_components/SentimentScore";
 import { Ticker, TickerIcon, TickerSymbol } from "@/app/components/ui/Ticker";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, TrendingUp, TrendingDown } from "lucide-react";
 import { useTickerContext } from "@/app/dashboard/ticker/_context/TickerContext";
 import WelcomeTab from "@/app/dashboard/ticker/WelcomeTab";
 import { useQuery } from "convex/react";
@@ -119,32 +118,45 @@ const nasdaqConstituents: StockWithWeight[] = [
   { symbol: "SIRI", weight: 0.22 },
 ];
 
-// Component to show ticker's performance vs weighted index mean
-function TickerVsIndex({ symbol }: { symbol: string }) {
-  const vsIndexData = useQuery(api.stats.tickerVsIndex.getTickerVsIndexComparison, {
-    ticker: symbol,
-  });
+// Component removed to prevent 100 concurrent queries in list view
+// Ticker vs index data now only shown in the WelcomeTab detail view
 
-  if (!vsIndexData) {
-    return (
-      <span className="text-[10px] text-[#666]">--</span>
-    );
-  }
-
-  return (
-    <span className={`text-[10px] font-mono ${
-      vsIndexData.percentageVsIndex > 0 ? 'text-green-500' : 'text-red-500'
-    }`}>
-      {vsIndexData.percentageVsIndex > 0 ? '+' : ''}
-      {vsIndexData.percentageVsIndex.toFixed(1)}%
-    </span>
-  );
+interface LandmarkProps {
+  isActive?: boolean;
 }
 
-export default function Landmark() {
+export default function Landmark({ isActive = true }: LandmarkProps) {
   const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { selectedTicker, setSelectedTicker } = useTickerContext();
+
+  // SINGLE QUERY for all 100 ticker sentiment scores!
+  // This replaces 100 individual queries and prevents WebSocket overload
+  const allSentimentScores = useQuery(
+    api.stats.sentimentQueries.getAllSentimentScores,
+    isActive ? {} : "skip"
+  );
+
+  // Debug: Log when data loads
+  useEffect(() => {
+    if (allSentimentScores) {
+      console.log('📊 Sentiment scores loaded:', allSentimentScores.length, 'tickers');
+      console.log('📊 Sample score:', allSentimentScores[0]);
+    }
+  }, [allSentimentScores]);
+
+  // Create a map for O(1) lookup
+  const sentimentMap = useMemo(() => {
+    if (!allSentimentScores) return new Map();
+    return new Map(
+      allSentimentScores.map(score => [score.ticker, score])
+    );
+  }, [allSentimentScores]);
+
+  // Helper to get sentiment data for a ticker
+  const getSentimentForTicker = (ticker: string) => {
+    return sentimentMap.get(ticker);
+  };
 
   // Filter tickers based on search query
   const filteredTickers = useMemo(() => {
@@ -157,14 +169,14 @@ export default function Landmark() {
     );
   }, [searchQuery]);
 
-  // Set a random ticker on mount if none selected
+  // Set a random ticker on mount if none selected AND component is active
   useEffect(() => {
-    if (!selectedTicker) {
+    if (isActive && !selectedTicker) {
       const randomIndex = Math.floor(Math.random() * nasdaqConstituents.length);
       const randomTicker = nasdaqConstituents[randomIndex];
       setSelectedTicker({ symbol: randomTicker.symbol, weight: randomTicker.weight });
     }
-  }, []);
+  }, [isActive, selectedTicker, setSelectedTicker]);
 
   return (
     <div className="flex h-full w-full">
@@ -245,34 +257,100 @@ export default function Landmark() {
           {/* Ticker List */}
           <div className="flex-1 overflow-y-auto scrollbar-hide">
             <div className="p-2 space-y-1">
-              {filteredTickers.map((stock) => (
-                <div 
-                  key={stock.symbol}
-                  className="p-1.5 py-1 hover:bg-[#2d2d2d] rounded transition-colors cursor-pointer"
-                  onClick={() => setSelectedTicker({ symbol: stock.symbol, weight: stock.weight })}
-                >
-                  <Ticker>
-                    <TickerIcon
-                      src={`https://raw.githubusercontent.com/nvstly/icons/refs/heads/main/ticker_icons/${stock.symbol}.png`}
-                      symbol={stock.symbol}
-                    />
-                    <div className="flex-1 flex items-center justify-between min-w-0">
-                      <TickerSymbol symbol={stock.symbol} weight={stock.weight} className="flex-shrink-0" />
-                      <div className="flex flex-col items-end gap-0.5 ml-2">
-                        <SentimentScore symbol={stock.symbol} weight={stock.weight} />
-                        <TickerVsIndex symbol={stock.symbol} />
-                      </div>
+              {filteredTickers.map((stock) => {
+                const sentiment = getSentimentForTicker(stock.symbol);
+                
+                // Always show something if we have the data
+                if (!sentiment) {
+                  return (
+                    <div
+                      key={stock.symbol}
+                      className="p-1.5 py-1 hover:bg-[#2d2d2d] rounded transition-colors cursor-pointer"
+                      onClick={() => setSelectedTicker({ symbol: stock.symbol, weight: stock.weight })}
+                    >
+                      <Ticker>
+                        <TickerIcon
+                          src={`https://raw.githubusercontent.com/nvstly/icons/refs/heads/main/ticker_icons/${stock.symbol}.png`}
+                          symbol={stock.symbol}
+                        />
+                        <div className="flex-1 flex items-center justify-between min-w-0 gap-2">
+                          <TickerSymbol symbol={stock.symbol} weight={stock.weight} className="flex-shrink-0" />
+                          {/* Loading state or no data yet */}
+                          <span className="text-[10px] text-gray-600">-</span>
+                        </div>
+                      </Ticker>
                     </div>
-                  </Ticker>
-                </div>
-              ))}
+                  );
+                }
+                
+                // Display sentiment score with color coding and change percent
+                const score = sentiment.sentiment_score;
+                const changePercent = sentiment.change_percent;
+                const multiplier = sentiment.multiplier;
+                
+                // Color sentiment score based on multiplier
+                const getScoreColor = () => {
+                  if (multiplier >= 1.2) return 'text-green-500'; // Strong positive
+                  if (multiplier >= 1.05) return 'text-green-400'; // Positive
+                  if (multiplier <= 0.8) return 'text-red-500'; // Strong negative
+                  if (multiplier <= 0.95) return 'text-orange-400'; // Negative
+                  return 'text-gray-400'; // Neutral
+                };
+                
+                // Arrow for change percent
+                const changeIsPositive = changePercent > 0;
+                const changeIsNegative = changePercent < 0;
+
+                return (
+                  <div
+                    key={stock.symbol}
+                    className="p-1.5 py-1 hover:bg-[#2d2d2d] rounded transition-colors cursor-pointer"
+                    onClick={() => setSelectedTicker({ symbol: stock.symbol, weight: stock.weight })}
+                  >
+                    <Ticker>
+                      <TickerIcon
+                        src={`https://raw.githubusercontent.com/nvstly/icons/refs/heads/main/ticker_icons/${stock.symbol}.png`}
+                        symbol={stock.symbol}
+                      />
+                      <div className="flex-1 flex items-center justify-between min-w-0 gap-2">
+                        <TickerSymbol symbol={stock.symbol} weight={stock.weight} className="flex-shrink-0" />
+                        
+                        {/* Sentiment Score - two line display */}
+                        <div className="flex flex-col items-end flex-shrink-0 gap-0">
+                          {/* Line 1: Sentiment Score (colored) */}
+                          <span className={`text-[11px] font-mono font-semibold ${getScoreColor()}`}>
+                            {score.toFixed(0)}
+                          </span>
+                          
+                          {/* Line 2: Change % with arrow */}
+                          <div className="flex items-center gap-0.5">
+                            {changeIsPositive && (
+                              <TrendingUp className="w-2.5 h-2.5 text-green-400" />
+                            )}
+                            {changeIsNegative && (
+                              <TrendingDown className="w-2.5 h-2.5 text-red-400" />
+                            )}
+                            <span className={`text-[9px] font-mono ${
+                              changeIsPositive ? 'text-green-400' :
+                              changeIsNegative ? 'text-red-400' :
+                              'text-gray-500'
+                            }`}>
+                              {changePercent > 0 ? '+' : ''}{changePercent.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </Ticker>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content Area - Welcome Tab */}
-      <WelcomeTab />
+      <WelcomeTab isActive={isActive} />
     </div>
   );
 }

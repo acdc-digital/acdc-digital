@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { api } from "../_generated/api";
 
 // Add a completed story to history
 export const addStory = mutation({
@@ -51,6 +52,34 @@ export const addStory = mutation({
     const storyId = await ctx.db.insert("story_history", args);
     
     console.log(`✅ Story ${args.story_id} created and linked to session ${args.session_id}`);
+    
+    // 🔥 ENGINE: Emit story_created event
+    try {
+      // Extract concepts from narrative (simple keyword extraction)
+      const concepts = args.narrative
+        .toLowerCase()
+        .match(/\b[a-z]{4,}\b/g) // Words 4+ chars
+        ?.filter((word, index, arr) => arr.indexOf(word) === index) // Unique
+        .slice(0, 20) || []; // Top 20
+      
+      await ctx.runMutation(api.engine.emitEvent.emitStoryCreated, {
+        post_id: args.original_item?.url || args.story_id,
+        story_id: args.story_id,
+        session_id: args.session_id,
+        subreddit: args.original_item?.subreddit,
+        entities: [], // Could extract from metadata if available
+        sentiment: args.sentiment === "positive" ? 0.8 : args.sentiment === "negative" ? -0.8 : 0,
+        quality: 85, // Default quality for Host stories
+        categories: args.topics,
+        story_themes: args.topics || [],
+        story_concepts: concepts,
+        is_cross_post: false, // Could be enhanced based on metadata
+      });
+      console.log(`🔥 ENGINE: Story event emitted for ${args.story_id}`);
+    } catch (error) {
+      console.warn(`⚠️ ENGINE: Failed to emit story event:`, error);
+      // Don't fail the story creation if Engine event fails
+    }
     
     return storyId;
   },

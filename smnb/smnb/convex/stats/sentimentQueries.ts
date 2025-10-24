@@ -6,6 +6,25 @@ import { v } from "convex/values";
  * Aggregates Reddit discussion data to calculate sentiment scores
  */
 
+/**
+ * Get the timestamp of the last processed sentiment update
+ * Used for incremental updates to only process new posts
+ */
+export const getLastProcessedTimestamp = internalQuery({
+  args: {},
+  returns: v.union(v.number(), v.null()),
+  handler: async (ctx) => {
+    // Get the most recent sentiment score across all tickers
+    const latestScore = await ctx.db
+      .query("sentiment_scores")
+      .withIndex("by_calculated_at")
+      .order("desc")
+      .first();
+
+    return latestScore?.calculated_at ?? null;
+  },
+});
+
 // Public query for React components
 export const getPostStatsByTicker = query({
   args: {
@@ -273,5 +292,63 @@ export const getAllTickerStats = query({
     });
 
     return results;
+  },
+});
+
+/**
+ * BULK QUERY: Get all pre-calculated sentiment scores in ONE query
+ * This is the efficient way to get scores for the sidebar - no per-ticker queries!
+ * Scores are updated every 30 minutes by the cron job (see /convex/crons.ts)
+ */
+export const getAllSentimentScores = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      ticker: v.string(),
+      sentiment_score: v.number(),
+      multiplier: v.number(),
+      change_percent: v.number(),
+      mention_count: v.number(),
+      calculated_at: v.number(),
+    })
+  ),
+  handler: async (ctx) => {
+    console.log('[Sentiment Query] Fetching all sentiment scores...');
+    
+    // Get ALL sentiment scores in a SINGLE query
+    // These are pre-calculated by the incremental update system
+    const allScores = await ctx.db
+      .query("sentiment_scores")
+      .collect();
+
+    console.log(`[Sentiment Query] Found ${allScores.length} total score records`);
+
+    // For each ticker, get the most recent score
+    const tickerMap = new Map<string, typeof allScores[0]>();
+    
+    for (const score of allScores) {
+      const existing = tickerMap.get(score.ticker);
+      if (!existing || score.calculated_at > existing.calculated_at) {
+        tickerMap.set(score.ticker, score);
+      }
+    }
+
+    console.log(`[Sentiment Query] Returning scores for ${tickerMap.size} unique tickers`);
+
+    // Convert to array and format for frontend
+    const result = Array.from(tickerMap.values()).map((score) => ({
+      ticker: score.ticker,
+      sentiment_score: score.calculated_score,
+      multiplier: score.multiplier,
+      change_percent: score.score_change_percent ?? 0,
+      mention_count: score.mention_count,
+      calculated_at: score.calculated_at,
+    }));
+
+    if (result.length > 0) {
+      console.log('[Sentiment Query] Sample result:', result[0]);
+    }
+
+    return result;
   },
 });

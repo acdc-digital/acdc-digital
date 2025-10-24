@@ -4,6 +4,8 @@
 'use client';
 
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { ThemeToggle } from "@/app/components/ui/ThemeToggle";
 import TokenCounter from '@/app/components/ui/TokenCounter';
@@ -25,11 +27,13 @@ import { SessionManager } from "./studio/manager/SessionManager";
 import Settings from "./studio/settings/Settings";
 import Users from "./studio/user/Users";
 import Landmark from "./studio/landmark/Landmark";
+import Engine from "./studio/engine/Engine";
 import { useBroadcastOrchestrator } from "@/lib/stores/orchestrator/broadcastOrchestrator";
 // import { BroadcastStateMonitor } from "@/components/debug/BroadcastStateMonitor"; // Commented out for now
 import { startValidationMonitoring } from "@/lib/validation/broadcastStateValidator";
 import { TickerProvider } from "./ticker/_context/TickerContext";
 import { CacheProvider } from "@/lib/context/CacheContext";
+import { SessionProvider } from "./SessionContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -37,13 +41,26 @@ interface DashboardLayoutProps {
 
 function DashboardContent({}: DashboardLayoutProps) {
   const { activePanel, setActivePanel } = useDashboard();
+  const router = useRouter();
+  const { user, isLoaded } = useUser();
+  
+  // Redirect to homepage if not authenticated
+  useEffect(() => {
+    if (isLoaded && !user) {
+      console.log('🔒 DASHBOARD: User not authenticated, redirecting to homepage...');
+      router.push('/');
+    }
+  }, [isLoaded, user, router]);
   
   // Initialize broadcast orchestrator (replaces old individual store initialization)
   // Orchestrator coordinates all stores: host, producer, livefeed, session
   const { initialize } = useBroadcastOrchestrator();
   
   useEffect(() => {
-    console.log('�️ DASHBOARD: Initializing broadcast orchestrator...');
+    // Only initialize if user is authenticated
+    if (!isLoaded || !user) return;
+    
+    console.log('🛠️ DASHBOARD: Initializing broadcast orchestrator...');
     
     // Initialize the orchestrator (handles all services)
     initialize().catch(error => {
@@ -63,7 +80,19 @@ function DashboardContent({}: DashboardLayoutProps) {
         stopValidation();
       }
     };
-  }, [initialize]);
+  }, [initialize, isLoaded, user]);
+  
+  // Show loading state while checking authentication
+  if (!isLoaded || !user) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-black">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-neutral-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen font-sf text-xs overflow-hidden">
@@ -97,53 +126,68 @@ function DashboardContent({}: DashboardLayoutProps) {
           onPanelChange={setActivePanel}
         />
         
-        {/* Panel Content - All panels mounted, visibility controlled by CSS */}
+        {/* Panel Content - Conditional rendering instead of CSS hiding */}
         <div className="flex flex-1 min-w-0 overflow-hidden relative">
-          {/* Sessions Panel (Broadcast) */}
-          <div className={`absolute inset-0 flex ${activePanel === "archive" ? "" : "hidden"}`}>
-            <Sessions />
-          </div>
+          {activePanel === "archive" && (
+            <div className="absolute inset-0 flex">
+              <Sessions isActive={true} />
+            </div>
+          )}
           
-          {/* Session Manager Panel (Chat) */}
-          <div className={`absolute inset-0 flex ${activePanel === "manager" ? "" : "hidden"}`}>
-            <SessionManager />
-          </div>
+          {activePanel === "manager" && (
+            <div className="absolute inset-0 flex">
+              <SessionManager isActive={true} />
+            </div>
+          )}
           
-          {/* Heatmap Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "heatmap" ? "" : "hidden"}`}>
-            <Heatmap />
-          </div>
+          {activePanel === "heatmap" && (
+            <div className="absolute inset-0 flex">
+              <Heatmap isActive={true} />
+            </div>
+          )}
           
-          {/* Spline Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "spline" ? "" : "hidden"}`}>
-            <Spline />
-          </div>
+          {activePanel === "spline" && (
+            <div className="absolute inset-0 flex">
+              <Spline />
+            </div>
+          )}
           
-          {/* Landmark Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "landmark" ? "" : "hidden"}`}>
-            <Landmark />
-          </div>
+          {activePanel === "landmark" && (
+            <div className="absolute inset-0 flex">
+              <Landmark isActive={true} />
+            </div>
+          )}
           
-          {/* Wiki Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "docs" ? "" : "hidden"}`}>
-            <Wiki />
-          </div>
+          {activePanel === "engine" && (
+            <div className="absolute inset-0 flex">
+              <Engine isActive={true} />
+            </div>
+          )}
           
-          {/* Settings Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "settings" ? "" : "hidden"}`}>
-            <Settings />
-          </div>
+          {activePanel === "docs" && (
+            <div className="absolute inset-0 flex">
+              <Wiki />
+            </div>
+          )}
           
-          {/* Users Panel */}
-          <div className={`absolute inset-0 flex ${activePanel === "account" ? "" : "hidden"}`}>
-            <Users />
-          </div>
+          {activePanel === "settings" && (
+            <div className="absolute inset-0 flex">
+              <Settings />
+            </div>
+          )}
           
-          {/* Default Dashboard Content (Feed + Studio) */}
-          <div className={`absolute inset-0 flex ${activePanel === "landmark" || activePanel === "archive" || activePanel === "manager" || activePanel === "heatmap" || activePanel === "spline" || activePanel === "docs" || activePanel === "settings" || activePanel === "account" ? "hidden" : ""}`}>
-            <FeedSidebar />
-            <Studio />
-          </div>
+          {activePanel === "account" && (
+            <div className="absolute inset-0 flex">
+              <Users />
+            </div>
+          )}
+          
+          {activePanel === "home" && (
+            <div className="absolute inset-0 flex">
+              <FeedSidebar />
+              <Studio />
+            </div>
+          )}
         </div>
       </div>
 
@@ -171,11 +215,13 @@ function DashboardContent({}: DashboardLayoutProps) {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <DashboardProvider>
-      <TickerProvider>
-        <CacheProvider>
-          <DashboardContent>{children}</DashboardContent>
-        </CacheProvider>
-      </TickerProvider>
+      <SessionProvider>
+        <TickerProvider>
+          <CacheProvider>
+            <DashboardContent>{children}</DashboardContent>
+          </CacheProvider>
+        </TickerProvider>
+      </SessionProvider>
     </DashboardProvider>
   );
 }

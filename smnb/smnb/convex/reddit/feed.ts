@@ -3,6 +3,7 @@
 
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { api } from "../_generated/api";
 
 // Store live feed posts with additional metadata
 export const storeLiveFeedPosts = mutation({
@@ -59,6 +60,35 @@ export const storeLiveFeedPosts = mutation({
 
     const insertPromises = toInsert.map((post) => ctx.db.insert("live_feed_posts", post));
     const results = await Promise.all(insertPromises);
+
+    // 🔥 ENGINE: Emit post_enriched events for newly inserted posts
+    // We'll emit events in background - don't block the response
+    if (toInsert.length > 0) {
+      // Get session ID from the first post's metadata or use a default
+      const sessionId = "live_feed_session"; // TODO: Extract from metadata when available
+      
+      // Emit events for each new post (fire and forget - don't await)
+      Promise.all(
+        toInsert.map(async (post) => {
+          try {
+            await ctx.runMutation(api.engine.emitEvent.emitPostEnriched, {
+              post_id: post.id,
+              session_id: sessionId,
+              subreddit: post.subreddit,
+              sentiment: 0, // Neutral by default - will be updated later
+              quality: post.score || 0,
+              categories: [post.subreddit || "general"],
+              engagement: {
+                upvotes: post.score,
+                comments: post.num_comments,
+              },
+            });
+          } catch (error) {
+            console.warn(`⚠️ ENGINE: Failed to emit post event for ${post.id}:`, error);
+          }
+        })
+      ).catch(() => {}); // Silently ignore batch failures
+    }
 
     // Return the exact inserted IDs so the client can deterministically know what persisted
     // ctx.db.insert returns the new document id (string) in the Convex runtime.
