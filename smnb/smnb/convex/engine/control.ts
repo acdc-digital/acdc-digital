@@ -33,10 +33,11 @@ export const initializeEngine = action({
     }
 
     // Initialize watermark - cast to bypass type check for initial setup
+    // Start from timestamp 0 to process ALL existing events
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await ctx.runMutation((internal.engine as any).mutations.updateWatermark, {
       processor_id: "event_applier",
-      last_processed_at: Date.now(),
+      last_processed_at: 0, // Process from the beginning
       processed_count: 0,
       // last_event_id is optional and will be set on first event processing
     });
@@ -61,11 +62,51 @@ export const triggerProcessing = action({
     processed: v.number(),
     buckets_updated: v.number(),
     duration_ms: v.number(),
+    last_event_at: v.optional(v.number()),
   }),
-  handler: async (ctx): Promise<{ processed: number; buckets_updated: number; duration_ms: number }> => {
+  handler: async (ctx): Promise<{ processed: number; buckets_updated: number; duration_ms: number; last_event_at?: number }> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = await ctx.runAction((internal.engine as any).applyEvents.applyEvents);
     return result;
+  },
+});
+
+/**
+ * Reset the Engine watermark to reprocess all events
+ * USE WITH CAUTION: This will mark all events as unprocessed
+ */
+export const resetEngine = action({
+  args: {},
+  returns: v.object({
+    success: v.boolean(),
+    message: v.string(),
+    events_reset: v.number(),
+  }),
+  handler: async (ctx) => {
+    // Reset watermark to timestamp 0
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await ctx.runMutation((internal.engine as any).mutations.updateWatermark, {
+      processor_id: "event_applier",
+      last_processed_at: 0,
+      processed_count: 0,
+    });
+
+    // Mark all events as unprocessed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allEvents: any[] = await ctx.runQuery((internal.engine as any).queries.getAllEvents, {});
+    
+    if (allEvents.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await ctx.runMutation((internal.engine as any).mutations.markEventsUnprocessed, {
+        event_ids: allEvents.map((e: any) => e._id),
+      });
+    }
+
+    return {
+      success: true,
+      message: `Engine reset. ${allEvents.length} events marked for reprocessing.`,
+      events_reset: allEvents.length,
+    };
   },
 });
 

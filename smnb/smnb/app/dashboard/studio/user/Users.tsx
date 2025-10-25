@@ -21,7 +21,11 @@ import {
   Globe
 } from "lucide-react";
 
-export default function Users() {
+interface UsersProps {
+  isActive?: boolean;
+}
+
+export default function Users({ isActive = true }: UsersProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const { user: clerkUser } = useUser();
   const [activeSection, setActiveSection] = useState<"profile" | "security" | "activity">("profile");

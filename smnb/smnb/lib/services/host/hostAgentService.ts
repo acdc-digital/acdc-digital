@@ -58,6 +58,9 @@ export class HostAgentService extends EventEmitter {
     POST_NARRATION_DELAY_MS: 1800, // 1.8 seconds pause after completing narration (professional)
   };
   
+  // 🎯 CONTENT GENERATION MODE - Decouple generation from narration
+  private GENERATION_MODE: 'immediate' | 'deferred' = 'deferred'; // 'immediate' = generate & stream, 'deferred' = save to DB only
+  
   private currentSessionId: string | null = null; // Track current session
   private sessionContent: string = ''; // Accumulate session content
   private storyThreadStore: typeof useStoryThreadStore; // Story thread store reference
@@ -126,6 +129,26 @@ export class HostAgentService extends EventEmitter {
   }
 
   // Public API Methods
+  
+  /**
+   * Set generation mode
+   * @param mode - 'immediate' for generate & stream, 'deferred' for save to DB only
+   */
+  public setGenerationMode(mode: 'immediate' | 'deferred'): void {
+    this.GENERATION_MODE = mode;
+    console.log(`🎯 HOST GENERATION MODE: ${mode.toUpperCase()}`);
+    console.log(mode === 'deferred' 
+      ? '💾 Narrations will be generated and saved to DB immediately, queued for streaming later'
+      : '📡 Narrations will be generated and streamed immediately (old behavior)');
+  }
+  
+  /**
+   * Get current generation mode
+   */
+  public getGenerationMode(): 'immediate' | 'deferred' {
+    return this.GENERATION_MODE;
+  }
+  
   public start(sessionId?: string): void {
     console.log('🎙️ HostAgentService.start() called', sessionId ? `with session ID: ${sessionId}` : 'without session ID'); 
     
@@ -292,6 +315,13 @@ export class HostAgentService extends EventEmitter {
         return;
       }
 
+      // 🚫 CONTENT FILTERING: Skip technical and sector rotation articles
+      if (this.shouldSkipArticle(item.title, item.content)) {
+        console.log(`⏭️ Skipping filtered article type: ${item.title.substring(0, 50)}...`);
+        this.state.processedItems.add(item.id); // Mark as processed to avoid reprocessing
+        return;
+      }
+
       // 🎯 DUPLICATE DETECTION: Check for content duplicates using NewsItem data
       const itemTitle = item.title || item.content.substring(0, 100);
       console.log(`🔍 HOST DUPLICATE CHECK: Processing "${itemTitle.substring(0, 50)}..." (Cache size: ${this.processedContentSignatures.size})`);
@@ -315,8 +345,15 @@ export class HostAgentService extends EventEmitter {
       // Add to context window
       this.updateContext(item);
 
-      // Create placeholder narration and start streaming
-      await this.generateStreamingNarration(item);
+      // 🎯 GENERATION MODE: Choose between immediate streaming or deferred
+      if (this.GENERATION_MODE === 'immediate') {
+        // OLD BEHAVIOR: Generate and stream immediately
+        await this.generateStreamingNarration(item);
+      } else {
+        // NEW BEHAVIOR: Generate and save to DB, queue for later narration
+        console.log(`💾 DEFERRED MODE: Generating and saving to DB (no streaming yet)`);
+        await this.generateAndSaveNarration(item);
+      }
       
       this.state.processedItems.add(item.id);
       this.state.stats.itemsProcessed++;
@@ -347,6 +384,14 @@ export class HostAgentService extends EventEmitter {
       if (this.state.processedItems.has(post.id)) {
         console.log(`⏭️ Skipping already processed Reddit post: ${post.id}`);
         throw new Error('Post already processed');
+      }
+
+      // 🚫 CONTENT FILTERING: Skip technical and sector rotation articles
+      const postContent = post.selftext || post.title;
+      if (this.shouldSkipArticle(post.title, postContent)) {
+        console.log(`⏭️ Skipping filtered article type: ${post.title.substring(0, 50)}...`);
+        this.state.processedItems.add(post.id); // Mark as processed to avoid reprocessing
+        throw new Error('Article type filtered out');
       }
 
       // 🎯 HOST-LEVEL DUPLICATE DETECTION: Check for content duplicates BEFORE thread processing
@@ -650,6 +695,85 @@ export class HostAgentService extends EventEmitter {
   }
 
   /**
+   * Generate narration and save to database WITHOUT streaming
+   * This decouples content generation from narration delivery
+   */
+  private async generateAndSaveNarration(item: NewsItem): Promise<string> {
+    try {
+      const narrationId = `narration-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      console.log(`💾 Generating narration for DB storage (no streaming): ${item.title.substring(0, 50)}...`);
+      
+      // Get analysis first
+      const analysis = await this.llmService.analyzeContent(item.content);
+      
+      // Generate full narration (no streaming)
+      const prompt = this.buildPrompt(item);
+      const narrationText = await this.llmService.generate(prompt, {
+        temperature: HOST_PERSONALITIES[this.config.personality].temperature,
+        maxTokens: VERBOSITY_LEVELS[this.config.verbosity].maxTokens,
+        systemPrompt: HOST_PERSONALITIES[this.config.personality].systemPrompt
+      });
+      
+      // Create narration object
+      const narration: HostNarration = {
+        id: narrationId,
+        newsItemId: item.id,
+        narrative: narrationText,
+        tone: this.determineTone(item, analysis),
+        priority: this.determinePriority(item, analysis),
+        timestamp: new Date(),
+        duration: this.estimateReadingTime(narrationText),
+        segments: this.splitIntoSegments(narrationText),
+        metadata: {
+          ...analysis,
+          originalItem: item,
+          session_id: this.currentSessionId
+        }
+      };
+      
+      // Save to database immediately
+      await this.saveNarrationToDatabase(narration, narrationText);
+      
+      console.log(`✅ Narration saved to DB: ${narrationId} (${narrationText.length} chars)`);
+      
+      // Add to queue for later narration (streaming)
+      this.addToQueue(narration);
+      this.emit('queue:updated', this.state.narrationQueue);
+      
+      return narrationId;
+    } catch (error) {
+      console.error('❌ Failed to generate and save narration:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check if article should be skipped from narration
+   * Skips:
+   * - Articles starting with "SECTOR ROTATION:"
+   * - Articles starting with "TECHNICAL:"
+   */
+  private shouldSkipArticle(title: string, content: string): boolean {
+    const titleUpper = title.toUpperCase().trim();
+    const contentUpper = content.toUpperCase().trim();
+    
+    // Check for sector rotation articles
+    if (titleUpper.startsWith('SECTOR ROTATION:') || contentUpper.startsWith('SECTOR ROTATION:')) {
+      console.log(`🚫 SKIPPING SECTOR ROTATION: "${title.substring(0, 60)}..."`);
+      return true;
+    }
+    
+    // Check for technical analysis articles
+    if (titleUpper.startsWith('TECHNICAL:') || contentUpper.startsWith('TECHNICAL:')) {
+      console.log(`🚫 SKIPPING TECHNICAL ANALYSIS: "${title.substring(0, 60)}..."`);
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
    * Convert Reddit post to NewsItem format for existing narration pipeline
    */
   private convertRedditPostToNewsItem(post: EnhancedRedditPost): NewsItem {
@@ -898,6 +1022,58 @@ export class HostAgentService extends EventEmitter {
     }
   }
 
+  /**
+   * Stream a pre-generated narration (from database)
+   * This simulates the streaming effect for narrations that were already generated
+   */
+  private async streamPreGeneratedNarration(narration: HostNarration): Promise<void> {
+    console.log(`📡 Streaming pre-generated narration: ${narration.id} (${narration.narrative.length} chars)`);
+    
+    // Set as current narration
+    this.state.currentNarration = narration;
+    this.state.stats.totalNarrations++;
+    this.emit('narration:started', narration);
+    this.emit('queue:updated', this.state.narrationQueue);
+    
+    // Add pre-narration delay
+    await new Promise(resolve => setTimeout(resolve, this.TIMING_CONFIG.PRE_NARRATION_DELAY_MS));
+    
+    // Simulate character-by-character streaming for smooth UI effect
+    const text = narration.narrative;
+    let streamedText = '';
+    
+    for (let i = 0; i < text.length; i++) {
+      streamedText += text[i];
+      
+      // Emit streaming event every few characters
+      if (i % 5 === 0 || i === text.length - 1) {
+        this.emit('narration:streaming', {
+          narrationId: narration.id,
+          currentText: streamedText
+        });
+      }
+      
+      // Delay between characters for smooth streaming effect
+      await new Promise(resolve => setTimeout(resolve, this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS));
+    }
+    
+    console.log(`✅ Pre-generated narration streamed: ${narration.id}`);
+    
+    // Emit completion
+    this.emit('narration:completed', narration.id, text);
+    
+    // Clear current narration and set cooldown
+    this.lastNarrationCompletedAt = Date.now();
+    this.state.currentNarration = null;
+    
+    // Process next in queue after post-narration delay
+    setTimeout(() => {
+      if (this.state.isActive) {
+        this.processQueue();
+      }
+    }, this.TIMING_CONFIG.POST_NARRATION_DELAY_MS);
+  }
+
   private async generateStreamingNarration(item: NewsItem): Promise<void> {
     try {
       // Create initial narration placeholder
@@ -951,6 +1127,59 @@ export class HostAgentService extends EventEmitter {
       console.error('❌ Error in generateStreamingNarration:', error);
       this.emit('narration:error', item.id, error as Error);
     }
+  }
+
+  /**
+   * Stream a pre-generated narration (from database)
+   * This simulates the streaming effect for narrations that were already generated
+   */
+  private async streamPreGeneratedNarration(narration: HostNarration): Promise<void> {
+    console.log(`📡 Streaming pre-generated narration: ${narration.id}`);
+    
+    // Set as current narration
+    this.state.currentNarration = narration;
+    this.emit('narration:started', narration);
+    
+    // Add pre-narration delay
+    await new Promise(resolve => setTimeout(resolve, this.TIMING_CONFIG.PRE_NARRATION_DELAY_MS));
+    
+    // Simulate character-by-character streaming for smooth UI effect
+    const text = narration.narrative;
+    let streamedText = '';
+    
+    for (let i = 0; i < text.length; i++) {
+      streamedText += text[i];
+      
+      // Emit streaming event every few characters
+      if (i % 5 === 0 || i === text.length - 1) {
+        this.emit('narration:streaming', {
+          narrationId: narration.id,
+          currentText: streamedText
+        });
+      }
+      
+      // Delay between characters for smooth streaming effect
+      await new Promise(resolve => setTimeout(resolve, this.TIMING_CONFIG.CHARACTER_STREAMING_DELAY_MS));
+    }
+    
+    console.log(`✅ Pre-generated narration streamed: ${narration.id}`);
+    
+    // Update stats
+    this.state.stats.totalNarrations++;
+    
+    // Emit completion
+    this.emit('narration:completed', narration.id, text);
+    
+    // Clear current narration and set cooldown
+    this.lastNarrationCompletedAt = Date.now();
+    this.state.currentNarration = null;
+    
+    // Process next in queue after post-narration delay
+    setTimeout(() => {
+      if (this.state.isActive) {
+        this.processQueue();
+      }
+    }, this.TIMING_CONFIG.POST_NARRATION_DELAY_MS);
   }
 
   private async startLiveStreaming(narration: HostNarration, item: NewsItem): Promise<void> {
@@ -1424,34 +1653,56 @@ Focus on: What's new, why it matters, and how it advances the story.
       return;
     }
     
+    // Check cooldown period
+    const timeSinceLastNarration = Date.now() - this.lastNarrationCompletedAt;
+    if (this.lastNarrationCompletedAt > 0 && timeSinceLastNarration < this.TIMING_CONFIG.NARRATION_COOLDOWN_MS) {
+      const remainingCooldown = this.TIMING_CONFIG.NARRATION_COOLDOWN_MS - timeSinceLastNarration;
+      console.log(`⏳ In cooldown period (${remainingCooldown}ms remaining), will retry...`);
+      
+      // Schedule retry after cooldown
+      setTimeout(() => {
+        if (this.state.isActive) {
+          this.processQueue();
+        }
+      }, remainingCooldown + 100); // Add 100ms buffer
+      
+      return;
+    }
+    
     try {
       const queuedNarration = this.state.narrationQueue.shift();
       if (!queuedNarration) return;
       
-      this.state.currentNarration = queuedNarration;
-      this.state.stats.totalNarrations++;
-      
       console.log(`🎬 Starting queued narration: ${queuedNarration.id} for item: ${queuedNarration.metadata?.originalItem?.title?.substring(0, 50) || 'unknown'}...`);
       
-      this.emit('narration:started', queuedNarration);
-      this.emit('queue:updated', this.state.narrationQueue);
-      this.emit('narration:streaming', { narrationId: queuedNarration.id, currentText: '' });
-      
-      // For queued items, we need to generate the narration live via Claude API
-      // Get the original item from metadata
-      const originalItem = queuedNarration.metadata?.originalItem;
-      if (originalItem) {
-        await this.startLiveStreaming(queuedNarration, originalItem);
+      // 🎯 DEFERRED MODE: If narration already has content, just stream it
+      if (queuedNarration.narrative && queuedNarration.narrative.length > 0) {
+        console.log(`📡 Narration already generated (${queuedNarration.narrative.length} chars), streaming from DB...`);
+        await this.streamPreGeneratedNarration(queuedNarration);
       } else {
-        console.error('❌ No original item found in queued narration metadata');
-        this.state.currentNarration = null;
-        setTimeout(() => {
-          if (this.state.isActive) {
-            this.processQueue();
-          } else {
-            console.log('⏸️ Host agent: Skipping queue processing - service is inactive');
-          }
-        }, this.TIMING_CONFIG.QUEUE_RETRY_DELAY_MS);
+        // Narration not yet generated - generate it now (immediate mode)
+        this.state.currentNarration = queuedNarration;
+        this.state.stats.totalNarrations++;
+        
+        this.emit('narration:started', queuedNarration);
+        this.emit('queue:updated', this.state.narrationQueue);
+        this.emit('narration:streaming', { narrationId: queuedNarration.id, currentText: '' });
+        
+        // Get the original item from metadata
+        const originalItem = queuedNarration.metadata?.originalItem;
+        if (originalItem) {
+          await this.startLiveStreaming(queuedNarration, originalItem);
+        } else {
+          console.error('❌ No original item found in queued narration metadata');
+          this.state.currentNarration = null;
+          setTimeout(() => {
+            if (this.state.isActive) {
+              this.processQueue();
+            } else {
+              console.log('⏸️ Host agent: Skipping queue processing - service is inactive');
+            }
+          }, this.TIMING_CONFIG.QUEUE_RETRY_DELAY_MS);
+        }
       }
       
     } catch (error) {

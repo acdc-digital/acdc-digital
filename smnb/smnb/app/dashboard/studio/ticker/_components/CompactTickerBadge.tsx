@@ -1,0 +1,80 @@
+"use client";
+
+import React from "react";
+import { NASDAQ_100_COMPANIES } from "@/lib/services/livefeed/nasdaq100";
+import { SentimentScore } from "./SentimentScore";
+import { TickerVsIndex } from "./TickerVsIndex";
+import { TickerVsNews } from "./TickerVsNews";
+import { TickerIcon } from "@/app/components/ui/Ticker";
+
+interface CompactTickerBadgeProps {
+  symbol: string;
+  weight: number;
+}
+
+export function CompactTickerBadge({ symbol, weight }: CompactTickerBadgeProps) {
+  const companyInfo = NASDAQ_100_COMPANIES[symbol as keyof typeof NASDAQ_100_COMPANIES];
+  const companyName = companyInfo?.name || symbol;
+
+  return (
+    <div className="relative rounded-xl bg-gradient-to-br from-[#252526] to-[#1e1e1e] border-2 border-[#3d3d3d] shadow-xl">
+      <div className="flex items-center gap-4 p-4">
+        {/* Company Icon */}
+        <div className="flex-shrink-0">
+          <div className="w-12 h-12 rounded-lg bg-[#1e1e1e] border border-[#3d3d3d] overflow-hidden flex items-center justify-center p-2">
+            <TickerIcon
+              symbol={symbol}
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+
+        {/* Company Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 mb-1">
+            <h2 className="text-lg font-bold text-[#ffffff] tracking-tight">
+              {companyName}
+            </h2>
+            <span className="text-sm font-mono font-semibold text-[#858585]">
+              {symbol}
+            </span>
+          </div>
+        </div>
+
+        {/* Metrics Grid */}
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[9px] uppercase tracking-wider text-[#666] font-medium">
+              Sentiment Score
+            </span>
+            <div className="text-base font-bold">
+              <SentimentScore symbol={symbol} weight={weight} />
+            </div>
+          </div>
+
+          <div className="h-8 w-px bg-[#3d3d3d]" />
+
+          <TickerVsIndex symbol={symbol} className="gap-0.5" />
+
+          <div className="h-8 w-px bg-[#3d3d3d]" />
+
+          <TickerVsNews symbol={symbol} className="gap-0.5" />
+
+          <div className="h-8 w-px bg-[#3d3d3d]" />
+
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[9px] uppercase tracking-wider text-[#666] font-medium">
+              Index Weight
+            </span>
+            <div className="text-base font-mono font-bold text-[#cccccc]">
+              {weight.toFixed(2)}%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#007acc]/5 to-transparent pointer-events-none" />
+    </div>
+  );
+}

@@ -7,7 +7,11 @@ import React from "react";
 import { LeftChart } from "./_components/LeftChart";
 import { RightChart } from "./_components/RightChart";
 
-export default function Spline() {
+interface SplineProps {
+  isActive?: boolean;
+}
+
+export default function Spline({ isActive = true }: SplineProps) {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       {/* Content */}

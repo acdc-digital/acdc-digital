@@ -148,6 +148,8 @@ interface HostAgentState {
   
   // Configuration Actions
   updateConfig: (newConfig: Partial<HostAgentConfig>) => void;
+  setGenerationMode: (mode: 'immediate' | 'deferred') => void;
+  getGenerationMode: () => 'immediate' | 'deferred' | null;
   
   // Streaming actions
   addToQueue: () => void;
@@ -377,6 +379,31 @@ export const useHostAgentStore = create<HostAgentState>((set, get) => ({
     }
     
     console.log('⚙️ Host configuration updated:', newConfig);
+  },
+  
+  // Set generation mode (deferred = save to DB first, immediate = stream right away)
+  setGenerationMode: (mode: 'immediate' | 'deferred') => {
+    const { hostAgent } = get();
+    
+    if (!hostAgent) {
+      console.warn('⚠️ Host agent not initialized, cannot set generation mode');
+      return;
+    }
+    
+    hostAgent.setGenerationMode(mode);
+    console.log(`🎯 Generation mode set to: ${mode}`);
+  },
+  
+  // Get current generation mode
+  getGenerationMode: () => {
+    const { hostAgent } = get();
+    
+    if (!hostAgent) {
+      console.warn('⚠️ Host agent not initialized');
+      return null;
+    }
+    
+    return hostAgent.getGenerationMode();
   },
   
   // Process a live feed post through the host agent

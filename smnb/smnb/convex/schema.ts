@@ -1311,6 +1311,32 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_key", ["key"]),
 
+  // Calendar Events - Studio calendar scheduling
+  calendar_events: defineTable({
+    title: v.string(),
+    description: v.optional(v.string()),
+    startTime: v.number(), // Unix timestamp
+    endTime: v.number(), // Unix timestamp
+    color: v.string(), // Hex color for event display
+    allDay: v.boolean(), // Whether event spans entire day
+    location: v.optional(v.string()),
+    attendees: v.optional(v.array(v.string())),
+    // Event categorization for filtering
+    eventType: v.optional(v.union(
+      v.literal("earnings"),
+      v.literal("sec_report"),
+      v.literal("treasury_report"),
+      v.literal("fed_report"),
+      v.literal("economic_data"),
+      v.literal("user_event")
+    )),
+    sourceUrl: v.optional(v.string()), // Link to original report/source
+    metadata: v.optional(v.string()), // JSON blob for extra data
+  })
+    .index("by_startTime", ["startTime"])
+    .index("by_endTime", ["endTime"])
+    .index("by_eventType", ["eventType", "startTime"]),
+
   // User Management
   users: defineTable({
     name: v.string(),
@@ -1700,7 +1726,7 @@ export default defineSchema({
     story_yield: v.number(),
     story_yield_delta: v.optional(v.number()),
     cm_percent: v.optional(v.number()), // Conversion Momentum
-    
+
     // Supporting aggregates
     sum_sentiment: v.number(),
     sum_weighted_sentiment: v.number(),
@@ -1711,7 +1737,7 @@ export default defineSchema({
       sum_x2: v.number(),
       n: v.number(),
     }),
-    
+
     last_updated_at: v.number(),
     event_count: v.number(),
     last_event_id: v.optional(v.id("enrichment_events")),

@@ -29,7 +29,7 @@ export const updateAllSentimentScores = internalAction({
       console.log("[Sentiment] Initial mode: Processing all historical posts (this will take longer)");
     }
 
-    // Nasdaq-100 tickers
+    // Nasdaq-100 tickers (as of May 2025)
     const tickers = [
       "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "GOOG", "TSLA", "AVGO", "COST",
       "NFLX", "ADBE", "PEP", "CSCO", "CMCSA", "TMUS", "INTC", "AMD", "INTU", "QCOM",
@@ -38,25 +38,26 @@ export const updateAllSentimentScores = internalAction({
       "MRVL", "ASML", "NXPI", "ORLY", "CSX", "ABNB", "CTAS", "ADSK", "CHTR", "MNST",
       "PCAR", "AEP", "PAYX", "ROST", "FAST", "ODFL", "KDP", "EA", "VRSK", "DXCM",
       "CTSH", "EXC", "KHC", "GEHC", "TEAM", "CSGP", "LULU", "IDXX", "ANSS", "DDOG",
-      "XEL", "BKR", "MCHP", "WBD", "ON", "FANG", "BIIB", "CCEP", "CDW", "ILMN",
-      "GFS", "MRNA", "CRWD", "MDB", "WBA", "FTNT", "ZS", "DASH", "WDAY", "TTWO",
-      "TTD", "ZM", "PDD", "CPRT", "DLTR", "ENPH", "SGEN", "ALGN", "SIRI", "SMCI"
+      "XEL", "BKR", "MCHP", "WBD", "ON", "FANG", "BIIB", "CCEP", "CDW", "GFS",
+      "MRNA", "CRWD", "MDB", "FTNT", "ZS", "DASH", "WDAY", "TTWO", "TTD", "PDD",
+      "CPRT", "CEG", "MAR", "AXON", "ROP", "SHOP", "PLTR", "APP", "ARM", "TRI",
+      "AZN", "MSTR", "MELI", "LIN"
     ];
 
     const weights = {
-      AAPL: 9.0, MSFT: 8.5, AMZN: 3.8, NVDA: 7.5, GOOGL: 3.2, GOOG: 3.0, META: 2.8, TSLA: 2.5,
-      AVGO: 2.3, COST: 1.8, NFLX: 1.7, ADBE: 1.5, PEP: 1.4, CSCO: 1.3, CMCSA: 1.2, TMUS: 1.2,
-      INTC: 1.1, AMD: 1.1, INTU: 1.0, QCOM: 1.0, AMGN: 0.9, HON: 0.9, TXN: 0.9, SBUX: 0.8,
-      AMAT: 0.8, ISRG: 0.8, BKNG: 0.8, MDLZ: 0.7, ADP: 0.7, GILD: 0.7, VRTX: 0.7, REGN: 0.7,
-      ADI: 0.6, LRCX: 0.6, PANW: 0.6, PYPL: 0.6, MU: 0.6, KLAC: 0.6, SNPS: 0.6, CDNS: 0.5,
-      MRVL: 0.5, ASML: 0.5, NXPI: 0.5, ORLY: 0.5, CSX: 0.5, ABNB: 0.5, CTAS: 0.5, ADSK: 0.5,
-      CHTR: 0.4, MNST: 0.4, PCAR: 0.4, AEP: 0.4, PAYX: 0.4, ROST: 0.4, FAST: 0.4, ODFL: 0.4,
-      KDP: 0.4, EA: 0.4, VRSK: 0.3, DXCM: 0.3, CTSH: 0.3, EXC: 0.3, KHC: 0.3, GEHC: 0.3,
-      TEAM: 0.3, CSGP: 0.3, LULU: 0.3, IDXX: 0.3, ANSS: 0.3, DDOG: 0.3, XEL: 0.2, BKR: 0.2,
-      MCHP: 0.2, WBD: 0.2, ON: 0.2, FANG: 0.2, BIIB: 0.2, CCEP: 0.2, CDW: 0.2, ILMN: 0.2,
-      GFS: 0.2, MRNA: 0.2, CRWD: 0.2, MDB: 0.2, WBA: 0.2, FTNT: 0.2, ZS: 0.2, DASH: 0.2,
-      WDAY: 0.2, TTWO: 0.2, TTD: 0.2, ZM: 0.2, PDD: 0.2, CPRT: 0.2, DLTR: 0.2, ENPH: 0.2,
-      SGEN: 0.2, ALGN: 0.2, SIRI: 0.1, SMCI: 0.2
+      AAPL: 10.63, MSFT: 8.79, NVDA: 8.45, AMZN: 5.54, META: 4.89, AVGO: 4.76, GOOGL: 2.67, GOOG: 2.59, 
+      TSLA: 2.51, COST: 2.49, NFLX: 2.34, AMD: 1.48, PEP: 1.43, TMUS: 1.41, ADBE: 1.41, CSCO: 1.39, 
+      LIN: 1.34, QCOM: 1.26, CMCSA: 1.18, INTU: 1.13, TXN: 1.11, AMGN: 1.06, INTC: 1.04, AMAT: 1.02, 
+      HON: 0.99, ISRG: 0.97, BKNG: 0.94, VRTX: 0.93, ADP: 0.91, PANW: 0.88, SBUX: 0.86, GILD: 0.84, 
+      MU: 0.83, ADI: 0.82, REGN: 0.79, LRCX: 0.77, MDLZ: 0.76, KLAC: 0.74, SNPS: 0.73, PYPL: 0.71, 
+      CDNS: 0.70, ASML: 0.69, MRVL: 0.68, CRWD: 0.66, ABNB: 0.66, NXPI: 0.65, ORLY: 0.65, CTAS: 0.64, 
+      ADSK: 0.63, CSX: 0.62, WDAY: 0.60, PCAR: 0.59, CHTR: 0.58, MNST: 0.58, AEP: 0.57, PAYX: 0.56, 
+      ROST: 0.55, LULU: 0.54, ODFL: 0.54, FAST: 0.53, KDP: 0.52, DXCM: 0.52, CTSH: 0.51, EA: 0.50, 
+      GEHC: 0.49, VRSK: 0.49, EXC: 0.48, IDXX: 0.48, KHC: 0.47, TEAM: 0.46, CSGP: 0.45, TTWO: 0.44, 
+      ANSS: 0.44, DDOG: 0.43, ZS: 0.43, ON: 0.42, BIIB: 0.41, XEL: 0.41, BKR: 0.40, MCHP: 0.39, 
+      FANG: 0.39, WBD: 0.38, FTNT: 0.38, CDW: 0.37, CCEP: 0.36, MDB: 0.35, GFS: 0.34, DASH: 0.33, 
+      MRNA: 0.32, TTD: 0.30, PDD: 0.28, CPRT: 0.27, CEG: 0.26, MAR: 0.25, AXON: 0.24, ROP: 0.23, 
+      SHOP: 0.22, PLTR: 0.21, APP: 0.20, ARM: 0.19, TRI: 0.18, AZN: 0.17, MSTR: 0.16, MELI: 0.15
     } as const;
 
     try {

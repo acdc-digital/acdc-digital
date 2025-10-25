@@ -172,6 +172,28 @@ export const markEventsProcessed = internalMutation({
 });
 
 /**
+ * Mark events as unprocessed (for resetting)
+ */
+export const markEventsUnprocessed = internalMutation({
+  args: {
+    event_ids: v.array(v.id("enrichment_events")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await Promise.all(
+      args.event_ids.map(id =>
+        ctx.db.patch(id, {
+          processed: false,
+          applied_at: undefined,
+        })
+      )
+    );
+
+    return null;
+  },
+});
+
+/**
  * Update processing watermark
  */
 export const updateWatermark = internalMutation({

@@ -17,7 +17,11 @@ import {
   Monitor
 } from "lucide-react";
 
-export default function Settings() {
+interface SettingsProps {
+  isActive?: boolean;
+}
+
+export default function Settings({ isActive = true }: SettingsProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
