@@ -327,17 +327,12 @@ export function Sessions({ isActive = true }: SessionsProps) {
       return;
     }
 
-    console.log(`📮 SESSIONS: Auto-feed check - ${sessionPosts.length} session posts available`);
-
     // Filter out posts we've already processed
     const newPosts = sessionPosts.filter(post => !processedPostIds.has(post.id));
     
     if (newPosts.length === 0) {
-      console.log('📮 SESSIONS: No new posts to process');
       return;
     }
-
-    console.log(`📮 SESSIONS: Found ${newPosts.length} new posts to feed to host`);
 
     // Process up to 3 posts at a time with delays
     const postsToProcess = newPosts.slice(0, 3);

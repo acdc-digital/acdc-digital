@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Ticker, TickerIcon, TickerSymbol } from "@/app/components/ui/Ticker";
 import { ChevronDown, Search, TrendingUp, TrendingDown } from "lucide-react";
-import { useTickerContext } from "@/app/dashboard/ticker/_context/TickerContext";
-import WelcomeTab from "@/app/dashboard/ticker/WelcomeTab";
+import { useTickerContext } from "../ticker/_context/TickerContext";
+import WelcomeTab from "../ticker/WelcomeTab";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -14,7 +14,7 @@ interface StockWithWeight {
   weight: number;
 }
 
-// Nasdaq-100 constituents (top holdings) with current index weights (as of Oct 2025)
+// Nasdaq-100 constituents (top holdings) with current index weights (as of May 2025)
 const nasdaqConstituents: StockWithWeight[] = [
   { symbol: "AAPL", weight: 10.63 },
   { symbol: "MSFT", weight: 8.79 },
@@ -101,21 +101,25 @@ const nasdaqConstituents: StockWithWeight[] = [
   { symbol: "FTNT", weight: 0.38 },
   { symbol: "CDW", weight: 0.37 },
   { symbol: "CCEP", weight: 0.36 },
-  { symbol: "ILMN", weight: 0.36 },
   { symbol: "MDB", weight: 0.35 },
   { symbol: "GFS", weight: 0.34 },
   { symbol: "DASH", weight: 0.33 },
   { symbol: "MRNA", weight: 0.32 },
-  { symbol: "WBA", weight: 0.31 },
   { symbol: "TTD", weight: 0.30 },
-  { symbol: "ZM", weight: 0.29 },
   { symbol: "PDD", weight: 0.28 },
   { symbol: "CPRT", weight: 0.27 },
-  { symbol: "DLTR", weight: 0.26 },
-  { symbol: "ENPH", weight: 0.25 },
-  { symbol: "SGEN", weight: 0.24 },
-  { symbol: "ALGN", weight: 0.23 },
-  { symbol: "SIRI", weight: 0.22 },
+  { symbol: "CEG", weight: 0.26 },
+  { symbol: "MAR", weight: 0.25 },
+  { symbol: "AXON", weight: 0.24 },
+  { symbol: "ROP", weight: 0.23 },
+  { symbol: "SHOP", weight: 0.22 },
+  { symbol: "PLTR", weight: 0.21 },
+  { symbol: "APP", weight: 0.20 },
+  { symbol: "ARM", weight: 0.19 },
+  { symbol: "TRI", weight: 0.18 },
+  { symbol: "AZN", weight: 0.17 },
+  { symbol: "MSTR", weight: 0.16 },
+  { symbol: "MELI", weight: 0.15 },
 ];
 
 // Component removed to prevent 100 concurrent queries in list view
@@ -270,7 +274,6 @@ export default function Landmark({ isActive = true }: LandmarkProps) {
                     >
                       <Ticker>
                         <TickerIcon
-                          src={`https://raw.githubusercontent.com/nvstly/icons/refs/heads/main/ticker_icons/${stock.symbol}.png`}
                           symbol={stock.symbol}
                         />
                         <div className="flex-1 flex items-center justify-between min-w-0 gap-2">
@@ -309,7 +312,6 @@ export default function Landmark({ isActive = true }: LandmarkProps) {
                   >
                     <Ticker>
                       <TickerIcon
-                        src={`https://raw.githubusercontent.com/nvstly/icons/refs/heads/main/ticker_icons/${stock.symbol}.png`}
                         symbol={stock.symbol}
                       />
                       <div className="flex-1 flex items-center justify-between min-w-0 gap-2">

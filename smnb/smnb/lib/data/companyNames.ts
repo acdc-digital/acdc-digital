@@ -1,0 +1,120 @@
+// NASDAQ-100 Company Names Mapping
+// Maps ticker symbols to full company names
+
+export const COMPANY_NAMES: Record<string, string> = {
+  // Mega-Cap Leaders ($500B+)
+  AAPL: "Apple Inc.",
+  MSFT: "Microsoft Corporation",
+  NVDA: "NVIDIA Corporation",
+  AMZN: "Amazon.com Inc.",
+  GOOGL: "Alphabet Inc. (Class A)",
+  GOOG: "Alphabet Inc. (Class C)",
+  META: "Meta Platforms Inc.",
+  TSLA: "Tesla Inc.",
+  
+  // Large-Cap Tech ($100B - $500B)
+  AVGO: "Broadcom Inc.",
+  COST: "Costco Wholesale",
+  NFLX: "Netflix Inc.",
+  TMUS: "T-Mobile US Inc.",
+  ADBE: "Adobe Inc.",
+  PEP: "PepsiCo Inc.",
+  CSCO: "Cisco Systems",
+  INTC: "Intel Corporation",
+  CMCSA: "Comcast Corporation",
+  AMD: "Advanced Micro Devices",
+  QCOM: "Qualcomm Inc.",
+  INTU: "Intuit Inc.",
+  
+  // Large-Cap Innovation ($50B - $100B)
+  AMAT: "Applied Materials",
+  HON: "Honeywell International",
+  BKNG: "Booking Holdings",
+  GILD: "Gilead Sciences",
+  AMGN: "Amgen Inc.",
+  SBUX: "Starbucks Corporation",
+  VRTX: "Vertex Pharmaceuticals",
+  ADP: "Automatic Data Processing",
+  ISRG: "Intuitive Surgical",
+  REGN: "Regeneron Pharmaceuticals",
+  ADI: "Analog Devices",
+  LRCX: "Lam Research",
+  PANW: "Palo Alto Networks",
+  MDLZ: "Mondelez International",
+  KLAC: "KLA Corporation",
+  SNPS: "Synopsys Inc.",
+  CDNS: "Cadence Design Systems",
+  MELI: "MercadoLibre",
+  ABNB: "Airbnb Inc.",
+  CSX: "CSX Corporation",
+  
+  // Mid-Cap Technology & Healthcare ($25B - $50B)
+  MRNA: "Moderna Inc.",
+  PYPL: "PayPal Holdings",
+  ORLY: "O'Reilly Automotive",
+  CHTR: "Charter Communications",
+  NXPI: "NXP Semiconductors",
+  MRVL: "Marvell Technology",
+  PCAR: "PACCAR Inc.",
+  CTAS: "Cintas Corporation",
+  MNST: "Monster Beverage",
+  FTNT: "Fortinet Inc.",
+  WDAY: "Workday Inc.",
+  PAYX: "Paychex Inc.",
+  DXCM: "DexCom Inc.",
+  AEP: "American Electric Power",
+  IDXX: "IDEXX Laboratories",
+  ODFL: "Old Dominion Freight Line",
+  ON: "ON Semiconductor",
+  ROST: "Ross Stores",
+  EA: "Electronic Arts",
+  FAST: "Fastenal Company",
+  CPRT: "Copart Inc.",
+  CTSH: "Cognizant Technology Solutions",
+  VRSK: "Verisk Analytics",
+  BKR: "Baker Hughes",
+  GEHC: "GE HealthCare Technologies",
+  DDOG: "Datadog Inc.",
+  EXC: "Exelon Corporation",
+  XEL: "Xcel Energy",
+  TEAM: "Atlassian Corporation",
+  ZS: "Zscaler Inc.",
+  BIIB: "Biogen Inc.",
+  ANSS: "ANSYS Inc.",
+  ILMN: "Illumina Inc.",
+  CRWD: "CrowdStrike Holdings",
+  CSGP: "CoStar Group",
+  WBD: "Warner Bros. Discovery",
+  WBA: "Walgreens Boots Alliance",
+  LULU: "Lululemon Athletica",
+  ALGN: "Align Technology",
+  MCHP: "Microchip Technology",
+  MDB: "MongoDB Inc.",
+  DASH: "DoorDash Inc.",
+  ADSK: "Autodesk Inc.",
+  MAR: "Marriott International",
+  TTD: "The Trade Desk",
+  APP: "AppLovin Corporation",
+  ROP: "Roper Technologies",
+  NTES: "NetEase Inc.",
+  FANG: "Diamondback Energy",
+  CCEP: "Coca-Cola Europacific Partners",
+  TTWO: "Take-Two Interactive",
+  CDW: "CDW Corporation",
+  PDD: "PDD Holdings",
+  GFS: "GlobalFoundries Inc.",
+  DLTR: "Dollar Tree",
+  ZM: "Zoom Video Communications",
+  SMCI: "Super Micro Computer",
+};
+
+// Helper function to get company name
+export function getCompanyName(ticker: string): string | null {
+  return COMPANY_NAMES[ticker.toUpperCase()] || null;
+}
+
+// Helper function to convert ticker to wiki anchor ID
+// Converts ticker symbol to the format used in the wiki page anchors
+export function getWikiAnchor(ticker: string): string {
+  return ticker.toLowerCase();
+}

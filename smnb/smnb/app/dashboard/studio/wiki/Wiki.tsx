@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import WikiSidebar from './_components/WikiSidebar';
 import MarkdownEditor from './_components/MarkdownEditor';
 import { nasdaqTop100Content } from './_content/nasdaqTop100Content';
@@ -18,8 +18,59 @@ import MetricScoringChart from './_charts/MetricScoringChart';
 import SessionWorkflowChart from './_charts/SessionWorkflowChart';
 import AgentProfileChart from './_charts/AgentProfileChart';
 
-export default function Wiki() {
+interface WikiProps {
+  isActive?: boolean;
+}
+
+export default function Wiki({ isActive = true }: WikiProps) {
   const [activeSection, setActiveSection] = useState('getting-started');
+
+  // Listen for company navigation events from ticker components
+  useEffect(() => {
+    const handleNavigateToCompany = (event: Event) => {
+      const customEvent = event as CustomEvent<{ ticker: string }>;
+      const ticker = customEvent.detail.ticker;
+      
+      console.log(`📋 Wiki received navigateToCompany event for: ${ticker}`);
+      
+      // Switch to nasdaq-100 section
+      console.log(`📂 Switching to nasdaq-100 section`);
+      setActiveSection('nasdaq-100');
+      
+      // After a delay to allow content to render, try to scroll to the ticker
+      setTimeout(() => {
+        console.log(`🔍 Looking for element with id: ${ticker}`);
+        
+        // Try multiple selectors
+        let element = document.getElementById(ticker);
+        
+        if (!element) {
+          // Try searching for ticker in bold text
+          const boldElements = document.querySelectorAll('strong');
+          for (const el of boldElements) {
+            if (el.textContent?.toUpperCase() === ticker.toUpperCase()) {
+              element = el.closest('tr') || el.parentElement;
+              console.log(`✅ Found ticker in table cell`);
+              break;
+            }
+          }
+        }
+        
+        if (element) {
+          console.log(`✅ Found element, scrolling...`);
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          console.warn(`⚠️ Could not find element for ticker: ${ticker}`);
+        }
+      }, 300);
+    };
+
+    window.addEventListener('navigateToCompany', handleNavigateToCompany);
+    
+    return () => {
+      window.removeEventListener('navigateToCompany', handleNavigateToCompany);
+    };
+  }, []);
 
   const renderContent = () => {
     // Show the selected section content

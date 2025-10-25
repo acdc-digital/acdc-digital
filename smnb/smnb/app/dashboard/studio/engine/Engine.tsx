@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { DatabaseZap, Activity, TrendingUp, Zap, Clock, Play } from "lucide-react";
+import { DatabaseZap, Activity, TrendingUp, Zap, Clock, Play, RotateCcw } from "lucide-react";
 
 interface EngineProps {
   isActive?: boolean;
@@ -15,6 +15,10 @@ interface EngineProps {
 export default function Engine({ isActive = true }: EngineProps) {
   const [isInitializing, setIsInitializing] = useState(false);
   const [initResult, setInitResult] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processResult, setProcessResult] = useState<string | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetResult, setResetResult] = useState<string | null>(null);
   
   // Only run queries when this panel is active to avoid TooManyConcurrentRequests
   const health = useQuery(api.engine.queries.getEngineHealth, isActive ? {} : "skip");
@@ -25,6 +29,8 @@ export default function Engine({ isActive = true }: EngineProps) {
   } : "skip");
   
   const setupEngine = useAction(api.engine.setup.setupEngine);
+  const triggerProcessing = useAction(api.engine.control.triggerProcessing);
+  const resetEngine = useAction(api.engine.control.resetEngine);
   
   const handleInitialize = async () => {
     setIsInitializing(true);
@@ -36,6 +42,38 @@ export default function Engine({ isActive = true }: EngineProps) {
       setInitResult(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsInitializing(false);
+    }
+  };
+
+  const handleForceProcess = async () => {
+    setIsProcessing(true);
+    setProcessResult(null);
+    try {
+      const result = await triggerProcessing({});
+      setProcessResult(
+        `✅ Processed ${result.processed} events, updated ${result.buckets_updated} buckets in ${result.duration_ms}ms`
+      );
+    } catch (error) {
+      setProcessResult(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleReset = async () => {
+    if (!confirm('⚠️ This will reset the Engine and reprocess all events. Continue?')) {
+      return;
+    }
+    
+    setIsResetting(true);
+    setResetResult(null);
+    try {
+      const result = await resetEngine({});
+      setResetResult(`✅ ${result.message}`);
+    } catch (error) {
+      setResetResult(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -86,13 +124,21 @@ export default function Engine({ isActive = true }: EngineProps) {
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
               <div className="text-[#858585] mb-1">Processing Lag</div>
-              <div className="text-[#cccccc] font-semibold">
+              <div className={`font-semibold ${
+                health?.lag_ms !== undefined && health.lag_ms > 10000 
+                  ? 'text-yellow-400' 
+                  : 'text-[#cccccc]'
+              }`}>
                 {health?.lag_ms !== undefined ? `${health.lag_ms}ms` : '—'}
               </div>
             </div>
             <div>
               <div className="text-[#858585] mb-1">Events Pending</div>
-              <div className="text-[#cccccc] font-semibold">
+              <div className={`font-semibold ${
+                health?.events_pending !== undefined && health.events_pending > 100 
+                  ? 'text-yellow-400' 
+                  : 'text-[#cccccc]'
+              }`}>
                 {health?.events_pending !== undefined ? health.events_pending : '—'}
               </div>
             </div>
@@ -107,6 +153,47 @@ export default function Engine({ isActive = true }: EngineProps) {
               </div>
             </div>
           </div>
+          
+          {/* Action buttons for processing */}
+          {health && health.status === 'healthy' && health.events_pending > 0 && (
+            <div className="mt-4 flex gap-2 flex-wrap items-center">
+              <button
+                onClick={handleForceProcess}
+                disabled={isProcessing}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-900 disabled:cursor-not-allowed text-white text-sm rounded flex items-center gap-2 transition-colors"
+              >
+                <Play className="w-3 h-3" />
+                {isProcessing ? 'Processing...' : `Process ${health.events_pending} Events`}
+              </button>
+              <button
+                onClick={handleReset}
+                disabled={isResetting}
+                className="px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-900 disabled:cursor-not-allowed text-white text-sm rounded flex items-center gap-2 transition-colors"
+                title="Reset Engine and reprocess all events from scratch"
+              >
+                <RotateCcw className="w-3 h-3" />
+                {isResetting ? 'Resetting...' : 'Reset Engine'}
+              </button>
+              {processResult && (
+                <div className={`px-3 py-1.5 rounded text-xs flex items-center ${
+                  processResult.startsWith('✅') 
+                    ? 'bg-green-950/30 text-green-400 border border-green-700/50' 
+                    : 'bg-red-950/30 text-red-400 border border-red-700/50'
+                }`}>
+                  {processResult}
+                </div>
+              )}
+              {resetResult && (
+                <div className={`px-3 py-1.5 rounded text-xs flex items-center ${
+                  resetResult.startsWith('✅') 
+                    ? 'bg-green-950/30 text-green-400 border border-green-700/50' 
+                    : 'bg-red-950/30 text-red-400 border border-red-700/50'
+                }`}>
+                  {resetResult}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Core Metrics Grid */}
@@ -210,23 +297,37 @@ export default function Engine({ isActive = true }: EngineProps) {
           </div>
         )}
 
-        {/* Initialization Required State */}
-        {health?.status === 'error' && health?.error_message === 'Event applier not initialized' && (
+        {/* Initialization Required State OR Engine Error */}
+        {health?.status === 'error' && (
           <div className="mt-6 p-6 rounded-lg border border-yellow-700/50 bg-yellow-950/20">
             <h3 className="text-lg font-semibold text-yellow-400 mb-2">
-              Engine Not Initialized
+              {health?.error_message === 'Event applier not initialized' 
+                ? 'Engine Not Initialized'
+                : 'Engine Error'
+              }
             </h3>
-            <p className="text-[#cccccc] text-sm mb-4">
-              The Engine processing loop needs to be started. Click the button below to initialize:
+            <p className="text-[#cccccc] text-sm mb-2">
+              {health?.error_message === 'Event applier not initialized'
+                ? 'The Engine processing loop needs to be started. Click the button below to initialize:'
+                : `Error: ${health.error_message || 'Unknown error'}`
+              }
             </p>
-            <button
-              onClick={handleInitialize}
-              disabled={isInitializing}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-900 disabled:cursor-not-allowed text-white rounded-md flex items-center gap-2 transition-colors"
-            >
-              <Play className="w-4 h-4" />
-              {isInitializing ? 'Initializing...' : 'Initialize Engine'}
-            </button>
+            {health.events_pending > 0 && (
+              <p className="text-[#cccccc] text-sm mb-4">
+                There are {health.events_pending} events pending processing. 
+                {health.lag_ms > 60000 && ` Processing is ${Math.floor(health.lag_ms / 1000)}s behind.`}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={handleInitialize}
+                disabled={isInitializing}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-900 disabled:cursor-not-allowed text-white rounded-md flex items-center gap-2 transition-colors"
+              >
+                <Play className="w-4 h-4" />
+                {isInitializing ? 'Restarting...' : health?.error_message === 'Event applier not initialized' ? 'Initialize Engine' : 'Restart Engine'}
+              </button>
+            </div>
             {initResult && (
               <div className={`mt-4 p-3 rounded text-sm ${
                 initResult.startsWith('✅') 

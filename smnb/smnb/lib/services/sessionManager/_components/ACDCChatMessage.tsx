@@ -28,6 +28,7 @@ export interface ACDCChatMessageProps {
 
 // Tool name to display label and icon mapping
 const TOOL_INFO: Record<string, { label: string; icon: string; color: string }> = {
+  // Session Analytics Tools
   analyze_session_metrics: { label: 'Session Metrics', icon: '📊', color: 'bg-blue-500/10 text-blue-400 border-blue-400/30' },
   analyze_token_usage: { label: 'Token Usage', icon: '🎫', color: 'bg-green-500/10 text-green-400 border-green-400/30' },
   search_session_messages: { label: 'Message Search', icon: '🔍', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-400/30' },
@@ -35,6 +36,12 @@ const TOOL_INFO: Record<string, { label: string; icon: string; color: string }> 
   analyze_engagement: { label: 'Engagement Analysis', icon: '👥', color: 'bg-purple-500/10 text-purple-400 border-purple-400/30' },
   check_system_health: { label: 'System Health', icon: '💚', color: 'bg-teal-500/10 text-teal-400 border-teal-400/30' },
   analyze_costs: { label: 'Cost Analysis', icon: '💰', color: 'bg-orange-500/10 text-orange-400 border-orange-400/30' },
+  // Financial Tools (Alpha Vantage)
+  get_stock_quote: { label: 'Stock Quote', icon: '📈', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-400/30' },
+  search_stock_symbol: { label: 'Symbol Search', icon: '🔎', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-400/30' },
+  get_stock_news: { label: 'Market News', icon: '📰', color: 'bg-pink-500/10 text-pink-400 border-pink-400/30' },
+  get_company_overview: { label: 'Company Info', icon: '🏢', color: 'bg-violet-500/10 text-violet-400 border-violet-400/30' },
+  get_technical_indicator: { label: 'Technical Analysis', icon: '📉', color: 'bg-rose-500/10 text-rose-400 border-rose-400/30' },
 };
 
 // Helper to format tool input/result data

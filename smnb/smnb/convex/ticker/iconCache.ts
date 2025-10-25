@@ -22,6 +22,8 @@ export const getIcon = query({
   args: { symbol: v.string() },
   returns: v.union(
     v.object({
+      _id: v.id("ticker_icon_cache"),
+      _creationTime: v.number(),
       symbol: v.string(),
       iconUrl: v.string(),
       storageId: v.optional(v.id("_storage")),
@@ -48,6 +50,8 @@ export const getAllIcons = query({
   args: {},
   returns: v.array(
     v.object({
+      _id: v.id("ticker_icon_cache"),
+      _creationTime: v.number(),
       symbol: v.string(),
       iconUrl: v.string(),
       storageId: v.optional(v.id("_storage")),
@@ -62,14 +66,7 @@ export const getAllIcons = query({
       .withIndex("by_cached", (q) => q.eq("cached", true))
       .collect();
 
-    return icons.map((icon) => ({
-      symbol: icon.symbol,
-      iconUrl: icon.iconUrl,
-      storageId: icon.storageId,
-      cached: icon.cached,
-      lastUpdated: icon.lastUpdated,
-      fallbackUsed: icon.fallbackUsed,
-    }));
+    return icons;
   },
 });
 
@@ -352,5 +349,117 @@ export const clearCache = mutation({
       }
       return allIcons.length;
     }
+  },
+});
+
+/**
+ * MNQ1 (Nasdaq-100) constituent tickers for batch caching (as of May 2025)
+ */
+const MNQ1_TICKERS = [
+  "AAPL", "MSFT", "NVDA", "AMZN", "META", "AVGO", "GOOGL", "GOOG", "TSLA", "COST",
+  "NFLX", "AMD", "PEP", "TMUS", "ADBE", "CSCO", "LIN", "QCOM", "CMCSA", "INTU",
+  "TXN", "AMGN", "INTC", "AMAT", "HON", "ISRG", "BKNG", "VRTX", "ADP", "PANW",
+  "SBUX", "GILD", "MU", "ADI", "REGN", "LRCX", "MDLZ", "KLAC", "SNPS", "PYPL",
+  "CDNS", "ASML", "MRVL", "CRWD", "ABNB", "NXPI", "ORLY", "CTAS", "ADSK", "CSX",
+  "WDAY", "PCAR", "CHTR", "MNST", "AEP", "PAYX", "ROST", "LULU", "ODFL", "FAST",
+  "KDP", "DXCM", "CTSH", "EA", "GEHC", "VRSK", "EXC", "IDXX", "KHC", "TEAM",
+  "CSGP", "TTWO", "ANSS", "DDOG", "ZS", "ON", "BIIB", "XEL", "BKR", "MCHP",
+  "FANG", "WBD", "FTNT", "CDW", "CCEP", "MDB", "GFS", "DASH", "MRNA", "TTD",
+  "PDD", "CPRT", "CEG", "MAR", "AXON", "ROP", "SHOP", "PLTR", "APP", "ARM",
+  "TRI", "AZN", "MSTR", "MELI"
+];
+
+/**
+ * Fetch and cache all MNQ1 (Nasdaq-100) ticker icons
+ * This is a one-time action to populate the cache for all Nasdaq-100 constituents
+ */
+export const cacheAllMNQ1Icons = action({
+  args: {},
+  returns: v.object({
+    total: v.number(),
+    successful: v.number(),
+    failed: v.number(),
+    duration: v.number(),
+    results: v.array(
+      v.object({
+        symbol: v.string(),
+        success: v.boolean(),
+        error: v.optional(v.string()),
+      })
+    ),
+  }),
+  handler: async (ctx): Promise<{
+    total: number;
+    successful: number;
+    failed: number;
+    duration: number;
+    results: Array<{
+      symbol: string;
+      success: boolean;
+      error?: string;
+    }>;
+  }> => {
+    const startTime = Date.now();
+    console.log(`🎯 Starting MNQ1 icon cache for ${MNQ1_TICKERS.length} tickers...`);
+
+    const results: Array<{
+      symbol: string;
+      success: boolean;
+      error?: string;
+    }> = [];
+    let successful = 0;
+    let failed = 0;
+
+    // Process in batches of 10 to avoid overwhelming the system
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < MNQ1_TICKERS.length; i += BATCH_SIZE) {
+      const batch = MNQ1_TICKERS.slice(i, i + BATCH_SIZE);
+      console.log(`📦 Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(MNQ1_TICKERS.length / BATCH_SIZE)}: ${batch.join(", ")}`);
+
+      // Process batch in parallel
+      const batchPromises = batch.map(async (symbol) => {
+        const result: {
+          success: boolean;
+          iconUrl: string;
+          cached: boolean;
+          error?: string;
+        } = await ctx.runAction(internal.ticker.iconCache.downloadAndCacheIcon, {
+          symbol,
+        });
+
+        if (result.success) {
+          successful++;
+          console.log(`  ✅ ${symbol}: Cached successfully`);
+        } else {
+          failed++;
+          console.log(`  ⚠️ ${symbol}: ${result.error || 'Failed'}`);
+        }
+
+        return {
+          symbol,
+          success: result.success,
+          error: result.error,
+        };
+      });
+
+      const batchResults = await Promise.all(batchPromises);
+      results.push(...batchResults);
+
+      // Small delay between batches to be nice to the GitHub CDN
+      if (i + BATCH_SIZE < MNQ1_TICKERS.length) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(`✅ MNQ1 icon cache complete: ${successful}/${MNQ1_TICKERS.length} successful (${failed} failed) in ${(duration / 1000).toFixed(2)}s`);
+
+    return {
+      total: MNQ1_TICKERS.length,
+      successful,
+      failed,
+      duration,
+      results,
+    };
   },
 });

@@ -39,6 +39,10 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 // MCP Server URL - can be localhost for dev or Vercel URL for production
 const MCP_SERVER_URL = process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'https://mcp-server-i6h9k4z40-acdcdigitals-projects.vercel.app';
 
+// Alpha Vantage MCP Server URL
+const ALPHA_VANTAGE_MCP_URL = 'https://mcp.alphavantage.co/mcp';
+const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY || process.env.NEXT_PUBLIC_ALPHA_VANTAGE_API_KEY;
+
 export class SessionManagerAgent extends BaseNexusAgent {
   readonly id = 'session-manager-agent';
   readonly name = 'Session Manager AI';
@@ -55,7 +59,11 @@ export class SessionManagerAgent extends BaseNexusAgent {
       'cost-analysis',
       'message-search',
       'system-monitoring',
-      'natural-language-queries'
+      'natural-language-queries',
+      'financial-data',
+      'stock-market-data',
+      'real-time-quotes',
+      'technical-analysis'
     ];
   }
 
@@ -215,6 +223,128 @@ export class SessionManagerAgent extends BaseNexusAgent {
           }
         },
         handler: this.handleCostBreakdown.bind(this),
+      },
+      // Alpha Vantage Financial Tools
+      {
+        type: 'anthropic_tool',
+        identifier: 'get_stock_quote',
+        requiresPremium: false,
+        schema: {
+          name: 'get_stock_quote',
+          description: 'Get real-time stock price, volume, and market data for a symbol. Use when users ask about current stock prices or market data.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              symbol: {
+                type: 'string',
+                description: 'Stock ticker symbol (e.g., AAPL, MSFT, TSLA)'
+              }
+            },
+            required: ['symbol']
+          }
+        },
+        handler: this.handleStockQuote.bind(this),
+      },
+      {
+        type: 'anthropic_tool',
+        identifier: 'search_stock_symbol',
+        requiresPremium: false,
+        schema: {
+          name: 'search_stock_symbol',
+          description: 'Search for stock symbols by company name or keywords. Use when users mention a company but not the ticker symbol.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              keywords: {
+                type: 'string',
+                description: 'Company name or search keywords'
+              }
+            },
+            required: ['keywords']
+          }
+        },
+        handler: this.handleSymbolSearch.bind(this),
+      },
+      {
+        type: 'anthropic_tool',
+        identifier: 'get_stock_news',
+        requiresPremium: false,
+        schema: {
+          name: 'get_stock_news',
+          description: 'Get latest news and sentiment analysis for a stock or topic. Use when users ask about market news or company updates.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              tickers: {
+                type: 'string',
+                description: 'Comma-separated stock symbols (e.g., "AAPL,MSFT")'
+              },
+              topics: {
+                type: 'string',
+                description: 'News topics (e.g., "earnings", "technology", "ipo")'
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum number of articles to return (default: 50)'
+              }
+            }
+          }
+        },
+        handler: this.handleStockNews.bind(this),
+      },
+      {
+        type: 'anthropic_tool',
+        identifier: 'get_company_overview',
+        requiresPremium: false,
+        schema: {
+          name: 'get_company_overview',
+          description: 'Get comprehensive company information, fundamentals, and financial ratios. Use for company research and fundamental analysis.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              symbol: {
+                type: 'string',
+                description: 'Stock ticker symbol'
+              }
+            },
+            required: ['symbol']
+          }
+        },
+        handler: this.handleCompanyOverview.bind(this),
+      },
+      {
+        type: 'anthropic_tool',
+        identifier: 'get_technical_indicator',
+        requiresPremium: false,
+        schema: {
+          name: 'get_technical_indicator',
+          description: 'Calculate technical indicators like SMA, EMA, RSI, MACD for technical analysis. Use for chart analysis and trading signals.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              symbol: {
+                type: 'string',
+                description: 'Stock ticker symbol'
+              },
+              indicator: {
+                type: 'string',
+                enum: ['SMA', 'EMA', 'RSI', 'MACD', 'BBANDS'],
+                description: 'Technical indicator type'
+              },
+              interval: {
+                type: 'string',
+                enum: ['1min', '5min', '15min', '30min', '60min', 'daily', 'weekly', 'monthly'],
+                description: 'Time interval for the indicator'
+              },
+              time_period: {
+                type: 'number',
+                description: 'Number of data points for calculation (e.g., 20 for 20-day SMA)'
+              }
+            },
+            required: ['symbol', 'indicator', 'interval']
+          }
+        },
+        handler: this.handleTechnicalIndicator.bind(this),
       },
     ];
   }
@@ -392,6 +522,8 @@ IMPORTANT GUIDELINES:
 8. If documents contain relevant information, quote key passages and provide page/section references if available
 
 Available tools:
+
+SESSION ANALYTICS:
 - analyze_session_metrics: Session activity and performance
 - analyze_token_usage: Token consumption and costs
 - search_session_messages: Find specific conversations
@@ -400,7 +532,14 @@ Available tools:
 - check_system_health: System status and errors
 - analyze_costs: Cost analysis and projections
 
-Always try to help users understand their data and make informed decisions.`
+FINANCIAL MARKET DATA (Alpha Vantage):
+- get_stock_quote: Real-time stock prices and market data
+- search_stock_symbol: Find ticker symbols by company name
+- get_stock_news: Latest news and sentiment analysis
+- get_company_overview: Company fundamentals and financial ratios
+- get_technical_indicator: Technical analysis indicators (SMA, EMA, RSI, MACD, etc.)
+
+You have access to comprehensive financial market data through Alpha Vantage MCP server. Use these tools when users ask about stocks, market data, company information, or technical analysis. Always try to help users understand their data and make informed decisions.`
       });
 
       // Process Claude's response with multi-turn tool support
@@ -798,6 +937,192 @@ FORMATTING GUIDELINES:
       return {
         error: true,
         message: error instanceof Error ? error.message : 'Failed to fetch cost breakdown',
+      };
+    }
+  }
+
+  // Alpha Vantage Tool Handlers
+  private async handleStockQuote(input: unknown): Promise<unknown> {
+    try {
+      const { symbol } = input as { symbol: string };
+      
+      if (!ALPHA_VANTAGE_API_KEY) {
+        return {
+          error: true,
+          message: 'Alpha Vantage API key not configured. Set ALPHA_VANTAGE_API_KEY in environment variables.',
+        };
+      }
+      
+      // Call Alpha Vantage GLOBAL_QUOTE endpoint
+      const url = `${ALPHA_VANTAGE_MCP_URL}?apikey=${ALPHA_VANTAGE_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'tools/call',
+          params: {
+            name: 'GLOBAL_QUOTE',
+            arguments: { symbol }
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      return data.content?.[0]?.text ? JSON.parse(data.content[0].text) : data;
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleStockQuote:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch stock quote',
+      };
+    }
+  }
+
+  private async handleSymbolSearch(input: unknown): Promise<unknown> {
+    try {
+      const { keywords } = input as { keywords: string };
+      
+      if (!ALPHA_VANTAGE_API_KEY) {
+        return {
+          error: true,
+          message: 'Alpha Vantage API key not configured.',
+        };
+      }
+      
+      const url = `${ALPHA_VANTAGE_MCP_URL}?apikey=${ALPHA_VANTAGE_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'tools/call',
+          params: {
+            name: 'SYMBOL_SEARCH',
+            arguments: { keywords }
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      return data.content?.[0]?.text ? JSON.parse(data.content[0].text) : data;
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleSymbolSearch:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to search symbols',
+      };
+    }
+  }
+
+  private async handleStockNews(input: unknown): Promise<unknown> {
+    try {
+      const { tickers, topics, limit = 50 } = input as {
+        tickers?: string;
+        topics?: string;
+        limit?: number;
+      };
+      
+      if (!ALPHA_VANTAGE_API_KEY) {
+        return {
+          error: true,
+          message: 'Alpha Vantage API key not configured.',
+        };
+      }
+      
+      const url = `${ALPHA_VANTAGE_MCP_URL}?apikey=${ALPHA_VANTAGE_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'tools/call',
+          params: {
+            name: 'NEWS_SENTIMENT',
+            arguments: { tickers, topics, limit }
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      return data.content?.[0]?.text ? JSON.parse(data.content[0].text) : data;
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleStockNews:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch stock news',
+      };
+    }
+  }
+
+  private async handleCompanyOverview(input: unknown): Promise<unknown> {
+    try {
+      const { symbol } = input as { symbol: string };
+      
+      if (!ALPHA_VANTAGE_API_KEY) {
+        return {
+          error: true,
+          message: 'Alpha Vantage API key not configured.',
+        };
+      }
+      
+      const url = `${ALPHA_VANTAGE_MCP_URL}?apikey=${ALPHA_VANTAGE_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'tools/call',
+          params: {
+            name: 'COMPANY_OVERVIEW',
+            arguments: { symbol }
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      return data.content?.[0]?.text ? JSON.parse(data.content[0].text) : data;
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleCompanyOverview:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch company overview',
+      };
+    }
+  }
+
+  private async handleTechnicalIndicator(input: unknown): Promise<unknown> {
+    try {
+      const { symbol, indicator, interval, time_period = 20 } = input as {
+        symbol: string;
+        indicator: string;
+        interval: string;
+        time_period?: number;
+      };
+      
+      if (!ALPHA_VANTAGE_API_KEY) {
+        return {
+          error: true,
+          message: 'Alpha Vantage API key not configured.',
+        };
+      }
+      
+      const url = `${ALPHA_VANTAGE_MCP_URL}?apikey=${ALPHA_VANTAGE_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: 'tools/call',
+          params: {
+            name: indicator,
+            arguments: { symbol, interval, time_period, series_type: 'close' }
+          }
+        }),
+      });
+      
+      const data = await response.json();
+      return data.content?.[0]?.text ? JSON.parse(data.content[0].text) : data;
+    } catch (error) {
+      console.error('[SessionManagerAgent] Error in handleTechnicalIndicator:', error);
+      return {
+        error: true,
+        message: error instanceof Error ? error.message : 'Failed to fetch technical indicator',
       };
     }
   }

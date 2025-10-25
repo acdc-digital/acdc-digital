@@ -178,9 +178,19 @@ export function ACDCChat({
                     className="bg-neutral-900 border-neutral-800 text-purple-400 hover:bg-neutral-800 hover:border-purple-400/50"
                   />
                   <Suggestion
-                    suggestion="What's my current system health?"
+                    suggestion="What's the current AAPL stock price?"
                     onClick={handleSuggestionClick}
-                    className="bg-neutral-900 border-neutral-800 text-green-400 hover:bg-neutral-800 hover:border-green-400/50"
+                    className="bg-neutral-900 border-neutral-800 text-cyan-500 hover:bg-neutral-800 hover:border-cyan-500/50"
+                  />
+                  <Suggestion
+                    suggestion="Show TSLA news and sentiment"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-pink-400 hover:bg-neutral-800 hover:border-pink-400/50"
+                  />
+                  <Suggestion
+                    suggestion="Get company overview for MSFT"
+                    onClick={handleSuggestionClick}
+                    className="bg-neutral-900 border-neutral-800 text-violet-400 hover:bg-neutral-800 hover:border-violet-400/50"
                   />
                   <Suggestion
                     suggestion="Analyze my engagement metrics"
@@ -266,7 +276,7 @@ export function ACDCChat({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-neutral-500">
-                Your Chat: Powered by the Session Manager w/ 8 analytics tools
+                Your Chat: Powered by the Session Manager w/ 13 analytics & financial tools
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -293,7 +303,7 @@ export function ACDCChat({
           {showSettingsPanel && (
             <div className="mt-4 p-4 bg-neutral-800 rounded-lg space-y-3">
               <div className="text-xs text-neutral-300 space-y-2">
-                <div className="font-semibold text-neutral-200 mb-2">Available Tools:</div>
+                <div className="font-semibold text-neutral-200 mb-2">Session Analytics Tools:</div>
                 <ul className="space-y-1 pl-4">
                   <li>📊 <span className="text-blue-400">Session Metrics</span> - Analyze session data and trends</li>
                   <li>🎫 <span className="text-green-400">Token Usage</span> - Track token consumption and projections</li>
@@ -302,6 +312,14 @@ export function ACDCChat({
                   <li>👥 <span className="text-purple-400">Engagement Analysis</span> - Measure user engagement</li>
                   <li>💚 <span className="text-teal-400">System Health</span> - Check system status</li>
                   <li>💰 <span className="text-orange-400">Cost Analysis</span> - Review spending and costs</li>
+                </ul>
+                <div className="font-semibold text-neutral-200 mt-4 mb-2">Financial Market Tools (Alpha Vantage):</div>
+                <ul className="space-y-1 pl-4">
+                  <li>📈 <span className="text-cyan-400">Stock Quote</span> - Real-time stock prices and market data</li>
+                  <li>🔎 <span className="text-indigo-400">Symbol Search</span> - Find ticker symbols by company name</li>
+                  <li>📰 <span className="text-pink-400">Market News</span> - Latest news and sentiment analysis</li>
+                  <li>🏢 <span className="text-violet-400">Company Info</span> - Company fundamentals and financial ratios</li>
+                  <li>📉 <span className="text-rose-400">Technical Analysis</span> - Technical indicators (SMA, EMA, RSI, MACD)</li>
                 </ul>
                 <div className="mt-3 pt-3 border-t border-neutral-700 text-neutral-400">
                   <strong>Tip:</strong> Just ask naturally! Try &ldquo;How are my metrics this week?&rdquo; or &ldquo;Show me token usage trends&rdquo;

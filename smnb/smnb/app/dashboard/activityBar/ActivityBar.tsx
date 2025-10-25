@@ -16,10 +16,11 @@ import {
   Archive,
   Landmark,
   ChartSpline,
-  DatabaseZap
+  DatabaseZap,
+  Calendar
 } from "lucide-react";
 
-export type PanelType = "archive" | "manager" | "home" | "stats" | "heatmap" | "spline" | "keywords" | "landmark" | "docs" | "settings" | "account" | "engine";
+export type PanelType = "archive" | "manager" | "home" | "stats" | "heatmap" | "spline" | "keywords" | "landmark" | "docs" | "settings" | "account" | "engine" | "calendar";
 
 interface ActivityBarProps {
   activePanel?: PanelType;
@@ -35,6 +36,7 @@ export default function ActivityBar({ activePanel = "archive", onPanelChange }: 
     // { id: "stats", icon: Waypoints, label: "Stats" },
         { id: "heatmap" as PanelType, icon: Haze, label: "Market Heatmap" },
     { id: "spline" as PanelType, icon: ChartSpline, label: "Spline Chart" },
+    { id: "calendar", icon: Calendar, label: "Calendar" },
     { id: "docs", icon: NotebookPen, label: "Docs" },
     { id: "account", icon: User, label: "Account" },
   ];

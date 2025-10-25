@@ -70,6 +70,22 @@ export const getUnprocessedEvents = internalQuery({
 });
 
 /**
+ * Get all enrichment events (for reset operations)
+ * Internal query used by reset function
+ */
+export const getAllEvents = internalQuery({
+  args: {},
+  returns: v.array(v.any()),
+  handler: async (ctx) => {
+    const events = await ctx.db
+      .query("enrichment_events")
+      .collect();
+
+    return events;
+  },
+});
+
+/**
  * Get current metrics for a dimension and time window
  * PUBLIC - Used by UI to display live stats
  */
@@ -120,16 +136,42 @@ export const getMetrics = query({
     const startBucket = nowBucket - (bucketCount * windowMs[args.window]);
 
     // Fetch buckets using correct index
-    const buckets = await ctx.db
-      .query("stat_buckets")
-      .withIndex("by_session_window", q =>
-        q.eq("dim_kind", args.dim_kind)
-         .eq("dim_value", args.dim_value || "")
-         .eq("window", args.window)
-      )
-      .filter(q => q.gte(q.field("bucket_start"), startBucket) && q.lte(q.field("bucket_start"), nowBucket))
-      .order("asc")
-      .collect();
+    // For global metrics without dim_value, we need to handle undefined vs empty string
+    let buckets;
+    
+    if (args.dim_kind === "global" && !args.dim_value) {
+      // For global, query without dim_value constraint and filter manually
+      buckets = await ctx.db
+        .query("stat_buckets")
+        .withIndex("by_window_and_bucket", q =>
+          q.eq("window", args.window)
+        )
+        .filter(q => 
+          q.and(
+            q.eq(q.field("dim_kind"), "global"),
+            q.or(
+              q.eq(q.field("dim_value"), undefined),
+              q.eq(q.field("dim_value"), "")
+            ),
+            q.gte(q.field("bucket_start"), startBucket),
+            q.lte(q.field("bucket_start"), nowBucket)
+          )
+        )
+        .order("asc")
+        .collect();
+    } else {
+      // For other dimensions with specific values
+      buckets = await ctx.db
+        .query("stat_buckets")
+        .withIndex("by_session_window", q =>
+          q.eq("dim_kind", args.dim_kind)
+           .eq("dim_value", args.dim_value || "")
+           .eq("window", args.window)
+        )
+        .filter(q => q.gte(q.field("bucket_start"), startBucket) && q.lte(q.field("bucket_start"), nowBucket))
+        .order("asc")
+        .collect();
+    }
 
     // Compute current metrics (from most recent bucket)
     const latestBucket = buckets[buckets.length - 1];
@@ -269,7 +311,12 @@ export const getEngineHealth = query({
 
     // Calculate lag
     const now = Date.now();
-    const lag_ms = now - watermark.last_processed_at;
+    // Fix: If last_processed_at is 0 or suspiciously old (more than 1 year ago), 
+    // it means the engine hasn't processed anything yet, so lag should be 0
+    const oneYearAgo = now - (365 * 24 * 60 * 60 * 1000);
+    const lag_ms = (watermark.last_processed_at === 0 || watermark.last_processed_at < oneYearAgo) 
+      ? 0 
+      : now - watermark.last_processed_at;
 
     // Count pending events
     const pendingEvents = await ctx.db
@@ -289,13 +336,21 @@ export const getEngineHealth = query({
       status = "error";
     }
 
+    // Provide more context for error messages
+    let errorMessage = watermark.error_message;
+    if (status === "error" && !errorMessage) {
+      errorMessage = lag_ms > 60000 
+        ? `Processing is ${Math.floor(lag_ms / 1000)}s behind (${pendingEvents.length} events pending)`
+        : "Unknown error";
+    }
+
     return {
       status,
       lag_ms,
       processed_count: watermark.processed_count,
       last_run_at: watermark.last_run_at,
       events_pending: pendingEvents.length,
-      error_message: watermark.error_message,
+      error_message: errorMessage,
     };
   },
 });
