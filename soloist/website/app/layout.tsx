@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Parkinsans, Lato } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import ConvexClientProvider from "@/providers/ConvexClientProvider";
@@ -11,6 +12,24 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const parkinsans = Parkinsans({
+  variable: "--font-parkinsans",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const lato = Lato({
+  variable: "--font-lato",
+  subsets: ["latin"],
+  weight: ["100", "300", "400", "700", "900"],
+});
+
+const specialGothic = localFont({
+  src: "../public/fonts/Special_Gothic/SpecialGothic-VariableFont_wdth,wght.ttf",
+  variable: "--font-special-gothic",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +46,7 @@ export default function RootLayout({
     <ConvexAuthNextjsServerProvider>
       <html lang="en" className="scroll-smooth">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} ${parkinsans.variable} ${lato.variable} ${specialGothic.variable} antialiased`}
         >
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </body>

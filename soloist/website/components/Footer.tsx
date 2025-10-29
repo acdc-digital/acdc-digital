@@ -4,7 +4,9 @@
 "use client";
 
 import React from "react";
-import { 
+import {
+  Fingerprint,
+  MessageSquare, 
   Github, 
   Slack, 
   Mail,
@@ -160,6 +162,42 @@ export function Footer() {
             </div>
           </div>
         </div>
+
+        <div className="border border-primary/30 rounded-lg mb-8">
+            <div className="border-b border-primary/20 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-6 h-6 border border-white/40 rounded-md flex items-center justify-center">
+                      <Fingerprint className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="text-2xl font-bold text-primary font-mono">aura</div>
+                    <span className="text-secondary font-mono">plugin_system</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-accent-red rounded-full"></div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-secondary mb-4 font-mono text-sm">
+                vibe-code your social media strategy with ai agents that handle everything from brand development to content distribution.
+              </p>
+              <div className="flex space-x-6">
+                <a href="#" className="text-secondary hover:text-white transition-colors font-mono text-sm" aria-label="github">
+                  <Github className="w-4 h-4 inline mr-2" />
+                  github
+                </a>
+                <a href="#" className="text-secondary hover:text-gray-500 transition-colors font-mono text-sm" aria-label="chat">
+                  <MessageSquare className="w-4 h-4 inline mr-2" />
+                  chat
+                </a>
+              </div>
+            </div>
+          </div>
 
         {/* Bottom Bar */}
         <div className="py-4">

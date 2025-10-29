@@ -113,13 +113,13 @@ export const scoreDailyLog = action({
       // Prepare the content for OpenAI
       const userContent = JSON.stringify(dailyLog.answers, null, 2);
 
-      // Get the OpenAI API key from environment variables
-      const apiKey = (process as any).env.OPENAI_API_KEY;
+      // Get the Anthropic API key from environment variables
+      const apiKey = (process as any).env.ANTHROPIC_API_KEY;
       if (!apiKey) {
-        throw new Error("Missing OPENAI_API_KEY in environment!");
+        throw new Error("Missing ANTHROPIC_API_KEY in environment!");
       }
 
-      console.log("🔑 OpenAI API key found");
+      console.log("🔑 Anthropic API key found");
 
       // Check SCORING_PROMPT
       if (!SCORING_PROMPT) {
@@ -128,46 +128,44 @@ export const scoreDailyLog = action({
       
       console.log("📋 SCORING_PROMPT available");
       
-      // Create request body for OpenAI
-      const openAIRequest = {
-        model: "gpt-4o-mini",
+      // Create request body for Anthropic Claude
+      const claudeRequest = {
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 5,
+        temperature: 0.0,
+        system: SCORING_PROMPT,
         messages: [
-          {
-            role: "system",
-            content: SCORING_PROMPT
-          },
           {
             role: "user",
             content: `Here is the user's daily log in JSON:\n${userContent}`,
           },
         ],
-        temperature: 0.3,
-        max_tokens: 500,
       };
       
-      console.log("✅ OpenAI request body created");
+      console.log("✅ Claude request body created");
 
-      // Call OpenAI API
-      const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      // Call Anthropic API
+      const claudeResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
         },
-        body: JSON.stringify(openAIRequest),
+        body: JSON.stringify(claudeRequest),
       });
 
-      if (!openAIResponse.ok) {
-        const errorText = await openAIResponse.text();
-        console.error("❌ OpenAI API error:", openAIResponse.status, errorText);
-        throw new Error(`OpenAI API error (${openAIResponse.status}): ${errorText}`);
+      if (!claudeResponse.ok) {
+        const errorText = await claudeResponse.text();
+        console.error("❌ Claude API error:", claudeResponse.status, errorText);
+        throw new Error(`Claude API error (${claudeResponse.status}): ${errorText}`);
       }
 
-      const completion = await openAIResponse.json();
-      console.log("📊 OpenAI response received");
+      const completion = await claudeResponse.json();
+      console.log("📊 Claude response received");
 
       // Extract the score from the response
-      const assistantMessage = completion.choices?.[0]?.message?.content?.trim() || "";
+      const assistantMessage = completion.content?.[0]?.text?.trim() || "";
       let aiScore = parseInt(assistantMessage, 10);
       
       if (isNaN(aiScore) || aiScore < 1 || aiScore > 10) {
@@ -183,12 +181,12 @@ export const scoreDailyLog = action({
       // Track usage if available
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.openai.trackUsage, {
+          await ctx.runMutation(api.anthropic.trackUsage, {
             userId,
             feature: "scoring",
-            model: "gpt-4o-mini",
-            promptTokens: completion.usage.prompt_tokens || 0,
-            completionTokens: completion.usage.completion_tokens || 0,
+            model: "claude-3-5-haiku-20241022",
+            promptTokens: completion.usage.input_tokens || 0,
+            completionTokens: completion.usage.output_tokens || 0,
             metadata: { date, score: finalScore, aiScore }
           });
         } catch (trackingError) {

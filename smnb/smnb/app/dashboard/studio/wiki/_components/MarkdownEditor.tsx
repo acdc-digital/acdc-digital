@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Eye, Edit3, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import remarkGfm from 'remark-gfm';
+
+// Lazy load ReactMarkdown for better performance
+const ReactMarkdown = lazy(() => import('react-markdown'));
 
 interface MarkdownEditorProps {
   content: string;
@@ -18,12 +22,15 @@ export default function MarkdownEditor({
   const [content, setContent] = useState(initialContent);
   const [isPreview, setIsPreview] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
+  const [useReactMarkdown, setUseReactMarkdown] = useState(false);
   const mermaidRef = useRef<HTMLDivElement>(null);
   const [mermaidLoaded, setMermaidLoaded] = useState(false);
 
   useEffect(() => {
     setContent(initialContent);
     setHasChanges(false);
+    // Use ReactMarkdown for large documents (>50KB)
+    setUseReactMarkdown(initialContent.length > 50000);
   }, [initialContent]);
 
   // Dynamically load Mermaid
@@ -61,7 +68,7 @@ export default function MarkdownEditor({
 
   // Render Mermaid diagrams when content changes
   useEffect(() => {
-    if (!mermaidLoaded || !isPreview || !mermaidRef.current) return;
+    if (!mermaidLoaded || !isPreview || !mermaidRef.current || useReactMarkdown) return;
 
     const renderDiagrams = async () => {
       const mermaid = (await import('mermaid')).default;
@@ -74,16 +81,17 @@ export default function MarkdownEditor({
             const id = `mermaid-${Date.now()}-${index}`;
             const { svg } = await mermaid.render(id, code);
             element.innerHTML = svg;
-          } catch (error: any) {
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.error('Mermaid rendering error:', error);
-            element.innerHTML = `<pre class="text-red-400 p-4 bg-black/50 rounded">Error rendering diagram: ${error.message}</pre>`;
+            element.innerHTML = `<pre class="text-red-400 p-4 bg-black/50 rounded">Error rendering diagram: ${errorMessage}</pre>`;
           }
         }
       });
     };
 
     renderDiagrams();
-  }, [content, isPreview, mermaidLoaded]);
+  }, [content, isPreview, mermaidLoaded, useReactMarkdown]);
 
   const handleContentChange = (value: string) => {
     setContent(value);
@@ -293,6 +301,32 @@ export default function MarkdownEditor({
             className="w-full h-full bg-transparent text-gray-300 font-mono text-sm resize-none focus:outline-none"
             placeholder="Enter markdown content..."
           />
+        ) : useReactMarkdown ? (
+          <Suspense fallback={<div className="text-gray-400">Loading content...</div>}>
+            <div className="prose prose-invert prose-lg max-w-none 
+              prose-headings:text-white prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-6 prose-h1:border-b prose-h1:border-white/20 prose-h1:pb-2
+              prose-h2:text-2xl prose-h2:font-semibold prose-h2:mb-4 prose-h2:mt-8
+              prose-h3:text-xl prose-h3:font-semibold prose-h3:mb-3 prose-h3:mt-6
+              prose-p:text-gray-300 prose-p:mb-4 prose-p:leading-relaxed
+              prose-strong:text-white prose-strong:font-semibold
+              prose-code:bg-black/50 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:text-gray-400 prose-code:text-sm prose-code:font-mono
+              prose-pre:bg-black/50 prose-pre:border prose-pre:border-white/10 prose-pre:p-4 prose-pre:rounded-lg prose-pre:mb-4
+              prose-ul:list-disc prose-ul:list-inside prose-ul:mb-4 prose-ul:space-y-2 prose-ul:ml-4 prose-ul:text-gray-300
+              prose-ol:list-decimal prose-ol:list-inside prose-ol:mb-4 prose-ol:space-y-2 prose-ol:ml-4 prose-ol:text-gray-300
+              prose-table:w-full prose-table:border-collapse prose-table:border prose-table:border-white/20 prose-table:rounded-lg prose-table:mb-6
+              prose-thead:bg-white/5
+              prose-th:border prose-th:border-white/10 prose-th:px-4 prose-th:py-2 prose-th:text-left prose-th:font-semibold prose-th:text-white
+              prose-td:border prose-td:border-white/10 prose-td:px-4 prose-td:py-2 prose-td:text-gray-300
+              prose-tr:hover:bg-white/5
+              prose-hr:my-8 prose-hr:border-white/20
+              prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-gray-400">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+              >
+                {content}
+              </ReactMarkdown>
+            </div>
+          </Suspense>
         ) : (
           <div className="prose prose-invert max-w-none">
             {renderMarkdown(content)}

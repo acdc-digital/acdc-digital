@@ -2,6 +2,7 @@ packages:
   - website
   - electron
   - renderer
+  - demo
 ignoredBuiltDependencies:
   - '@tailwindcss/oxide'
   - electron

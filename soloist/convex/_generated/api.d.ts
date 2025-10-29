@@ -8,21 +8,21 @@
  * @module
  */
 
-import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
 import type * as CustomPassword from "../CustomPassword.js";
 import type * as ResendOTP from "../ResendOTP.js";
 import type * as ResendOTPPasswordReset from "../ResendOTPPasswordReset.js";
 import type * as admin from "../admin.js";
+import type * as anthropic from "../anthropic.js";
 import type * as auth from "../auth.js";
+import type * as checkRateLimits from "../checkRateLimits.js";
+import type * as cleanupAuth from "../cleanupAuth.js";
 import type * as clearDatabase from "../clearDatabase.js";
 import type * as customAuth from "../customAuth.js";
 import type * as dailyLogTemplates from "../dailyLogTemplates.js";
 import type * as dailyLogs from "../dailyLogs.js";
 import type * as debugSubscription from "../debugSubscription.js";
+import type * as debugUsers from "../debugUsers.js";
+import type * as deleteRateLimits from "../deleteRateLimits.js";
 import type * as feed from "../feed.js";
 import type * as feedback from "../feedback.js";
 import type * as forecast from "../forecast.js";
@@ -46,6 +46,12 @@ import type * as users from "../users.js";
 import type * as waitlist from "../waitlist.js";
 import type * as webhooks from "../webhooks.js";
 
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
+
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -59,12 +65,17 @@ declare const fullApi: ApiFromModules<{
   ResendOTP: typeof ResendOTP;
   ResendOTPPasswordReset: typeof ResendOTPPasswordReset;
   admin: typeof admin;
+  anthropic: typeof anthropic;
   auth: typeof auth;
+  checkRateLimits: typeof checkRateLimits;
+  cleanupAuth: typeof cleanupAuth;
   clearDatabase: typeof clearDatabase;
   customAuth: typeof customAuth;
   dailyLogTemplates: typeof dailyLogTemplates;
   dailyLogs: typeof dailyLogs;
   debugSubscription: typeof debugSubscription;
+  debugUsers: typeof debugUsers;
+  deleteRateLimits: typeof deleteRateLimits;
   feed: typeof feed;
   feedback: typeof feedback;
   forecast: typeof forecast;
@@ -88,11 +99,15 @@ declare const fullApi: ApiFromModules<{
   waitlist: typeof waitlist;
   webhooks: typeof webhooks;
 }>;
+declare const fullApiWithMounts: typeof fullApi;
+
 export declare const api: FilterApi<
-  typeof fullApi,
+  typeof fullApiWithMounts,
   FunctionReference<any, "public">
 >;
 export declare const internal: FilterApi<
-  typeof fullApi,
+  typeof fullApiWithMounts,
   FunctionReference<any, "internal">
 >;
+
+export declare const components: {};

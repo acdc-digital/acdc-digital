@@ -173,7 +173,7 @@
   --font-headline: 'Crimson Text', 'Source Serif 4', serif;
   --font-body: 'Inter', 'Work Sans', sans-serif;
   --font-mono: 'JetBrains Mono', 'Geist Mono', monospace;
-  
+
   /* Font Sizes - Make sure they're defined */
   --text-display: clamp(3.5rem, 8vw, 5.5rem);
   --text-h1: clamp(2rem, 4vw, 2.75rem);
@@ -184,20 +184,20 @@
   --text-h6: clamp(1rem, 1.5vw, 1.125rem);
   --text-body: clamp(1rem, 1.5vw, 1.125rem);
   --text-small: clamp(0.875rem, 1.25vw, 0.9375rem);
-  
+
   /* Line Heights */
   --leading-tight: 1.1;
   --leading-snug: 1.3;
   --leading-normal: 1.5;
   --leading-relaxed: 1.7;
   --leading-loose: 2;
-  
+
   /* Letter Spacing */
   --tracking-tight: -0.02em;
   --tracking-normal: 0;
   --tracking-wide: 0.02em;
   --tracking-wider: 0.04em;
-  
+
   /* Content Width */
   --content-width: 65ch;
   --content-wide: 80ch;
@@ -450,4 +450,13 @@
 
 .dark .ProseMirror div.newsletter-display {
   color: #ffffff !important;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

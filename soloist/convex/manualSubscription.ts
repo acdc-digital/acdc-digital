@@ -8,9 +8,9 @@ import { internal } from "./_generated/api";
 export const manuallyCreateSubscription = mutation({
   args: {},
   handler: async (ctx) => {
-    // This is the current user making payments based on the logs
-    const userEmail = "smatty662@gmail.com"; 
-    const userId = "jx7edzh9f2ewxv0gv4sh4sfgqh7kh1xy"; // The user ID from the logs
+    // Current user in the database
+    const userEmail = "msimon@acdc.digital"; 
+    const userId = "mh7es1m1dhwarqsd0chbhf7n4h7t79dc"; // The actual user ID from the database
     const subscriptionId = `manual_sub_${Date.now()}`;
     
     try {
