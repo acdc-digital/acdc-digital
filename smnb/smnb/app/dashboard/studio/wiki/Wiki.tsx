@@ -1,17 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import WikiSidebar from './_components/WikiSidebar';
+import EnhancedWikiSidebar from './_components/EnhancedWikiSidebar';
 import MarkdownEditor from './_components/MarkdownEditor';
+import UnifiedScoringArticle from './_components/UnifiedScoringArticle';
 import { nasdaqTop100Content } from './_content/nasdaqTop100Content';
 import { sessionManagerContent } from './_content/sessionManagerContent';
-import { unifiedScoringContent } from './_content/unifiedScoringContent';
 import { agentsContent } from './_content/agentsContent';
 import { dataFlowContent } from './_content/dataFlowContent';
 import { agentsToolsContent } from './_content/agentsToolsContent';
 import { dataFlowChartContent } from './_content/dataFlowChartContent';
 import { milestonesContent } from './_content/milestonesContent';
-import { gettingStartedContent } from './_content/gettingStartedContent';
+import { GettingStartedContent } from './_content/gettingStartedContent';
+import { indexConstructionContent } from './_content/indexConstructionContent';
 
 // Import chart components
 import MetricScoringChart from './_charts/MetricScoringChart';
@@ -76,9 +77,9 @@ export default function Wiki({ isActive = true }: WikiProps) {
     // Show the selected section content
     switch (activeSection) {
       case 'getting-started':
-        return <MarkdownEditor content={gettingStartedContent} editable={true} />;
+        return <GettingStartedContent />;
       case 'unified-scoring':
-        return <MarkdownEditor content={unifiedScoringContent} editable={true} />;
+        return <UnifiedScoringArticle />;
       case 'nasdaq-100':
         return <MarkdownEditor content={nasdaqTop100Content} editable={true} />;
       case 'session-manager':
@@ -93,6 +94,8 @@ export default function Wiki({ isActive = true }: WikiProps) {
         return <MarkdownEditor content={dataFlowChartContent} editable={true} />;
       case 'milestones':
         return <MarkdownEditor content={milestonesContent} editable={true} />;
+      case 'index-construction':
+        return <MarkdownEditor content={indexConstructionContent} editable={true} />;
       
       // Unified Scoring Chart
       case 'unified-scoring-chart':
@@ -107,17 +110,17 @@ export default function Wiki({ isActive = true }: WikiProps) {
         return <AgentProfileChart />;
       
       default:
-        return <MarkdownEditor content={unifiedScoringContent} editable={true} />;
+        return <UnifiedScoringArticle />;
     }
   };
 
   return (
     <main className="flex-1 flex bg-[#1a1a1a] text-white h-full">
-      <WikiSidebar 
+      <EnhancedWikiSidebar 
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-auto">
         {renderContent()}
       </div>
     </main>

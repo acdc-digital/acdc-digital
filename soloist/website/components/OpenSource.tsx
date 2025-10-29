@@ -13,10 +13,6 @@ export function OpenSource() {
         <div className="flex flex-col items-center text-center">
           {/* Badge and Heading */}
           <div className="space-y-3 md:space-y-4 mb-6 md:mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs md:text-sm font-medium text-black border border-black">
-              <Github className="h-3 w-3" />
-              Open Source
-            </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground md:text-4xl px-2">
               Built Open Source
             </h2>

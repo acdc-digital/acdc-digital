@@ -37,6 +37,7 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [detectedOS, setDetectedOS] = useState<'Windows' | 'macOS' | 'Other'>('Other');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Check if current user is admin
   const isAdmin = useQuery(api.admin.isCurrentUserAdmin);
@@ -71,6 +72,30 @@ export function Navbar() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  // Handle scroll to change navbar text color
+  useEffect(() => {
+    const handleScroll = () => {
+      // Find the DemoApp section and check if we're currently over it
+      const demoSection = document.getElementById('demo-section');
+      if (demoSection) {
+        const demoTop = demoSection.offsetTop;
+        const demoBottom = demoTop + demoSection.offsetHeight;
+        const scrollPosition = window.scrollY;
+        
+        // Change color only when scrolled into the demo section area
+        const isInView = scrollPosition > demoTop - 100 && scrollPosition < demoBottom;
+        setIsScrolled(isInView);
+      } else {
+        // If demo section not found, default to false
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial state
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -147,10 +172,10 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 backdrop-blur-md supports-[backdrop-filter]:bg-white/65">
-        <div className="container mx-auto px-4 flex items-center justify-between h-16 sm:h-20">
+      <header className="sticky top-0 z-50 w-full backdrop-blur-md supports-[backdrop-filter]:bg-background/85 border-b border-zinc-200 rounded-b-3xl">
+        <div className="container mx-auto px-[72px] flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-4 sm:gap-4">
             <Link
               href="/"
               className="hover:opacity-80 transition-opacity"
@@ -161,14 +186,14 @@ export function Navbar() {
                 alt="SoloPro Logo"
                 width={40}
                 height={40}
-                className="w-8 h-8 sm:w-10 sm:h-10"
+                className="w-5 h-5 sm:w-9 sm:h-9"
               />
             </Link>
             <div className="flex items-start gap-1 relative">
-              <span className="text-2xl sm:text-3xl font-bold text-foreground">
+              <span className={`text-4xl transition-colors font-parkinsans-semibold text-foreground ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}>
                 Soloist.
               </span>
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 -mt-1 ml-0.5 shadow-sm">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-white text-slate-600 border border-slate-200 -mt-1 ml-0.5 shadow-sm">
                 v1.6.6
               </span>
             </div>
@@ -178,36 +203,31 @@ export function Navbar() {
           <nav className="hidden md:flex items-center space-x-10">
             <Link
               href="#features"
-              className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-              style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Features
             </Link>
             <Link
               href="#pricing"
-              className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-              style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Pricing
             </Link>
             <Link
               href="#faq"
-              className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-              style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               FAQ
             </Link>
             <Link
               href="#roadmap"
-              className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-              style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Roadmap
             </Link>
             <DocsModal>
-              <button 
-                className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+              <button
+                className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 Docs
               </button>
@@ -271,13 +291,13 @@ export function Navbar() {
                 </DropdownMenu>
                 <Link
                   href={process.env.NEXT_PUBLIC_APP_URL || "https://app.acdc.digital"}
-                  className="inline-flex items-center justify-center rounded-full bg-blue-500 border border-blue-900 px-5 py-1.5 text-base font-bold text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200"
+                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-5 py-0 text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter"
                 >
                   Soloist.
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="inline-flex items-center justify-center rounded-3xl border border-black bg-white px-5 py-1.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200"
+                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-0 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200"
                 >
                   Sign out
                 </button>
@@ -286,15 +306,15 @@ export function Navbar() {
               <>
                 <button
                   onClick={handleOpenSignIn}
-                  className="inline-flex items-center justify-center rounded-3xl border border-input bg-background px-7 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="inline-flex items-center justify-center border border-black bg-white px-7 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
                   Login
                 </button>
                 <button
                   onClick={handleOpenSignUp}
-                  className="inline-flex items-center justify-center rounded-3xl bg-[#323232] px-5 py-2.5 text-base font-medium text-primary-foreground hover:opacity-80 transition-opacity shadow-sm"
+                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
-                  Sign up
+                  Sign-up
                 </button>
               </>
             )}
@@ -315,7 +335,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu */}
-        <div className={`md:hidden fixed inset-x-0 top-16 bg-white border-b border-border/40 shadow-lg transition-all duration-300 ease-in-out ${
+        <div className={`md:hidden fixed inset-x-0 top-16 glass-strong border-b border-border/40 shadow-lg transition-all duration-300 ease-in-out ${
           isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
         }`}>
           <nav className="container mx-auto px-4 py-6">
@@ -377,7 +397,7 @@ export function Navbar() {
               ) : isAuthenticated ? (
                 <>
                   {/* User info in mobile */}
-                  <div className="flex items-center gap-3 p-3 bg-zinc-50 rounded-lg mb-3">
+                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg mb-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
                       <AvatarFallback className="text-sm bg-zinc-200 text-zinc-700">{userInitials}</AvatarFallback>
@@ -424,13 +444,13 @@ export function Navbar() {
                 <>
                   <button
                     onClick={handleOpenSignIn}
-                    className="w-full inline-flex items-center justify-center rounded-3xl border border-input bg-background px-7 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="w-full inline-flex items-center justify-center rounded-3xl border border-black bg-white px-7 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     Login
                   </button>
                   <button
                     onClick={handleOpenSignUp}
-                    className="w-full inline-flex items-center justify-center rounded-3xl bg-[#323232] px-5 py-2.5 text-base font-medium text-primary-foreground hover:opacity-80 transition-opacity shadow-sm"
+                    className="w-full inline-flex items-center justify-center rounded-3xl border border-black bg-white px-5 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     Sign up
                   </button>

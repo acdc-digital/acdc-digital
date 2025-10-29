@@ -11,16 +11,13 @@ import { FEED_SUMMARY_PROMPT, AI_CONFIG } from "./prompts";
  * The shape of data returned by the LLM's chat completion API.
  * We define a minimal type for TypeScript.
  */
-interface OpenAIChatCompletion {
-  choices?: Array<{
-    message?: {
-      content?: string;
-    };
+interface ClaudeChatCompletion {
+  content?: Array<{
+    text?: string;
   }>;
   usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
+    input_tokens: number;
+    output_tokens: number;
   };
 }
 
@@ -72,54 +69,55 @@ export const generateFeedForDailyLog = action({
     // Convert dailyLog.answers to JSON for the LLM
     const userContent = JSON.stringify(dailyLog.answers, null, 2);
 
-    // 3) Make sure your OpenAI key is available
-    const openAiApiKey = process.env.OPENAI_API_KEY;
-    if (!openAiApiKey) {
-      throw new Error("Missing OPENAI_API_KEY in environment!");
+    // 3) Make sure your Anthropic key is available
+    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+    if (!anthropicApiKey) {
+      throw new Error("Missing ANTHROPIC_API_KEY in environment!");
     }
 
-    // 4) Call OpenAI's Chat Completion with optimized config
+    // 4) Call Anthropic's Claude API with optimized config
     const config = AI_CONFIG.FEED;
     const body = {
       model: config.model,
+      max_tokens: config.max_tokens,
+      temperature: config.temperature,
+      system: FEED_SUMMARY_PROMPT,
       messages: [
-        { role: "system", content: FEED_SUMMARY_PROMPT },
         {
           role: "user",
           content: `Here is the user's daily log in JSON:\n${userContent}`,
         },
       ],
-      temperature: config.temperature,
-      max_tokens: config.max_tokens,
     };
 
-    const response: Response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response: Response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${openAiApiKey}`,
+        "x-api-key": anthropicApiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`OpenAI error: ${text}`);
+      throw new Error(`Claude error: ${text}`);
     }
 
-    const completion: OpenAIChatCompletion = await response.json();
+    const completion = await response.json();
     const assistantReply: string =
-      completion.choices?.[0]?.message?.content?.trim() || "(No response)";
+      completion.content?.[0]?.text?.trim() || "(No response)";
 
-    // Track OpenAI usage for cost monitoring
+    // Track Anthropic usage for cost monitoring
     if (completion.usage) {
       try {
-        await ctx.runMutation(api.openai.trackUsage, {
+        await ctx.runMutation(api.anthropic.trackUsage, {
           userId,
           feature: "feed_generation",
           model: config.model,
-          promptTokens: completion.usage.prompt_tokens || 0,
-          completionTokens: completion.usage.completion_tokens || 0,
+          promptTokens: completion.usage.input_tokens || 0,
+          completionTokens: completion.usage.output_tokens || 0,
           metadata: { date }
         });
       } catch (trackingError) {

@@ -85,10 +85,10 @@ export const generateRandomLog = action({
   },
   handler: async (ctx, { date, userId }): Promise<GeneratedLogData> => {
     console.log("Executing generateRandomLog in new randomizer.ts file");
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    if (!openaiApiKey) {
-      console.error("OPENAI_API_KEY is not set. Random log generation will not work.");
-      throw new Error("OpenAI API key is not configured in environment variables.");
+    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+    if (!anthropicApiKey) {
+      console.error("ANTHROPIC_API_KEY is not set. Random log generation will not work.");
+      throw new Error("Anthropic API key is not configured in environment variables.");
     }
 
     // Get user's custom instructions if userId is provided
@@ -105,40 +105,40 @@ export const generateRandomLog = action({
     const config = AI_CONFIG.RANDOM_LOG;
     const requestBody = {
       model: config.model,
-      response_format: config.response_format,
+      max_tokens: config.max_tokens,
+      temperature: config.temperature,
+      system: systemPrompt + "\n\nYou must respond with valid JSON only. No other text.",
       messages: [
-        { role: "system", content: systemPrompt },
         { role: "user", content: `Generate a daily log for ${date}.` },
       ],
-      temperature: config.temperature,
-      max_tokens: config.max_tokens,
     };
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${openaiApiKey}`,
+          "x-api-key": anthropicApiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("OpenAI API Error details:", errorText);
-        throw new Error(`OpenAI API Error: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        console.error("Claude API Error details:", errorText);
+        throw new Error(`Claude API Error: ${response.status} ${response.statusText}. Details: ${errorText}`);
       }
 
-      const completion = await response.json() as OpenAIChatCompletion;
-      const responseContent = completion.choices?.[0]?.message?.content;
+      const completion = await response.json();
+      const responseContent = completion.content?.[0]?.text;
 
       if (!responseContent) {
-        console.error("OpenAI response content is empty for date:", date, completion);
-        throw new Error("OpenAI returned an empty or malformed response.");
+        console.error("Claude response content is empty for date:", date, completion);
+        throw new Error("Claude returned an empty or malformed response.");
       }
 
-      // The model with json_object response_format should return valid JSON string.
+      // Parse the JSON response
       const generatedData = JSON.parse(responseContent) as GeneratedLogData;
       return generatedData;
 

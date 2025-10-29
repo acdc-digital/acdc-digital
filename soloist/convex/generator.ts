@@ -6,17 +6,14 @@ import { Id } from "./_generated/dataModel";
 import { FORECASTING_PROMPT, DAILY_CONSULTATION_PROMPT, WEEKLY_INSIGHTS_PROMPT, AI_CONFIG, getColorCategory } from "./prompts";
 import { api } from "./_generated/api";
 
-// Define the expected structure from OpenAI response choices
-interface OpenAIChatCompletion {
-  choices?: Array<{
-    message?: {
-      content?: string;
-    };
+// Define the expected structure from Claude response
+interface ClaudeChatCompletion {
+  content?: Array<{
+    text?: string;
   }>;
   usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
+    input_tokens: number;
+    output_tokens: number;
   };
 }
 
@@ -61,10 +58,10 @@ export const generateForecastWithAI = action({
     console.log(`[Action generateForecastWithAI] Generating forecasts for user ${userId} for dates:`, targetDates);
     console.log(`[Action generateForecastWithAI] Using ${pastLogs.length} past logs as training data`);
 
-    // Get OpenAI API key
-    const openAiApiKey = process.env.OPENAI_API_KEY;
-    if (!openAiApiKey) {
-      throw new Error("Missing OPENAI_API_KEY in environment!");
+    // Get Anthropic API key
+    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+    if (!anthropicApiKey) {
+      throw new Error("Missing ANTHROPIC_API_KEY in environment!");
     }
     
     try {
@@ -82,45 +79,45 @@ Target forecast dates: ${targetDates.join(', ')}`;
       const config = AI_CONFIG.FORECASTING;
       const body = {
         model: config.model,
+        max_tokens: config.max_tokens,
+        temperature: config.temperature,
+        system: FORECASTING_PROMPT + "\n\nYou must respond with valid JSON only.",
         messages: [
-          { role: "system", content: FORECASTING_PROMPT },
           { role: "user", content: userContent },
         ],
-        temperature: config.temperature,
-        max_tokens: config.max_tokens,
-        response_format: config.response_format,
       };
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${openAiApiKey}`,
+          "x-api-key": anthropicApiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`OpenAI API error: ${errorText}`);
+        throw new Error(`Claude API error: ${errorText}`);
       }
 
       const completion = await response.json();
-      const content = completion.choices?.[0]?.message?.content?.trim();
+      const content = completion.content?.[0]?.text?.trim();
       
       if (!content) {
         throw new Error("Empty response from OpenAI");
       }
 
-      // Track OpenAI usage for cost monitoring
+      // Track Anthropic usage for cost monitoring
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.openai.trackUsage, {
+          await ctx.runMutation(api.anthropic.trackUsage, {
             userId,
             feature: "forecast_generation",
             model: config.model,
-            promptTokens: completion.usage.prompt_tokens || 0,
-            completionTokens: completion.usage.completion_tokens || 0,
+            promptTokens: completion.usage.input_tokens || 0,
+            completionTokens: completion.usage.output_tokens || 0,
             metadata: { targetDates, logsCount: pastLogs.length }
           });
         } catch (trackingError) {
@@ -262,10 +259,10 @@ export const generateDailyConsultation = action({
       `[Action generateDailyConsultation] User: ${userId}, Day: ${selectedDayData.date} (${selectedDayData.dayName}), isFuture: ${selectedDayData.isFuture}`
     );
     
-    // --- Get OpenAI API Key ---
-    const apiKey = process.env.OPENAI_API_KEY;
+    // --- Get Anthropic API Key ---
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-        console.error("[Action generateDailyConsultation] OPENAI_API_KEY environment variable not set.");
+        console.error("[Action generateDailyConsultation] ANTHROPIC_API_KEY environment variable not set.");
         return { success: false, error: "AI service configuration error. Please contact support."};
     }
 
@@ -284,53 +281,54 @@ Notes: ${selectedDayData.notesForSelectedDay ?? 'None'}
 7-Day Context:
 ${contextString}`;
 
-    console.log("[Action generateDailyConsultation] Sending prompt to OpenAI via fetch.");
+    console.log("[Action generateDailyConsultation] Sending prompt to Claude via fetch.");
 
-    // --- Call OpenAI API using optimized config ---
+    // --- Call Anthropic API using optimized config ---
     try {
       const config = AI_CONFIG.CONSULTATION;
       const requestBody = {
         model: config.model,
-        messages: [
-          { role: "system", content: DAILY_CONSULTATION_PROMPT },
-          { role: "user", content: userContent }
-        ],
         max_tokens: config.max_tokens,
         temperature: config.temperature,
+        system: DAILY_CONSULTATION_PROMPT,
+        messages: [
+          { role: "user", content: userContent }
+        ],
       };
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`[Action generateDailyConsultation] OpenAI fetch error: ${response.status} ${response.statusText}`, errorText);
+        console.error(`[Action generateDailyConsultation] Claude fetch error: ${response.status} ${response.statusText}`, errorText);
         throw new Error(`AI service request failed: ${response.statusText} - ${errorText}`);
       }
 
-      const completion: OpenAIChatCompletion = await response.json();
-      const consultationText = completion.choices?.[0]?.message?.content?.trim();
+      const completion: ClaudeChatCompletion = await response.json();
+      const consultationText = completion.content?.[0]?.text?.trim();
 
       if (!consultationText) {
-        console.error("[Action generateDailyConsultation] OpenAI fetch response content is empty.", completion);
+        console.error("[Action generateDailyConsultation] Claude fetch response content is empty.", completion);
         return { success: false, error: "AI service returned an empty response." };
       }
 
-      // Track OpenAI usage for cost monitoring
+      // Track Anthropic usage for cost monitoring
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.openai.trackUsage, {
+          await ctx.runMutation(api.anthropic.trackUsage, {
             userId,
             feature: "daily_consultation",
             model: config.model,
-            promptTokens: completion.usage.prompt_tokens || 0,
-            completionTokens: completion.usage.completion_tokens || 0,
+            promptTokens: completion.usage.input_tokens || 0,
+            completionTokens: completion.usage.output_tokens || 0,
             metadata: { selectedDate: selectedDayData.date, contextDays: sevenDayContextData.length }
           });
         } catch (trackingError) {
@@ -377,9 +375,9 @@ export const generateWeeklyInsights = action({
       `[Action generateWeeklyInsights] User: ${userId}, generating insights for a 7-day period.`
     );
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      console.error("[Action generateWeeklyInsights] OPENAI_API_KEY environment variable not set.");
+      console.error("[Action generateWeeklyInsights] ANTHROPIC_API_KEY environment variable not set.");
       return { success: false, error: "AI service configuration error. Please contact support." };
     }
 
@@ -397,51 +395,52 @@ export const generateWeeklyInsights = action({
     const userContent = `7-Day Emotional Data:
 ${formattedSevenDayData}`;
 
-    console.log("[Action generateWeeklyInsights] Sending prompt to OpenAI via fetch.");
+    console.log("[Action generateWeeklyInsights] Sending prompt to Claude via fetch.");
 
-    // --- Call OpenAI API using optimized config ---
+    // --- Call Anthropic API using optimized config ---
     try {
       const config = AI_CONFIG.INSIGHTS;
       const requestBody = {
         model: config.model,
+        max_tokens: config.max_tokens,
+        temperature: config.temperature,
+        system: WEEKLY_INSIGHTS_PROMPT + "\n\nYou must respond with valid JSON only.",
         messages: [
-          { role: "system", content: WEEKLY_INSIGHTS_PROMPT },
           { role: "user", content: userContent }
         ],
-        temperature: config.temperature,
-        max_tokens: config.max_tokens,
       };
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(`[Action generateWeeklyInsights] OpenAI API error: ${response.status} ${response.statusText}`, errorBody);
+        console.error(`[Action generateWeeklyInsights] Claude API error: ${response.status} ${response.statusText}`, errorBody);
         return { success: false, error: `AI service error: ${response.statusText}. Details: ${errorBody}` };
       }
 
-      const jsonResponse = await response.json() as OpenAIChatCompletion; // Using existing OpenAIChatCompletion type
+      const jsonResponse = await response.json() as ClaudeChatCompletion;
 
-      if (jsonResponse.choices && jsonResponse.choices[0] && jsonResponse.choices[0].message && jsonResponse.choices[0].message.content) {
-        const content = jsonResponse.choices[0].message.content;
+      if (jsonResponse.content && jsonResponse.content[0] && jsonResponse.content[0].text) {
+        const content = jsonResponse.content[0].text;
         console.log("[Action generateWeeklyInsights] Raw AI response content:", content);
         
-        // Track OpenAI usage for cost monitoring
+        // Track Anthropic usage for cost monitoring
         if (jsonResponse.usage) {
           try {
-            await ctx.runMutation(api.openai.trackUsage, {
+            await ctx.runMutation(api.anthropic.trackUsage, {
               userId,
               feature: "weekly_insights",
               model: config.model,
-              promptTokens: jsonResponse.usage.prompt_tokens || 0,
-              completionTokens: jsonResponse.usage.completion_tokens || 0,
+              promptTokens: jsonResponse.usage.input_tokens || 0,
+              completionTokens: jsonResponse.usage.output_tokens || 0,
               metadata: { contextDays: sevenDayContextData.length }
             });
           } catch (trackingError) {
@@ -484,11 +483,11 @@ ${formattedSevenDayData}`;
           return { success: false, error: "AI response format error. Could not parse insights." };
         }
       } else {
-        console.error("[Action generateWeeklyInsights] Unexpected OpenAI response structure:", jsonResponse);
+        console.error("[Action generateWeeklyInsights] Unexpected Claude response structure:", jsonResponse);
         return { success: false, error: "AI service returned an unexpected response structure." };
       }
     } catch (e: any) {
-      console.error(`[Action generateWeeklyInsights] Error calling OpenAI: ${e.message}`);
+      console.error(`[Action generateWeeklyInsights] Error calling Claude: ${e.message}`);
       return { success: false, error: `Failed to generate insights: ${e.message}` };
     }
   }
