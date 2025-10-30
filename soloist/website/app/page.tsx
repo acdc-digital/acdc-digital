@@ -202,7 +202,7 @@ export default function LandingPage() {
             </DownloadModal>
           </div>
         </div>
-        <h1 className="text-4xl md:text-6xl lg:text-[88px] font-bold tracking-tight mb-6 font-parkinsans-bold">
+        <h1 className="text-8xl font-bold tracking-tight mb-6 font-parkinsans-bold">
           Track. Compute. Forecast.
         </h1>
         <div className="flex items-center justify-between mb-5">

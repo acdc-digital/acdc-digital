@@ -35,7 +35,7 @@ export function DailyLogCard() {
               <span>Personal Life •</span>
               <span className="text-zinc-300 font-medium">5/10</span>
             </div>
-            <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+            <div className="relative h-2 bg-zinc-700 rounded-full overflow-hidden">
               <div className="absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full" />
             </div>
           </div>
