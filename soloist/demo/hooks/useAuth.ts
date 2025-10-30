@@ -1,6 +1,7 @@
-import { useConvexAuth } from "convex/react"
-import { useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
+// Demo mode: No Convex auth
+// import { useConvexAuth } from "convex/react"
+// import { useQuery } from "convex/react"
+// import { api } from "@/convex/_generated/api"
 
 // Define the user type
 export type User = {
@@ -11,15 +12,17 @@ export type User = {
 }
 
 export function useAuth() {
-  const { isAuthenticated, isLoading } = useConvexAuth()
-  
-  // Get the current user from your Convex database
-  // Replace with your actual user query if different
-  const user = useQuery(api.users.viewer)
-  
+  // Demo mode: Return mock authenticated user
+  const demoUser: User = {
+    id: "demo-user",
+    name: "Demo User",
+    email: "demo@example.com",
+    imageUrl: null,
+  };
+
   return {
-    isAuthenticated,
-    isLoading,
-    user: user as User | null,
+    isAuthenticated: true,
+    isLoading: false,
+    user: demoUser,
   }
 }

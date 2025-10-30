@@ -76,18 +76,18 @@ export function Navbar() {
   // Handle scroll to change navbar text color
   useEffect(() => {
     const handleScroll = () => {
-      // Find the DemoApp section and check if we're currently over it
-      const demoSection = document.getElementById('demo-section');
-      if (demoSection) {
-        const demoTop = demoSection.offsetTop;
-        const demoBottom = demoTop + demoSection.offsetHeight;
-        const scrollPosition = window.scrollY;
+      // Find the iframe container specifically (not the whole demo-section)
+      const iframeContainer = document.getElementById('demo-iframe-container');
+      if (iframeContainer) {
+        const rect = iframeContainer.getBoundingClientRect();
+        const navbarHeight = 80; // Approximate navbar height
         
-        // Change color only when scrolled into the demo section area
-        const isInView = scrollPosition > demoTop - 100 && scrollPosition < demoBottom;
-        setIsScrolled(isInView);
+        // Change color only when the iframe is visible under the navbar
+        // Check if the top of the iframe is above the navbar bottom and bottom is below navbar top
+        const isOverIframe = rect.top <= navbarHeight && rect.bottom >= 0;
+        setIsScrolled(isOverIframe);
       } else {
-        // If demo section not found, default to false
+        // If iframe container not found, default to false
         setIsScrolled(false);
       }
     };
@@ -172,7 +172,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full backdrop-blur-md supports-[backdrop-filter]:bg-background/85 border-b border-zinc-200 rounded-b-3xl">
+      <header className="mr-3 ml-3 sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/85 border-b border-zinc-500 rounded-b-3xl">
         <div className="container mx-auto px-[72px] flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-4">
@@ -186,7 +186,7 @@ export function Navbar() {
                 alt="SoloPro Logo"
                 width={40}
                 height={40}
-                className="w-5 h-5 sm:w-9 sm:h-9"
+                className=" w-5 h-5 sm:w-9 sm:h-9"
               />
             </Link>
             <div className="flex items-start gap-1 relative">
@@ -291,13 +291,13 @@ export function Navbar() {
                 </DropdownMenu>
                 <Link
                   href={process.env.NEXT_PUBLIC_APP_URL || "https://app.acdc.digital"}
-                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-5 py-0 text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter"
+                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-5 py-2 text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter"
                 >
                   Soloist.
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-0 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200"
+                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200"
                 >
                   Sign out
                 </button>

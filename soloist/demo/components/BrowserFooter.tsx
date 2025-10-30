@@ -46,7 +46,7 @@ export function BrowserFooter() {
               </div>
             </div>
 
-            {/* Right: Navigation Links */}
+            {/* Right: Navigation Links 
             <nav className="flex items-center">
               <div className="flex items-center gap-1 pr-4">
                 <button
@@ -86,8 +86,8 @@ export function BrowserFooter() {
                   <span className="hidden sm:inline">GitHub</span>
                 </button>
               </div>
-            </nav>
-          </div>
+            </nav> */}
+          </div> 
 
           {/* Mobile: Additional info - more subtle */}
           <div className="md:hidden mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-700/50">

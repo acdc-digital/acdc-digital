@@ -17,6 +17,7 @@ import { useConvexUser } from "@/lib/hooks/useConvexUser";
 import { Navbar } from "@/components/Navbar";
 import { HeroEnhanced as Hero } from "@/components/HeroEnhanced";
 import { OpenSource } from "@/components/OpenSource";
+import { Steps } from "@/components/Steps";
 import { DemoApp } from "@/components/DemoApp";
 import { FeatureSection } from "@/components/FeatureSection";
 import { FAQ } from "@/components/FAQ";
@@ -285,19 +286,22 @@ export default function LandingPage() {
 
         {/* Interactive Demo */}
         <section id="demo-section" className="py-0 md:py-0">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto pt-0 px-4">
             <DemoApp />
           </div>
         </section>
 
-        {/* Open Source Community Section */}
-        <OpenSource />
-
-        {/* Feature Section */}
-        <FeatureSection />
+        {/* Steps Section */}
+        <Steps />
 
         {/* Pricing Section */}
         <Pricing />
+
+        {/* Open Source Community Section
+        <OpenSource /> */}
+
+        {/* Feature Section */}
+        <FeatureSection />
 
         {/* FAQ Section */}
         <FAQ />

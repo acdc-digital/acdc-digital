@@ -52,6 +52,8 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
     selectedDate,
     setFeedMessages,
     feedMessages,
+    streamingMessage,
+    isStreaming,
     loading,
     setLoading,
     activeTab,
@@ -492,6 +494,22 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
     <div className="flex flex-col h-full">
       <div className="overflow-y-auto p-4" style={{ height: 'calc(100vh - 64px - 56px)' }}>
         <div className="space-y-4">
+          {/* Streaming message (demo mode) */}
+          {isStreaming && streamingMessage && (
+            <Card className="transition-all duration-200 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-sm">
+              <CardContent className="pt-4">
+                <div className="prose prose-zinc dark:prose-invert max-w-none text-gray-900 dark:text-zinc-100">
+                  <p className="mb-0">
+                    <span className="text-gray-700 dark:text-zinc-300">
+                      {streamingMessage}
+                      <span className="inline-block w-0.5 h-4 bg-gray-400 dark:bg-zinc-500 ml-1 animate-pulse" />
+                    </span>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {/* daily summary */}
           {filteredMessages.length > 0 ? (
             filteredMessages.map((msg) => (
@@ -585,8 +603,8 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                 </CardFooter>
               </Card>
             ))
-          ) : !hasLogForDate ? (
-            // No daily log exists for this date
+          ) : !hasLogForDate && !isStreaming ? (
+            // No daily log exists for this date (and not currently streaming)
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <div className="mb-6 p-4 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
                 <AlertCircle className="h-10 w-10 text-amber-600 dark:text-amber-500" />
@@ -615,8 +633,8 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                 Switch to the Log tab to get started
               </p>
             </div>
-          ) : (
-            // Daily log exists but no feed yet
+          ) : !isStreaming ? (
+            // Daily log exists but no feed yet (and not currently streaming)
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <div className="mb-6 p-4 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                 <RefreshCw className="h-10 w-10 text-blue-600 dark:text-blue-500" />
@@ -654,7 +672,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                 This usually takes a few seconds
               </p>
             </div>
-          )}
+          ) : null}
 
           {/* comments section */}
           {comments.length > 0 && (
@@ -689,7 +707,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
       </div>
       <FeedFooter 
         onAddComment={handleAddComment} 
-        hasFeed={feedMessages !== null && hasLogForDate}
+        hasFeed={filteredMessages.length > 0 || isStreaming}
       />
     </div>
   );

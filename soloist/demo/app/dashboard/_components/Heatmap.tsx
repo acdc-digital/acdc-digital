@@ -9,6 +9,8 @@ import { api } from "@/convex/_generated/api";
 
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useFeedStore } from "@/store/feedStore";
+import { useDemoLogsStore } from "@/stores/demoLogsStore";
+import { useBrowserEnvironment } from "@/utils/environment";
 
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -111,18 +113,110 @@ const LEGEND = [
 /* Component                        */
 /* ─────────────────────────────── */
 export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
-  /* 1. Auth & canonical userId following authentication rules */
+  /* 1. Check if in browser mode */
+  const isBrowser = useBrowserEnvironment();
+  
+  /* 2. Auth & canonical userId following authentication rules */
   const { isAuthenticated, isLoading: authLoading, userId } = useConvexUser();
 
-  /* 2. Convex query (always called, key = "skip" if no user) */
+  /* 3. Get data from demo store or Convex */
+  const demoLogs = useDemoLogsStore(state => state.getAllLogs());
   const queryResult = useQuery(
     api.dailyLogs.listScores,
-    isAuthenticated && userId ? { userId } : "skip"
-  ); // undefined while loading, then DailyLog[]
+    !isBrowser && isAuthenticated && userId ? { userId } : "skip"
+  );
 
-  /* 3. Derived "ready" flag & safe array (keeps hook order stable) */
-  const ready = !authLoading && isAuthenticated && userId && queryResult !== undefined;
-  const dailyLogs: DailyLog[] = queryResult ?? [];
+  // Debug logging
+  React.useEffect(() => {
+    if (isBrowser) {
+      console.log('[Heatmap] Browser mode active');
+      console.log('[Heatmap] Demo logs count:', demoLogs.length);
+      console.log('[Heatmap] Sample demo logs:', demoLogs.slice(0, 3));
+    }
+  }, [isBrowser, demoLogs]);
+
+  /* 4. Derived "ready" flag & safe array (keeps hook order stable) */
+  const ready = isBrowser ? true : (!authLoading && isAuthenticated && userId && queryResult !== undefined);
+  
+  // In browser mode, assign varied scores to demo logs to show realistic ups and downs
+  // Scores vary based on date to simulate natural fluctuations in mood/productivity
+  const dailyLogs: DailyLog[] = isBrowser
+    ? demoLogs.map((log, index) => {
+        // Create realistic score variation: simulate life's ups and downs
+        const month = parseInt(log.date.split('-')[1]);
+        const day = parseInt(log.date.split('-')[2]);
+        
+        let score: number;
+        if (month === 1) {
+          // January: New year energy that fades then recovers
+          if (day <= 3) score = 85; // New year high
+          else if (day <= 8) score = 72; // Good momentum
+          else if (day === 9) score = 38; // Rough day
+          else if (day <= 11) score = 55; // Mid-month dip
+          else if (day <= 16) score = 68; // Recovering
+          else if (day === 17) score = 42; // Another struggle
+          else if (day <= 24) score = 78; // Building back
+          else score = 82; // Strong finish
+        } else if (month === 2) {
+          // February: Building momentum with winter blues
+          if (day <= 5) score = 65; // Steady start
+          else if (day === 6) score = 35; // Winter low
+          else if (day <= 10) score = 48; // Still struggling
+          else if (day <= 14) score = 78; // Valentine's energy
+          else score = 82; // Finishing strong
+        } else if (month === 3) {
+          // March: Spring energy peaks with transition challenges
+          if (day <= 4) score = 88; // High energy
+          else if (day === 5) score = 44; // Burnout day
+          else if (day <= 7) score = 70; // Recovering
+          else if (day <= 12) score = 75; // Settling
+          else score = 91; // Spring peak
+        } else if (month === 4) {
+          // April: Sustained spring energy
+          if (day <= 7) score = 85; // Strong start
+          else if (day <= 15) score = 78; // Consistent
+          else score = 82; // Finishing well
+        } else if (month === 5) {
+          // May: Peak spring performance with occasional fatigue
+          if (day <= 10) score = 90; // High energy
+          else if (day === 11) score = 41; // Exhaustion
+          else if (day <= 20) score = 88; // Sustained excellence
+          else score = 85; // Still strong
+        } else if (month === 6) {
+          // June: Mid-year fatigue starting
+          if (day <= 5) score = 70; // Energy dropping
+          else if (day <= 15) score = 65; // Struggling
+          else score = 62; // Low point
+        } else if (month === 7) {
+          // July: Recovery through vacation
+          if (day <= 5) score = 58; // Still low
+          else if (day <= 15) score = 68; // Vacation mode
+          else if (day === 16) score = 47; // Post-vacation adjustment
+          else score = 75; // Recharged
+        } else if (month === 8) {
+          // August: Rebuilding momentum
+          if (day <= 10) score = 78; // Getting back
+          else if (day === 11) score = 39; // Setback
+          else if (day <= 20) score = 82; // Momentum building
+          else score = 88; // Strong comeback
+        } else if (month === 9) {
+          // September: Fall energy and focus
+          if (day <= 10) score = 85; // Autumn energy
+          else if (day <= 20) score = 80; // Steady
+          else score = 83; // Balanced
+        } else if (month === 10) {
+          // October: Mature stable performance with challenges
+          if (day <= 10) score = 76; // Consistent
+          else if (day === 11) score = 43; // Tough day
+          else if (day <= 20) score = 83; // Strong
+          else score = 70; // Settling
+        } else {
+          score = 75; // Default for any other month
+        }
+        
+        return { date: log.date, score };
+      })
+    : (queryResult ?? []);
 
   /* 4. Hook: memo map */
   const logMap = React.useMemo(() => {

@@ -83,7 +83,7 @@ export function CommentSection({ onAddComment }: CommentSectionProps) {
         placeholder="Add a comment..."
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
-        className="min-h-[42px] resize-none text-sm pr-12"
+        className="min-h-[42px] resize-none text-sm pr-12 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-gray-200 dark:focus:border-zinc-800"
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

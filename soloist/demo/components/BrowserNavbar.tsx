@@ -24,7 +24,7 @@ export function BrowserNavbar() {
 
   return (
     <div>
-      <nav className="bg-white dark:bg-zinc-900 border-b-2 border-zinc-300 dark:border-zinc-700 pl-5 pr-12 py-3">
+      <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 pl-5 pr-12 py-2">
         <div className="flex items-center justify-between w-full">
           {/* Logo/Brand */}
           <div className="flex items-center gap-3">
@@ -33,11 +33,16 @@ export function BrowserNavbar() {
               alt="Soloist Logo"
               width={32}
               height={32}
-              className="w-8 h-8"
+              className="border border-zinc-600 rounded-md w-8 h-8"
             />
-            <div className="flex flex-row items-center text-xl font-bold text-zinc-900 dark:text-zinc-100">
-              Soloist. <span className="ml-2 text-sm font-normal text-zinc-500">Demo</span>
+            <div className="text-xl font-parkinsans text-zinc-900 dark:text-zinc-100">
+              Soloist.
             </div>
+          </div>
+
+          {/* Center - Demo notice */}
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <span className="text-xs font-normal text-zinc-300">Data and functionality are limited for preview purposes.</span>
           </div>
 
           {/* Right side - Simple user avatar */}

@@ -132,10 +132,10 @@ export default function Controls({
   };
 
   return (
-    <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap w-full">
+    <div className="flex items-center gap-3 flex-wrap w-full">
 
       {/* ----- Left Side: Year Navigation ----- */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
           variant="outline"
           size="icon"
@@ -164,104 +164,6 @@ export default function Controls({
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-
-      {/* ----- Middle: Filter Control ----- */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button 
-            variant={hasAnyFilter ? "default" : "outline"} 
-            size="sm" 
-            className="h-8 flex items-center gap-1.5"
-          >
-            <FilterIcon className="h-3.5 w-3.5 text-zinc-500" />
-            <span className="hidden sm:inline">
-              {hasAnyFilter ? "Filters Active" : "Filter"}
-            </span>
-            {hasAnyFilter && (
-              <Badge
-                variant="secondary"
-                className="ml-1 h-5 px-1 rounded-sm cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700"
-              >
-                {hasTagFilter ? selectedTags.length : ""}
-                {hasLegendFilter ? (hasTagFilter ? "+" : "") + selectedLegend : ""}
-              </Badge>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-60 p-2">
-          {/* Score Range Filter */}
-          <div className="space-y-1.5 py-1">
-            <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2 px-1">
-              Filter by score range:
-            </div>
-            <div className="grid grid-cols-2 gap-1.5">
-              {legendItems.map((item) => (
-                <div
-                  key={item.label}
-                  className={`flex items-center gap-1.5 text-xs rounded-sm px-2 py-1.5 cursor-pointer transition-colors ${
-                    selectedLegend === item.label
-                      ? "bg-zinc-100 dark:bg-zinc-800 font-medium"
-                      : "hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
-                  }`}
-                  onClick={() =>
-                    onLegendFilterChange(
-                      selectedLegend === item.label ? null : item.label
-                    )
-                  }
-                >
-                  <div className={`w-3 h-3 rounded-sm flex-shrink-0 ${item.color}`} />
-                  <span className="text-zinc-700 dark:text-zinc-300">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tags section - only show if we have tags */}
-          {availableTags.length > 0 && (
-            <>
-              <Separator className="my-2" />
-              <div className="space-y-1.5 py-1">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1 px-1 flex items-center gap-1">
-                    <TagIcon className="h-3 w-3" />
-                    <span>Filter by tags:</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {availableTags.map((tag) => {
-                    const isSelected = selectedTags.some(t => t.id === tag.id);
-                    return (
-                      <Badge
-                        key={tag.id}
-                        className={`cursor-pointer ${getTagColorClass(tag, isSelected)}`}
-                        onClick={() => toggleTagFilter(tag)}
-                      >
-                        {tag.name}
-                        {isSelected && <span className="ml-1 text-xs">×</span>}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Clear filters button - only if we have active filters */}
-          {hasAnyFilter && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2 h-7 text-xs"
-              onClick={() => {
-                if (hasLegendFilter) onLegendFilterChange(null);
-                if (hasTagFilter) onTagFilterChange([]);
-              }}
-            >
-              Clear All Filters
-            </Button>
-          )}
-        </PopoverContent>
-      </Popover>
 
       {/* Spacer div to push the Tabs to the right */}
       <div className="flex-grow"></div>

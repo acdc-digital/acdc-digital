@@ -9,16 +9,24 @@ import { useDemoFeedStore } from './demoFeedStore';
 import { useDemoTemplatesStore } from './demoTemplatesStore';
 
 export const initializeDemoStores = () => {
+  console.log('[initDemoStores] Starting initialization...');
+  
   // Check if already initialized (has data)
   const logsStore = useDemoLogsStore.getState();
   const forecastStore = useDemoForecastStore.getState();
   const feedStore = useDemoFeedStore.getState();
   const templatesStore = useDemoTemplatesStore.getState();
 
-  if (logsStore.logs.length === 0) {
-    console.log('[Demo] Seeding logs data...');
-    logsStore.seedDemoData();
-  }
+  console.log('[initDemoStores] Current logs count:', logsStore.logs.length);
+
+  // Always re-seed logs to get the new 2025 data
+  console.log('[initDemoStores] Seeding logs data...');
+  logsStore.seedDemoData();
+  
+  // Check after seeding
+  const logsStoreAfter = useDemoLogsStore.getState();
+  console.log('[initDemoStores] Logs count after seeding:', logsStoreAfter.logs.length);
+  console.log('[initDemoStores] Sample logs after seeding:', logsStoreAfter.logs.slice(0, 2));
 
   if (forecastStore.forecasts.length === 0) {
     console.log('[Demo] Seeding forecast data...');
