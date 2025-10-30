@@ -8,22 +8,22 @@ import Image from "next/image";
 
 export function FeatureSection() {
   return (
-    <section className="py-16 md:py-24 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+    <section className="py-16 md:py-24 px-0">
+      <div className="container mx-auto max-w-[94rem]">
+        <div className="grid md:grid-cols-2 gap-0 items-left">
           {/* Left Side - Image */}
-          <div className="relative aspect-square md:aspect-auto md:h-[600px] rounded-2xl overflow-hidden bg-muted">
+          <div className="relative aspect-square md:aspect-auto md:h-[575px] rounded-2xl overflow-hidden">
             <Image
-              src="/placeholder-feature.jpg"
+              src="/Recom.svg"
               alt="Feature preview"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
 
           {/* Right Side - Text Content */}
-          <div className="space-y-6">
+          <div className="space-y-6 mr-12">
             <div className="space-y-4">
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
                 Your Feature Title

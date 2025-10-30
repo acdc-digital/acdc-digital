@@ -18,10 +18,10 @@ export function DemoApp() {
   };
 
   return (
-    <div className="pl-10 pr-10 mx-auto">
+    <div className="pl-10 pr-10 mx-auto max-w-[84rem]">
       {/* Heading */}
-      <div className="flex justify-between items-center pt-1 pl-3 pr-3 mb-1">
-        <p className="text-lg md:text-lg text-muted-foreground max-w-3xl">
+      <div className="flex justify-between items-center pt-1 pl-2 pr-3 mb-1">
+        <p className="text-xl md:text-xl text-muted-foreground max-w-3xl mb-1">
           Combine speed journaling with powerful predictions to take control of tomorrow, today
         </p>
         <p className="text-sm md:text-sm text-muted-foreground whitespace-nowrap ml-4 mr-4">
@@ -29,7 +29,7 @@ export function DemoApp() {
         </p>
       </div>
       
-      <div className="glass-strong rounded-2xl shadow-xl overflow-hidden border border-border/40">
+      <div id="demo-iframe-container" className="glass-strong rounded-2xl shadow-xl overflow-hidden border border-border/40">
         {/* Iframe Container */}
         <div className="relative bg-background" style={{ height: isFullscreen ? '85vh' : '700px' }}>
           <iframe

@@ -5,8 +5,9 @@
 
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { useQuery, useMutation, useAction } from "@/hooks/convexHooks";
-import { api } from "@/convex/_generated/api";
+// Demo mode: No Convex hooks needed
+// import { useQuery, useMutation, useAction } from "@/hooks/convexHooks";
+// import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useTemplates } from "@/hooks/useTemplates";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -29,17 +30,14 @@ import {
   Minus,
   Check,
 } from "lucide-react";
-import { useFeedStore } from "@/store/feedStore";
+import { useFeedStore, FeedMessage } from "@/store/feedStore";
 import { addDays, format, subDays } from "date-fns";
-import { useConvex } from "@/hooks/useConvex";
+// Demo mode: No Convex client needed
+// import { useConvex } from "@/hooks/useConvex";
 import { useBrowserEnvironment } from "@/utils/environment";
 import { TemplateField } from "./Templates";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { generateDailyLog, validateGeneratedData } from "@/services/generateLog";
+import { streamDemoFeedMessage } from "@/lib/demoStreaming";
 
 interface DailyLogFormData {
   overallMood: number;
@@ -75,44 +73,27 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   // Templates integration
   const {
     currentFormFields,
+    activeTemplate,
     isLoading: templatesLoading,
   } = useTemplates({ userId: userId || undefined });
 
   // Simple field filtering without memoization to avoid React errors
   const stableFormFields = currentFormFields?.filter(field => field && field.id && field.type) || [];
 
-  // Check user settings for generator prerequisites
-  const userAttributes = useQuery(
-    api.userAttributes.getAttributes,
-    userId ? { userId } : "skip"
-  );
+  // DEBUG: Log what we're getting from useTemplates
+  console.log("📋 DailyLogForm - Templates Debug:", {
+    currentFormFields,
+    currentFormFieldsLength: currentFormFields?.length,
+    stableFormFields,
+    stableFormFieldsLength: stableFormFields.length,
+    templatesLoading,
+    userId,
+  });
 
-  const userInstructions = useQuery(
-    api.randomizer.getInstructions,
-    userId ? { userId } : "skip"
-  );
-
-  // Check if user has completed required settings (simplified)
-  const settingsComplete = !!(
-    userAttributes?.attributes?.name?.trim() &&
-    userAttributes?.attributes?.goals?.trim() &&
-    userAttributes?.attributes?.objectives?.trim() &&
-    userInstructions?.trim()
-  );
-
-  const missingSettings = [];
-  if (!userAttributes?.attributes?.name?.trim()) {
-    missingSettings.push("Name");
-  }
-  if (!userAttributes?.attributes?.goals?.trim()) {
-    missingSettings.push("Goals");
-  }
-  if (!userAttributes?.attributes?.objectives?.trim()) {
-    missingSettings.push("Objectives");
-  }
-  if (!userInstructions?.trim()) {
-    missingSettings.push("Custom Instructions");
-  }
+  // Demo mode: No settings validation needed (no backend)
+  // Generator is always available
+  const settingsComplete = true;
+  const missingSettings: string[] = [];
 
   /* ────────────────────────────────────────── */
   /* Feed store hooks                           */
@@ -120,21 +101,15 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   const setActiveTab     = useFeedStore((s) => s.setActiveTab);
   const setSidebarOpen   = useFeedStore((s) => s.setSidebarOpen);
   const setSelectedDate  = useFeedStore((s) => s.setSelectedDate);
+  const setStreamingMessage = useFeedStore((s) => s.setStreamingMessage);
+  const setIsStreaming   = useFeedStore((s) => s.setIsStreaming);
+  const setFeedMessages  = useFeedStore((s) => s.setFeedMessages);
+  const feedMessages     = useFeedStore((s) => s.feedMessages);
 
   const effectiveDate = date ?? new Date().toISOString().split("T")[0];
 
-  // Fetch existing log for the day
-  const existingLog = useQuery(
-    api.dailyLogs.getDailyLog,
-    userId ? { date: effectiveDate, userId } : "skip"
-  );
-
-  const dailyLogMutation = useMutation(api.dailyLogs.dailyLog);
-  const scoreDailyLog    = useAction(api.score.scoreDailyLog);
-  const generateFeed     = useAction(api.feed.generateFeedForDailyLog);
-  const generateForecast = useAction(api.forecast.generateForecast);
-  const generateRandomLog = useAction(api.randomizer.generateRandomLog);
-  const convex = useConvex();
+  // Demo mode: No backend - all data is ephemeral and client-side only
+  // (Convex queries/mutations/actions removed for demo mode)
 
   // Create dynamic form data based on current template fields (simplified)
   const createFormDefaults = () => {
@@ -157,20 +132,23 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
     defaultValues: createFormDefaults(),
   });
 
-  /* ────────────────────────────────────────── */
-  /* Populate defaults when a log already exists */
-  /* ────────────────────────────────────────── */
+  // Reset form when template changes
   useEffect(() => {
-    if (existingLog?.answers && stableFormFields.length > 0) {
-      const resetData: Record<string, any> = {};
-      stableFormFields.forEach(field => {
-        if (field && field.id) {
-          resetData[field.id] = existingLog.answers[field.id] ?? field.defaultValue;
-        }
-      });
-      reset(resetData);
-    }
-  }, [existingLog, reset]);
+    const newDefaults = createFormDefaults();
+    console.log("🔄 Template changed, resetting form with new defaults:", {
+      templateName: activeTemplate?.name,
+      fieldCount: stableFormFields.length,
+      fields: stableFormFields.map(f => f.id),
+      newDefaults
+    });
+    reset(newDefaults);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTemplate?.id, stableFormFields.length]); // Reset when template ID or field count changes
+
+  /* ────────────────────────────────────────── */
+  /* Demo mode: no existing log persistence      */
+  /* Each page refresh starts fresh            */
+  /* ────────────────────────────────────────── */
 
   /* ────────────────────────────────────────── */
   /* Local state                               */
@@ -234,6 +212,14 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   /* ────────────────────────────────────────── */
   /*  User ID validation                        */
   /* ────────────────────────────────────────── */
+  console.log("🔒 Loading check:", {
+    userLoading,
+    isAuthenticated,
+    userId,
+    templatesLoading,
+    willShowLoading: userLoading || !isAuthenticated || !userId || templatesLoading
+  });
+
   if (userLoading || !isAuthenticated || !userId || templatesLoading) {
     return (
       <div className="flex items-center justify-center p-6">
@@ -252,29 +238,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
     setIsSubmitting(true);
 
     try {
-      await dailyLogMutation({ date: effectiveDate, userId, answers: data });
-      await scoreDailyLog({ date: effectiveDate, userId });
-      await generateFeed({ date: effectiveDate, userId });
+      // Demo mode: Data is ephemeral, stored in session only
+      // No backend calls - all data cleared on refresh
+      console.log("Demo mode: Log saved (ephemeral)", { date: effectiveDate, data });
 
-      // --- Check if last 4 days (today + previous 3) all have logs ---
-      const today = new Date(effectiveDate);
-      const startDate = format(subDays(today, 3), 'yyyy-MM-dd');
-      const endDate = format(today, 'yyyy-MM-dd');
-      const logs = await convex.query(api.forecast.getLogsForUserInRangeSimple, {
-        userId,
-        startDate,
-        endDate,
-      });
-      console.log("Fetched logs for last 4 days:", logs);
-      const logDates = logs.map((log: { date: string }) => log.date);
-      const expectedDates = Array.from({ length: 4 }, (_, i) => format(subDays(today, 3 - i), 'yyyy-MM-dd'));
-      console.log("Expected dates:", expectedDates);
-      const allPresent = expectedDates.every(date => logDates.includes(date));
-      console.log("All present?", allPresent);
-      if (allPresent) {
-        const result = await generateForecast({ userId, startDate, endDate });
-        console.log("generateForecast result:", result);
-      }
+      // Simulate save delay for realism
+      await new Promise(resolve => setTimeout(resolve, 300));
 
       // Show success state
       setShowSuccess(true);
@@ -284,9 +253,44 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       setSelectedDate(effectiveDate);
       setActiveTab("feed");
       setSidebarOpen(true);
+
+      /* ───── Start streaming demo message ───── */
+      console.log("🎬 Starting demo message stream...");
+      setIsStreaming(true);
+      setStreamingMessage("");
+
+      // Stream the demo message
+      await streamDemoFeedMessage(
+        effectiveDate,
+        (partialMessage) => {
+          // Update streaming message as it builds
+          setStreamingMessage(partialMessage);
+        },
+        (finalMessage) => {
+          // When complete, create final feed message
+          console.log("✅ Stream complete, creating feed message");
+          const newMessage: FeedMessage = {
+            _id: `demo-feed-${Date.now()}`,
+            date: effectiveDate,
+            createdAt: Date.now(),
+            message: finalMessage,
+          };
+
+          // Add to feed messages or replace for this date
+          const existingMessages = feedMessages || [];
+          const filteredMessages = existingMessages.filter(m => m.date !== effectiveDate);
+          setFeedMessages([...filteredMessages, newMessage]);
+          
+          // Clear streaming state
+          setIsStreaming(false);
+          setStreamingMessage(null);
+        }
+      );
     } catch (err) {
       console.error("Failed to save daily log:", err);
       setError(err instanceof Error ? err.message : "Failed to save log");
+      setIsStreaming(false);
+      setStreamingMessage(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -299,43 +303,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
     setError(null);
     setIsGenerating(true);
     try {
-      if (!generateRandomLog) {
-        throw new Error("Random generation feature is not available.");
-      }
-      const generatedData = await generateRandomLog({
-        date: effectiveDate,
-        userId
-      });
+      // Use local generation service (no backend required)
+      const generatedData = await generateDailyLog(effectiveDate);
 
       if (generatedData && typeof generatedData === 'object') {
-        const validatedData: Partial<DailyLogFormData> = {};
-
-        // Validate generated data against current form fields
-        stableFormFields.forEach(field => {
-          if (!field || !field.id) return;
-          const value = generatedData[field.id];
-          switch (field.type) {
-            case "slider":
-            case "number":
-              if (typeof value === 'number') {
-                const min = field.min || 0;
-                const max = field.max || 10;
-                validatedData[field.id] = Math.max(min, Math.min(max, Math.round(value)));
-              } else {
-                validatedData[field.id] = field.defaultValue;
-              }
-              break;
-            case "checkbox":
-              validatedData[field.id] = typeof value === 'boolean' ? value : field.defaultValue;
-              break;
-            case "textarea":
-            case "text":
-              validatedData[field.id] = typeof value === 'string' ? value : field.defaultValue || "";
-              break;
-            default:
-              validatedData[field.id] = value || field.defaultValue;
-          }
-        });
+        // Use the validation helper from the service
+        const validatedData = validateGeneratedData(generatedData, stableFormFields);
 
         // Reset the form with the generated data
         reset(validatedData);
@@ -348,7 +321,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       }
     } catch (err) {
       console.error("Failed to generate random log:", err);
-      setError(err instanceof Error ? err.message : "Failed to generate random log content.");
+      setError(err instanceof Error ? err.message : "Failed to generate log content.");
     } finally {
       setIsGenerating(false);
     }
@@ -508,6 +481,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
     return acc;
   }, {} as Record<string, TemplateField[]>);
 
+  console.log("📊 Grouped Fields:", {
+    groupedFields,
+    categories: Object.keys(groupedFields),
+    totalFields: Object.values(groupedFields).flat().length
+  });
+
   const categoryNames: Record<string, string> = {
     ratings: "Rate Your Day",
     wellness: "Basic Wellness",
@@ -526,6 +505,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
 
   const progress = calculateProgress();
 
+  console.log("🎨 About to render form:", {
+    groupedFieldsKeys: Object.keys(groupedFields),
+    hasFields: Object.keys(groupedFields).length > 0,
+    stableFormFieldsLength: stableFormFields.length
+  });
+
   /* ────────────────────────────────────────── */
   /* UI                                        */
   /* ────────────────────────────────────────── */
@@ -539,66 +524,13 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         />
       </div>
 
-      {/* Clean Header Controls */}
-      {(hasActiveSubscription || onCustomize) && (
-        <div className="px-4 py-2 flex justify-end gap-3">
-          {/* Customize Button */}
-          {onCustomize && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onCustomize}
-              className="text-amber-600 hover:text-zinc-800 hover:bg-zinc-100 text-xs px-2 py-1 h-auto transition-colors duration-200"
-            >
-              {showTemplates ? (
-                <X className="h-3 w-3 mr-1.5" />
-              ) : (
-                <Settings2 className="h-3 w-3 mr-1.5" />
-              )}
-              Customize
-            </Button>
-          )}
-
-          {/* Generator Button */}
-          {hasActiveSubscription && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleGenerateRandom}
-                    disabled={isSubmitting || isGenerating || !settingsComplete}
-                    className="text-blue-600 hover:text-zinc-800 hover:bg-zinc-100 text-xs px-2 py-1 h-auto transition-colors duration-200 disabled:opacity-50 disabled:hover:bg-transparent"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
-                    ) : (
-                      <Zap className="h-3 w-3 mr-1.5" />
-                    )}
-                    Generator
-                  </Button>
-                </TooltipTrigger>
-                {!settingsComplete && (
-                  <TooltipContent>
-                    <p>Complete your settings first: {missingSettings.join(", ")}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      )}
-
       {/* Enhanced Form Fields with better cards */}
       <div className="relative flex-1 overflow-hidden">
         <ScrollArea className="h-full overflow-x-hidden px-4 py-0">
           <form
             id="daily-log-form"
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 w-full max-w-full mt-0 mb-6"
+            className="space-y-4 w-full max-w-full mt-4 mb-6"
           >
             {Object.entries(groupedFields).map(([category, fields]) => (
               <div key={category} className="bg-white dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/60 rounded-md p-5 transition-all duration-200 ring-1 ring-zinc-100/50 dark:ring-zinc-800/50 ring-inset">
@@ -629,7 +561,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none z-10" />
       </div>
 
-      {/* Enhanced Footer with better save button */}
+      {/* Footer */}
       <div className="sticky bottom-0 w-full border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3">
         {error && (
           <div className="flex items-center space-x-2 mb-3 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
@@ -637,16 +569,13 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             <span className="text-sm">{error}</span>
           </div>
         )}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <Button
+            variant="outline"
             type="submit"
             form="daily-log-form"
             disabled={isSubmitting || isGenerating}
-            className={`${
-              showSuccess
-                ? "bg-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
-                : "bg-gradient-to-r from-emerald-500 to-emerald-500 hover:from-emerald-600 hover:to-emerald-700 shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_16px_rgba(16,185,129,0.35)] hover:scale-105"
-            } text-white px-6 py-2.5 rounded-md transition-all duration-200 font-medium`}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 px-6"
           >
             {showSuccess ? (
               <>
@@ -658,18 +587,16 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
-            ) : existingLog ? (
-              "Update Log"
             ) : (
               "Save Log"
             )}
           </Button>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={onClose}
             disabled={isSubmitting || isGenerating}
-            className="text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 transition-all duration-200"
+            className="h-10 px-6"
           >
             Cancel
           </Button>

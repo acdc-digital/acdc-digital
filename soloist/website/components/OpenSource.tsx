@@ -8,15 +8,15 @@ import Link from "next/link";
 
 export function OpenSource() {
   return (
-    <section className="py-6 md:py-8 mt-2 md:mt-4">
+    <section className="py-6 md:py-8 mt-2 md:mt-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center text-center">
           {/* Badge and Heading */}
-          <div className="space-y-3 md:space-y-4 mb-6 md:mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground md:text-4xl px-2">
+          <div className="space-y-3 md:space-y-8 m-6 mb-6 md:mb-8">
+            <h2 className="text-8xl sm:text-4xl font-parkinsans-semibold tracking-tight text-foreground md:text-7xl px-2">
               Built Open Source
             </h2>
-            <p className="text-muted-foreground text-lg sm:text-lg max-w-2xl mx-auto px-2">
+            <p className="text-muted-foreground font-parkinsans text-xl sm:text-xl max-w-2xl mx-auto px-2">
               Soloist is proudly open source, embracing transparency and collaboration.
               <span className="block sm:inline"> Your wellness journey, built with nothing to hide.</span>
             </p>

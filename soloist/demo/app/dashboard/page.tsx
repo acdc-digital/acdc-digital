@@ -446,12 +446,10 @@ export default function Dashboard() {
 
       return (
         <div className="flex items-center justify-between w-full">
-          <div className="flex flex-col">
-            <span className="font-semibold">Feed</span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              {formatted}
-            </span>
-          </div>
+          <span className="font-semibold">Feed</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+            {formatted}
+          </span>
           {score !== null && (
             <Badge
               className={`${getHeatmapColorClass(score)} ${getHeatmapTextColorClass(score)} border-0 font-semibold text-sm px-2 py-1`}

@@ -1,167 +1,27 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+// Demo mode: useTemplates hook with local template management
+// No Convex backend - all data is ephemeral
+
 import { Template, TemplateField } from "@/app/dashboard/_components/Templates";
 import { useEffect, useState } from "react";
 import { useTemplateStore } from "@/store/templateStore";
 
 interface UseTemplatesProps {
   userId?: string;
-  selectedDate?: string; // Add selectedDate to track per-day state
+  selectedDate?: string;
 }
 
 export function useTemplates({ userId, selectedDate }: UseTemplatesProps) {
+  console.log("🚀 useTemplates CALLED!", { userId, selectedDate });
+  
   // Zustand store for per-day template state
   const { getDayTemplate, setDayTemplate } = useTemplateStore();
   
-  // Local state to track if we've ensured default template exists
-  const [hasEnsuredDefault, setHasEnsuredDefault] = useState(false);
+  // Local state for demo templates
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Queries
-  const templates = useQuery(
-    api.dailyLogTemplates.getUserDailyLogTemplates,
-    userId ? { userId } : "skip"
-  );
-
-  const activeTemplate = useQuery(
-    api.dailyLogTemplates.getActiveDailyLogTemplate,
-    userId ? { userId } : "skip"
-  );
-
-  // Debug logging
-  console.log("🔍 useTemplates Debug:", {
-    userId,
-    selectedDate,
-    templates: templates?.length,
-    activeTemplate: activeTemplate?.name,
-    hasEnsuredDefault
-  });
-
-  // Mutations
-  const saveTemplateMutation = useMutation(api.dailyLogTemplates.saveDailyLogTemplate);
-  const setActiveTemplateMutation = useMutation(api.dailyLogTemplates.setTemplateActive);
-  const deleteTemplateMutation = useMutation(api.dailyLogTemplates.deleteDailyLogTemplate);
-  const duplicateTemplateMutation = useMutation(api.dailyLogTemplates.duplicateDailyLogTemplate);
-
-  // Ensure default template exists
-  useEffect(() => {
-    if (userId && templates !== undefined && !hasEnsuredDefault) {
-      console.log("🔍 Ensuring default template exists for user:", userId);
-      const hasDefaultTemplate = templates.some((t: any) => t.name === "A New Beginning.");
-      
-      if (!hasDefaultTemplate) {
-        console.log("🔍 No default template found, creating manually");
-        const defaultTemplate: Template = {
-          id: "template_default", 
-          name: "A New Beginning.",
-          fields: getDefaultFields(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        saveTemplate(defaultTemplate, true);
-      }
-      setHasEnsuredDefault(true);
-    }
-  }, [userId, templates, hasEnsuredDefault]);
-
-  // Get the effective active template for the current day
-  const getEffectiveActiveTemplate = () => {
-    console.log("🔍 getEffectiveActiveTemplate called:", { selectedDate, templatesLength: templates?.length, activeTemplate: activeTemplate?.name });
-    
-    if (!selectedDate || !templates) {
-      console.log("🔍 Returning activeTemplate:", activeTemplate?.name);
-      return activeTemplate;
-    }
-    
-    // Check if there's a stored template for this specific day
-    const dayTemplateId = getDayTemplate(selectedDate);
-    console.log("🔍 Day template ID for", selectedDate, ":", dayTemplateId);
-    
-    if (dayTemplateId) {
-      const dayTemplate = templates.find((t: any) => t._id === dayTemplateId);
-      if (dayTemplate) {
-        console.log("🔍 Found day template:", dayTemplate.name);
-        return dayTemplate;
-      }
-    }
-    
-    // Check if there's a daily log for this date to determine what template was used
-    // For now, fall back to default template if no day-specific template is set
-    const defaultTemplate = templates.find((t: any) => t.name === "A New Beginning.");
-    console.log("🔍 Default template found:", defaultTemplate?.name);
-    console.log("🔍 Returning:", (defaultTemplate || activeTemplate)?.name);
-    return defaultTemplate || activeTemplate;
-  };
-
-  // Helper functions
-  const saveTemplate = async (template: Template, setAsActive?: boolean) => {
-    if (!userId) throw new Error("User ID is required");
-    
-    const templateId = template.id.startsWith("template_") ? undefined : template.id as Id<"dailyLogTemplates">;
-    
-    const result = await saveTemplateMutation({
-      id: templateId,
-      name: template.name,
-      userId,
-      fields: template.fields,
-      isActive: setAsActive,
-    });
-    
-    // If this is being saved for a specific day, store the association
-    if (selectedDate && result) {
-      setDayTemplate(selectedDate, result);
-    }
-    
-    return result;
-  };
-
-  const setActiveTemplate = async (templateId: Id<"dailyLogTemplates">) => {
-    if (!userId) throw new Error("User ID is required");
-    
-    const result = await setActiveTemplateMutation({
-      templateId,
-      userId,
-    });
-    
-    // Store this template choice for the current day
-    if (selectedDate) {
-      setDayTemplate(selectedDate, templateId);
-    }
-    
-    return result;
-  };
-
-  const deleteTemplate = async (templateId: Id<"dailyLogTemplates">) => {
-    if (!userId) throw new Error("User ID is required");
-    
-    return await deleteTemplateMutation({
-      templateId,
-      userId,
-    });
-  };
-
-  const duplicateTemplate = async (templateId: Id<"dailyLogTemplates">, newName?: string) => {
-    if (!userId) throw new Error("User ID is required");
-    
-    return await duplicateTemplateMutation({
-      templateId,
-      userId,
-      newName,
-    });
-  };
-
-  // Convert Convex template to our Template interface
-  const convertToTemplate = (convexTemplate: any): Template => {
-    return {
-      id: convexTemplate._id,
-      name: convexTemplate.name,
-      fields: convexTemplate.fields,
-      createdAt: convexTemplate.createdAt,
-      updatedAt: convexTemplate.updatedAt,
-    };
-  };
-
-  // Get default template fields if no active template
+  // Get default template fields - DEFINE BEFORE USE
   const getDefaultFields = (): TemplateField[] => {
     return [
       {
@@ -246,28 +106,155 @@ export function useTemplates({ userId, selectedDate }: UseTemplatesProps) {
     ];
   };
 
+  // Initialize demo templates on mount
+  useEffect(() => {
+    const defaultTemplate: Template = {
+      id: "template_default",
+      name: "A New Beginning.",
+      fields: getDefaultFields(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setTemplates([defaultTemplate]);
+    setActiveTemplateId(defaultTemplate.id);
+    setIsLoading(false);
+
+    console.log("🔍 Demo useTemplates initialized with default template", {
+      fieldsCount: defaultTemplate.fields.length,
+      fields: defaultTemplate.fields.map(f => f.id)
+    });
+  }, []);
+
+  // Debug logging
+  console.log("🔍 Demo useTemplates:", {
+    userId,
+    selectedDate,
+    templatesCount: templates.length,
+    activeTemplateId,
+    isLoading,
+    firstTemplateFields: templates[0]?.fields?.length
+  });
+
+  // Get the effective active template for the current day
+  const getEffectiveActiveTemplate = () => {
+    console.log("🔍 Demo getEffectiveActiveTemplate:", { selectedDate, templatesLength: templates.length, activeTemplateId });
+    
+    if (!selectedDate || !templates.length) {
+      const active = templates.find(t => t.id === activeTemplateId);
+      console.log("🔍 Returning active template:", active?.name);
+      return active || null;
+    }
+    
+    // Check if there's a stored template for this specific day
+    const dayTemplateId = getDayTemplate(selectedDate);
+    console.log("🔍 Day template ID for", selectedDate, ":", dayTemplateId);
+    
+    if (dayTemplateId) {
+      const dayTemplate = templates.find(t => t.id === dayTemplateId);
+      if (dayTemplate) {
+        console.log("🔍 Found day template:", dayTemplate.name);
+        return dayTemplate;
+      }
+    }
+    
+    // Fall back to default template
+    const defaultTemplate = templates.find(t => t.name === "A New Beginning.");
+    console.log("🔍 Returning default template:", defaultTemplate?.name);
+    return defaultTemplate || null;
+  };
+
+  // Helper functions (demo mode: all no-ops or local state updates)
+  const saveTemplate = async (template: Template, setAsActive?: boolean) => {
+    console.log("🔍 Demo saveTemplate:", template.name);
+    
+    // Check if template exists
+    const existingIndex = templates.findIndex(t => t.id === template.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing
+      const updated = [...templates];
+      updated[existingIndex] = template;
+      setTemplates(updated);
+    } else {
+      // Add new
+      setTemplates([...templates, template]);
+    }
+    
+    if (setAsActive) {
+      setActiveTemplateId(template.id);
+    }
+    
+    // If this is being saved for a specific day, store the association
+    if (selectedDate) {
+      setDayTemplate(selectedDate, template.id);
+    }
+    
+    return template.id;
+  };
+
+  const setActiveTemplate = async (templateId: string) => {
+    console.log("🔍 Demo setActiveTemplate:", templateId);
+    setActiveTemplateId(templateId);
+    
+    // Store this template choice for the current day
+    if (selectedDate) {
+      setDayTemplate(selectedDate, templateId);
+    }
+    
+    return templateId;
+  };
+
+  const deleteTemplate = async (templateId: string) => {
+    console.log("🔍 Demo deleteTemplate:", templateId);
+    setTemplates(templates.filter(t => t.id !== templateId));
+    
+    if (activeTemplateId === templateId) {
+      const remaining = templates.filter(t => t.id !== templateId);
+      setActiveTemplateId(remaining[0]?.id || null);
+    }
+  };
+
+  const duplicateTemplate = async (templateId: string, newName?: string) => {
+    console.log("🔍 Demo duplicateTemplate:", templateId, newName);
+    const template = templates.find(t => t.id === templateId);
+    
+    if (!template) return null;
+    
+    const newTemplate: Template = {
+      ...template,
+      id: `template_${Date.now()}`,
+      name: newName || `${template.name} (Copy)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    setTemplates([...templates, newTemplate]);
+    return newTemplate.id;
+  };
+
   // Get current form fields (from effective active template or default)
   const getCurrentFormFields = (): TemplateField[] => {
     const effectiveTemplate = getEffectiveActiveTemplate();
-    console.log("🔍 getCurrentFormFields - effectiveTemplate:", effectiveTemplate?.name, "fields:", effectiveTemplate?.fields?.length);
+    console.log("🔍 Demo getCurrentFormFields - effectiveTemplate:", effectiveTemplate?.name, "fields:", effectiveTemplate?.fields?.length);
     
     if (effectiveTemplate) {
       return effectiveTemplate.fields;
     }
     
     const defaultFields = getDefaultFields();
-    console.log("🔍 getCurrentFormFields - using default fields:", defaultFields.length);
+    console.log("🔍 Demo getCurrentFormFields - using default fields:", defaultFields.length);
     return defaultFields;
   };
 
   return {
     // Data
-    templates: templates?.map(convertToTemplate) || [],
-    activeTemplate: getEffectiveActiveTemplate() ? convertToTemplate(getEffectiveActiveTemplate()) : null,
+    templates,
+    activeTemplate: getEffectiveActiveTemplate(),
     currentFormFields: getCurrentFormFields(),
     
     // Loading states
-    isLoading: templates === undefined,
+    isLoading,
     
     // Actions
     saveTemplate,

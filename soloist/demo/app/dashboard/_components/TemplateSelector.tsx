@@ -58,6 +58,8 @@ export default function TemplateSelector({ userId, selectedDate, onCreateNew }: 
   }
 
   const handleTemplateChange = async (value: string) => {
+    console.log("🎯 TemplateSelector: handleTemplateChange called with:", value);
+    
     if (value === "create-new") {
       // Handle creating a new template
       onCreateNew?.();
@@ -65,7 +67,9 @@ export default function TemplateSelector({ userId, selectedDate, onCreateNew }: 
     }
 
     try {
+      console.log("🔄 TemplateSelector: Calling setActiveTemplate with:", value);
       await setActiveTemplate(value as any);
+      console.log("✅ TemplateSelector: setActiveTemplate completed");
     } catch (error) {
       console.error("Failed to set active template:", error);
     }
@@ -100,19 +104,6 @@ export default function TemplateSelector({ userId, selectedDate, onCreateNew }: 
               </div>
             </SelectItem>
           ))}
-
-          {/* Separator */}
-          {uniqueTemplates.length > 0 && (
-            <div key="separator" className="border-t border-zinc-200 dark:border-zinc-700 my-1" />
-          )}
-
-          {/* Create New Template Option */}
-          <SelectItem key="create-new" value="create-new" className="text-emerald-600 dark:text-emerald-400 font-medium">
-            <div className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span>Create New Template</span>
-            </div>
-          </SelectItem>
         </SelectContent>
       </Select>
     </div>

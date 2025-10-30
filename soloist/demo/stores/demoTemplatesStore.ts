@@ -22,8 +22,10 @@ export interface DemoTemplate {
 
 interface DemoTemplatesState {
   templates: DemoTemplate[];
+  activeTemplateId: string | null;
   
   // Core operations
+  setActiveTemplateId: (id: string | null) => void;
   getTemplateById: (id: string) => DemoTemplate | undefined;
   getAllTemplates: () => DemoTemplate[];
   getDefaultTemplates: () => DemoTemplate[];
@@ -43,6 +45,11 @@ export const useDemoTemplatesStore = create<DemoTemplatesState>()(
   persist(
     (set, get) => ({
       templates: [],
+      activeTemplateId: null,
+
+      setActiveTemplateId: (id: string | null) => {
+        set({ activeTemplateId: id });
+      },
 
       getTemplateById: (id: string) => {
         return get().templates.find(t => t._id === id);

@@ -6,20 +6,16 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { DEMO_DATA_2025, type DemoLogData } from '@/data/demoData2025';
 
-export interface DemoLog {
-  _id: string;
-  _creationTime: number;
-  userId: string;
-  date: string; // YYYY-MM-DD format
-  entries: {
-    id: string;
-    templateId: string;
-    templateName: string;
-    content: string;
-    timestamp: number;
-  }[];
-}
+// Debug: Log immediately on module load
+console.log('[demoLogsStore MODULE] Imported DEMO_DATA_2025:', DEMO_DATA_2025?.length || 0, 'entries');
+console.log('[demoLogsStore MODULE] First entry:', DEMO_DATA_2025?.[0]);
+
+// Re-export type with cleaner name
+export type DemoLog = DemoLogData;
+
+export const DEMO_USER_ID = 'demo-user';
 
 interface DemoLogsState {
   logs: DemoLog[];
@@ -39,9 +35,6 @@ interface DemoLogsState {
 
 // Helper to generate ID
 const generateId = () => `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-// Demo user constant
-export const DEMO_USER_ID = 'demo-user';
 
 export const useDemoLogsStore = create<DemoLogsState>()(
   persist(
@@ -158,55 +151,21 @@ export const useDemoLogsStore = create<DemoLogsState>()(
       },
 
       seedDemoData: () => {
-        const today = new Date();
-        const demoLogs: DemoLog[] = [];
-
-        // Generate logs for the past 30 days
-        for (let i = 0; i < 30; i++) {
-          const date = new Date(today);
-          date.setDate(date.getDate() - i);
-          const dateStr = date.toISOString().split('T')[0];
-
-          // Skip some days randomly to make it realistic
-          if (Math.random() > 0.7) continue;
-
-          demoLogs.push({
-            _id: generateId(),
-            _creationTime: date.getTime(),
-            userId: DEMO_USER_ID,
-            date: dateStr,
-            entries: [
-              {
-                id: generateId(),
-                templateId: 'morning-routine',
-                templateName: 'Morning Routine',
-                content: `Today's morning routine:\n- Meditation: 15 minutes\n- Exercise: 30 minute run\n- Breakfast: Oatmeal with berries`,
-                timestamp: date.getTime(),
-              },
-              {
-                id: generateId(),
-                templateId: 'work-focus',
-                templateName: 'Work Focus',
-                content: `Key priorities:\n1. Complete project proposal\n2. Team standup at 10am\n3. Code review for new feature`,
-                timestamp: date.getTime() + 3600000,
-              },
-              {
-                id: generateId(),
-                templateId: 'evening-reflection',
-                templateName: 'Evening Reflection',
-                content: `Today's wins:\n- Finished proposal ahead of schedule\n- Had a productive 1-on-1 with manager\n- Made progress on side project`,
-                timestamp: date.getTime() + 43200000,
-              },
-            ],
-          });
-        }
-
-        set({ logs: demoLogs });
+        // Load pre-generated static demo data for 2025
+        console.log('[demoLogsStore] Loading static demo data...');
+        console.log('[demoLogsStore] DEMO_DATA_2025 length:', DEMO_DATA_2025.length);
+        console.log('[demoLogsStore] Sample data:', DEMO_DATA_2025.slice(0, 2));
+        
+        set({ logs: DEMO_DATA_2025 });
+        
+        const state = get();
+        console.log('[demoLogsStore] Store logs length after set:', state.logs.length);
+        console.log(`[demoLogsStore] ✅ Loaded ${DEMO_DATA_2025.length} demo logs for 2025`);
       },
     }),
     {
       name: 'demo-logs-storage',
-      version: 1,
+      version: 2, // Bumped to force reload of new static data
     }
   )
 );

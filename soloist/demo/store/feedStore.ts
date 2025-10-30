@@ -10,6 +10,7 @@ export interface FeedMessage {
   date: string;
   createdAt: number;
   message: string;
+  isStreaming?: boolean; // NEW: indicates if message is currently streaming
 }
 
 export type RightSidebarTab = "log" | "feed";
@@ -17,6 +18,12 @@ export type RightSidebarTab = "log" | "feed";
 interface FeedState {
   feedMessages: FeedMessage[] | null;
   setFeedMessages: (messages: FeedMessage[] | null) => void;
+  
+  // NEW: streaming state
+  streamingMessage: string | null;
+  setStreamingMessage: (message: string | null) => void;
+  isStreaming: boolean;
+  setIsStreaming: (streaming: boolean) => void;
 
   loading: boolean;
   setLoading: (loading: boolean) => void;
@@ -41,6 +48,12 @@ interface FeedState {
 export const useFeedStore = create<FeedState>((set) => ({
   feedMessages: null,
   setFeedMessages: (messages) => set({ feedMessages: messages }),
+  
+  // NEW: streaming state
+  streamingMessage: null,
+  setStreamingMessage: (message) => set({ streamingMessage: message }),
+  isStreaming: false,
+  setIsStreaming: (streaming) => set({ isStreaming: streaming }),
 
   loading: false,
   setLoading: (loading) => set({ loading }),
