@@ -6,7 +6,7 @@ import { Sparkles, Moon, Flame, TrendingUp } from "lucide-react";
 
 export function RecommendationCard() {
   return (
-    <Card className="w-full max-w-[280px] h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col justify-between">
+    <Card data-mini-card="true" className="w-full max-w-[280px] h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col justify-between">
       {/* Header */}
       <CardHeader className="p-4 pb-2 flex flex-col space-y-1">
         <CardTitle className="text-sm text-zinc-300 font-medium">Take Control</CardTitle>

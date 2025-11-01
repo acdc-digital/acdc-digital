@@ -76,20 +76,34 @@ export function Navbar() {
   // Handle scroll to change navbar text color
   useEffect(() => {
     const handleScroll = () => {
-      // Find the iframe container specifically (not the whole demo-section)
+      const navbarHeight = 80; // Approximate navbar height
+      let shouldBeWhite = false;
+
+      // Check if navbar is over the iframe container
       const iframeContainer = document.getElementById('demo-iframe-container');
       if (iframeContainer) {
         const rect = iframeContainer.getBoundingClientRect();
-        const navbarHeight = 80; // Approximate navbar height
-        
-        // Change color only when the iframe is visible under the navbar
-        // Check if the top of the iframe is above the navbar bottom and bottom is below navbar top
         const isOverIframe = rect.top <= navbarHeight && rect.bottom >= 0;
-        setIsScrolled(isOverIframe);
-      } else {
-        // If iframe container not found, default to false
-        setIsScrolled(false);
+        if (isOverIframe) {
+          shouldBeWhite = true;
+        }
       }
+
+      // Check if navbar is over the mini-component cards (DailyLogCard, FeedCard, etc.)
+      const miniCards = document.querySelectorAll('[data-mini-card="true"]');
+      if (miniCards.length > 0) {
+        // Check each mini card to see if navbar is over any of them
+        for (const card of miniCards) {
+          const rect = card.getBoundingClientRect();
+          const isOverMiniCard = rect.top <= navbarHeight && rect.bottom >= 0;
+          if (isOverMiniCard) {
+            shouldBeWhite = true;
+            break;
+          }
+        }
+      }
+
+      setIsScrolled(shouldBeWhite);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -172,7 +186,7 @@ export function Navbar() {
 
   return (
     <>
-      <header className="mr-3 ml-3 sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-background/85 border-b border-zinc-500 rounded-b-3xl">
+      <header className="mr-3 ml-3 sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-stone-50/35 border-b border-zinc-500 rounded-b-3xl">
         <div className="container mx-auto px-[72px] flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-4">

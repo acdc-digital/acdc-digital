@@ -16,7 +16,7 @@ const data = [
 
 export function MoodForecastCard() {
   return (
-    <Card className="w-full max-w-[280px] h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col justify-between">
+    <Card data-mini-card="true" className="w-full max-w-[280px] h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col justify-between">
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-sm text-zinc-300 font-medium">Mood Forecast</CardTitle>
         <span className="text-xs text-zinc-500">Next 7 Days</span>

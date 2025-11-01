@@ -6,7 +6,7 @@ import { ArrowUp, ThumbsUp, ThumbsDown, Tag } from "lucide-react";
 
 export function FeedCard() {
   return (
-    <Card className="w-full h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col justify-between">
+    <Card data-mini-card="true" className="w-full h-[500px] bg-zinc-900 border-zinc-800 rounded-xl shadow-md flex flex-col">
       {/* Header */}
       <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between">
         <div className="flex flex-col space-y-1">
