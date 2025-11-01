@@ -45,14 +45,14 @@ export function Steps() {
   ];
 
   return (
-    <section className="mt-8 w-full py-20 bg-muted/30">
+    <section className="mt-3 w-full pt-20">
       <div className="mx-auto max-w-[83rem] px-6">
         <div className="text-center mb-12">
-          <h2 className="text-[84px] md:text-[88px] font-bold tracking-tight font-parkinsans-semibold">
+          <h2 className="text-[84px] md:text-[88px] tracking-tight font-parkinsans-semibold">
             How it works
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Four simple steps to transform your daily routine into powerful predictions
+            Four simple steps to transform your daily routine into powerful predictions.
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export function Steps() {
           {steps.map((step, index) => (
             <Card
               key={step.title}
-              className="border-border bg-background hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex-1 rounded-none rounded-b-xl"
+              className="border-border bg-stone-50 hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex-1 rounded-none rounded-b-xl"
             >
               {/* Step Number Badge */}
               <div className="absolute top-4 right-4 text-6xl font-bold text-muted/10 group-hover:text-primary/10 transition-colors">
@@ -129,11 +129,11 @@ export function Steps() {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <p className="text-xl text-foreground max-w-4xl mx-auto">
+        <div className="text-center mt-14">
+          <p className="text-xl text-foreground max-w-5xl mx-auto">
             <span className="font-semibold">The Result: </span> Stop wondering why you feel the way you do. Start predicting and preparing for it.
           </p>
-          <p className="text-xl text-foreground max-w-4xl mx-auto mt-2">
+          <p className="text-xl text-foreground max-w-4xl mx-auto mt-1">
             Like a weather forecast, but for your mind.
           </p>
         </div>

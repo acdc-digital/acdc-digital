@@ -40,13 +40,13 @@ export function BrowserNavbar() {
             </div>
           </div>
 
-          {/* Center - Demo notice */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <span className="text-xs font-normal text-zinc-300">Data and functionality are limited for preview purposes.</span>
-          </div>
-
-          {/* Right side - Simple user avatar */}
+          {/* Right side - Demo notice + User avatar */}
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-100/50 dark:bg-zinc-800/30 rounded-md border border-zinc-200/50 dark:border-zinc-700/30">
+              <div className="w-1 h-1 rounded-full bg-amber-500/60 animate-pulse" />
+              <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 tracking-wide uppercase">Preview Mode</span>
+            </div>
+            
             <Avatar className="h-8 w-8">
               <AvatarFallback className="text-xs bg-blue-500 text-white">{userInitials}</AvatarFallback>
             </Avatar>
