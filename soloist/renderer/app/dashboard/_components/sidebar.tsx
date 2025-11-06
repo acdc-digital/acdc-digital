@@ -18,6 +18,8 @@ import {
   User,
   Calendar,
   Download,
+  MapPin,
+  WaypointsIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -80,6 +82,26 @@ export function Sidebar({ className }: SidebarProps) {
   
   // Use actual subscription status for both browser and desktop mode
   const effectiveSubscription = hasActiveSubscription;
+  
+  // Debug: Log the values to see what's happening
+  React.useEffect(() => {
+    console.log('Sidebar debug:', {
+      isBrowser,
+      isAuthenticated,
+      hasUser: !!user,
+      hasEffectiveUser: !!effectiveUser,
+      effectiveUser,
+      shouldShowAvatar: isBrowser !== null && effectiveUser && ((isBrowser === true) || isAuthenticated)
+    });
+    console.log('Condition breakdown:', {
+      'isBrowser !== null': isBrowser !== null,
+      'effectiveUser exists': !!effectiveUser,
+      'isBrowser === true': isBrowser === true,
+      'isAuthenticated': isAuthenticated,
+      '(isBrowser === true) || isAuthenticated': (isBrowser === true) || isAuthenticated,
+      'FINAL': isBrowser !== null && effectiveUser && ((isBrowser === true) || isAuthenticated)
+    });
+  }, [isBrowser, isAuthenticated, user, effectiveUser]);
   
   const { 
     currentView,
@@ -162,6 +184,17 @@ export function Sidebar({ className }: SidebarProps) {
     setSidebarOpen(false);
     
     console.log("Testing action clicked");
+  };
+
+  const handleWaypoints = () => {
+    // Switch to Waypoints view
+    setView("waypoints");
+    
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("Waypoints action clicked");
   };
 
   const handleCalendar = () => {
@@ -258,6 +291,27 @@ export function Sidebar({ className }: SidebarProps) {
           {/* TOP SECTION - Activity Bar */}
           <div className="relative flex flex-col items-center pt-4 space-y-2">
             {/* Action Buttons */}
+            {/* Waypoints */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleWaypoints}
+                  className={cn(
+                    "h-10 w-10 rounded-lg",
+                    "hover:bg-white/10 dark:hover:bg-white/5",
+                    currentView === "waypoints" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
+                  )}
+                >
+                  <WaypointsIcon className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Waypoints</p>
+              </TooltipContent>
+            </Tooltip>
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -278,31 +332,29 @@ export function Sidebar({ className }: SidebarProps) {
               </TooltipContent>
             </Tooltip>
 
-            {/* Playground - Conditionally shown */}
-            {(isBrowser === true || effectiveSubscription) && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={effectiveSubscription ? handleTesting : undefined}
-                    disabled={!effectiveSubscription}
-                    className={cn(
-                      "h-10 w-10 rounded-lg",
-                      effectiveSubscription
-                        ? "hover:bg-white/10 dark:hover:bg-white/5"
-                        : "opacity-50 cursor-not-allowed",
-                      currentView === "testing" && effectiveSubscription && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                    )}
-                  >
-                    <Activity className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>{effectiveSubscription ? "Playground" : "Playground (Subscribe)"}</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
+            {/* Playground - Always visible, disabled if no subscription */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={effectiveSubscription ? handleTesting : undefined}
+                  disabled={!effectiveSubscription}
+                  className={cn(
+                    "h-10 w-10 rounded-lg",
+                    effectiveSubscription
+                      ? "hover:bg-white/10 dark:hover:bg-white/5"
+                      : "opacity-50 cursor-not-allowed",
+                    currentView === "testing" && effectiveSubscription && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
+                  )}
+                >
+                  <Activity className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{effectiveSubscription ? "Playground" : "Playground (Subscribe)"}</p>
+              </TooltipContent>
+            </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -377,9 +429,13 @@ export function Sidebar({ className }: SidebarProps) {
           </div>
 
           {/* FOOTER SECTION - User Avatar */}
-        <div className="relative flex flex-col items-center pb-4">
-          {isAuthenticated && effectiveUser && (
-            <div className="border-t border-white/10 dark:border-white/5 pt-3 w-full flex justify-center">
+        <div className={cn(
+          "relative flex flex-col items-center",
+          isBrowser === true ? "pb-24 mb-4" : "pb-12" // Extra padding in browser mode for footer
+        )}>
+          {/* Show avatar when: in browser mode (once determined) OR authenticated in desktop */}
+          {isBrowser !== null && effectiveUser && ((isBrowser === true) || isAuthenticated) && (
+            <div className="pt-3 w-full flex justify-center">
               <Tooltip>
                 <DropdownMenu onOpenChange={setIsDropdownOpen}>
                   <TooltipTrigger asChild>

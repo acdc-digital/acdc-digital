@@ -32,6 +32,7 @@ import Feed from "./_components/Feed";
 import { RightSidebar } from "./_components/RightSidebar";
 import SoloistPage from "./soloist/page";
 import TestingPage from "./testing/page";
+import WaypointsPage from "./waypoints/page";
 import { Loader2, ArrowRightToLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tag } from "./_components/Tags";
@@ -318,15 +319,13 @@ export default function Dashboard() {
   /*  Fetch daily logs (dashboard view only, skip for browser mode)       */
   const dailyLogs = useQuery(
     api.dailyLogs.listDailyLogs,
-    { userId, year: selectedYear },
-    { enabled: isBrowser === false && currentView === "dashboard" && !!userId }
+    isBrowser === false && currentView === "dashboard" && convexUserId ? { userId: convexUserId, year: selectedYear } : "skip"
   );
 
   /* Fetch all user tags for filtering (skip for browser mode) */
   const userTags = useQuery(
     api.feed.getFeedTags,
-    userId ? { userId } : "skip",
-    { enabled: isBrowser === false && currentView === "dashboard" && !!userId }
+    isBrowser === false && currentView === "dashboard" && convexUserId ? { userId: convexUserId } : "skip"
   );
 
   // Process tags from the backend
@@ -572,10 +571,15 @@ export default function Dashboard() {
           <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
             <SoloistPage />
           </main>
-        ) : (
+        ) : currentView === "testing" ? (
           /* Testing view */
           <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
             <TestingPage />
+          </main>
+        ) : (
+          /* Waypoints view */
+          <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
+            <WaypointsPage />
           </main>
         )}
       </div>

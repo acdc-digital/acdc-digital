@@ -3,15 +3,27 @@
 @tailwind utilities;
 
 @layer components {
-  .font-parkinsans-bold {
+  .font-parkinsans-light {
     font-family: var(--font-parkinsans);
-    font-weight: 800;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+  
+  .font-parkinsans-normal {
+    font-family: var(--font-parkinsans);
+    font-weight: 400;
     letter-spacing: -0.02em;
   }
   
   .font-parkinsans-semibold {
     font-family: var(--font-parkinsans);
     font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  
+  .font-parkinsans-bold {
+    font-family: var(--font-parkinsans);
+    font-weight: 800;
     letter-spacing: -0.02em;
   }
   

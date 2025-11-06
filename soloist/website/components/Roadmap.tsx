@@ -203,117 +203,118 @@ export function Roadmap() {
   const filteredItems = roadmapData.filter(item => item.phase === activePhase);
 
   return (
-    <section id="roadmap" className="py-12 md:py-18">
+    <section id="roadmap" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-medium text-black mb-4 border border-black">
-            <MapPin className="h-3 w-3" />
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Product Roadmap
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Where we&apos;re headed
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Building the future of mood intelligence, one feature at a time.
           </p>
         </div>
 
         {/* Phase Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           {(["in-progress", "planned", "shipped"] as const).map((phase) => {
             const config = phaseConfig[phase];
             const Icon = config.icon;
+            const itemCount = roadmapData.filter(item => item.phase === phase).length;
             return (
               <button
                 key={phase}
                 onClick={() => setActivePhase(phase)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                   activePhase === phase
-                    ? "bg-white border border-black text-black"
-                    : "bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-primary text-primary-foreground shadow-md scale-105"
+                    : "bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
                 }`}
               >
-                <Icon className="h-3 w-3" />
+                <Icon className="h-4 w-4" />
                 {config.label}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  activePhase === phase
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}>
+                  {itemCount}
+                </span>
               </button>
             );
           })}
         </div>
 
         {/* Compact Timeline Grid */}
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item, index) => {
               const config = phaseConfig[item.phase];
               const Icon = item.icon;
-              const StatusIcon = config.icon;
 
               return (
                 <div
                   key={index}
-                  className="bg-card rounded-lg border border-border p-4 transition-all duration-200 hover:shadow-md"
+                  className="bg-card rounded-xl border border-border p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/50 group"
                 >
-                  <div className="flex items-start gap-3">
-                    {/* Icon */}
-                    <div className={`p-2 rounded-lg ${config.bg} ${config.border} border flex-shrink-0`}>
-                      <Icon className={`h-4 w-4 ${config.color}`} />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="font-semibold text-card-foreground">
-                          {item.title}
-                        </h3>
-                        <div className={`inline-flex items-center gap-1 text-xs ${config.color} flex-shrink-0`}>
-                          <StatusIcon className="h-3 w-3" />
-                          <span className="hidden sm:inline">{item.quarter}</span>
-                        </div>
+                  <div className="flex flex-col h-full">
+                    {/* Header with Icon */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className={`p-3 rounded-lg ${config.bg} ${config.border} border flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
+                        <Icon className={`h-5 w-5 ${config.color}`} />
                       </div>
                       
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {item.description}
-                      </p>
-
-                      {/* Compact Features */}
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {item.features.map((feature, featureIndex) => (
-                          <span
-                            key={featureIndex}
-                            className={`inline-flex items-center text-xs px-2 py-0.5 rounded-full ${
-                              item.phase === "shipped" 
-                                ? "bg-green-100 text-green-700" 
-                                : item.phase === "in-progress"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {feature}
-                          </span>
-                        ))}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-card-foreground mb-1">
+                          {item.title}
+                        </h3>
+                        <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${config.color}`}>
+                          <span>{item.quarter}</span>
+                        </div>
                       </div>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                      {item.description}
+                    </p>
 
-                      {/* Waitlist Button */}
-                      {item.waitlist && (
-                        <button
-                          onClick={() => handleWaitlistJoin("enterprise-api")}
-                          disabled={loadingStates["enterprise-api"]}
-                          className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md border transition-all duration-200 ${
-                            waitlistStates["enterprise-api"]
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-2 mb-4 flex-grow">
+                      {item.features.map((feature, featureIndex) => (
+                        <span
+                          key={featureIndex}
+                          className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+                            item.phase === "shipped"
                               ? "bg-green-50 text-green-700 border-green-200"
-                              : "bg-white text-black border-black hover:bg-gray-50 disabled:opacity-50"
+                              : item.phase === "in-progress"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-muted text-muted-foreground border-border"
                           }`}
                         >
-                          {loadingStates["enterprise-api"] 
-                            ? "Joining..." 
-                            : waitlistStates["enterprise-api"] 
-                            ? "✓ On Waitlist" 
-                            : "Join Waitlist"
-                          }
-                        </button>
-                      )}
+                          {feature}
+                        </span>
+                      ))}
                     </div>
+
+                    {/* Waitlist Button */}
+                    {item.waitlist && (
+                      <button
+                        onClick={() => handleWaitlistJoin("enterprise-api")}
+                        disabled={loadingStates["enterprise-api"]}
+                        className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-lg border-2 transition-all duration-200 ${
+                          waitlistStates["enterprise-api"]
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-primary text-primary-foreground border-primary hover:opacity-90 disabled:opacity-50"
+                        }`}
+                      >
+                        {loadingStates["enterprise-api"]
+                          ? "Joining..."
+                          : waitlistStates["enterprise-api"]
+                          ? "✓ On Waitlist"
+                          : "Join Waitlist"
+                        }
+                      </button>
+                    )}
                   </div>
                 </div>
               );
