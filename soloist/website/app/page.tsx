@@ -148,7 +148,7 @@ export default function LandingPage() {
       <div className="text-left px-32 pt-14 pb-2">
         <div className="hidden md:flex items-end justify-between mb-8">
           <p className="text-xs text-muted-foreground tracking-wide mb-0">
-            you must be signed in to download.
+            you must be subscribed to download.
           </p>
           <div className="flex gap-4 pb-1">
             <DownloadModal>
@@ -156,10 +156,10 @@ export default function LandingPage() {
                 disabled={!downloadsEnabled}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium transition-all duration-200 ${
                   !downloadsEnabled
-                    ? "bg-muted/50 border border-border text-muted-foreground cursor-not-allowed"
+                    ? "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed"
                     : detectedOS === 'macOS'
-                      ? "glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
-                      : "bg-muted/30 border border-border text-muted-foreground cursor-not-allowed opacity-50"
+                      ? "bg-stone-50 glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
+                      : "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 title={
                   !downloadsEnabled
@@ -181,10 +181,10 @@ export default function LandingPage() {
                 disabled={!downloadsEnabled}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium transition-all duration-200 ${
                   !downloadsEnabled
-                    ? "bg-muted/50 border border-border text-muted-foreground cursor-not-allowed"
+                    ? "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed"
                     : detectedOS === 'Windows'
-                      ? "glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
-                      : "bg-muted/30 border border-border text-muted-foreground cursor-not-allowed opacity-50"
+                      ? "bg-stone-50 glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
+                      : "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 title={
                   !downloadsEnabled

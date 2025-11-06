@@ -14,6 +14,8 @@ import type * as ResendOTPPasswordReset from "../ResendOTPPasswordReset.js";
 import type * as admin from "../admin.js";
 import type * as anthropic from "../anthropic.js";
 import type * as auth from "../auth.js";
+import type * as baseline from "../baseline.js";
+import type * as baselineAnalysis from "../baselineAnalysis.js";
 import type * as checkRateLimits from "../checkRateLimits.js";
 import type * as cleanupAuth from "../cleanupAuth.js";
 import type * as clearDatabase from "../clearDatabase.js";
@@ -67,6 +69,8 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   anthropic: typeof anthropic;
   auth: typeof auth;
+  baseline: typeof baseline;
+  baselineAnalysis: typeof baselineAnalysis;
   checkRateLimits: typeof checkRateLimits;
   cleanupAuth: typeof cleanupAuth;
   clearDatabase: typeof clearDatabase;

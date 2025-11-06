@@ -4,7 +4,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronRight, MessageCircle, Sparkles, Shield, Clock, Zap } from "lucide-react";
+import { ChevronRight, MessageCircle, Sparkles, Shield, Clock, Zap, FolderOpen, FileText } from "lucide-react";
 import { PrivacyPolicyModal } from "./privacyPolicy";
 import { ExportDataModal } from "./ExportDataModal";
 import { DocsModal } from "./Docs";
@@ -21,12 +21,12 @@ const AccordionItem = ({ question, children, featured = false }: AccordionItemPr
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-card rounded-lg border border-border p-1 mb-4 transition-all duration-200 hover:shadow-md">
+    <div className="bg-card rounded-xl border border-border p-1 mb-5 transition-all duration-200 hover:shadow-md">
       <button
-        className="flex justify-between items-center w-full text-left px-6 py-4 group"
+        className="flex justify-between items-center w-full text-left px-6 py-5 group"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="font-medium transition-colors text-card-foreground group-hover:text-primary">
+        <span className="font-medium text-lg transition-colors text-card-foreground group-hover:text-primary">
           {question}
         </span>
         <ChevronRight
@@ -37,7 +37,7 @@ const AccordionItem = ({ question, children, featured = false }: AccordionItemPr
         />
       </button>
       {isOpen && (
-        <div className="px-6 pb-5 text-muted-foreground leading-relaxed">
+        <div className="px-6 pb-6 text-muted-foreground text-base leading-relaxed">
           {children}
         </div>
       )}
@@ -47,6 +47,7 @@ const AccordionItem = ({ question, children, featured = false }: AccordionItemPr
 
 // FAQ categories with icons
 const categories = [
+  { id: 'about', name: 'About', icon: MessageCircle },
   { id: 'getting-started', name: 'Getting Started', icon: Zap },
   { id: 'privacy', name: 'Privacy & Security', icon: Shield },
   { id: 'features', name: 'Features & Pricing', icon: Sparkles },
@@ -280,18 +281,14 @@ export function FAQ() {
   const regularFAQs = filteredFAQs.filter(faq => !faq.featured);
 
   return (
-    <section id="faq" className="py-10 md:py-18 mt-4">
+    <section id="faq" className="py-20 md:py-20 mt-4">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-medium text-black mb-4 border border-black">
-            <MessageCircle className="h-3 w-3" />
-            Questions & Answers
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Everything you need to know
+          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[84px] mb-4">
+            Questions? Answers.
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
             Get answers to common questions about mood tracking, privacy, and getting the most from Soloist.
           </p>
         </div>
@@ -310,80 +307,90 @@ export function FAQ() {
           </div>
         </div> */}
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeCategory === category.id
-                    ? "bg-white border border-black text-black"
-                    : "bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {category.name}
-              </button>
-            );
-          })}
-        </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-[300px_1fr] gap-8">
+            {/* Left Side Container */}
+            <div className="border border-black rounded-xl p-3 h-[369px] overflow-y-auto">
+              <nav className="space-y-0.5">
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground mb-2">
+                  <FolderOpen className="h-4 w-4 shrink-0" />
+                  <span className="font-medium">Categories</span>
+                </div>
+                <div className="ml-4 border-l border-border pl-2 space-y-0.5">
+                  {categories.map((category) => {
+                    const Icon = category.icon;
+                    const isSelected = activeCategory === category.id;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setActiveCategory(category.id)}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors text-left ${
+                          isSelected
+                            ? "bg-zinc-800 text-white border border-zinc-700"
+                            : "hover:bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <FileText className="h-4 w-4 shrink-0" />
+                        <span>{category.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+            </div>
 
-        <div className="max-w-4xl mx-auto">
-          {/* Featured Questions */}
-          {featuredFAQs.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-card-foreground mb-6 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                Most Asked Questions
-              </h3>
-              <div className="space-y-4">
-                {featuredFAQs.map((faq, index) => (
-                  <AccordionItem
-                    key={index}
-                    question={faq.question}
-                    featured={true}
+            {/* Right Side - All Questions */}
+            <div>
+              {/* Featured Questions */}
+              {featuredFAQs.length > 0 && (
+                <div className="mb-6">
+                  <div className="space-y-4">
+                    {featuredFAQs.map((faq, index) => (
+                      <AccordionItem
+                        key={index}
+                        question={faq.question}
+                        featured={true}
+                      >
+                        {faq.answer}
+                      </AccordionItem>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Regular Questions */}
+              {regularFAQs.length > 0 && (
+                <div className="space-y-3">
+                  {regularFAQs.map((faq, index) => (
+                    <AccordionItem
+                      key={index}
+                      question={faq.question}
+                    >
+                      {faq.answer}
+                    </AccordionItem>
+                  ))}
+                </div>
+              )}
+
+              {/* No results */}
+              {filteredFAQs.length === 0 && (
+                <div className="text-center py-12">
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-card-foreground mb-2">No questions found</h3>
+                  <p className="text-muted-foreground mb-6">Try browsing a different category.</p>
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setActiveCategory("getting-started");
+                    }}
+                    className="text-primary font-medium hover:text-primary/80 transition-colors"
                   >
-                    {faq.answer}
-                  </AccordionItem>
-                ))}
-              </div>
+                    Back to Getting Started →
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-
-          {/* Regular Questions */}
-          {regularFAQs.length > 0 && (
-            <div className="space-y-3">
-              {regularFAQs.map((faq, index) => (
-                <AccordionItem
-                  key={index}
-                  question={faq.question}
-                >
-                  {faq.answer}
-                </AccordionItem>
-              ))}
-            </div>
-          )}
-
-          {/* No results */}
-          {filteredFAQs.length === 0 && (
-            <div className="text-center py-12">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-card-foreground mb-2">No questions found</h3>
-              <p className="text-muted-foreground mb-6">Try browsing a different category.</p>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setActiveCategory("getting-started");
-                }}
-                className="text-primary font-medium hover:text-primary/80 transition-colors"
-              >
-                Back to Getting Started →
-              </button>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </section>

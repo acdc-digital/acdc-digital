@@ -109,7 +109,7 @@ export function BrowserNavbar() {
 
   return (
     <div>
-      <nav className="bg-white dark:bg-zinc-900 border-b-2 border-zinc-300 dark:border-zinc-700 pl-5 pr-12 py-3">
+      <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 pl-5 pr-12 py-3">
         <div className="flex items-center justify-between w-full">
           {/* Logo/Brand */}
           <div className="flex items-center gap-3">
@@ -132,51 +132,6 @@ export function BrowserNavbar() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
-          {/* Upgrade Button for non-subscribers */}
-          {hasActiveSubscription === false && (
-              <Button
-                onClick={handleSubscribeClick}
-                size="sm"
-                className="h-8 px-6 text-xs bg-gradient-to-r from-emerald-500 to-emerald-500 hover:from-emerald-600 hover:to-emerald-700 text-white border-0 shadow-[0_2px_8px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_12px_rgba(16,185,129,0.35)] transition-all duration-200"
-              >
-                <Crown className="w-3 h-3 mr-1" />
-                Upgrade
-              </Button>
-            )}
-
-            {/* User Menu */}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full pr-4">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.image || undefined} alt={user?.name || "User"} />
-                      <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex flex-col space-y-1 p-2">
-                    <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email || "user@example.com"}
-                    </p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDownloadApp}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download Desktop App
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
             {/* Mobile menu button */}
             <Button
               variant="ghost"

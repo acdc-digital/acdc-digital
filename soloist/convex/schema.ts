@@ -245,4 +245,94 @@ export default defineSchema({
   .index("by_user_and_date", ["userId", "createdAt"])
   .index("by_feature", ["feature"])
   .index("by_model", ["model"]),
+
+  baseline_answers: defineTable({
+    userId: v.id("users"),
+    answers: v.object({
+      emotionalFrequency: v.optional(v.string()),
+      stressRecovery: v.optional(v.string()),
+      typicalMood: v.optional(v.string()),
+      emotionalAwareness: v.optional(v.string()),
+      goodDayDescription: v.optional(v.string()),
+      decisionStyle: v.optional(v.string()),
+      overthinking: v.optional(v.string()),
+      reactionToSetback: v.optional(v.string()),
+      motivationType: v.optional(v.string()),
+      focusTrigger: v.optional(v.string()),
+      successDefinition: v.optional(v.string()),
+      consistency: v.optional(v.string()),
+      reflectionFrequency: v.optional(v.string()),
+      resetStrategy: v.optional(v.string()),
+      socialLevel: v.optional(v.string()),
+      rechargeMethod: v.optional(v.string()),
+      selfUnderstanding: v.optional(v.string()),
+      selfImprovementFocus: v.optional(v.string()),
+    }),
+    createdAt: v.number(),
+  })
+  .index("by_userId", ["userId"])
+  .index("by_userId_and_createdAt", ["userId", "createdAt"]),
+
+  baselines: defineTable({
+    userId: v.id("users"),
+    version: v.number(), // 1 = primary baseline, 2 = secondary 4-day, etc.
+    scores: v.object({
+      emotional_stability: v.number(),
+      emotional_awareness: v.number(),
+      cognitive_rationality: v.number(),
+      rumination_risk: v.number(),
+      resilience: v.number(),
+      routine_consistency: v.number(),
+      reflection_habit: v.number(),
+      reset_skill: v.number(),
+      social_pref: v.number(),
+      self_understanding: v.number(),
+      motivation_vector: v.object({
+        achievement: v.number(),
+        growth: v.number(),
+        curiosity: v.number(),
+        recognition: v.optional(v.number()),
+        security: v.optional(v.number()),
+      }),
+      baseline_index: v.number(),
+      confidence: v.number(),
+    }),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+  .index("by_userId_and_version", ["userId", "version"])
+  .index("by_userId", ["userId"]),
+
+  baselineAnalysis: defineTable({
+    userId: v.id("users"),
+    // Emotional Landscape
+    emotionalFrequency: v.optional(v.string()),
+    stressRecovery: v.optional(v.string()),
+    typicalMood: v.optional(v.string()),
+    emotionalAwareness: v.optional(v.string()),
+    goodDayDescription: v.optional(v.string()),
+    // Cognitive Patterns
+    decisionStyle: v.optional(v.string()),
+    overthinking: v.optional(v.string()),
+    reactionToSetback: v.optional(v.string()),
+    // Motivation & Focus
+    motivationType: v.optional(v.string()),
+    focusTrigger: v.optional(v.string()),
+    successDefinition: v.optional(v.string()),
+    // Behavioral Rhythms
+    consistency: v.optional(v.string()),
+    reflectionFrequency: v.optional(v.string()),
+    resetStrategy: v.optional(v.string()),
+    // Social & Self-Perception
+    socialLevel: v.optional(v.string()),
+    rechargeMethod: v.optional(v.string()),
+    selfUnderstanding: v.optional(v.string()),
+    selfImprovementFocus: v.optional(v.string()),
+    // Metadata
+    isComplete: v.boolean(),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+  .index("by_userId", ["userId"]),
 });

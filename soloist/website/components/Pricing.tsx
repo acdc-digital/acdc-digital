@@ -319,8 +319,8 @@ export default function Pricing() {
                       }
                       className={`w-full border ${
                         tier.highlighted
-                          ? "bg-primary hover:bg-primary/90 border-primary"
-                          : ""
+                          ? "bg-primary hover:bg-white border-primary"
+                          : "hover:bg-white"
                       }`}
                       variant={tier.highlighted ? "default" : "outline"}
                       size="lg"
@@ -345,7 +345,7 @@ export default function Pricing() {
         {/* Bottom CTA */}
         <div className="text-xl mx-auto max-w-2xl text-center mt-16">
           <p className="text-muted-foreground">
-            Payments are secure and powered by Stripe.
+            We've partnered with Stripe to keep your payments secure.
           </p>
           <p className="text-muted-foreground mt-1">
             Have a question?{" "}
