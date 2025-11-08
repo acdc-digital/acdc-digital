@@ -1,1 +1,0 @@
-Journaling felt pointless when I started, it really did... but in reality it was the only thing that forced me to see patterns in my wins and losses.

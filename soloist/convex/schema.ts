@@ -303,6 +303,16 @@ export default defineSchema({
   .index("by_userId_and_version", ["userId", "version"])
   .index("by_userId", ["userId"]),
 
+  baseline_chats: defineTable({
+    userId: v.id("users"),
+    baselineAnswerId: v.id("baseline_answers"),
+    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+    content: v.string(),
+    createdAt: v.number(),
+  })
+  .index("by_baselineAnswerId", ["baselineAnswerId"])
+  .index("by_userId_and_baselineAnswerId", ["userId", "baselineAnswerId"]),
+
   baselineAnalysis: defineTable({
     userId: v.id("users"),
     // Emotional Landscape

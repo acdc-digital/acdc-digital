@@ -1,8 +1,9 @@
 // DETERMINISTIC BASELINE COMPUTATION
 // /Users/matthewsimon/Projects/acdc-digital/soloist/convex/baseline.ts
 
-import { mutation, query, action } from "./_generated/server";
+import { mutation, query, action, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 // ---------- Helpers: deterministic scoring maps ----------
 function mapEmotionalFrequency(val: string | undefined): number {
@@ -230,24 +231,14 @@ export const saveBaselineAnswers = mutation({
   },
   returns: v.id("baseline_answers"),
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const now = Date.now();
     const id = await ctx.db.insert("baseline_answers", {
-      userId: user._id,
+      userId,
       answers: args.answers,
       createdAt: now,
     });
@@ -263,25 +254,15 @@ export const computePrimaryBaseline = mutation({
     confidence: v.number(),
   }),
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     // Get the latest baseline answers for this user
     const allAnswers = await ctx.db
       .query("baseline_answers")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .order("desc")
       .take(1);
 
@@ -341,7 +322,7 @@ export const computePrimaryBaseline = mutation({
     const existingBaseline = await ctx.db
       .query("baselines")
       .withIndex("by_userId_and_version", (q) => 
-        q.eq("userId", user._id).eq("version", 1)
+        q.eq("userId", userId).eq("version", 1)
       )
       .unique();
 
@@ -371,7 +352,7 @@ export const computePrimaryBaseline = mutation({
     } else {
       // Create new baseline
       baselineId = await ctx.db.insert("baselines", {
-        userId: user._id,
+        userId,
         version: 1,
         scores: {
           emotional_stability,
@@ -394,6 +375,55 @@ export const computePrimaryBaseline = mutation({
     }
 
     return { baselineId, baseline_index, confidence };
+  },
+});
+
+/**
+ * Internal: Get latest baseline for a user (for actions)
+ */
+export const getLatestBaseline = internalQuery({
+  args: { userId: v.id("users") },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("baselines"),
+      _creationTime: v.number(),
+      userId: v.id("users"),
+      version: v.number(),
+      scores: v.object({
+        emotional_stability: v.number(),
+        emotional_awareness: v.number(),
+        cognitive_rationality: v.number(),
+        rumination_risk: v.number(),
+        resilience: v.number(),
+        routine_consistency: v.number(),
+        reflection_habit: v.number(),
+        reset_skill: v.number(),
+        social_pref: v.number(),
+        self_understanding: v.number(),
+        motivation_vector: v.object({
+          achievement: v.number(),
+          growth: v.number(),
+          curiosity: v.number(),
+          recognition: v.optional(v.number()),
+          security: v.optional(v.number()),
+        }),
+        baseline_index: v.number(),
+        confidence: v.number(),
+      }),
+      notes: v.optional(v.string()),
+      createdAt: v.number(),
+    })
+  ),
+  handler: async (ctx, args) => {
+    // Get the latest baseline for this user (highest version number)
+    const baseline = await ctx.db
+      .query("baselines")
+      .withIndex("by_userId_and_version", (q) => q.eq("userId", args.userId))
+      .order("desc")
+      .first();
+
+    return baseline;
   },
 });
 
@@ -432,18 +462,8 @@ export const getBaseline = query({
     })
   ),
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
@@ -451,7 +471,7 @@ export const getBaseline = query({
     const baseline = await ctx.db
       .query("baselines")
       .withIndex("by_userId_and_version", (q) => 
-        q.eq("userId", user._id).eq("version", args.version)
+        q.eq("userId", userId).eq("version", args.version)
       )
       .unique();
 
@@ -493,25 +513,15 @@ export const getAllBaselines = query({
     })
   ),
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return [];
     }
 
     // Get all baselines for this user, sorted by version
     const baselines = await ctx.db
       .query("baselines")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
 
     return baselines.sort((a, b) => a.version - b.version);
