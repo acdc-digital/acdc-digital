@@ -104,5 +104,6 @@
   // Additional VS Code settings for better icon experience
   "workbench.iconTheme": "material-icon-theme",
   "explorer.decorations.colors": true,
-  "explorer.decorations.badges": true
+  "explorer.decorations.badges": true,
+  "gitlens.gitkraken.mcp.autoEnabled": false
 }

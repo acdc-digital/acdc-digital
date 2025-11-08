@@ -6,15 +6,15 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import DraggableHeader from "./dashboard/_components/DraggableHeader";
-import { BrowserNavbar } from "@/components/BrowserNavbar";
-import { BrowserFooter } from "@/components/BrowserFooter";
+import { BrowserNavbar } from "./dashboard/_components/BrowserNavbar";
+import { BrowserFooter } from "./dashboard/_components/BrowserFooter";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { SignInModal } from "@/components/SignInModal";
+import { SignInModal } from "@/app/dashboard/_components/modals/SignInModal";
 import { useBrowserEnvironment } from "@/utils/environment";
 
 /**
@@ -172,7 +172,8 @@ export default function LandingPage() {
         </div>
       ) : null /* Show nothing during hydration */}
       
-      <div className={`flex flex-1 flex-col items-center justify-center p-4 ${isBrowser === false ? 'pt-12' : ''}`}>
+      {/* Add padding-top in Electron mode to account for header (h-9 = 36px + 1px border = 37px) */}
+      <div className={`flex flex-1 flex-col items-center justify-center p-4 ${isBrowser === false ? 'pt-[49px]' : ''}`}>
         {content}
       </div>
       

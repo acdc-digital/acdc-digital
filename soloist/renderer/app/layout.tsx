@@ -7,6 +7,7 @@ import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import ConvexClientProvider from "@/providers/ConvexClientProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { ViewProvider } from "@/providers/ViewProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +42,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ConvexClientProvider>
-              {children}
+              <ViewProvider>
+                {children}
+              </ViewProvider>
             </ConvexClientProvider>
           </ThemeProvider>
         </body>

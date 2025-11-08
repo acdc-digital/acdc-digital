@@ -115,33 +115,22 @@ async function createWindow() {
   });
 
   if (isDev) {
-    // Development mode: try to connect to dev server
-    // Define ports to try (ordered by priority) - renderer should be on 3002
-    const ports = [3002, 3000, 3001, 3003];
+    // Development mode: connect to the renderer dev server ONLY on port 3002
+    // Port 3003 is for the demo which is embedded in the website
+    const rendererPort = 3002;
     
-    // Try each port sequentially
-    function tryNextPort(index) {
-      if (index >= ports.length) {
-        // If all ports failed, load the fallback HTML
+    isRendererServerRunning(rendererPort, (isRunning) => {
+      if (isRunning) {
+        // Renderer found at the correct port
+        win.loadURL(`http://localhost:${rendererPort}`);
+        console.log(`✅ Loaded renderer from development server at http://localhost:${rendererPort}`);
+      } else {
+        // Renderer not running - show instructions
+        console.error(`❌ Renderer not found on port ${rendererPort}`);
+        console.log('💡 Make sure to start the renderer with: pnpm run dev:renderer');
         loadFallbackHTML(win);
-        return;
       }
-      
-      const port = ports[index];
-      isRendererServerRunning(port, (isRunning) => {
-        if (isRunning) {
-          // Renderer found at this port
-          win.loadURL(`http://localhost:${port}`);
-          console.log(`✅ Loaded renderer from development server at http://localhost:${port}`);
-        } else {
-          // Try the next port
-          tryNextPort(index + 1);
-        }
-      });
-    }
-    
-    // Start trying ports
-    tryNextPort(0);
+    });
   } else {
     // Production mode: load from deployed Vercel URL
     console.log(`Loading renderer from ${PRODUCTION_RENDERER_URL}`);
@@ -186,22 +175,38 @@ function loadFallbackHTML(win) {
               border-radius: 4px; 
               font-family: 'Monaco', 'Menlo', monospace;
             }
+            .warning {
+              background: rgba(255,200,0,0.2);
+              border: 2px solid rgba(255,200,0,0.5);
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px auto;
+              max-width: 600px;
+            }
           </style>
         </head>
         <body>
           <h1>🎵 Soloist Pro</h1>
           <p>Welcome to Soloist Pro!</p>
-          <p>The Next.js renderer is not running yet.</p>
-          <p>Start the full development environment with:</p>
+          <div class="warning">
+            <p><strong>⚠️ Renderer Not Found</strong></p>
+            <p>The app renderer must be running on port 3002</p>
+          </div>
+          <p>Start the renderer with:</p>
+          <p><code>pnpm run dev:renderer</code></p>
+          <p>Or start the full development environment:</p>
           <p><code>pnpm dev</code></p>
-          <p>Or start just the renderer with:</p>
-          <p><code>pnpm --filter renderer dev</code></p>
+          <hr style="margin: 30px auto; max-width: 400px; border: 1px solid rgba(255,255,255,0.3);">
+          <p style="font-size: 0.9em; opacity: 0.8;">
+            Note: Port 3003 is reserved for the demo (website iframe)<br>
+            Port 3002 is for the main app renderer
+          </p>
         </body>
       </html>
     `);
   }
   win.loadFile(htmlPath);
-  console.log("⚠️ Loaded fallback HTML - renderer not found on any port");
+  console.log("⚠️ Loaded fallback HTML - renderer not found on port 3002");
 }
 
 // IPC handlers for window controls

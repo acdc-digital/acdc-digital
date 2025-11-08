@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useBrowserEnvironment } from "@/utils/environment";
-import { PricingModal } from "@/components/PricingModal";
+import { PricingModal } from "./modals/PricingModal";
 import { Button } from "@/components/ui/button";
 
 const DraggableHeader: React.FC = () => {

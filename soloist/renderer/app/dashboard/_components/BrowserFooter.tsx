@@ -5,9 +5,9 @@
 
 import React, { useState } from "react";
 import { Github, ExternalLink, MessageSquare } from "lucide-react";
-import { PrivacyPolicyModal } from "./privacyPolicy";
-import { TermsOfServiceModal } from "./termsOfService";
-import { FeedbackModal } from "./FeedbackModal";
+import { PrivacyPolicyModal } from "./legal/privacyPolicy";
+import { TermsOfServiceModal } from "./legal/termsOfService";
+import { FeedbackModal } from "./modals/FeedbackModal";
 import {
   Dialog,
   DialogContent,

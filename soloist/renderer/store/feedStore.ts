@@ -31,11 +31,22 @@ interface FeedState {
   activeTab: RightSidebarTab;
   setActiveTab: (tab: RightSidebarTab) => void;
 
+  // Template UI coordination
+  showTemplates: boolean;
+  setShowTemplates: (show: boolean) => void;
+  
+  // Template creation state
+  isCreatingTemplate: boolean;
+  setIsCreatingTemplate: (creating: boolean) => void;
+
   // NEW: reset or "destructure" feed
   resetFeed: () => void;
   
   // NEW: update selected date while preserving the current active tab
   updateDatePreserveTab: (date: string | null) => void;
+  
+  // NEW: sync date with dashboard store
+  syncDateWithDashboard: (dashboardDate: string) => void;
 }
 
 export const useFeedStore = create<FeedState>((set) => ({
@@ -54,17 +65,30 @@ export const useFeedStore = create<FeedState>((set) => ({
 
   activeTab: "log",
   setActiveTab: (tab) => set({ activeTab: tab }),
+  
+  showTemplates: false,
+  setShowTemplates: (show) => set({ showTemplates: show }),
+  
+  isCreatingTemplate: false,
+  setIsCreatingTemplate: (creating) => set({ isCreatingTemplate: creating }),
 
   // Example function to clear feed & switch to "log" tab
   resetFeed: () => {
     set({
       feedMessages: null,
       activeTab: "log",
+      showTemplates: false,
+      isCreatingTemplate: false,
     });
   },
   
   // Update selected date without changing the active tab
   updateDatePreserveTab: (date) => {
     set({ selectedDate: date });
+  },
+  
+  // Sync date from dashboard store to keep consistent
+  syncDateWithDashboard: (dashboardDate) => {
+    set({ selectedDate: dashboardDate });
   },
 }));
