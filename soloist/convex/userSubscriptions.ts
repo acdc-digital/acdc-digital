@@ -313,10 +313,10 @@ export const hasActiveSubscription = query({
     // Use getAuthUserId to get the Convex user ID
     const convexUserId = await getAuthUserId(ctx);
 
-    console.log("hasActiveSubscription - convexUserId from getAuthUserId:", convexUserId);
+    // console.log("hasActiveSubscription - convexUserId from getAuthUserId:", convexUserId);
 
     if (!convexUserId) {
-      console.log("hasActiveSubscription - No convexUserId, returning false");
+      // console.log("hasActiveSubscription - No convexUserId, returning false");
       return false;
     }
 
@@ -326,14 +326,14 @@ export const hasActiveSubscription = query({
       .withIndex("by_userId", (q) => q.eq("userId", convexUserId))
       .first();
 
-    console.log("hasActiveSubscription - subscription found by convex user ID:", subscription);
+    // console.log("hasActiveSubscription - subscription found by convex user ID:", subscription);
 
     // If no subscription found by Convex user ID, try to find by auth user ID
     // by looking up the user's auth ID first
     if (!subscription) {
       const user = await ctx.db.get(convexUserId);
       if (user?.authId) {
-        console.log("hasActiveSubscription - trying to find subscription by auth ID:", user.authId);
+        // console.log("hasActiveSubscription - trying to find subscription by auth ID:", user.authId);
         
         // Look for subscription records that might have been stored with auth ID
         subscription = await ctx.db
@@ -341,11 +341,11 @@ export const hasActiveSubscription = query({
           .filter((q) => q.eq(q.field("userId"), user.authId as any))
           .first();
         
-        console.log("hasActiveSubscription - subscription found by auth ID:", subscription);
+        // console.log("hasActiveSubscription - subscription found by auth ID:", subscription);
       }
       
       if (!subscription) {
-        console.log("hasActiveSubscription - No subscription found anywhere, returning false");
+        // console.log("hasActiveSubscription - No subscription found anywhere, returning false");
         return false;
       }
     }

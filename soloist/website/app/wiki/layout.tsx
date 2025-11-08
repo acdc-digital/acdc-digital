@@ -25,6 +25,9 @@ export default function WikiLayout({
               <a href="/wiki/user-guide" className="text-foreground/60 hover:text-foreground">
                 User Guide
               </a>
+              <a href="/wiki/authentication" className="text-foreground/60 hover:text-foreground">
+                Authentication
+              </a>
             </nav>
           </div>
         </div>

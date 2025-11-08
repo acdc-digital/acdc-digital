@@ -31,7 +31,7 @@ export function BrowserFooter() {
 
   return (
     <>
-      <footer className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60 py-1 pl-6 md:pl-6 pr-1 md:pr-10">
+      <footer className="flex-shrink-0 relative z-30 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-200/60 dark:border-zinc-700/60 py-1 pl-6 md:pl-6 pr-1 md:pr-10">
         <div className="w-full">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             {/* Left: ACDC.digital branding */}

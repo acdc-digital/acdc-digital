@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Electron app region styles */
+.drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

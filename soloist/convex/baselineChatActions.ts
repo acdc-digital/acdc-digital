@@ -35,7 +35,7 @@ export const generateBaselineAnalysis = action({
     });
 
     // Construct psychoanalysis prompt
-    const prompt = buildAnalysisPrompt(baselineAnswers.answers, baseline?.scores);
+    const prompt = buildAnalysisPrompt(baselineAnswers, baseline?.scores);
 
     // Call Claude Haiku
     const message = await anthropic.messages.create({
@@ -118,7 +118,7 @@ export const chatWithAnalysis = action({
     const response = await anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
       max_tokens: 1500,
-      system: buildChatSystemPrompt(baselineAnswers?.answers),
+      system: buildChatSystemPrompt(baselineAnswers),
       messages,
     });
 

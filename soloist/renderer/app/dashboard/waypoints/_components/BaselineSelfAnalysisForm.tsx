@@ -59,7 +59,7 @@ export function BaselineSelfAnalysisForm({
   const computePrimaryBaseline = useMutation(api.baseline.computePrimaryBaseline);
   const generateAnalysis = useAction(api.baselineChatActions.generateBaselineAnalysis);
   const currentUser = useQuery(api.users.viewer);
-  const existingBaseline = useQuery(api.baselineAnalysis.getBaseline);
+  const latestBaselineAnswers = useQuery(api.baseline.getLatestBaselineAnswers);
   const computedBaseline = useQuery(api.baseline.getBaseline, { version: 1 });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -69,23 +69,67 @@ export function BaselineSelfAnalysisForm({
     baseline_index: number;
     confidence: number;
   } | null>(null);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = React.useState(false);
 
-  // Load existing baseline data when available
+  // Load existing baseline answers when available
   React.useEffect(() => {
-    if (existingBaseline && !formState.isDirty) {
-      reset(existingBaseline);
+    if (latestBaselineAnswers) {
+      // Always load on first mount, or if not currently editing
+      if (!hasLoadedInitialData || !formState.isDirty) {
+        // Extract only the form fields (exclude _id, _creationTime, userId, createdAt)
+        const {
+          emotionalFrequency,
+          stressRecovery,
+          typicalMood,
+          emotionalAwareness,
+          goodDayDescription,
+          decisionStyle,
+          overthinking,
+          reactionToSetback,
+          motivationType,
+          focusTrigger,
+          successDefinition,
+          consistency,
+          reflectionFrequency,
+          resetStrategy,
+          socialLevel,
+          rechargeMethod,
+          selfUnderstanding,
+          selfImprovementFocus,
+        } = latestBaselineAnswers;
+        
+        reset({
+          emotionalFrequency,
+          stressRecovery,
+          typicalMood,
+          emotionalAwareness,
+          goodDayDescription,
+          decisionStyle,
+          overthinking,
+          reactionToSetback,
+          motivationType,
+          focusTrigger,
+          successDefinition,
+          consistency,
+          reflectionFrequency,
+          resetStrategy,
+          socialLevel,
+          rechargeMethod,
+          selfUnderstanding,
+          selfImprovementFocus,
+        });
+        setHasLoadedInitialData(true);
+      }
     }
-  }, [existingBaseline, reset, formState.isDirty]);
+  }, [latestBaselineAnswers, reset, formState.isDirty, hasLoadedInitialData]);
 
   const onSubmit = async (data: BaselineFormValues) => {
     setIsSubmitting(true);
     setIsComputing(true);
 
     try {
-      // Save the answers first
-      const answerId = await saveBaselineAnswers({
-        answers: data,
-      });
+      // Save the answers first - now passing individual fields
+      const answerId = await saveBaselineAnswers(data);
 
       // Compute the deterministic baseline
       const result = await computePrimaryBaseline();
@@ -175,21 +219,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How often do you experience strong emotions?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup 
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("emotionalFrequency")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), emotionalFrequency: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="rarely" {...register("emotionalFrequency")} />
+                  <RadioGroupItem value="rarely" id="rarely" />
                   <Label htmlFor="rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sometimes" id="sometimes" {...register("emotionalFrequency")} />
+                  <RadioGroupItem value="sometimes" id="sometimes" />
                   <Label htmlFor="sometimes" className="font-normal cursor-pointer text-[13px]">Sometimes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="often" id="often" {...register("emotionalFrequency")} />
+                  <RadioGroupItem value="often" id="often" />
                   <Label htmlFor="often" className="font-normal cursor-pointer text-[13px]">Often</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="constantly" id="constantly" {...register("emotionalFrequency")} />
+                  <RadioGroupItem value="constantly" id="constantly" />
                   <Label htmlFor="constantly" className="font-normal cursor-pointer text-[13px]">Constantly</Label>
                 </div>
               </RadioGroup>
@@ -210,21 +260,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 What's your typical baseline mood?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("typicalMood")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), typicalMood: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="optimistic" id="optimistic" {...register("typicalMood")} />
+                  <RadioGroupItem value="optimistic" id="optimistic" />
                   <Label htmlFor="optimistic" className="font-normal cursor-pointer text-[13px]">Optimistic</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="neutral" id="neutral" {...register("typicalMood")} />
+                  <RadioGroupItem value="neutral" id="neutral" />
                   <Label htmlFor="neutral" className="font-normal cursor-pointer text-[13px]">Neutral</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cautious" id="cautious" {...register("typicalMood")} />
+                  <RadioGroupItem value="cautious" id="cautious" />
                   <Label htmlFor="cautious" className="font-normal cursor-pointer text-[13px]">Cautious</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="varies" id="varies" {...register("typicalMood")} />
+                  <RadioGroupItem value="varies" id="varies" />
                   <Label htmlFor="varies" className="font-normal cursor-pointer text-[13px]">Varies widely</Label>
                 </div>
               </RadioGroup>
@@ -257,17 +313,23 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 When making decisions, do you rely more on logic or instinct?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("decisionStyle")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), decisionStyle: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="logic" id="logic" {...register("decisionStyle")} />
+                  <RadioGroupItem value="logic" id="logic" />
                   <Label htmlFor="logic" className="font-normal cursor-pointer text-[13px]">Logic</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="balanced" id="balanced" {...register("decisionStyle")} />
+                  <RadioGroupItem value="balanced" id="balanced" />
                   <Label htmlFor="balanced" className="font-normal cursor-pointer text-[13px]">Balanced</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="instinct" id="instinct" {...register("decisionStyle")} />
+                  <RadioGroupItem value="instinct" id="instinct" />
                   <Label htmlFor="instinct" className="font-normal cursor-pointer text-[13px]">Instinct</Label>
                 </div>
               </RadioGroup>
@@ -277,21 +339,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How often do you overthink or second-guess yourself?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("overthinking")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), overthinking: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="overthink-rarely" {...register("overthinking")} />
+                  <RadioGroupItem value="rarely" id="overthink-rarely" />
                   <Label htmlFor="overthink-rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sometimes" id="overthink-sometimes" {...register("overthinking")} />
+                  <RadioGroupItem value="sometimes" id="overthink-sometimes" />
                   <Label htmlFor="overthink-sometimes" className="font-normal cursor-pointer text-[13px]">Sometimes</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="often" id="overthink-often" {...register("overthinking")} />
-                  <Label htmlFor="overthink-often" className="font-normal cursor-pointer text-[13px]">Often</Label>
+                  <RadioGroupItem value="often" id="overthink-often" />
+                  <Label htmlFor="often" className="font-normal cursor-pointer text-[13px]">Often</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="constantly" id="overthink-constantly" {...register("overthinking")} />
+                  <RadioGroupItem value="constantly" id="overthink-constantly" />
                   <Label htmlFor="overthink-constantly" className="font-normal cursor-pointer text-[13px]">Constantly</Label>
                 </div>
               </RadioGroup>
@@ -324,21 +392,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 What motivates you most when pursuing goals?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("motivationType")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), motivationType: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="achievement" id="achievement" {...register("motivationType")} />
+                  <RadioGroupItem value="achievement" id="achievement" />
                   <Label htmlFor="achievement" className="font-normal cursor-pointer text-[13px]">Achievement</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="growth" id="growth" {...register("motivationType")} />
+                  <RadioGroupItem value="growth" id="growth" />
                   <Label htmlFor="growth" className="font-normal cursor-pointer text-[13px]">Growth</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="curiosity" id="curiosity" {...register("motivationType")} />
+                  <RadioGroupItem value="curiosity" id="curiosity" />
                   <Label htmlFor="curiosity" className="font-normal cursor-pointer text-[13px]">Curiosity</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="impact" id="impact" {...register("motivationType")} />
+                  <RadioGroupItem value="impact" id="impact" />
                   <Label htmlFor="impact" className="font-normal cursor-pointer text-[13px]">Impact</Label>
                 </div>
               </RadioGroup>
@@ -382,17 +456,23 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How consistent are your daily routines?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("consistency")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), consistency: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-consistent" id="very-consistent" {...register("consistency")} />
+                  <RadioGroupItem value="very-consistent" id="very-consistent" />
                   <Label htmlFor="very-consistent" className="font-normal cursor-pointer text-[13px]">Very Consistent</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="somewhat" id="somewhat" {...register("consistency")} />
+                  <RadioGroupItem value="somewhat" id="somewhat" />
                   <Label htmlFor="somewhat" className="font-normal cursor-pointer text-[13px]">Somewhat</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="unpredictable" id="unpredictable" {...register("consistency")} />
+                  <RadioGroupItem value="unpredictable" id="unpredictable" />
                   <Label htmlFor="unpredictable" className="font-normal cursor-pointer text-[13px]">Unpredictable</Label>
                 </div>
               </RadioGroup>
@@ -402,21 +482,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How often do you reflect on your day or week?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("reflectionFrequency")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), reflectionFrequency: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="daily" id="daily" {...register("reflectionFrequency")} />
+                  <RadioGroupItem value="daily" id="daily" />
                   <Label htmlFor="daily" className="font-normal cursor-pointer text-[13px]">Daily</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="weekly" id="weekly" {...register("reflectionFrequency")} />
+                  <RadioGroupItem value="weekly" id="weekly" />
                   <Label htmlFor="weekly" className="font-normal cursor-pointer text-[13px]">Weekly</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="occasionally" id="occasionally" {...register("reflectionFrequency")} />
+                  <RadioGroupItem value="occasionally" id="occasionally" />
                   <Label htmlFor="occasionally" className="font-normal cursor-pointer text-[13px]">Occasionally</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="reflect-rarely" {...register("reflectionFrequency")} />
+                  <RadioGroupItem value="rarely" id="reflect-rarely" />
                   <Label htmlFor="reflect-rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
                 </div>
               </RadioGroup>
@@ -449,21 +535,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How much social interaction do you typically have per week?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("socialLevel")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), socialLevel: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="minimal" id="minimal" {...register("socialLevel")} />
+                  <RadioGroupItem value="minimal" id="minimal" />
                   <Label htmlFor="minimal" className="font-normal cursor-pointer text-[13px]">Minimal</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="moderate" id="moderate" {...register("socialLevel")} />
+                  <RadioGroupItem value="moderate" id="moderate" />
                   <Label htmlFor="moderate" className="font-normal cursor-pointer text-[13px]">Moderate</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="frequent" id="frequent" {...register("socialLevel")} />
+                  <RadioGroupItem value="frequent" id="frequent" />
                   <Label htmlFor="frequent" className="font-normal cursor-pointer text-[13px]">Frequent</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-frequent" id="very-frequent" {...register("socialLevel")} />
+                  <RadioGroupItem value="very-frequent" id="very-frequent" />
                   <Label htmlFor="very-frequent" className="font-normal cursor-pointer text-[13px]">Very Frequent</Label>
                 </div>
               </RadioGroup>
@@ -473,17 +565,23 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How do you typically recharge?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("rechargeMethod")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), rechargeMethod: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="alone" id="alone" {...register("rechargeMethod")} />
+                  <RadioGroupItem value="alone" id="alone" />
                   <Label htmlFor="alone" className="font-normal cursor-pointer text-[13px]">Alone time</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="social" id="social" {...register("rechargeMethod")} />
+                  <RadioGroupItem value="social" id="social" />
                   <Label htmlFor="social" className="font-normal cursor-pointer text-[13px]">Social time</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="both" id="both" {...register("rechargeMethod")} />
+                  <RadioGroupItem value="both" id="both" />
                   <Label htmlFor="both" className="font-normal cursor-pointer text-[13px]">Both</Label>
                 </div>
               </RadioGroup>
@@ -493,21 +591,27 @@ export function BaselineSelfAnalysisForm({
               <Label className="text-[13px] font-medium text-[#cccccc]">
                 How well do you think you understand yourself?
               </Label>
-              <RadioGroup className="mt-2 flex flex-wrap gap-3">
+              <RadioGroup
+                className="mt-2 flex flex-wrap gap-3"
+                value={watch("selfUnderstanding")}
+                onValueChange={(value) => {
+                  reset({ ...watch(), selfUnderstanding: value });
+                }}
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-well" id="very-well" {...register("selfUnderstanding")} />
+                  <RadioGroupItem value="very-well" id="very-well" />
                   <Label htmlFor="very-well" className="font-normal cursor-pointer text-[13px]">Very well</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fairly-well" id="fairly-well" {...register("selfUnderstanding")} />
+                  <RadioGroupItem value="fairly-well" id="fairly-well" />
                   <Label htmlFor="fairly-well" className="font-normal cursor-pointer text-[13px]">Fairly well</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="somewhat" id="understand-somewhat" {...register("selfUnderstanding")} />
+                  <RadioGroupItem value="somewhat" id="understand-somewhat" />
                   <Label htmlFor="understand-somewhat" className="font-normal cursor-pointer text-[13px]">Somewhat</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="unsure" id="unsure" {...register("selfUnderstanding")} />
+                  <RadioGroupItem value="unsure" id="unsure" />
                   <Label htmlFor="unsure" className="font-normal cursor-pointer text-[13px]">Unsure</Label>
                 </div>
               </RadioGroup>

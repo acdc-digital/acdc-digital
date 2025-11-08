@@ -63,9 +63,9 @@ export function BaselineChatPanel({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#1e1e1e]">
+    <div className="flex flex-col h-full bg-[#1e1e1e] overflow-hidden">
       {/* Header */}
-      <div className="border-b border-[#2d2d30] bg-[#252526] px-6 py-3">
+      <div className="flex-shrink-0 border-b border-[#2d2d30] bg-[#252526] px-6 py-3">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-[#8b5cf6]" />
           <h2 className="text-[13px] font-semibold text-white">AI Psychoanalysis</h2>
@@ -135,7 +135,7 @@ export function BaselineChatPanel({
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-[#2d2d30] bg-[#252526] p-4">
+      <div className="flex-shrink-0 border-t border-[#2d2d30] bg-[#252526] p-4">
         <div className="flex gap-3">
           <Textarea
             value={message}

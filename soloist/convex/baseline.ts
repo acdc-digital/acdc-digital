@@ -208,26 +208,24 @@ function confidenceScore(answers: Record<string, any>, scores: Record<string, nu
 // ---------- Public mutations/queries/actions ----------
 export const saveBaselineAnswers = mutation({
   args: {
-    answers: v.object({
-      emotionalFrequency: v.optional(v.string()),
-      stressRecovery: v.optional(v.string()),
-      typicalMood: v.optional(v.string()),
-      emotionalAwareness: v.optional(v.string()),
-      goodDayDescription: v.optional(v.string()),
-      decisionStyle: v.optional(v.string()),
-      overthinking: v.optional(v.string()),
-      reactionToSetback: v.optional(v.string()),
-      motivationType: v.optional(v.string()),
-      focusTrigger: v.optional(v.string()),
-      successDefinition: v.optional(v.string()),
-      consistency: v.optional(v.string()),
-      reflectionFrequency: v.optional(v.string()),
-      resetStrategy: v.optional(v.string()),
-      socialLevel: v.optional(v.string()),
-      rechargeMethod: v.optional(v.string()),
-      selfUnderstanding: v.optional(v.string()),
-      selfImprovementFocus: v.optional(v.string()),
-    }),
+    emotionalFrequency: v.optional(v.string()),
+    stressRecovery: v.optional(v.string()),
+    typicalMood: v.optional(v.string()),
+    emotionalAwareness: v.optional(v.string()),
+    goodDayDescription: v.optional(v.string()),
+    decisionStyle: v.optional(v.string()),
+    overthinking: v.optional(v.string()),
+    reactionToSetback: v.optional(v.string()),
+    motivationType: v.optional(v.string()),
+    focusTrigger: v.optional(v.string()),
+    successDefinition: v.optional(v.string()),
+    consistency: v.optional(v.string()),
+    reflectionFrequency: v.optional(v.string()),
+    resetStrategy: v.optional(v.string()),
+    socialLevel: v.optional(v.string()),
+    rechargeMethod: v.optional(v.string()),
+    selfUnderstanding: v.optional(v.string()),
+    selfImprovementFocus: v.optional(v.string()),
   },
   returns: v.id("baseline_answers"),
   handler: async (ctx, args) => {
@@ -239,7 +237,24 @@ export const saveBaselineAnswers = mutation({
     const now = Date.now();
     const id = await ctx.db.insert("baseline_answers", {
       userId,
-      answers: args.answers,
+      emotionalFrequency: args.emotionalFrequency,
+      stressRecovery: args.stressRecovery,
+      typicalMood: args.typicalMood,
+      emotionalAwareness: args.emotionalAwareness,
+      goodDayDescription: args.goodDayDescription,
+      decisionStyle: args.decisionStyle,
+      overthinking: args.overthinking,
+      reactionToSetback: args.reactionToSetback,
+      motivationType: args.motivationType,
+      focusTrigger: args.focusTrigger,
+      successDefinition: args.successDefinition,
+      consistency: args.consistency,
+      reflectionFrequency: args.reflectionFrequency,
+      resetStrategy: args.resetStrategy,
+      socialLevel: args.socialLevel,
+      rechargeMethod: args.rechargeMethod,
+      selfUnderstanding: args.selfUnderstanding,
+      selfImprovementFocus: args.selfImprovementFocus,
       createdAt: now,
     });
     return id;
@@ -271,28 +286,27 @@ export const computePrimaryBaseline = mutation({
     }
 
     const userAnswers = allAnswers[0];
-    const a = userAnswers.answers;
 
     // Calculate all dimension scores
     const emotional_stability = Math.round(
-      0.55 * mapEmotionalFrequency(a.emotionalFrequency) +
-      0.30 * mapStressRecovery(a.stressRecovery) +
-      0.15 * mapTypicalMood(a.typicalMood)
+      0.55 * mapEmotionalFrequency(userAnswers.emotionalFrequency) +
+      0.30 * mapStressRecovery(userAnswers.stressRecovery) +
+      0.15 * mapTypicalMood(userAnswers.typicalMood)
     );
 
-    const awareBase = mapEmotionalAwareness(a.emotionalAwareness);
-    const awareBonus = ((a.goodDayDescription || "").length > 120) ? 5 : 0;
+    const awareBase = mapEmotionalAwareness(userAnswers.emotionalAwareness);
+    const awareBonus = ((userAnswers.goodDayDescription || "").length > 120) ? 5 : 0;
     const emotional_awareness = Math.min(100, awareBase + awareBonus);
 
-    const cognitive_rationality = mapDecisionStyle(a.decisionStyle);
-    const rumination_risk = mapOverthinking(a.overthinking);
-    const resilience = mapSetbackReaction(a.reactionToSetback);
-    const routine_consistency = mapRoutineConsistency(a.consistency);
-    const reflection_habit = mapReflectionFrequency(a.reflectionFrequency);
-    const reset_skill = estimateResetSkill(a.resetStrategy);
-    const social_pref = mapSocialPref(a.socialLevel);
-    const self_understanding = mapSelfUnderstanding(a.selfUnderstanding);
-    const motivation_vector = motivationVector(a.motivationType);
+    const cognitive_rationality = mapDecisionStyle(userAnswers.decisionStyle);
+    const rumination_risk = mapOverthinking(userAnswers.overthinking);
+    const resilience = mapSetbackReaction(userAnswers.reactionToSetback);
+    const routine_consistency = mapRoutineConsistency(userAnswers.consistency);
+    const reflection_habit = mapReflectionFrequency(userAnswers.reflectionFrequency);
+    const reset_skill = estimateResetSkill(userAnswers.resetStrategy);
+    const social_pref = mapSocialPref(userAnswers.socialLevel);
+    const self_understanding = mapSelfUnderstanding(userAnswers.selfUnderstanding);
+    const motivation_vector = motivationVector(userAnswers.motivationType);
 
     const baseline_index = compositeIndex({
       emotional_stability,
@@ -305,7 +319,7 @@ export const computePrimaryBaseline = mutation({
       self_understanding,
     });
 
-    const confidence = confidenceScore(a as any, {
+    const confidence = confidenceScore(userAnswers as any, {
       emotional_stability,
       emotional_awareness,
       cognitive_rationality,
@@ -525,5 +539,54 @@ export const getAllBaselines = query({
       .collect();
 
     return baselines.sort((a, b) => a.version - b.version);
+  },
+});
+
+/**
+ * Get the latest baseline answers for the current user
+ */
+export const getLatestBaselineAnswers = query({
+  args: {},
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("baseline_answers"),
+      _creationTime: v.number(),
+      userId: v.id("users"),
+      emotionalFrequency: v.optional(v.string()),
+      stressRecovery: v.optional(v.string()),
+      typicalMood: v.optional(v.string()),
+      emotionalAwareness: v.optional(v.string()),
+      goodDayDescription: v.optional(v.string()),
+      decisionStyle: v.optional(v.string()),
+      overthinking: v.optional(v.string()),
+      reactionToSetback: v.optional(v.string()),
+      motivationType: v.optional(v.string()),
+      focusTrigger: v.optional(v.string()),
+      successDefinition: v.optional(v.string()),
+      consistency: v.optional(v.string()),
+      reflectionFrequency: v.optional(v.string()),
+      resetStrategy: v.optional(v.string()),
+      socialLevel: v.optional(v.string()),
+      rechargeMethod: v.optional(v.string()),
+      selfUnderstanding: v.optional(v.string()),
+      selfImprovementFocus: v.optional(v.string()),
+      createdAt: v.number(),
+    })
+  ),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return null;
+    }
+
+    // Get the most recent baseline answers for this user
+    const answers = await ctx.db
+      .query("baseline_answers")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .order("desc")
+      .first();
+
+    return answers;
   },
 });

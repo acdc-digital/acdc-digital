@@ -108,7 +108,7 @@ export function BrowserNavbar() {
   }
 
   return (
-    <div>
+    <div className="flex-shrink-0 relative z-30">
       <nav className="bg-white dark:bg-zinc-900 border-b border-zinc-300 dark:border-zinc-700 pl-5 pr-12 py-3">
         <div className="flex items-center justify-between w-full">
           {/* Logo/Brand */}
