@@ -18,8 +18,7 @@ import {
   User,
   Calendar,
   Download,
-  MapPin,
-  WaypointsIcon,
+  ClipboardCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -304,7 +303,7 @@ export function Sidebar({ className }: SidebarProps) {
                     currentView === "waypoints" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
                   )}
                 >
-                  <WaypointsIcon className="h-5 w-5" />
+                  <ClipboardCheck className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">

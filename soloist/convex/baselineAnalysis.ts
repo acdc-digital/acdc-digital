@@ -3,6 +3,7 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 // Mutation to save or update baseline analysis
 export const saveBaseline = mutation({
@@ -35,19 +36,9 @@ export const saveBaseline = mutation({
   },
   returns: v.id("baselineAnalysis"),
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const now = Date.now();
@@ -55,7 +46,7 @@ export const saveBaseline = mutation({
     // Check if baseline already exists for this user
     const existingBaseline = await ctx.db
       .query("baselineAnalysis")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (existingBaseline) {
@@ -69,7 +60,7 @@ export const saveBaseline = mutation({
     } else {
       // Create new baseline
       const baselineId = await ctx.db.insert("baselineAnalysis", {
-        userId: user._id,
+        userId,
         ...args,
         isComplete: args.isComplete ?? false,
         createdAt: now,
@@ -115,25 +106,15 @@ export const getBaseline = query({
     })
   ),
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
     // Get the baseline for this user
     const baseline = await ctx.db
       .query("baselineAnalysis")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     return baseline;
@@ -148,19 +129,9 @@ export const updateBaselineField = mutation({
   },
   returns: v.id("baselineAnalysis"),
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    // Get the user's Convex ID
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (q) => q.eq("email", identity.email))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const now = Date.now();
@@ -168,7 +139,7 @@ export const updateBaselineField = mutation({
     // Check if baseline already exists for this user
     const existingBaseline = await ctx.db
       .query("baselineAnalysis")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (existingBaseline) {
@@ -181,7 +152,7 @@ export const updateBaselineField = mutation({
     } else {
       // Create new baseline with this field
       const baselineId = await ctx.db.insert("baselineAnalysis", {
-        userId: user._id,
+        userId,
         [args.field]: args.value,
         isComplete: false,
         createdAt: now,
