@@ -160,20 +160,28 @@ export default function LandingPage() {
   }
 
     return (
-    <div className="flex flex-col h-screen bg-white dark:bg-black">
+    <div className="flex flex-col h-screen bg-white dark:bg-black relative">
       {/* Show different headers based on environment */}
       {isBrowser === true ? (
-        <BrowserNavbar />
+        <div className="flex-shrink-0">
+          <BrowserNavbar />
+        </div>
       ) : isBrowser === false ? (
-        <DraggableHeader />
+        <div className="absolute top-0 left-0 right-0 z-50">
+          <DraggableHeader />
+        </div>
       ) : null /* Show nothing during hydration */}
       
-      <div className="flex flex-1 flex-col items-center justify-center p-4">
+      <div className={`flex flex-1 flex-col items-center justify-center p-4 ${isBrowser === false ? 'pt-12' : ''}`}>
         {content}
       </div>
       
       {/* Browser Footer - Only show when confirmed browser mode */}
-      {isBrowser === true && <BrowserFooter />}
+      {isBrowser === true && (
+        <div className="flex-shrink-0">
+          <BrowserFooter />
+        </div>
+      )}
       
       {/* Sign In Modal */}
       <SignInModal

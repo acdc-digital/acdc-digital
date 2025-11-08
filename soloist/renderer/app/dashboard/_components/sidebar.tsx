@@ -57,13 +57,13 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const isBrowser = useBrowserEnvironment();
   
-  // Get authenticated user following authentication rules (skip for browser mode)
+  // Get authenticated user following authentication rules
   const { isAuthenticated, isLoading: authLoading, userId } = useConvexUser();
   
-  // Get user details from Convex when authenticated (skip for browser mode)
+  // Get user details from Convex when authenticated (works for both browser and desktop)
   const user = useQuery(
     api.users.viewer,
-    isBrowser === false && isAuthenticated && userId ? {} : "skip"
+    isAuthenticated && userId ? {} : "skip"
   );
   
   // Check subscription status (now works for both browser and desktop mode)
@@ -72,12 +72,8 @@ export function Sidebar({ className }: SidebarProps) {
     isAuthenticated && userId ? {} : "skip"
   );
   
-  // For browser mode, provide default user data
-  const effectiveUser = isBrowser === true ? {
-    name: "Web User",
-    email: "web@soloist.app",
-    image: null
-  } : user;
+  // Use the actual authenticated user data
+  const effectiveUser = user;
   
   // Use actual subscription status for both browser and desktop mode
   const effectiveSubscription = hasActiveSubscription;

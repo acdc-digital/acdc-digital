@@ -36,7 +36,7 @@ export const getUserId = query({
   handler: async (ctx) => {
     // Get the actual database user ID, not the identity subject
     const userId = await getAuthUserId(ctx);
-    console.log("getUserId query called, returning:", userId);
+    // console.log("getUserId query called, returning:", userId);
     return userId;
   },
 });

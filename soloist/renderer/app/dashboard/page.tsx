@@ -473,8 +473,10 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full bg-zinc-50 dark:bg-zinc-900">
       {/* Browser Navbar - Only show when confirmed browser mode */}
-      {isBrowser === true && <BrowserNavbar />}
-      
+      {/* {isBrowser === true && <BrowserNavbar />} */}
+      {/* Reserve space for navbar during initial load to prevent layout shift */}
+      {/* {isBrowser === null && <div className="flex-shrink-0 h-[57px]" />} */}
+
       <div className="flex flex-1 overflow-hidden relative">
         {/* Left sidebar - Always show in both browser and Electron modes */}
         <div className="absolute left-0 top-0 bottom-0 z-20">
@@ -585,7 +587,9 @@ export default function Dashboard() {
       </div>
       
       {/* Browser Footer - Only show when confirmed browser mode */}
-      {isBrowser === true && <BrowserFooter />}
+      {/* {isBrowser === true && <BrowserFooter />} */}
+      {/* Reserve space for footer during initial load to prevent layout shift */}
+      {/* {isBrowser === null && <div className="flex-shrink-0 h-[49px]" />} */}
     </div>
   );
 }

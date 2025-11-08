@@ -46,16 +46,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   // Once authenticated, render the dashboard layout children
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-zinc-950">
-      {/* Header - fixed height - Only show in Electron mode */}
+    <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-zinc-950 relative">
+      {/* Header - fixed at top - Only show in Electron mode */}
       {!isBrowser && (
-        <div className="flex-shrink-0 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="absolute top-0 left-0 right-0 z-50 border-b border-zinc-200 dark:border-zinc-800">
           <DraggableHeader />
         </div>
       )}
 
-      {/* Main content area - takes remaining height */}
-      <div className="flex-1 overflow-hidden">
+      {/* Main content area - takes full height with top padding for header */}
+      <div className={`flex-1 overflow-hidden ${!isBrowser ? 'pt-9' : ''}`}>
         {children}
       </div>
     </div>
