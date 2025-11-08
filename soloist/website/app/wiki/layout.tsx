@@ -19,13 +19,22 @@ export default function WikiLayout({
               <span className="font-bold">Soloist.</span>
             </a>
             <nav className="flex items-center space-x-6 text-sm font-medium">
-              <a href="/wiki" className="text-foreground/60 hover:text-foreground">
+              <a
+                href="/wiki"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Documentation
               </a>
-              <a href="/wiki/user-guide" className="text-foreground/60 hover:text-foreground">
+              <a
+                href="/wiki/user-guide"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 User Guide
               </a>
-              <a href="/wiki/authentication" className="text-foreground/60 hover:text-foreground">
+              <a
+                href="/wiki/authentication"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Authentication
               </a>
             </nav>

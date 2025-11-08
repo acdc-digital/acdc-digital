@@ -15,16 +15,18 @@ import { Badge } from "@/components/ui/badge";
 import { useUser } from "@/hooks/useUser";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useUserStore } from "@/store/userStore";
-import { useSidebarStore } from "@/store/sidebarStore";
 import { useFeedStore } from "@/store/feedStore";
+import { useDashboardStore } from "@/store/dashboardStore";
+import { useCurrentView } from "@/store/viewOrchestrator";
+import { useView } from "@/providers/ViewProvider";
 import { getUserId } from "@/utils/userUtils";
 import { shallowEqual } from "@/utils/objectEquals";
 import { useBrowserEnvironment } from "@/utils/environment";
 
 // Components
 import { Sidebar } from "./_components/sidebar";
-import { BrowserNavbar } from "@/components/BrowserNavbar";
-import { BrowserFooter } from "@/components/BrowserFooter";
+import { BrowserNavbar } from "@/app/dashboard/_components/BrowserNavbar";
+import { BrowserFooter } from "@/app/dashboard/_components/BrowserFooter";
 import Heatmap from "./_components/Heatmap";
 import Controls from "./_components/Controls";
 import DailyLogForm from "./_components/dailyLogForm";
@@ -39,6 +41,7 @@ import { Tag } from "./_components/Tags";
 import TemplateSelector from "./_components/TemplateSelector";
 import Templates, { Template } from "./_components/Templates";
 import { useTemplates } from "@/hooks/useTemplates";
+import { ViewContainer, ViewsWrapper } from "@/components/ViewContainer";
 
 // Add scoreColors import
 import { getColorClass, getTextColorClass } from "@/lib/scoreColors";
@@ -54,14 +57,16 @@ export default function Dashboard() {
   const { isAuthenticated, isLoading, userId: convexUserId } = useConvexUser();
   const router = useRouter();
   const setStoreUser = useUserStore((state) => state.setUser);
-  const { currentView, setView } = useSidebarStore();
+  const currentView = useCurrentView();
+  const { transitionTo } = useView();
 
   // Activity bar is always collapsed with fixed width (w-14 = 56px)
   const sidebarMargin = "ml-14";
   const isBrowser = useBrowserEnvironment();
 
   // Add a state to force refresh subscription status
-  const [refreshSubscription, setRefreshSubscription] = useState(false);
+  const refreshSubscription = useDashboardStore((state) => state.refreshSubscription);
+  const triggerRefresh = useDashboardStore((state) => state.triggerRefresh);
 
   // Check subscription status (now works for both browser and desktop mode)
   const hasActiveSubscription = useQuery(
@@ -97,7 +102,7 @@ export default function Dashboard() {
           alert('Payment successful! Your subscription has been activated.');
           
           // Force a refresh of the subscription status by triggering a re-render
-          setRefreshSubscription(prev => !prev);
+          triggerRefresh();
           
           // Refresh the page after a short delay to allow the database to update
           setTimeout(() => {
@@ -118,9 +123,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (currentView === "testing" && hasActiveSubscription === false) {
       console.log("Non-subscriber trying to access testing view, redirecting to dashboard");
-      setView("dashboard");
+      transitionTo("dashboard");
     }
-  }, [currentView, hasActiveSubscription, setView]);
+  }, [currentView, hasActiveSubscription, transitionTo]);
 
   // Show loading while checking authentication (Electron mode only)
   if (isBrowser === false && isLoading) {
@@ -201,9 +206,11 @@ export default function Dashboard() {
     }
   }, [isBrowser, currentView, selectedDate, sidebarOpen, activeTab, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
 
-  // Tag filtering state (new)
-  const [availableTags, setAvailableTags] = React.useState<Tag[]>([]);
-  const [selectedTags, setSelectedTags] = React.useState<Tag[]>([]);
+  // Tag filtering state from dashboard store
+  const availableTags = useDashboardStore((state) => state.availableTags);
+  const setAvailableTags = useDashboardStore((state) => state.setAvailableTags);
+  const selectedTags = useDashboardStore((state) => state.selectedTags);
+  const setSelectedTags = useDashboardStore((state) => state.setSelectedTags);
 
   // Query for the daily log score (moved from renderSidebarTitle to fix Rules of Hooks)
   const dailyLogForScore = useQuery(
@@ -211,9 +218,11 @@ export default function Dashboard() {
     convexUserId && selectedDate ? { userId: convexUserId, date: selectedDate } : "skip"
   );
 
-  // Templates state
-  const [showTemplates, setShowTemplates] = useState(false);
-  const [isCreatingNewTemplate, setIsCreatingNewTemplate] = useState(false);
+  // Templates state from dashboard store
+  const showTemplates = useDashboardStore((state) => state.showTemplates);
+  const setShowTemplates = useDashboardStore((state) => state.setShowTemplates);
+  const isCreatingNewTemplate = useDashboardStore((state) => state.isCreatingNewTemplate);
+  const setIsCreatingNewTemplate = useDashboardStore((state) => state.setIsCreatingNewTemplate);
   
   // Templates hook - pass selectedDate for per-day state management
   const {
@@ -297,7 +306,8 @@ export default function Dashboard() {
   /* ───────────────────────────────────────────── */
   /*  Heatmap year selector                        */
   /* ───────────────────────────────────────────── */
-  const [selectedYear, setSelectedYear] = React.useState("2025");
+  const selectedYear = useDashboardStore((state) => state.selectedYear.toString());
+  const setSelectedYear = (year: string) => useDashboardStore.getState().setSelectedYear(parseInt(year, 10));
   // Ensure selectedYear is always valid for the year range
   const minYear = 1970;
   const maxYear = new Date().getFullYear() + 10;
@@ -313,7 +323,8 @@ export default function Dashboard() {
       setSelectedYear(years[0]);
     }
   }, [selectedYear, years]);
-  const [selectedLegend, setSelectedLegend] = React.useState<string | null>(null);
+  const selectedLegend = useDashboardStore((state) => state.selectedLegend);
+  const setSelectedLegend = useDashboardStore((state) => state.setSelectedLegend);
   const userId = getUserId(user);
 
   /*  Fetch daily logs (dashboard view only, skip for browser mode)       */
@@ -347,9 +358,10 @@ export default function Dashboard() {
         }
       });
       
+      // Store processed tags with full Tag structure
       setAvailableTags(processedTags);
     }
-  }, [userTags]);
+  }, [userTags, setAvailableTags]);
 
   if (isBrowser === false && currentView === "dashboard" && !dailyLogs) {
     return (
@@ -483,11 +495,11 @@ export default function Dashboard() {
           <Sidebar />
         </div>
 
-        {/* Main content */}
-        {currentView === "dashboard" ? (
-          <>
-            <main className={`flex-1 flex flex-col relative ${sidebarMargin}`}>
-
+        {/* Main content - Keep all views mounted */}
+        <ViewsWrapper className={sidebarMargin}>
+          {/* Dashboard View */}
+          <ViewContainer view="dashboard" currentView={currentView}>
+            <main className="flex-1 flex flex-col relative">
               {/* Year controls */}
               <div className="sticky top-0 z-10 px-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
@@ -511,9 +523,33 @@ export default function Dashboard() {
                 />
               </div>
             </main>
+          </ViewContainer>
 
-            {/* Right sidebar - Always open in browser mode */}
-            <RightSidebar
+          {/* Soloist View */}
+          <ViewContainer view="soloist" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <SoloistPage />
+            </main>
+          </ViewContainer>
+
+          {/* Testing View */}
+          <ViewContainer view="testing" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <TestingPage />
+            </main>
+          </ViewContainer>
+
+          {/* Waypoints View */}
+          <ViewContainer view="waypoints" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <WaypointsPage />
+            </main>
+          </ViewContainer>
+        </ViewsWrapper>
+
+        {/* Right sidebar - Show only for dashboard view, positioned outside ViewContainer */}
+        {currentView === "dashboard" && (
+          <RightSidebar
               open={isBrowser === true ? true : sidebarOpen}
               title={renderSidebarTitle()}
               onClose={isBrowser === true ? undefined : () => {
@@ -567,23 +603,28 @@ export default function Dashboard() {
                 <div className="p-4 text-sm text-zinc-500">No content.</div>
               )}
             </RightSidebar>
-          </>
-        ) : currentView === "soloist" ? (
-          /* Soloist view */
-          <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
-            <SoloistPage />
-          </main>
-        ) : currentView === "testing" ? (
-          /* Testing view */
-          <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
-            <TestingPage />
-          </main>
-        ) : (
-          /* Waypoints view */
-          <main className={`flex-1 overflow-hidden ${sidebarMargin}`}>
-            <WaypointsPage />
-          </main>
-        )}
+          )}
+
+          {/* Soloist View */}
+          <ViewContainer view="soloist" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <SoloistPage />
+            </main>
+          </ViewContainer>
+
+          {/* Testing View */}
+          <ViewContainer view="testing" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <TestingPage />
+            </main>
+          </ViewContainer>
+
+          {/* Waypoints View */}
+          <ViewContainer view="waypoints" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <WaypointsPage />
+            </main>
+          </ViewContainer>
       </div>
       
       {/* Browser Footer - Only show when confirmed browser mode */}

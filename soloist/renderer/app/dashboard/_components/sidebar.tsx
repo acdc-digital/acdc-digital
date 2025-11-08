@@ -8,7 +8,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/userStore";
-import { useSidebarStore } from "@/store/sidebarStore";
+import { useCurrentView } from "@/store/viewOrchestrator";
+import { useView } from "@/providers/ViewProvider";
 import {
   Plus,
   Settings,
@@ -30,8 +31,8 @@ import {
 } from "@/components/ui/tooltip";
 // Import Stores & Modals
 import { SettingsDialog } from "@/app/settings/SettingsDialog";
-import { HelpModal } from "@/components/HelpModal";
-import { ProfileModal } from "@/components/ProfileModal";
+import { HelpModal } from "./modals/HelpModal";
+import { ProfileModal } from "./modals/ProfileModal";
 import { useFeedStore } from "@/store/feedStore";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useQuery } from "convex/react";
@@ -98,10 +99,8 @@ export function Sidebar({ className }: SidebarProps) {
     });
   }, [isBrowser, isAuthenticated, user, effectiveUser]);
   
-  const { 
-    currentView,
-    setView
-  } = useSidebarStore();
+  const currentView = useCurrentView();
+  const { transitionTo } = useView();
   
   // State to control the SettingsDialog
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -136,7 +135,7 @@ export function Sidebar({ className }: SidebarProps) {
     console.log("Create New Log clicked - Current state:", { sidebarOpen, activeTab });
     
     // Set view to dashboard when creating a new log
-    setView("dashboard");
+    transitionTo("dashboard");
     
     // If it's already open on "log", close it (TOGGLE OFF)
     if (sidebarOpen && activeTab === "log") {
@@ -161,7 +160,7 @@ export function Sidebar({ className }: SidebarProps) {
   
   const handleSoloist = () => {
     // Switch to Soloist view
-    setView("soloist");
+    transitionTo("soloist");
     
     // Close the right sidebar if it's open
     const { setSidebarOpen } = useFeedStore.getState();
@@ -172,7 +171,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   const handleTesting = () => {
     // Switch to Testing view
-    setView("testing");
+    transitionTo("testing");
     
     // Close the right sidebar if it's open
     const { setSidebarOpen } = useFeedStore.getState();
@@ -183,7 +182,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   const handleWaypoints = () => {
     // Switch to Waypoints view
-    setView("waypoints");
+    transitionTo("waypoints");
     
     // Close the right sidebar if it's open
     const { setSidebarOpen } = useFeedStore.getState();
@@ -194,7 +193,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   const handleCalendar = () => {
     // Switch to Dashboard/Calendar view
-    setView("dashboard");
+    transitionTo("dashboard");
     
     // Close the right sidebar if it's open
     const { setSidebarOpen } = useFeedStore.getState();
@@ -307,6 +306,27 @@ export function Sidebar({ className }: SidebarProps) {
               </TooltipContent>
             </Tooltip>
 
+            {/* Calendar - moved to second position */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCalendar}
+                  className={cn(
+                    "h-10 w-10 rounded-lg",
+                    "hover:bg-white/10 dark:hover:bg-white/5",
+                    currentView === "dashboard" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
+                  )}
+                >
+                  <Calendar className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Calendar</p>
+              </TooltipContent>
+            </Tooltip>
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -348,26 +368,6 @@ export function Sidebar({ className }: SidebarProps) {
               </TooltipTrigger>
               <TooltipContent side="right">
                 <p>{effectiveSubscription ? "Playground" : "Playground (Subscribe)"}</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCalendar}
-                  className={cn(
-                    "h-10 w-10 rounded-lg",
-                    "hover:bg-white/10 dark:hover:bg-white/5",
-                    currentView === "dashboard" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                  )}
-                >
-                  <Calendar className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Calendar</p>
               </TooltipContent>
             </Tooltip>
 

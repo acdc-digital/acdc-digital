@@ -116,6 +116,7 @@ Soloist Pro is built as a sophisticated monorepo leveraging modern technologies:
 | `pnpm dev` | Boot website, renderer, Electron shell |
 | `pnpm dev:renderer` | Next.js renderer only (port 3002) |
 | `pnpm dev:website` | Marketing site only (port 3004) |
+| `pnpm dev:demo` | Demo iframe only (port 3003) |
 | `pnpm dev:electron` | Electron window with live-reload |
 | `pnpm build` | Build all projects (website, renderer, electron) |
 | `pnpm build:renderer` | Build Next.js renderer for production |
@@ -123,6 +124,18 @@ Soloist Pro is built as a sophisticated monorepo leveraging modern technologies:
 | `pnpm --filter solopro-electron run build:mac` | Build macOS desktop app (.dmg) |
 | `pnpm --filter solopro-electron run build:win` | Build Windows desktop app (.exe) |
 | `pnpm --filter solopro-electron run build:linux` | Build Linux desktop app (AppImage + Deb) |
+
+### Development Port Assignments
+
+**Important:** Each service runs on a dedicated port to prevent conflicts:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Renderer** | **3002** | Main application UI (Electron + Web) |
+| **Demo** | **3003** | Demo iframe for marketing website |
+| **Website** | **3004** | Marketing/landing pages |
+
+> ⚠️ **Note**: The Electron app ONLY loads from port 3002 (renderer). Port 3003 is exclusively for the demo iframe embedded in the website. If the renderer isn't running on 3002, the Electron app will show a fallback screen with instructions.
 
 ## Deployment Commands
 

@@ -49,13 +49,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-zinc-950 relative">
       {/* Header - fixed at top - Only show in Electron mode */}
       {!isBrowser && (
-        <div className="absolute top-0 left-0 right-0 z-50 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="absolute top-0 left-0 right-0 z-50">
           <DraggableHeader />
         </div>
       )}
 
-      {/* Main content area - takes full height with top padding for header */}
-      <div className={`flex-1 overflow-hidden ${!isBrowser ? 'pt-9' : ''}`}>
+      {/* Main content area - takes full height with top padding for header (h-9 = 36px + 1px border = 37px) */}
+      <div className={`flex-1 overflow-hidden ${!isBrowser ? 'pt-[37px]' : ''}`}>
         {children}
       </div>
     </div>
