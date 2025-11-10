@@ -34,7 +34,6 @@ import type * as generator from "../generator.js";
 import type * as historicalForecast from "../historicalForecast.js";
 import type * as http from "../http.js";
 import type * as manualSubscription from "../manualSubscription.js";
-import type * as myFunctions from "../myFunctions.js";
 import type * as newsletter from "../newsletter.js";
 import type * as payments from "../payments.js";
 import type * as prompts from "../prompts.js";
@@ -90,7 +89,6 @@ declare const fullApi: ApiFromModules<{
   historicalForecast: typeof historicalForecast;
   http: typeof http;
   manualSubscription: typeof manualSubscription;
-  myFunctions: typeof myFunctions;
   newsletter: typeof newsletter;
   payments: typeof payments;
   prompts: typeof prompts;

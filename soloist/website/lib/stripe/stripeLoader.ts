@@ -5,7 +5,7 @@ let stripePromise: Promise<Stripe | null> | null = null;
 
 export const getStripePromise = (): Promise<Stripe | null> => {
   if (!stripePromise && typeof window !== 'undefined') {
-    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     
     if (key) {
       stripePromise = loadStripe(key);
@@ -26,5 +26,5 @@ export const isStripeConfigured = (): boolean => {
     return false; // Server-side
   }
   
-  return !!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+  return !!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 }; 

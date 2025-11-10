@@ -14,18 +14,18 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/lib/hooks/useConvexUser";
 
-import { Navbar } from "@/components/Navbar";
-import { HeroEnhanced as Hero } from "@/components/HeroEnhanced";
-import { OpenSource } from "@/components/OpenSource";
-import { Steps } from "@/components/Steps";
-import { DemoApp } from "@/components/DemoApp";
-import { FeatureSection } from "@/components/Reflections";
-import { FAQ } from "@/components/FAQ";
-import { Roadmap } from "@/components/Roadmap";
-import Pricing from "@/components/Pricing";
-import { CTABanner } from "@/components/CTABanner";
-import { Footer } from "@/components/Footer";
-import { DownloadModal } from "@/components/DownloadModal";
+import { Navbar } from "@/components/layout/Navbar";
+import { AnnouncementBanner } from "@/components/landing/AnnouncementBanner";
+import { Steps } from "@/components/landing/Steps";
+import { DemoApp } from "@/components/demo/DemoApp";
+import { FeatureSection } from "@/components/features/Reflections";
+import { FAQ } from "@/components/landing/FAQ";
+import { Roadmap } from "@/components/landing/Roadmap";
+import Pricing from "@/components/landing/Pricing";
+import CompetitiveComparison from "@/components/landing/CompetitiveComparison";
+import { CTABanner } from "@/components/landing/CTABanner";
+import { Footer } from "@/components/layout/Footer";
+import { DownloadModal } from "@/components/modals/DownloadModal";
 import { getCheckoutSession } from "@/lib/services/PaymentService";
 
 
@@ -143,6 +143,7 @@ export default function LandingPage() {
 
       {/* Navigation Bar with Theme Toggle */}
       <Navbar />
+      <AnnouncementBanner />
 
       {/* Hero Text Section */}
       <div className="text-left px-32 pt-14 pb-2">
@@ -156,10 +157,10 @@ export default function LandingPage() {
                 disabled={!downloadsEnabled}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium transition-all duration-200 ${
                   !downloadsEnabled
-                    ? "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed"
+                    ? "bg-white border border-border text-muted-foreground cursor-not-allowed"
                     : detectedOS === 'macOS'
-                      ? "bg-stone-50 glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
-                      : "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed opacity-50"
+                      ? "bg-white glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
+                      : "bg-white border border-border text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 title={
                   !downloadsEnabled
@@ -181,10 +182,10 @@ export default function LandingPage() {
                 disabled={!downloadsEnabled}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium transition-all duration-200 ${
                   !downloadsEnabled
-                    ? "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed"
+                    ? "bg-white border border-border text-muted-foreground cursor-not-allowed"
                     : detectedOS === 'Windows'
-                      ? "bg-stone-50 glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
-                      : "bg-stone-50 border border-border text-muted-foreground cursor-not-allowed opacity-50"
+                      ? "bg-white glass-strong border-border text-foreground hover:border-primary cursor-pointer shadow-sm hover:shadow-md"
+                      : "bg-white border border-border text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 title={
                   !downloadsEnabled
@@ -293,6 +294,9 @@ export default function LandingPage() {
 
         {/* Steps Section */}
         <Steps />
+
+        {/* Competitive Comparison Section */}
+        <CompetitiveComparison />
 
         {/* Pricing Section */}
         <Pricing />

@@ -173,7 +173,7 @@ export function FileExplorerTab() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#1e1e1e]">
+    <div className="h-full flex flex-col bg-[#252526]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#2d2d2d]">
         <h2 className="text-sm font-medium text-[#cccccc]">File Explorer</h2>

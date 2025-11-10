@@ -3,8 +3,6 @@
 import React, { useState, useMemo } from "react";
 import { FunctionTable, SearchBar, TableOfContents } from "./_components";
 import type { FunctionDocumentation } from "./_components";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default function WikiPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -705,11 +703,10 @@ export default function WikiPage() {
     { id: "payments", title: "Payments", count: filteredSections.payments.length },
     { id: "subscriptions", title: "Subscriptions", count: filteredSections.subscriptions.length },
     { id: "waitlist", title: "Waitlist", count: filteredSections.waitlist.length },
-    { id: "state-management", title: "State Management", count: 1 },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl ml-8">
       {/* Header */}
       <div className="mb-12">
         <h1 className="text-5xl font-bold tracking-tight mb-4">API Documentation</h1>
@@ -721,15 +718,8 @@ export default function WikiPage() {
       {/* Search */}
       <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Table of Contents - Sidebar */}
-        <div className="lg:col-span-1">
-          <TableOfContents sections={tableOfContentsSections} />
-        </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-3">
+      {/* Main Content */}
+      <div>
           {/* User Management */}
           {filteredSections.users.length > 0 && (
             <div id="users">
@@ -815,199 +805,7 @@ export default function WikiPage() {
               </p>
             </div>
           )}
-
-          {/* State Management Architecture */}
-          <div id="state-management" className="mt-16 pt-16 border-t">
-            <h2 className="text-4xl font-bold tracking-tight mb-6">State Management Architecture</h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Keep-mounted views with FSM orchestration for persistent UI state
-            </p>
-
-            {/* Overview */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-                <CardDescription>
-                  Soloist uses a sophisticated state management pattern to eliminate state loss during navigation
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="prose dark:prose-invert max-w-none">
-                <p>
-                  The state management system consists of three main components working together:
-                </p>
-                <ul>
-                  <li><strong>Global Zustand Stores</strong> - Centralized state management with persistence</li>
-                  <li><strong>Keep-Mounted Views</strong> - Components stay alive, hidden via CSS instead of unmounting</li>
-                  <li><strong>View Orchestrator FSM</strong> - Finite State Machine coordinating view transitions</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* The Problem */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>The Problem We Solved</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Before: Conditional Rendering</h3>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-{`{currentView === "dashboard" ? (
-  <Dashboard />
-) : currentView === "soloist" ? (
-  <Soloist />
-) : ...
-}`}
-                  </pre>
-                  <p className="text-destructive font-semibold mt-2">
-                    ❌ Problem: When switching views, components completely unmount and remount,
-                    losing all local state like selected date, filters, scroll position, and form inputs.
-                  </p>
-                </div>
-
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2">After: Keep-Mounted Pattern</h3>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-{`<ViewsWrapper>
-  <ViewContainer view="dashboard" currentView={currentView}>
-    <Dashboard />
-  </ViewContainer>
-  <ViewContainer view="soloist" currentView={currentView}>
-    <Soloist />
-  </ViewContainer>
-  {/* All views stay mounted, hidden with CSS */}
-</ViewsWrapper>`}
-                  </pre>
-                  <p className="text-green-600 dark:text-green-400 font-semibold mt-2">
-                    ✅ Solution: All views remain mounted in the DOM. Only visibility changes via CSS.
-                    State persists across navigation!
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Global Stores */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Global Zustand Stores</CardTitle>
-                <CardDescription>Centralized state with persistence middleware</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                    dashboardStore.ts
-                    <Badge>Primary</Badge>
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Manages all dashboard UI state including date selection, filters, tags, and template UI.
-                  </p>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-{`// State structure
-interface DashboardState {
-  selectedYear: number;
-  selectedDate: string;
-  availableTags: Tag[];
-  selectedTags: Tag[];
-  // ... more state
-}
-
-// Usage in components
-const { selectedYear, selectedDate } = useDashboardStore();
-const setSelectedYear = useDashboardStore(s => s.setSelectedYear);`}
-                  </pre>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">feedStore.ts</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Manages feed view state and coordinates with dashboard for template operations.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                    viewOrchestrator.ts
-                    <Badge variant="outline">FSM</Badge>
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Finite State Machine that coordinates view transitions with validation and cleanup.
-                  </p>
-                  <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
-{`// FSM States
-idle → transitioning → active → error
-
-// Usage
-const { transitionTo, canTransitionTo } = useView();
-await transitionTo("soloist"); // Validated transition`}
-                  </pre>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Key Benefits */}
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Key Benefits</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span>
-                    <span><strong>Persistent State:</strong> Selected dates, filters, form inputs survive navigation</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span>
-                    <span><strong>Scroll Position:</strong> Views remember scroll position when you return</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span>
-                    <span><strong>Faster Transitions:</strong> No re-rendering or data fetching on view switch</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span>
-                    <span><strong>Validated Transitions:</strong> FSM prevents invalid state transitions</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span>
-                    <span><strong>localStorage Persistence:</strong> State survives page refreshes</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Implementation Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Implementation Phases</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-600">Complete</Badge>
-                    <span><strong>Phase 1:</strong> Global Stores Foundation (dashboardStore, feedStore)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-600">Complete</Badge>
-                    <span><strong>Phase 2:</strong> Keep-Mounted View System (ViewContainer, ViewsWrapper)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-600">Complete</Badge>
-                    <span><strong>Phase 3:</strong> View Orchestration FSM (viewOrchestrator, ViewProvider)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">Planned</Badge>
-                    <span><strong>Phase 4:</strong> Convex Integration (cloud sync, cross-device state)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">Planned</Badge>
-                    <span><strong>Phase 5:</strong> Monitoring & Validation (debug tools, state validators)</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
-      </div>
     </div>
   );
 }

@@ -81,7 +81,7 @@ export function UserProfile() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#1e1e1e] text-[#858585]">
+      <div className="flex-1 flex items-center justify-center bg-[#252526] text-[#858585]">
         <div className="text-center">
           <p>Loading user profile...</p>
         </div>
@@ -92,7 +92,7 @@ export function UserProfile() {
   // Error state
   if (!user) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#1e1e1e] text-[#858585]">
+      <div className="flex-1 flex items-center justify-center bg-[#252526] text-[#858585]">
         <div className="text-center">
           <p>Unable to load user profile. Please try refreshing the page.</p>
         </div>
@@ -101,9 +101,9 @@ export function UserProfile() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1e1e1e] text-[#cccccc]">
+    <div className="flex-1 flex flex-col bg-[#252526] text-[#cccccc]">
       {/* Header */}
-      <div className="flex-shrink-0 bg-[#1e1e1e] border-b border-[#2d2d30] px-6 py-4">
+      <div className="flex-shrink-0 bg-[#252526] border-b border-[#2d2d30] px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-[#007acc] flex items-center justify-center">
