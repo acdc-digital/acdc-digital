@@ -59,9 +59,6 @@ export default function Dashboard() {
   const setStoreUser = useUserStore((state) => state.setUser);
   const currentView = useCurrentView();
   const { transitionTo } = useView();
-
-  // Activity bar is always collapsed with fixed width (w-14 = 56px)
-  const sidebarMargin = "ml-14";
   const isBrowser = useBrowserEnvironment();
 
   // Add a state to force refresh subscription status
@@ -496,7 +493,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main content - Keep all views mounted */}
-        <ViewsWrapper className={sidebarMargin}>
+        <ViewsWrapper>
           {/* Dashboard View */}
           <ViewContainer view="dashboard" currentView={currentView}>
             <main className="flex-1 flex flex-col relative">

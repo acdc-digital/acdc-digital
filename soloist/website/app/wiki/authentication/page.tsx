@@ -3,8 +3,9 @@
 import React from "react";
 
 export default function AuthenticationPage() {
+
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl ml-8">
       {/* Header */}
       <div className="mb-12">
         <h1 className="text-5xl font-bold tracking-tight mb-4">Authentication System</h1>
@@ -14,7 +15,7 @@ export default function AuthenticationPage() {
       </div>
 
       {/* Overview */}
-      <section className="mb-12">
+      <section id="overview" className="mb-12">
         <h2 className="text-3xl font-bold mb-4">Overview</h2>
         <p className="text-lg text-muted-foreground mb-4">
           Soloist uses <strong>@convex-dev/auth</strong>, a secure authentication library built specifically for Convex backends. This system provides email/password authentication with email verification, password reset capabilities, and robust session management.
@@ -33,7 +34,7 @@ export default function AuthenticationPage() {
       </section>
 
       {/* Authentication Architecture */}
-      <section className="mb-12">
+      <section id="architecture" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Architecture</h2>
         
         <div className="space-y-6">
@@ -65,7 +66,7 @@ export default function AuthenticationPage() {
       </section>
 
       {/* Authentication Flow */}
-      <section className="mb-12">
+      <section id="auth-flow" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Authentication Flow</h2>
 
         <div className="space-y-8">
@@ -225,7 +226,7 @@ export default function AuthenticationPage() {
       </section>
 
       {/* Session Management */}
-      <section className="mb-12">
+      <section id="session-management" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Session Management</h2>
         
         <div className="space-y-6">
@@ -295,7 +296,7 @@ export const myProtectedQuery = query({
       </section>
 
       {/* Password Reset Flow */}
-      <section className="mb-12">
+      <section id="password-security" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Password Reset Flow</h2>
         <div className="bg-muted/50 border rounded-lg p-6 space-y-4">
           <div className="flex items-start space-x-4">
@@ -356,7 +357,7 @@ export const myProtectedQuery = query({
       </section>
 
       {/* OAuth Integration */}
-      <section className="mb-12">
+      <section id="oauth" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">OAuth Integration (GitHub)</h2>
         <p className="text-muted-foreground mb-4">
           Soloist supports GitHub OAuth for authentication. This provides a streamlined sign-in experience using users' GitHub accounts.
@@ -422,7 +423,7 @@ export const myProtectedQuery = query({
       </section>
 
       {/* HTTP Routes and Proxy */}
-      <section className="mb-12">
+      <section id="http-routes" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">HTTP Routes &amp; Authentication Proxy</h2>
         <p className="text-muted-foreground mb-4">
           Authentication requests are proxied through Next.js API routes to Convex's HTTP endpoints.
@@ -496,7 +497,7 @@ export default http;`}</code>
       </section>
 
       {/* Database Schema */}
-      <section className="mb-12">
+      <section id="database-schema" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Database Schema for Authentication</h2>
         <p className="text-muted-foreground mb-4">
           Convex Auth extends the standard users table with authentication-specific fields and supporting tables.
@@ -560,7 +561,7 @@ export default http;`}</code>
       </section>
 
       {/* Security Analysis */}
-      <section className="mb-12">
+      <section id="security" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Security Analysis</h2>
 
         <div className="space-y-6">
@@ -706,7 +707,7 @@ export default http;`}</code>
       </section>
 
       {/* Developer Reference */}
-      <section className="mb-12">
+      <section id="developer-reference" className="mb-12">
         <h2 className="text-3xl font-bold mb-6">Developer Reference</h2>
 
         <div className="space-y-6">

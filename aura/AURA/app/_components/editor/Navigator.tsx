@@ -213,7 +213,7 @@ export function Navigator() {
       </div>
 
       {/* Editor Content - Scrollable */}
-      <div className="flex-1 overflow-auto bg-[#1e1e1e]">
+      <div className="flex-1 overflow-auto bg-[#252526]">
         {currentTab ? (
           <>
             {currentTab.type === 'user-profile' && <UserProfile />}

@@ -99,7 +99,7 @@ export default function AgentTab() {
   };
 
   return (
-    <div className="h-full bg-[#1e1e1e] text-[#cccccc] flex flex-col">
+    <div className="h-full bg-[#252526] text-[#cccccc] flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-[#454545]">
         <div className="flex items-center justify-between mb-4">

@@ -3,17 +3,16 @@
 
 "use client";
 
-import * as React from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../components/ui/dialog";
-import { Button } from "../components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, ChangeEvent } from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { useConvexUser } from "../lib/hooks/useConvexUser";
+import { api } from "@/convex/_generated/api";
+import { useConvexUser } from "@/lib/hooks/useConvexUser";
 import { Loader2, CheckCircle2, User, Phone, Camera, Upload, X, Shield, ArrowLeft } from "lucide-react";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthActions } from "@convex-dev/auth/react";
 
 interface ProfileModalProps {
@@ -74,14 +73,14 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
   }, [open]);
 
   // Get user initials for avatar fallback
-  const userInitials = React.useMemo(() => {
+  const userInitials = useMemo(() => {
     const displayName = name || user?.name || "User";
     const names = displayName.split(' ');
     if (names.length === 1) return names[0].substring(0, 1).toUpperCase();
     return (names[0][0] + names[names.length - 1][0]).toUpperCase();
   }, [name, user?.name]);
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 

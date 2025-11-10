@@ -1,0 +1,327 @@
+// ROADMAP COMPONENT
+// /Users/matthewsimon/Documents/Github/solopro/website/components/Roadmap.tsx
+
+"use client";
+
+import React, { useState } from "react";
+import { MapPin, CheckCircle2, Circle, Brain, Smartphone, Globe, Zap, LineChart, Users, Shield, BookOpen } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+
+type RoadmapPhase = "shipped" | "in-progress" | "planned";
+
+type RoadmapItem = {
+  title: string;
+  description: string;
+  phase: RoadmapPhase;
+  quarter: string;
+  features: string[];
+  icon: React.ElementType;
+  waitlist?: boolean;
+};
+
+export function Roadmap() {
+  const [activePhase, setActivePhase] = useState<RoadmapPhase>("in-progress");
+  const [waitlistStates, setWaitlistStates] = useState<Record<string, boolean>>({});
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  
+  const { signIn } = useAuthActions();
+  const joinWaitlist = useMutation(api.waitlist.joinWaitlist);
+
+  const handleWaitlistJoin = async (feature: string) => {
+    try {
+      setLoadingStates(prev => ({ ...prev, [feature]: true }));
+      
+      // Check if user is authenticated, if not, sign them in first
+      const result = await joinWaitlist({ feature });
+      
+      if (result.success) {
+        setWaitlistStates(prev => ({ ...prev, [feature]: true }));
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message?.includes("authentication")) {
+        // User needs to sign in first
+        signIn("github");
+      } else {
+        alert("Failed to join waitlist. Please try again.");
+      }
+    } finally {
+      setLoadingStates(prev => ({ ...prev, [feature]: false }));
+    }
+  };
+
+  const roadmapData: RoadmapItem[] = [
+    {
+      title: "Core Foundation",
+      description: "Complete mood tracking platform with intelligent insights",
+      phase: "shipped",
+      quarter: "Q4 2024",
+      icon: Zap,
+      features: [
+        "Daily mood logging",
+        "Interactive heatmap visualization",
+        "Intelligent scoring (0-100)",
+        "Native desktop application",
+        "Auto-generate feature"
+      ]
+    },
+    {
+      title: "Predictive Intelligence",
+      description: "Advanced pattern recognition and mood forecasting",
+      phase: "shipped",
+      quarter: "Q1 2025",
+      icon: Brain,
+      features: [
+        "7-day mood forecasting",
+        "Weekly pattern insights",
+        "Trigger identification",
+        "Comprehensive data export",
+        "Personal trend analysis"
+      ]
+    },
+    {
+      title: "Advanced Analytics",
+      description: "Deeper insights and custom metrics",
+      phase: "in-progress",
+      quarter: "Q3 2025",
+      icon: LineChart,
+      features: [
+        "Multi-factor analysis",
+        "Custom metrics",
+        "Yearly trends",
+        "Advanced filters"
+      ]
+    },
+    {
+      title: "Social Platform Integration",
+      description: "Connect your social feeds to enrich your mood tracking",
+      phase: "in-progress",
+      quarter: "Q4 2025",
+      icon: Globe,
+      features: [
+        "Facebook feed integration",
+        "Instagram updates",
+        "Twitter/X posts",
+        "LinkedIn activity",
+        "Social context insights"
+      ]
+    },
+    {
+      title: "Guided Journaling Starter Kit",
+      description: "Daily templated logs that evolve over a set period, helping new users build a consistent journaling habit.",
+      phase: "in-progress",
+      quarter: "Q4 2025",
+      icon: BookOpen,
+      features: [
+        "Daily log templates",
+        "Progressive prompts",
+        "7-day starter course",
+        "Automatic reflections",
+        "Personalized guidance"
+      ]
+    },
+    {
+      title: "Mobile Experience",
+      description: "Native iOS and Android apps",
+      phase: "planned",
+      quarter: "Q2 2026",
+      icon: Smartphone,
+      features: [
+        "Native apps",
+        "Push notifications",
+        "Widget support",
+        "Cross-platform sync"
+      ]
+    },
+    {
+      title: "Social & Collaboration",
+      description: "Share with trusted circles",
+      phase: "planned",
+      quarter: "Q4 2025",
+      icon: Users,
+      features: [
+        "Therapist sharing",
+        "Family tracking",
+        "Community insights",
+        "Accountability"
+      ]
+    },
+    {
+      title: "Offline Mode",
+      description: "Fully local application with private predictive models",
+      phase: "planned",
+      quarter: "Q3 2026",
+      icon: Shield,
+      features: [
+        "100% local processing",
+        "No internet required",
+        "Private predictive models",
+        "Complete data security"
+      ]
+    },
+    {
+      title: "Enterprise & API",
+      description: "Integrate into wellness ecosystems",
+      phase: "planned",
+      quarter: "TBD",
+      icon: Globe,
+      features: [
+        "Public API",
+        "Team plans",
+        "HIPAA compliance",
+        "White-label"
+      ],
+      waitlist: true
+    }
+  ];
+
+  const phaseConfig = {
+    shipped: {
+      label: "Shipped",
+      color: "text-green-700",
+      bg: "bg-green-50",
+      border: "border-green-200",
+      icon: CheckCircle2
+    },
+    "in-progress": {
+      label: "In Progress",
+      color: "text-blue-700",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      icon: Circle
+    },
+    planned: {
+      label: "Planned",
+      color: "text-gray-700",
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+      icon: Circle
+    }
+  };
+
+  const filteredItems = roadmapData.filter(item => item.phase === activePhase);
+
+  return (
+    <section id="roadmap" className="py-16 md:py-24">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            Product Roadmap
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Building the future of mood intelligence, one feature at a time.
+          </p>
+        </div>
+
+        {/* Phase Filter */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
+          {(["in-progress", "planned", "shipped"] as const).map((phase) => {
+            const config = phaseConfig[phase];
+            const Icon = config.icon;
+            const itemCount = roadmapData.filter(item => item.phase === phase).length;
+            return (
+              <button
+                key={phase}
+                onClick={() => setActivePhase(phase)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  activePhase === phase
+                    ? "bg-primary text-primary-foreground shadow-md scale-105"
+                    : "bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {config.label}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  activePhase === phase
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}>
+                  {itemCount}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Compact Timeline Grid */}
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.map((item, index) => {
+              const config = phaseConfig[item.phase];
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-card rounded-xl border border-border p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/50 group"
+                >
+                  <div className="flex flex-col h-full">
+                    {/* Header with Icon */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className={`p-3 rounded-lg ${config.bg} ${config.border} border flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
+                        <Icon className={`h-5 w-5 ${config.color}`} />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-card-foreground mb-1">
+                          {item.title}
+                        </h3>
+                        <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${config.color}`}>
+                          <span>{item.quarter}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                      {item.description}
+                    </p>
+
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-2 mb-4 flex-grow">
+                      {item.features.map((feature, featureIndex) => (
+                        <span
+                          key={featureIndex}
+                          className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+                            item.phase === "shipped"
+                              ? "bg-green-50 text-green-700 border-green-200"
+                              : item.phase === "in-progress"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : "bg-muted text-muted-foreground border-border"
+                          }`}
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Waitlist Button */}
+                    {item.waitlist && (
+                      <button
+                        onClick={() => handleWaitlistJoin("enterprise-api")}
+                        disabled={loadingStates["enterprise-api"]}
+                        className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-lg border-2 transition-all duration-200 ${
+                          waitlistStates["enterprise-api"]
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-primary text-primary-foreground border-primary hover:opacity-90 disabled:opacity-50"
+                        }`}
+                      >
+                        {loadingStates["enterprise-api"]
+                          ? "Joining..."
+                          : waitlistStates["enterprise-api"]
+                          ? "✓ On Waitlist"
+                          : "Join Waitlist"
+                        }
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

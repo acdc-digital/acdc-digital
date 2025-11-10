@@ -4,8 +4,9 @@ import React from "react";
 import { ArrowRight, Calendar, TrendingUp, Sparkles, Shield, BarChart3, Settings } from "lucide-react";
 
 export default function UserGuidePage() {
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl ml-8">
       {/* Header */}
       <div className="mb-12">
         <h1 className="text-5xl font-bold tracking-tight mb-4">User Guide</h1>
@@ -15,7 +16,7 @@ export default function UserGuidePage() {
       </div>
 
       {/* Introduction */}
-      <section className="mb-16">
+      <section id="what-is-soloist" className="mb-16">
         <h2 className="text-3xl font-bold mb-4">What is Soloist?</h2>
         <p className="text-lg text-foreground/80 mb-4 leading-relaxed">
           Soloist is a mood tracking and forecasting application that helps you understand your emotional patterns. Think of it as a weather app, but for your mood. Just like you check the weather to plan your day, Soloist helps you anticipate and prepare for your emotional state.
@@ -26,7 +27,7 @@ export default function UserGuidePage() {
       </section>
 
       {/* Getting Started */}
-      <section className="mb-16">
+      <section id="getting-started" className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-xl font-bold text-primary">1</span>
@@ -61,7 +62,7 @@ export default function UserGuidePage() {
       </section>
 
       {/* Daily Logging */}
-      <section className="mb-16">
+      <section id="daily-logging" className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-xl font-bold text-primary">2</span>
@@ -115,7 +116,7 @@ export default function UserGuidePage() {
       </section>
 
       {/* Forecasting */}
-      <section className="mb-16">
+      <section id="forecasts" className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-xl font-bold text-primary">3</span>
@@ -194,7 +195,7 @@ export default function UserGuidePage() {
       </section>
 
       {/* Advanced Features */}
-      <section className="mb-16">
+      <section id="advanced-features" className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-xl font-bold text-primary">4</span>
@@ -242,7 +243,7 @@ export default function UserGuidePage() {
       </section>
 
       {/* Privacy & Data */}
-      <section className="mb-16">
+      <section id="privacy" className="mb-16">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-xl font-bold text-primary">5</span>

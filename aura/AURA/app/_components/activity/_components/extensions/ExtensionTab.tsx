@@ -283,7 +283,7 @@ export default function ExtensionTab({ className = "" }: ExtensionTabProps) {
   };
 
   return (
-    <div className={`h-full bg-[#1e1e1e] text-[#cccccc] flex flex-col ${className}`}>
+    <div className={`h-full bg-[#252526] text-[#cccccc] flex flex-col ${className}`}>
       {/* Header */}
       <div className="p-4 border-b border-[#2d2d2d]">
         <div className="flex items-center justify-between mb-4">
