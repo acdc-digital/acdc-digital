@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface InputButtonContextType {
   showInput: boolean;
   setShowInput: (show: boolean) => void;
-  transition: Transition;
+  transition: any; // Framer Motion transition type
   id: string;
 }
 
@@ -29,7 +29,7 @@ interface InputButtonProviderProps {
   children: React.ReactNode;
   showInput?: boolean;
   setShowInput?: (show: boolean) => void;
-  transition?: Transition;
+  transition?: any; // Framer Motion transition type
   id?: string;
 }
 
