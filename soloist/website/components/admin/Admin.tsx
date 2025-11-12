@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ProfileModal } from "@/modals/ProfileModal";
 import { SignInModal } from "@/modals/SignInModal";
-import { OpenAIDashboard } from "../app/admin/_components/OpenAI";
+import { OpenAIDashboard } from "@/app/admin/_components/OpenAI";
 
 export function Admin() {
   const userSubscriptions = useQuery(api.admin.getAllUserSubscriptions);
