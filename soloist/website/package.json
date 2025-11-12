@@ -33,7 +33,8 @@
     "recharts": "^2.15.4",
     "resend": "^4.6.0",
     "stripe": "^18.1.1",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
