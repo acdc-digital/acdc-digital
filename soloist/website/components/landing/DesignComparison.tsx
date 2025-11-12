@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Hero } from "@/components/landing/Hero";
 import { HeroEnhanced } from "@/components/landing/HeroEnhanced";
 // import { Features } from "./Features"; // TODO: Create this component
-import { FeaturesEnhanced } from "./FeaturesEnhanced";
+// import { FeaturesEnhanced } from "./FeaturesEnhanced"; // TODO: Create this component
 
 export function DesignComparison() {
   const [showV2, setShowV2] = useState(true);
@@ -69,7 +69,7 @@ export function DesignComparison() {
         {showV2 ? (
           <>
             <HeroEnhanced />
-            <FeaturesEnhanced />
+            {/* <FeaturesEnhanced /> */}
           </>
         ) : (
           <>
