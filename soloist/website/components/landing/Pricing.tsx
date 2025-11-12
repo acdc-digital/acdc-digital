@@ -289,12 +289,11 @@ export default function Pricing() {
                   <CardFooter className={tier.highlighted ? "pt-16 pb-8" : "pt-12"}>
                     <Button
                       onClick={() => handlePriceSelection(tier)}
-                      disabled={
+                      disabled={Boolean(
                         isActive ||
                         isOnWaitlist ||
-                        (tier.name === "Teams" && waitlistLoading) ||
-                        false
-                      }
+                        (tier.name === "Teams" && waitlistLoading)
+                      )}
                       className={`w-full border ${
                         tier.highlighted
                           ? "bg-primary hover:bg-white border-primary"
