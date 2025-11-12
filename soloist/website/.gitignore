@@ -30,6 +30,6 @@ node_modules
 .next/
 .vercel
 
-# Convex generated files (keep _generated for deployment)
-convex/*
+# Convex - allow _generated folder for deployment
+!convex/
 !convex/_generated/
