@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Hero } from "@/components/landing/Hero";
 import { HeroEnhanced } from "@/components/landing/HeroEnhanced";
-import { Features } from "./Features";
+// import { Features } from "./Features"; // TODO: Create this component
 import { FeaturesEnhanced } from "./FeaturesEnhanced";
 
 export function DesignComparison() {
@@ -74,7 +74,7 @@ export function DesignComparison() {
         ) : (
           <>
             <Hero />
-            <Features />
+            {/* <Features /> */}
           </>
         )}
       </main>
