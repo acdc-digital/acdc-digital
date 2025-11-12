@@ -292,7 +292,8 @@ export default function Pricing() {
                       disabled={
                         isActive ||
                         isOnWaitlist ||
-                        (tier.name === "Teams" && waitlistLoading)
+                        (tier.name === "Teams" && waitlistLoading) ||
+                        false
                       }
                       className={`w-full border ${
                         tier.highlighted
