@@ -13,7 +13,6 @@ import {
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/lib/hooks/useConvexUser";
-
 import { Navbar } from "@/components/layout/Navbar";
 import { AnnouncementBanner } from "@/components/landing/AnnouncementBanner";
 import { Steps } from "@/components/landing/Steps";
@@ -27,8 +26,6 @@ import { CTABanner } from "@/components/landing/CTABanner";
 import { Footer } from "@/components/layout/Footer";
 import { DownloadModal } from "@/components/modals/DownloadModal";
 import { getCheckoutSession } from "@/lib/services/PaymentService";
-
-
 
 export default function LandingPage() {
   const [paymentStatus, setPaymentStatus] = useState<{
@@ -146,9 +143,9 @@ export default function LandingPage() {
       <AnnouncementBanner />
 
       {/* Hero Text Section */}
-      <div className="text-left px-32 pt-14 pb-2">
+      <div id="hero" className="text-left px-responsive-xl pt-8 md:pt-12 pb-2">
         <div className="hidden md:flex items-end justify-between mb-8">
-          <p className="text-xs text-muted-foreground tracking-wide mb-0">
+          <p className="text-xs text-muted-foreground tracking-wide italic mb-0">
             you must be subscribed to download.
           </p>
           <div className="flex gap-4 pb-1">
@@ -203,20 +200,21 @@ export default function LandingPage() {
             </DownloadModal>
           </div>
         </div>
-        <h1 className="text-8xl font-bold tracking-tight mb-6 mt-8 font-parkinsans-bold">
+        <h1 className="text-[clamp(2.75rem,10vw,5.5rem)] md:text-hero-mobile font-bold tracking-tight mb-4 md:mb-5 mt-6 md:mt-8 font-parkinsans-bold leading-[0.9]">
           Track. Compute. Forecast.
         </h1>
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-xl md:text-2xl lg:text-3xl text-muted-foreground font-medium mb-6 font-parkinsans-bold">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
+          <p className="text-subtitle-mobile text-muted-foreground font-medium font-parkinsans-bold">
             The weather app for your mood.
           </p>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">learn more</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 max-w-md">
+            <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:inline">learn more</span>
             <input
               type="email"
               placeholder="your-email@example.com"
-              className="w-48 px-3 py-1.5 text-xs border border-border rounded-full bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 min-w-0 w-1/2 sm:w-48 px-2 py-1.5 text-xs border border-border rounded-full bg-background focus:outline-none focus:border-border"
             />
+            <span className="text-xs text-muted-foreground whitespace-nowrap sm:hidden pl-2">learn more</span>
           </div>
         </div>
       </div>
@@ -287,9 +285,7 @@ export default function LandingPage() {
 
         {/* Interactive Demo */}
         <section id="demo-section" className="py-0 md:py-0">
-          <div className="container mx-auto pt-0 px-4">
-            <DemoApp />
-          </div>
+          <DemoApp />
         </section>
 
         {/* Steps Section */}

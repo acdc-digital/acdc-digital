@@ -331,8 +331,8 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
         </ScrollArea>
       </div>
 
-      {/* Legend */}
-      <div className="flex-shrink-0 mt-2 mb-2 px-0 text-xs text-zinc-500 dark:text-zinc-400">
+      {/* Legend - Hidden on mobile */}
+      <div className="hidden md:block flex-shrink-0 mt-2 mb-2 px-0 text-xs text-zinc-500 dark:text-zinc-400">
         <div className="mb-2">Score legend:</div>
         <div className="flex flex-wrap gap-2">
           {LEGEND.map((l) => (

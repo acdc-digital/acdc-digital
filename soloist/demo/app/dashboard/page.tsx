@@ -186,15 +186,28 @@ export default function Dashboard() {
         updateDatePreserveTab(dateKey);
       }
       
-      // Always keep sidebar open in browser mode
-      if (!sidebarOpen) {
-        setSidebarOpen(true);
-      }
+      // Keep sidebar open in browser mode on desktop only (md breakpoint = 768px)
+      const handleResize = () => {
+        const isDesktop = window.innerWidth >= 768;
+        if (isDesktop && !sidebarOpen) {
+          setSidebarOpen(true);
+        } else if (!isDesktop && sidebarOpen) {
+          setSidebarOpen(false);
+        }
+      };
+      
+      // Initial check
+      handleResize();
+      
+      // Add resize listener
+      window.addEventListener('resize', handleResize);
       
       // Default to log tab, unless we already have a feed for today
       if (activeTab !== "log" && activeTab !== "feed") {
         setActiveTab("log");
       }
+      
+      return () => window.removeEventListener('resize', handleResize);
     }
   }, [isBrowser, currentView, selectedDate, sidebarOpen, activeTab, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
 
@@ -507,9 +520,9 @@ export default function Dashboard() {
               </div>
             </main>
 
-            {/* Right sidebar - Always open in browser mode */}
+            {/* Right sidebar - Open on desktop, closed on mobile */}
             <RightSidebar
-              open={isBrowser === true ? true : sidebarOpen}
+              open={isBrowser === true ? sidebarOpen : sidebarOpen}
               title={renderSidebarTitle()}
               onClose={isBrowser === true ? undefined : () => {
                 setShowTemplates(false); // Close templates if open
@@ -534,20 +547,22 @@ export default function Dashboard() {
                 />
               ) : activeTab === "log" ? (
                 selectedDate ? (
-                  <DailyLogForm
-                    date={selectedDate}
-                    hasActiveSubscription={hasActiveSubscription}
-                    showTemplates={showTemplates}
-                    onCustomize={() => {
-                      setIsCreatingNewTemplate(false);
-                      setShowTemplates(!showTemplates);
-                    }}
-                    onClose={isBrowser === true ? () => setActiveTab("feed") : () => {
-                      toggleSidebar();
-                      updateDatePreserveTab(null);
-                      // Activity bar is always collapsed - no action needed
-                    }}
-                  />
+                  <div className="hidden md:block">
+                    <DailyLogForm
+                      date={selectedDate}
+                      hasActiveSubscription={hasActiveSubscription}
+                      showTemplates={showTemplates}
+                      onCustomize={() => {
+                        setIsCreatingNewTemplate(false);
+                        setShowTemplates(!showTemplates);
+                      }}
+                      onClose={isBrowser === true ? () => setActiveTab("feed") : () => {
+                        toggleSidebar();
+                        updateDatePreserveTab(null);
+                        // Activity bar is always collapsed - no action needed
+                      }}
+                    />
+                  </div>
                 ) : (
                   <div className="p-4 text-sm text-zinc-500">
                     Click a day on the calendar to open the log form.

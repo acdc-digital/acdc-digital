@@ -285,12 +285,14 @@
 
 /* Premium Glass Effects - Light Therapy Theme */
 .glass-card {
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .glass-strong {
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   backdrop-filter: blur(24px) saturate(200%);
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -332,4 +334,291 @@
   font-size: 1.125rem;
   line-height: 1.7;
   font-weight: 400;
+}
+
+/* Responsive Fluid Spacing System */
+.spacing-fluid-xs {
+  padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.spacing-fluid-sm {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.spacing-fluid-md {
+  padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+.spacing-fluid-lg {
+  padding: clamp(2rem, 5vw, 3rem);
+}
+
+.spacing-fluid-xl {
+  padding: clamp(3rem, 6vw, 4rem);
+}
+
+/* Responsive Padding Scale */
+.px-responsive-sm {
+  @apply px-4 md:px-8 lg:px-12;
+}
+
+.px-responsive-md {
+  @apply px-4 md:px-8 lg:px-16 xl:px-24;
+}
+
+.px-responsive-lg {
+  @apply px-4 md:px-12 lg:px-20 xl:px-32;
+}
+
+.px-responsive-xl {
+  @apply px-6 md:px-16 lg:px-24 xl:px-40 2xl:px-[72px];
+}
+
+/* Vertical Spacing */
+.py-responsive-sm {
+  @apply py-4 md:py-6 lg:py-8;
+}
+
+.py-responsive-md {
+  @apply py-6 md:py-10 lg:py-16;
+}
+
+.py-responsive-lg {
+  @apply py-8 md:py-16 lg:py-24 xl:py-32;
+}
+
+/* Mobile-Optimized Typography */
+.text-hero-mobile {
+  font-size: clamp(2.25rem, 8vw, 5.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-display-mobile {
+  font-size: clamp(1.75rem, 5vw, 4rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.text-subtitle-mobile {
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  line-height: 1.4;
+}
+
+/* Touch Target Minimum */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Mobile Container */
+.container-mobile {
+  @apply px-4 mx-auto;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container-mobile {
+    @apply px-6;
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-mobile {
+    @apply px-8;
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-mobile {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-mobile {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container-mobile {
+    max-width: 1400px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-pulse-glow,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-light-sweep,
+  .animate-shimmer {
+    animation: none !important;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Conditional Glass Effects (disable on low-end devices) */
+.glass-card-responsive {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .glass-card-responsive {
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+  }
+}
+
+.glass-strong-responsive {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .glass-strong-responsive {
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    backdrop-filter: blur(24px) saturate(200%);
+  }
+}
+
+/* Dark Mode Glass Effects */
+.dark .glass-card-responsive {
+  background: rgba(51, 51, 51, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .dark .glass-card-responsive {
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    backdrop-filter: blur(16px) saturate(160%);
+  }
+}
+
+.dark .glass-strong-responsive {
+  background: rgba(51, 51, 51, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .dark .glass-strong-responsive {
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    backdrop-filter: blur(24px) saturate(200%);
+  }
+}
+
+/* Safe Area Insets for Mobile Devices */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Demo Container Responsive Aspect Ratios with Scaling */
+.demo-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 400px;
+}
+
+.demo-container-fullscreen {
+  position: relative;
+  width: 100%;
+  height: 85vh;
+}
+
+/* Demo scaling wrapper - scales entire demo proportionally on smaller screens */
+#demo-iframe-container {
+  transform-origin: top center;
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+}
+
+/* Mobile-first: Minimal padding on small screens */
+.demo-section-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .demo-section-wrapper {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .demo-section-wrapper {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .demo-section-wrapper {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* Scale down demo on progressively smaller screens - more aggressive scaling */
+@media (max-width: 1536px) {
+  #demo-iframe-container {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 1280px) {
+  #demo-iframe-container {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: 1024px) {
+  #demo-iframe-container {
+    transform: scale(0.88);
+  }
+}
+
+@media (max-width: 768px) {
+  #demo-iframe-container {
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: 640px) {
+  #demo-iframe-container {
+    transform: scale(0.92);
+  }
+}
+
+@media (max-width: 475px) {
+  #demo-iframe-container {
+    transform: scale(0.88);
+  }
+}
+
+@media (max-width: 380px) {
+  #demo-iframe-container {
+    transform: scale(0.82);
+  }
 }
