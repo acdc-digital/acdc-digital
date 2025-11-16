@@ -496,8 +496,8 @@ export default function Dashboard() {
           <>
             <main className={`flex-1 flex flex-col relative ${sidebarMargin}`}>
 
-              {/* Year controls */}
-              <div className="sticky top-0 z-10 px-4 mt-2">
+              {/* Year controls - Hidden on mobile */}
+              <div className="hidden md:block sticky top-0 z-10 px-4 mt-2">
                 <div className="flex justify-between items-center mb-2">
                   <Controls
                     selectedYear={selectedYear}

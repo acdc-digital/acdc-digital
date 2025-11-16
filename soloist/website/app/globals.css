@@ -607,18 +607,24 @@
 
 @media (max-width: 640px) {
   #demo-iframe-container {
-    transform: scale(0.92);
+    transform: scale(1.15);
   }
 }
 
 @media (max-width: 475px) {
   #demo-iframe-container {
-    transform: scale(0.88);
+    transform: scale(1.12);
   }
 }
 
 @media (max-width: 380px) {
   #demo-iframe-container {
-    transform: scale(0.82);
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 380px) {
+  #demo-iframe-container {
+    transform: scale(0.9);
   }
 }

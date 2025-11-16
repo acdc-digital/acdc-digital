@@ -1,10 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Sparkles, ExternalLink, Maximize2 } from "lucide-react";
-import { Span } from "next/dist/trace";
 
 export function DemoApp() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -30,7 +26,7 @@ export function DemoApp() {
           </p>
         </div>
         
-        <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl shadow-xl overflow-hidden border-0 md:border border-border/40">
+        <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl overflow-hidden border-0 md:border border-border/40">
           {/* Iframe Container with responsive aspect ratio */}
           <div
             className={`bg-background w-full ${isFullscreen ? 'demo-container-fullscreen' : 'demo-container'}`}
@@ -46,7 +42,7 @@ export function DemoApp() {
         </div>
         
         {/* Get Started text - below demo on mobile */}
-        <p className="md:hidden text-sm text-muted-foreground text-left mt-0.5 pl-8 pr-6">
+        <p className="md:hidden text-sm text-muted-foreground text-left -mt-5 pl-6 pr-6">
           Get Started ─────▶
         </p>
       </div>
