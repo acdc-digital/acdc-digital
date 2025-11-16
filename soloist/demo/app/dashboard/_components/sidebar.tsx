@@ -308,13 +308,14 @@ export function Sidebar({ className }: SidebarProps) {
               </TooltipContent>
             </Tooltip>
 
+            {/* Create New Log - Hidden on mobile */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={handleCreateNewLog}
-                  className="h-10 w-10 rounded-lg hover:bg-white/10 dark:hover:bg-white/5"
+                  className="hidden md:flex h-10 w-10 rounded-lg hover:bg-white/10 dark:hover:bg-white/5"
                 >
                   <Plus className="h-5 w-5" />
                 </Button>

@@ -200,7 +200,7 @@ export default function LandingPage() {
             </DownloadModal>
           </div>
         </div>
-        <h1 className="text-[clamp(2.75rem,10vw,5.5rem)] md:text-hero-mobile font-bold tracking-tight mb-4 md:mb-5 mt-6 md:mt-8 font-parkinsans-bold leading-[0.9]">
+        <h1 className="text-[clamp(3.25rem,11vw,5.5rem)] md:text-hero-mobile font-bold tracking-tight mb-4 md:mb-5 mt-6 md:mt-8 font-parkinsans-bold leading-[0.9]">
           Track. Compute. Forecast.
         </h1>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">

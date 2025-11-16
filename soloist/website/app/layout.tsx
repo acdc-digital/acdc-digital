@@ -48,7 +48,9 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${parkinsans.variable} ${lato.variable} ${specialGothic.variable} antialiased`}
         >
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ConvexClientProvider>
+            {children}
+          </ConvexClientProvider>
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

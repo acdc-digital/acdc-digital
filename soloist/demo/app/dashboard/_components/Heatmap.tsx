@@ -294,7 +294,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
 
       {/* Calendar grid */}
       <div className="flex-1 px-0 min-h-0 border border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-900/50 rounded-md mx-0">
-        <ScrollArea className="h-full">
+        <div className="h-full overflow-hidden md:overflow-auto">
           <div className="flex flex-wrap gap-1 p-3">
             {allDates.map((d) => {
               const key = buildDateKey(d);
@@ -328,7 +328,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Legend - Hidden on mobile */}
