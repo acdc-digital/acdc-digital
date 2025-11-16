@@ -6,13 +6,13 @@ interface AnnouncementBannerProps {
 }
 
 export function AnnouncementBanner({ 
-  text = "In the chaos of each day lies the ability to transform experience into quantifiable growth",
+  text = "In the chaos of each day lies the ability to transform experience into growth",
   className = "" 
 }: AnnouncementBannerProps) {
   return (
-    <div className={`w-full bg-background border-b border-zinc-500 py-1 px-24 ${className}`}>
+    <div className={`hidden md:block w-full bg-background border-b border-zinc-500 py-1 px-24 ${className}`}>
       <div className="container mx-auto">
-        <p className="text-left text-sm text-zinc-900/90 font-parkinsans-light italic">
+        <p className="text-center text-sm text-zinc-900/90 font-parkinsans-light italic">
           {text}
         </p>
       </div>

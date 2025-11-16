@@ -12,7 +12,7 @@ export function FeatureSection() {
     <section className="pt-8 pb-0 px-0">
       <div className="container px-18 mx-auto max-w-[94rem]">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-14">
+        <div className="mx-auto max-w-4xl text-center mb-14">
           <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[84px] mb-4">
             Reflections
           </h2>

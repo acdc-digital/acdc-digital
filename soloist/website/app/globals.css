@@ -538,17 +538,15 @@
   height: 85vh;
 }
 
-/* Demo scaling wrapper - scales entire demo proportionally on smaller screens */
+/* Demo scaling wrapper - no transform scaling for proper mobile rendering */
 #demo-iframe-container {
-  transform-origin: top center;
-  transition: transform 0.3s ease-in-out;
   width: 100%;
 }
 
 /* Mobile-first: Minimal padding on small screens */
 .demo-section-wrapper {
-  padding-left: 0;
-  padding-right: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.25rem;
 }
@@ -577,54 +575,5 @@
     padding-right: 2rem;
     padding-top: 3rem;
     padding-bottom: 4rem;
-  }
-}
-
-/* Scale down demo on progressively smaller screens - more aggressive scaling */
-@media (max-width: 1536px) {
-  #demo-iframe-container {
-    transform: scale(1);
-  }
-}
-
-@media (max-width: 1280px) {
-  #demo-iframe-container {
-    transform: scale(0.95);
-  }
-}
-
-@media (max-width: 1024px) {
-  #demo-iframe-container {
-    transform: scale(0.88);
-  }
-}
-
-@media (max-width: 768px) {
-  #demo-iframe-container {
-    transform: scale(0.95);
-  }
-}
-
-@media (max-width: 640px) {
-  #demo-iframe-container {
-    transform: scale(1.15);
-  }
-}
-
-@media (max-width: 475px) {
-  #demo-iframe-container {
-    transform: scale(1.12);
-  }
-}
-
-@media (max-width: 380px) {
-  #demo-iframe-container {
-    transform: scale(1.08);
-  }
-}
-
-@media (max-width: 380px) {
-  #demo-iframe-container {
-    transform: scale(0.9);
   }
 }

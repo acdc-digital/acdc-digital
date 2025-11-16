@@ -76,7 +76,7 @@ function FileTreeItem({ node, level, isOpen, onToggle, forceClose }: FileTreeIte
 
 // Wrapper component to manage individual node state
 function FileTreeItemWrapper({ node, level, forceClose }: { node: FileNode; level: number; forceClose: boolean }) {
-  const [isOpen, setIsOpen] = useState(level < 2); // Auto-expand first 2 levels
+  const [isOpen, setIsOpen] = useState(false); // Start with all folders closed
   
   // Close when forceClose is triggered
   React.useEffect(() => {

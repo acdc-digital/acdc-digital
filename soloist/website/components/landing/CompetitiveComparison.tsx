@@ -138,13 +138,13 @@ export default function CompetitiveComparison() {
           <h2 className="text-[84px] md:text-[88px] tracking-tight font-parkinsans-semibold">
             Why it works
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto font-parkinsans-normal">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Others track. Soloist understands. 
             Combine the depth of journaling with adaptive insight for private, data-driven growth.
           </p>
         </div>
 
-        <Card className="w-full overflow-hidden border border-border bg-yellow-50/10 shadow-lg rounded-t-none rounded-b-lg">
+        <Card className="w-full overflow-hidden border border-border bg-yellow-50/10 rounded-t-none rounded-b-lg">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
