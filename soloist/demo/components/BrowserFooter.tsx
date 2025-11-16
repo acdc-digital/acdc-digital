@@ -88,13 +88,6 @@ export function BrowserFooter() {
               </div>
             </nav> */}
           </div> 
-
-          {/* Mobile: Additional info - more subtle */}
-          <div className="md:hidden mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-700/50">
-            <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Simple mood tracking with AI-powered insights for better well-being
-            </p>
-          </div>
         </div>
       </footer>
 

@@ -18,28 +18,37 @@ export function DemoApp() {
   };
 
   return (
-    <div className="pl-10 pr-10 mx-auto max-w-[84rem]">
-      {/* Heading */}
-      <div className="flex justify-between items-center pt-1 pl-2 pr-3 mb-1">
-        <p className="text-xl md:text-xl text-muted-foreground max-w-3xl mb-1">
-          Combine speed journaling with powerful predictions to take control of tomorrow, today
-        </p>
-        <p className="text-sm md:text-sm text-muted-foreground whitespace-nowrap ml-4 mr-4">
+    <div className="demo-section-wrapper">
+      <div className="w-full md:max-w-7xl md:mx-auto">
+        {/* Heading */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-6 gap-2 md:gap-3 pl-6 pr-6 md:px-2">
+          <p className="text-sm md:text-base lg:text-xl text-muted-foreground max-w-3xl">
+            Combine speed journaling with powerful predictions to take control of tomorrow, today
+          </p>
+          <p className="text-sm text-muted-foreground whitespace-nowrap hidden md:block">
+            Get Started ─────▶
+          </p>
+        </div>
+        
+        <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl shadow-xl overflow-hidden border-0 md:border border-border/40">
+          {/* Iframe Container with responsive aspect ratio */}
+          <div
+            className={`bg-background w-full ${isFullscreen ? 'demo-container-fullscreen' : 'demo-container'}`}
+          >
+            <iframe
+              src={demoUrl}
+              className="absolute inset-0 w-full h-full border-0"
+              title="Soloist App Demo"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+              loading="lazy"
+            />
+          </div>
+        </div>
+        
+        {/* Get Started text - below demo on mobile */}
+        <p className="md:hidden text-sm text-muted-foreground text-left mt-0.5 pl-8 pr-6">
           Get Started ─────▶
         </p>
-      </div>
-      
-      <div id="demo-iframe-container" className="glass-strong rounded-2xl shadow-xl overflow-hidden border border-border/40">
-        {/* Iframe Container */}
-        <div className="relative bg-background" style={{ height: isFullscreen ? '85vh' : '700px' }}>
-          <iframe
-            src={demoUrl}
-            className="w-full h-full border-0"
-            title="Soloist App Demo"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-            loading="lazy"
-          />
-        </div>
       </div>
     </div>
   );
