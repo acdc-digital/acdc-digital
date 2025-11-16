@@ -45,33 +45,34 @@ export function Steps() {
   ];
 
   return (
-    <section id="how-it-works" className="mt-3 w-full pt-20">
-      <div className="mx-auto max-w-[83rem] px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-[84px] md:text-[88px] tracking-tight font-parkinsans-semibold">
-            How it works
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Four step process to transform your daily routine into powerful predictions.
-          </p>
-        </div>
+    <section id="how-it-works" className="mt-3 w-full pt-12 md:pt-20">
+      <div className="container-mobile py-responsive-lg">
+        <div className="max-w-[83rem] mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-display-mobile tracking-tight font-parkinsans-semibold mb-4">
+              How it works
+            </h2>
+            <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              Four step process to transform your daily routine into powerful predictions.
+            </p>
+          </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 items-start">
-          {steps.map((step, index) => (
-            <Card
-              key={step.title}
-              className="border-border bg-yellow-50/10 hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex-1 rounded-none rounded-b-xl"
-            >
+          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-stretch">
+            {steps.map((step, index) => (
+              <Card
+                key={step.title}
+                className="border-border bg-yellow-50/10 hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex-1 rounded-none rounded-b-xl"
+              >
               {/* Step Number Badge */}
               <div className="absolute top-4 right-4 text-6xl font-bold text-muted/10 group-hover:text-primary/10 transition-colors">
                 {step.number}
               </div>
               
-              <CardHeader className="relative z-10 flex flex-col items-start space-y-4 p-8">
-                <div className="rounded-lg bg-primary/10 p-4 group-hover:bg-primary/20 transition-colors">
+              <CardHeader className="relative z-10 flex flex-col items-start space-y-4 p-4 md:p-6 lg:p-8">
+                <div className="rounded-lg bg-primary/10 p-3 md:p-4 group-hover:bg-primary/20 transition-colors">
                   {step.icon}
                 </div>
-                <CardTitle className="text-xl font-parkinsans-semibold">
+                <CardTitle className="text-lg md:text-xl font-parkinsans-semibold">
                   {step.title}
                 </CardTitle>
                 {index === 0 && (
@@ -129,13 +130,14 @@ export function Steps() {
           ))}
         </div>
 
-        <div className="text-center mt-14">
-          <p className="text-xl text-foreground max-w-5xl mx-auto">
+        <div className="text-center mt-10 md:mt-14">
+          <p className="text-base md:text-xl text-foreground max-w-5xl mx-auto px-4">
             <span className="font-semibold">The Result: </span> Stop wondering why you feel the way you do. Start predicting and preparing for it.
           </p>
-          <p className="text-xl text-foreground max-w-4xl mx-auto mt-1">
+          <p className="text-base md:text-xl text-foreground max-w-4xl mx-auto mt-1 px-4">
             Like a weather forecast, but for your mind.
           </p>
+        </div>
         </div>
       </div>
     </section>

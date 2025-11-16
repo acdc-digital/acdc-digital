@@ -196,7 +196,7 @@ export function Navbar() {
   return (
     <>
       <header className="pr-3 pl-3 sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-stone-50/35 border-b border-zinc-500">
-        <div className="container mx-auto px-[72px] flex items-center justify-between h-16">
+        <div className="container mx-auto px-responsive-xl flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-4">
             <Link
@@ -204,7 +204,7 @@ export function Navbar() {
               className="hover:opacity-80 transition-opacity"
               onClick={handleLogoClick}
             >
-              <BouncingLogoCompact size={42} className="w-7 h-7 sm:w-12 sm:h-12" />
+              <BouncingLogoCompact size={42} className="w-8 sm:w-10 md:w-12 transition-all duration-200" />
             </Link>
             <div className="flex items-start gap-1 relative">
               <span className={`text-4xl transition-colors font-parkinsans-semibold text-foreground ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}>
@@ -217,25 +217,39 @@ export function Navbar() {
           </div>
 
           {/* Desktop Nav links */}
-          <nav className="hidden md:flex items-center space-x-10">
+          <nav className="hidden md:flex items-center font-parkinsans-nomral space-x-10">
             <Link
-              href="#features"
+              href="/"
               className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              Features
+              Home
             </Link>
-            <Link
-              href="#pricing"
-              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              Pricing
-            </Link>
-            <Link
-              href="#faq"
-              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              FAQ
-            </Link>
+            {/* Pricing and FAQ - disabled on /wiki and /blog pages (scroll elements) */}
+            {pathname === '/wiki' || pathname === '/blog' ? (
+              <>
+                <span className={`text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
+                  Pricing
+                </span>
+                <span className={`text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
+                  FAQ
+                </span>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="#pricing"
+                  className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="#faq"
+                  className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  FAQ
+                </Link>
+              </>
+            )}
             {/* <Link
               href="#roadmap"
               className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}

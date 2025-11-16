@@ -23,23 +23,24 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white border-t border-border">
-      <div className="container mx-auto px-4 lg:px-6">
+    <footer className="bg-white border-t border-border pb-16 md:pb-0">
+      <div className="container-mobile">
         {/* Main Footer Content */}
-        <div className="py-12">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+        <div className="py-8 md:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 md:gap-6 lg:gap-8">
             {/* Company Info - 4 columns */}
-            <div className="md:col-span-3 lg:col-span-4">
-              <div className="mb-8">
+            <div className="sm:col-span-2 md:col-span-3 lg:col-span-4">
+              <div className="mb-6 md:mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src="/Icon.svg"
+                  <Image
+                    src="/soloicov2.svg"
                     alt="Soloist Logo"
-                    width={48}
-                    height={48}
-                    className="w-20 h-20"
+                    width={32}
+                    height={32}
+                    className="w-7 h-7 md:w-8 md:h-8"
+                    priority
                   />
-                  <h3 className="text-2xl font-bold text-black">Soloist.</h3>
+                  <h3 className="text-xl md:text-2xl font-bold text-black">Soloist.</h3>
                 </div>
                 <p className="text-sm text-black leading-relaxed">
                 Soloist is a for-profit, open-source wellness platform by ACDC.digital. Contributions are welcome—take what you need.
@@ -50,7 +51,7 @@ export function Footer() {
               <div className="flex gap-3">
                 <Link 
                   href="https://github.com/acdc-digital/solopro" 
-                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200"
+                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 touch-target"
                   aria-label="GitHub"
                 >
                   <Github className="h-4 w-4" />
@@ -59,14 +60,14 @@ export function Footer() {
                   href="https://acdcdigital.slack.com/archives/C0919GRUWB0" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200"
+                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 touch-target"
                   aria-label="Slack Community"
                 >
                   <Slack className="h-4 w-4" />
                 </Link>
                 <Link 
                   href="mailto:msimon@acdc.digital" 
-                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200"
+                  className="group p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 touch-target"
                   aria-label="Email"
                 >
                   <Mail className="h-4 w-4" />
@@ -76,25 +77,25 @@ export function Footer() {
 
             {/* Quick Links - 2 columns */}
             <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-6 text-base">Quick Links</h4>
+              <h4 className="font-semibold text-black mb-4 md:mb-6 text-base">Quick Links</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="#features" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group">
+                  <Link href="#features" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group touch-target">
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group">
+                  <Link href="#pricing" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group touch-target">
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link href="#roadmap" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group">
+                  <Link href="#roadmap" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group touch-target">
                     Roadmap
                   </Link>
                 </li>
                 <li>
-                  <Link href="#faq" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group">
+                  <Link href="#faq" className="text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group touch-target">
                     FAQ
                   </Link>
                 </li>
@@ -163,37 +164,29 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border border-primary/30 rounded-lg mb-8">
+        <div className="border border-primary/30 mb-8 rounded-b-lg">
             <div className="border-b border-primary/20 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 border border-white/40 rounded-md flex items-center justify-center">
-                      <Fingerprint className="w-3 h-3 text-white" />
-                    </div>
-                    <div className="text-2xl font-bold text-primary font-mono">aura</div>
-                    <span className="text-secondary font-mono">plugin_system</span>
+                  <div className="flex items-end space-x-2">
+                    <div className="text-2xl font-bold text-primary">ACDC.digital</div>
+                    <span className="text-secondary">Full-Service Agentic Framework Studio</span>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <div className="w-2 h-2 bg-accent-red rounded-full"></div>
                 </div>
               </div>
             </div>
             <div className="p-4">
-              <p className="text-secondary mb-4 font-mono text-sm">
-                vibe-code your social media strategy with ai agents that handle everything from brand development to content distribution.
+              <p className="text-secondary mb-4 text-sm">
+                Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others. Adaptive intelligence should enhance the human experience, not just <em>feel</em> human.
               </p>
               <div className="flex space-x-6">
-                <a href="#" className="text-secondary hover:text-white transition-colors font-mono text-sm" aria-label="github">
+                <a href="https://github.com/acdc-digital" className="text-secondary hover:text-white transition-colors text-sm" aria-label="github">
                   <Github className="w-4 h-4 inline mr-2" />
-                  github
+                  GitHub
                 </a>
-                <a href="#" className="text-secondary hover:text-gray-500 transition-colors font-mono text-sm" aria-label="chat">
-                  <MessageSquare className="w-4 h-4 inline mr-2" />
-                  chat
+                <a href="mailto:msimon@acdc.digital" className="text-secondary hover:text-white transition-colors text-sm" aria-label="contact">
+                  <Mail className="w-4 h-4 inline mr-2" />
+                  Contact
                 </a>
               </div>
             </div>

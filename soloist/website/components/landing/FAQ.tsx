@@ -14,14 +14,15 @@ type AccordionItemProps = {
   children: React.ReactNode;
   category?: string;
   featured?: boolean;
+  defaultOpen?: boolean;
 };
 
 // Enhanced Accordion component with shadcn styling
-const AccordionItem = ({ question, children, featured = false }: AccordionItemProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AccordionItem = ({ question, children, featured = false, defaultOpen = false }: AccordionItemProps) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-card rounded-xl border border-border p-1 mb-5 transition-all duration-200 hover:shadow-md">
+    <div className="bg-card rounded-tl-none rounded-tr-xl rounded-b-xl border border-border p-1 mb-5 transition-all duration-200 hover:shadow-md">
       <button
         className="flex justify-between items-center w-full text-left px-6 py-5 group"
         onClick={() => setIsOpen(!isOpen)}
@@ -56,10 +57,33 @@ const categories = [
 
 export function FAQ() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("getting-started");
+  const [activeCategory, setActiveCategory] = useState("about");
 
   // Enhanced FAQ data with shadcn styling
   const faqData = [
+    {
+      question: "How did Soloist originate?",
+      category: "about",
+      featured: true,
+      answer: (
+        <div className="space-y-3">
+          <p>For us, the pressures of life have felt inescapable. Times have been challenging, and staying focused on progress has often fell to the side. Habit tracking has felt meaningless, journalling felt heavy, it's felt difficult to connect with therapists. <strong>Soloist aims to bridge the gap between therapeutic acitivity with actionable predictive insights.</strong></p>
+          <p>Our mission is to help alleviate the barriers of psychological progress by helping users predict and understand their behavioral patterns.</p>
+          <div className="bg-muted p-4 rounded-lg border border-border">
+            <p className="text-card-foreground text-sm"> <strong>Supporting CHARGE Syndrome:</strong> Soloist recognizes the individual journey required for all walks of life, and as such, proudly supports CHD7 CHARGE Syndrome—a rare condition that hits close to home.</p>
+          </div>
+          <a
+            href="https://www.chargesyndrome.org/overview/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors text-sm"
+          >
+            Learn more about CHARGE
+            <ChevronRight className="h-4 w-4" />
+          </a>
+        </div>
+      )
+    },
     {
       question: "How accurate are the mood forecasts?",
       category: "features",
@@ -119,17 +143,17 @@ export function FAQ() {
       featured: true,
       answer: (
         <div className="space-y-3">
-          <p><strong>Yes!</strong> Start with our completely free plan - no credit card required. Track your mood weekly and see the patterns emerge. Auto-Generate logs based on your personality details. Get feedback on your Day and tips for the future.</p>
+          <p><strong>No, Soloist requires a subscription.</strong> We offer a simple, affordable plan at just <strong>$3/month ($30/year)</strong> to provide you with the full power of our predictive mood tracking and insights.</p>
           <div className="bg-muted p-4 rounded-lg border border-border">
-            <p className="text-card-foreground text-sm"><strong>Free forever includes:</strong> Daily mood tracking, basic heatmap view, and 7-day trends.</p>
+            <p className="text-card-foreground text-sm"> <strong>Need help?</strong> If you can't afford a subscription right now, please reach out to us for an accommodation. We're happy to help.</p>
           </div>
-          <button
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
-            onClick={() => window.location.href = 'https://app.acdc.digital/'}
+          <a
+            href="mailto:msimon@acdc.digital?subject=Subscription%20Accommodation%20Request"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors text-sm"
           >
-            Start free tracking
-            <ChevronRight className="h-4 w-4" />
-          </button>
+            Request an accommodation
+            <MessageCircle className="h-4 w-4" />
+          </a>
         </div>
       )
     },
@@ -177,6 +201,25 @@ export function FAQ() {
             </div>
           </div>
           <p className="text-sm">Plus: Beautiful visualizations, desktop app, and deep weekly insights that actually help you plan for better days.</p>
+        </div>
+      )
+    },
+    {
+      question: "Why is there no free tier?",
+      category: "features",
+      answer: (
+        <div className="space-y-3">
+          <p>Soloist is priced competitively to be a market leader and available to everyone. At just <strong>$3/month ($30/year)</strong>, we're committed to keeping our advanced mood tracking and forecasting accessible.</p>
+          <div className="bg-muted p-4 rounded-lg border border-border">
+            <p className="text-card-foreground text-sm"> <strong>Need help?</strong> For those who may not be able to afford another subscription, please reach out to us for an accommodation. We're happy to help.</p>
+          </div>
+          <a
+            href="mailto:msimon@acdc.digital?subject=Subscription%20Accommodation%20Request"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors text-sm"
+          >
+            Contact us about pricing
+            <MessageCircle className="h-4 w-4" />
+          </a>
         </div>
       )
     },
@@ -350,6 +393,7 @@ export function FAQ() {
                         key={index}
                         question={faq.question}
                         featured={true}
+                        defaultOpen={activeCategory === "about" && index === 0}
                       >
                         {faq.answer}
                       </AccordionItem>

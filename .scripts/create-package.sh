@@ -462,12 +462,13 @@ body {
 EOF
 
 # layout.tsx
+CAPITALIZED_NAME="$(echo ${PACKAGE_NAME:0:1} | tr '[:lower:]' '[:upper:]')${PACKAGE_NAME:1}"
 cat > "$PACKAGE_DIR/app/layout.tsx" << EOF
 import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "${PACKAGE_NAME^}",
+  title: "$CAPITALIZED_NAME",
   description: "$CUSTOM_DESCRIPTION",
   icons: {
     icon: "/convex.svg",
@@ -491,11 +492,11 @@ EOF
 
 # page.tsx
 cat > "$PACKAGE_DIR/app/page.tsx" << EOF
-export default function ${PACKAGE_NAME^}Page() {
+export default function ${CAPITALIZED_NAME}Page() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-4">Welcome to ${PACKAGE_NAME^}</h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome to $CAPITALIZED_NAME</h1>
         <p className="text-lg text-muted-foreground">
           $CUSTOM_DESCRIPTION
         </p>
@@ -620,7 +621,7 @@ fi
 # Create README.md
 print_status "Creating README.md..."
 cat > "$PACKAGE_DIR/README.md" << EOF
-# ${PACKAGE_NAME^}
+# $CAPITALIZED_NAME
 
 $CUSTOM_DESCRIPTION
 

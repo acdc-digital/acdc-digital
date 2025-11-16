@@ -1,10 +1,13 @@
 // ROADMAP COMPONENT
-// /Users/matthewsimon/Documents/Github/solopro/website/components/Roadmap.tsx
+// Visual product roadmap with clear phase separation
 
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, CheckCircle2, Circle, Brain, Smartphone, Globe, Zap, LineChart, Users, Shield, BookOpen } from "lucide-react";
+import { CheckCircle2, Circle, Clock, ArrowRight, Sparkles, Brain, Smartphone, Users, Shield, TrendingUp, Download } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -22,7 +25,7 @@ type RoadmapItem = {
 };
 
 export function Roadmap() {
-  const [activePhase, setActivePhase] = useState<RoadmapPhase>("in-progress");
+  const [activePhase, setActivePhase] = useState<RoadmapPhase>("shipped");
   const [waitlistStates, setWaitlistStates] = useState<Record<string, boolean>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
   
@@ -32,16 +35,12 @@ export function Roadmap() {
   const handleWaitlistJoin = async (feature: string) => {
     try {
       setLoadingStates(prev => ({ ...prev, [feature]: true }));
-      
-      // Check if user is authenticated, if not, sign them in first
       const result = await joinWaitlist({ feature });
-      
       if (result.success) {
         setWaitlistStates(prev => ({ ...prev, [feature]: true }));
       }
     } catch (error: unknown) {
       if (error instanceof Error && error.message?.includes("authentication")) {
-        // User needs to sign in first
         signIn("github");
       } else {
         alert("Failed to join waitlist. Please try again.");
@@ -57,13 +56,13 @@ export function Roadmap() {
       description: "Complete mood tracking platform with intelligent insights",
       phase: "shipped",
       quarter: "Q4 2024",
-      icon: Zap,
+      icon: Sparkles,
       features: [
-        "Daily mood logging",
+        "Daily mood logging with intelligent scoring",
         "Interactive heatmap visualization",
-        "Intelligent scoring (0-100)",
-        "Native desktop application",
-        "Auto-generate feature"
+        "Native desktop application (Windows/macOS)",
+        "Auto-generate feature for quick entries",
+        "Comprehensive data export"
       ]
     },
     {
@@ -73,104 +72,109 @@ export function Roadmap() {
       quarter: "Q1 2025",
       icon: Brain,
       features: [
-        "7-day mood forecasting",
-        "Weekly pattern insights",
-        "Trigger identification",
-        "Comprehensive data export",
-        "Personal trend analysis"
+        "7-day mood forecasting engine",
+        "Weekly pattern insights & trigger identification",
+        "Personal trend analysis",
+        "Research-backed predictions",
+        "Actionable recommendations"
+      ]
+    },
+    {
+      title: "Desktop Application",
+      description: "Native desktop apps for Windows & macOS - Download now!",
+      phase: "shipped",
+      quarter: "Q1 2025",
+      icon: Download,
+      features: [
+        "Native Windows application (x64)",
+        "Native macOS application (Intel & Apple Silicon)",
+        "Offline-capable local storage",
+        "One-click download & install",
+        "Automatic updates & sync"
+      ]
+    },
+    {
+      title: "Social Context Integration",
+      description: "Connect your social feeds to enrich your mood tracking",
+      phase: "in-progress",
+      quarter: "Q4 2025",
+      icon: TrendingUp,
+      features: [
+        "Social feed integration (FB, IG, X, LinkedIn)",
+        "Social context insights & correlation",
+        "Guided journaling starter kit (7-day course)",
+        "Progressive prompts & automated reflections",
+        "Personalized template evolution"
       ]
     },
     {
       title: "Advanced Analytics",
-      description: "Deeper insights and custom metrics",
+      description: "Deeper insights with custom metrics and yearly trends",
       phase: "in-progress",
-      quarter: "Q3 2025",
-      icon: LineChart,
+      quarter: "Q1 2026",
+      icon: TrendingUp,
       features: [
-        "Multi-factor analysis",
-        "Custom metrics",
-        "Yearly trends",
-        "Advanced filters"
+        "Multi-factor correlation analysis",
+        "Custom metric creation & tracking",
+        "Yearly trend visualization",
+        "Advanced filtering & segmentation",
+        "Historical pattern comparison"
       ]
     },
     {
-      title: "Social Platform Integration",
-      description: "Connect your social feeds to enrich your mood tracking",
+      title: "Enhanced Personalization",
+      description: "AI-powered customization that learns from your patterns",
       phase: "in-progress",
-      quarter: "Q4 2025",
-      icon: Globe,
+      quarter: "Q1 2026",
+      icon: Sparkles,
       features: [
-        "Facebook feed integration",
-        "Instagram updates",
-        "Twitter/X posts",
-        "LinkedIn activity",
-        "Social context insights"
-      ]
-    },
-    {
-      title: "Guided Journaling Starter Kit",
-      description: "Daily templated logs that evolve over a set period, helping new users build a consistent journaling habit.",
-      phase: "in-progress",
-      quarter: "Q4 2025",
-      icon: BookOpen,
-      features: [
-        "Daily log templates",
-        "Progressive prompts",
-        "7-day starter course",
-        "Automatic reflections",
-        "Personalized guidance"
+        "Adaptive question recommendations",
+        "Smart reminder scheduling",
+        "Personalized insight generation",
+        "Custom goal tracking",
+        "AI-suggested journaling prompts"
       ]
     },
     {
       title: "Mobile Experience",
-      description: "Native iOS and Android apps",
+      description: "Native iOS and Android apps with seamless sync",
       phase: "planned",
       quarter: "Q2 2026",
       icon: Smartphone,
       features: [
-        "Native apps",
-        "Push notifications",
-        "Widget support",
-        "Cross-platform sync"
+        "Native iOS application",
+        "Native Android application",
+        "Push notification system",
+        "Home screen widgets",
+        "Cross-platform synchronization"
       ]
     },
     {
-      title: "Social & Collaboration",
-      description: "Share with trusted circles",
+      title: "Offline-First Architecture",
+      description: "Complete local processing with private predictive models",
       phase: "planned",
-      quarter: "Q4 2025",
-      icon: Users,
-      features: [
-        "Therapist sharing",
-        "Family tracking",
-        "Community insights",
-        "Accountability"
-      ]
-    },
-    {
-      title: "Offline Mode",
-      description: "Fully local application with private predictive models",
-      phase: "planned",
-      quarter: "Q3 2026",
+      quarter: "Q4 2026",
       icon: Shield,
       features: [
-        "100% local processing",
-        "No internet required",
-        "Private predictive models",
-        "Complete data security"
+        "100% local data processing",
+        "Offline-capable predictive models",
+        "Zero cloud dependency mode",
+        "End-to-end encrypted sync",
+        "Export to personal servers"
       ]
     },
     {
       title: "Enterprise & API",
-      description: "Integrate into wellness ecosystems",
+      description: "Integrate Soloist into your wellness ecosystem",
       phase: "planned",
       quarter: "TBD",
-      icon: Globe,
+      icon: TrendingUp,
       features: [
-        "Public API",
-        "Team plans",
-        "HIPAA compliance",
-        "White-label"
+        "REST API access",
+        "Team & organizational plans",
+        "HIPAA compliance certification",
+        "White-label solutions",
+        "Custom integrations"
       ],
       waitlist: true
     }
@@ -179,23 +183,23 @@ export function Roadmap() {
   const phaseConfig = {
     shipped: {
       label: "Shipped",
-      color: "text-green-700",
-      bg: "bg-green-50",
-      border: "border-green-200",
+      color: "text-green-700 dark:text-green-400",
+      bg: "bg-green-50 dark:bg-green-950/20",
+      badgeVariant: "default" as const,
       icon: CheckCircle2
     },
     "in-progress": {
       label: "In Progress",
-      color: "text-blue-700",
-      bg: "bg-blue-50",
-      border: "border-blue-200",
-      icon: Circle
+      color: "text-blue-700 dark:text-blue-400",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+      badgeVariant: "default" as const,
+      icon: Clock
     },
     planned: {
       label: "Planned",
-      color: "text-gray-700",
-      bg: "bg-gray-50",
-      border: "border-gray-200",
+      color: "text-muted-foreground",
+      bg: "bg-muted/50",
+      badgeVariant: "outline" as const,
       icon: Circle
     }
   };
@@ -203,37 +207,38 @@ export function Roadmap() {
   const filteredItems = roadmapData.filter(item => item.phase === activePhase);
 
   return (
-    <section id="roadmap" className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
+    <section id="roadmap" className="py-0 bg-background">
+      <div className="container mx-auto px-4 md:px-16">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Product Roadmap
+        <div className="text-center mb-4">
+          <h2 className="text-[84px] md:text-[88px] font-parkinsans-semibold tracking-tight mb-4">
+            Roadmap
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Building the future of mood intelligence, one feature at a time.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Building tomorrow's emotional intelligence, one release at a time.
           </p>
         </div>
 
         {/* Phase Filter */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {(["in-progress", "planned", "shipped"] as const).map((phase) => {
+          {(["shipped", "in-progress", "planned"] as const).map((phase) => {
             const config = phaseConfig[phase];
-            const Icon = config.icon;
+            const PhaseIcon = config.icon;
             const itemCount = roadmapData.filter(item => item.phase === phase).length;
+            
             return (
               <button
                 key={phase}
                 onClick={() => setActivePhase(phase)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-t-none rounded-b-lg text-sm font-semibold transition-all duration-200 border ${
                   activePhase === phase
-                    ? "bg-primary text-primary-foreground shadow-md scale-105"
-                    : "bg-card text-card-foreground border border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
+                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                    : "bg-card text-card-foreground border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
                 }`}
               >
-                <Icon className="h-4 w-4" />
+                <PhaseIcon className="h-4 w-4" />
                 {config.label}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                <span className={`text-xs px-2 py-0.5 rounded-full ${
                   activePhase === phase
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-muted text-muted-foreground"
@@ -245,81 +250,90 @@ export function Roadmap() {
           })}
         </div>
 
-        {/* Compact Timeline Grid */}
+        {/* Roadmap Items Grid */}
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item, index) => {
               const config = phaseConfig[item.phase];
-              const Icon = item.icon;
+              const ItemIcon = item.icon;
 
               return (
-                <div
+                <Card
                   key={index}
-                  className="bg-card rounded-xl border border-border p-6 transition-all duration-300 hover:shadow-lg hover:border-primary/50 group"
+                  className="bg-yellow-50/10 border-border rounded-tl-none rounded-tr-xl rounded-b-xl hover:shadow-lg transition-all duration-300 hover:border-primary/50 group flex flex-col"
                 >
-                  <div className="flex flex-col h-full">
-                    {/* Header with Icon */}
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className={`p-3 rounded-lg ${config.bg} ${config.border} border flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
-                        <Icon className={`h-5 w-5 ${config.color}`} />
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`p-3 rounded-t-none rounded-b-lg ${config.bg} transition-transform duration-300 group-hover:scale-110`}>
+                        <ItemIcon className={`h-6 w-6 ${config.color}`} />
                       </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-lg text-card-foreground mb-1">
-                          {item.title}
-                        </h3>
-                        <div className={`inline-flex items-center gap-1.5 text-xs font-medium ${config.color}`}>
-                          <span>{item.quarter}</span>
-                        </div>
-                      </div>
+                      <Badge
+                        variant={config.badgeVariant}
+                        className="rounded-tl-none rounded-tr-lg rounded-b-lg"
+                      >
+                        {item.quarter}
+                      </Badge>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                    <CardTitle className="text-xl font-parkinsans-semibold mb-2">
+                      {item.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground">
                       {item.description}
-                    </p>
+                    </CardDescription>
+                  </CardHeader>
 
-                    {/* Features */}
-                    <div className="flex flex-wrap gap-2 mb-4 flex-grow">
-                      {item.features.map((feature, featureIndex) => (
-                        <span
-                          key={featureIndex}
-                          className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+                  <CardContent className="flex-1 flex flex-col">
+                    <ul className="space-y-2 mb-4 flex-1">
+                      {item.features.map((feature, fIndex) => (
+                        <li key={fIndex} className="flex items-start gap-2 text-sm">
+                          <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${
                             item.phase === "shipped"
-                              ? "bg-green-50 text-green-700 border-green-200"
+                              ? "text-green-600 dark:text-green-400"
                               : item.phase === "in-progress"
-                              ? "bg-blue-50 text-blue-700 border-blue-200"
-                              : "bg-muted text-muted-foreground border-border"
-                          }`}
-                        >
-                          {feature}
-                        </span>
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-muted-foreground"
+                          }`} />
+                          <span className={`leading-relaxed ${feature === "Personalized template evolution" ? "line-through" : ""}`}>
+                            {feature}
+                          </span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
 
                     {/* Waitlist Button */}
                     {item.waitlist && (
-                      <button
+                      <Button
                         onClick={() => handleWaitlistJoin("enterprise-api")}
                         disabled={loadingStates["enterprise-api"]}
-                        className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold rounded-lg border-2 transition-all duration-200 ${
-                          waitlistStates["enterprise-api"]
-                            ? "bg-green-50 text-green-700 border-green-200"
-                            : "bg-primary text-primary-foreground border-primary hover:opacity-90 disabled:opacity-50"
-                        }`}
+                        variant={waitlistStates["enterprise-api"] ? "outline" : "default"}
+                        className="w-full mt-auto rounded-t-none rounded-b-lg"
                       >
                         {loadingStates["enterprise-api"]
                           ? "Joining..."
                           : waitlistStates["enterprise-api"]
                           ? "✓ On Waitlist"
-                          : "Join Waitlist"
+                          : (
+                            <>
+                              <span>Join Waitlist</span>
+                              <ArrowRight className="h-4 w-4 ml-2" />
+                            </>
+                          )
                         }
-                      </button>
+                      </Button>
                     )}
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-14">
+          <p className="text-xl text-foreground max-w-3xl mx-auto">
+            Our path forward blends science, reflection, and design.
+          </p>
         </div>
       </div>
     </section>

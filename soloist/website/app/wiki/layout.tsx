@@ -162,6 +162,14 @@ const globalFileTree: FileNode[] = [
       },
     ],
   },
+  {
+    name: "Legal",
+    type: "folder",
+    children: [
+      { name: "Privacy Policy", type: "file", path: "/wiki/privacy-policy" },
+      { name: "Terms of Service", type: "file", path: "/wiki/terms-of-service" },
+    ],
+  },
 ];
 
 export default function WikiLayout({
@@ -207,6 +215,18 @@ export default function WikiLayout({
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               State Management
+            </a>
+            <a
+              href="/wiki/privacy-policy"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="/wiki/terms-of-service"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Terms of Service
             </a>
           </nav>
         </div>

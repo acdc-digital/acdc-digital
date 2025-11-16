@@ -196,14 +196,14 @@ export default function Pricing() {
 
   return (
     <section id="pricing" data-no-navbar-color-change="true" className="w-full mb-4 pt-0 pb-8">
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container-mobile py-responsive-lg">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-14">
-          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[84px] mb-4">
+        <div className="mx-auto max-w-2xl text-center mb-10 md:mb-14">
+          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-display-mobile mb-4">
             Pricing
           </h2>
           <div>
-            <p className="text-xl">
+            <p className="text-base md:text-xl">
               Start today. Explore your patterns, and take control of tomorrow.
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function Pricing() {
 
         {/* Pricing Cards */}
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-10 lg:grid-cols-3 lg:gap-6 lg:items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-6">
             {tiers.map((tier) => {
               const Icon = tier.icon;
               const isActive = hasActiveSubscription === true && tier.priceId;
@@ -237,7 +237,7 @@ export default function Pricing() {
                     </div>
                   )}
 
-                  <CardHeader className="p-14 pt-14 pb-2">
+                  <CardHeader className="p-6 md:p-10 lg:p-14 pt-6 md:pt-10 lg:pt-14 pb-2">
                     <div className={`bg-zinc-900 text-zinc-200 rounded-t-none rounded-b-lg p-6 -mx-6 -mt-2 font-parkinsans ${
                       tier.highlighted ? "pb-24 -mb-24" : "pb-10 -mb-10"
                     }`}>
@@ -248,14 +248,14 @@ export default function Pricing() {
                           <Icon className={`w-6 h-6 ${tier.highlighted ? "text-primary" : "text-muted-foreground"}`} />
                         </div>
                       )}
-                      <CardTitle className="text-2xl">{tier.name}</CardTitle>
+                      <CardTitle className="text-xl md:text-2xl">{tier.name}</CardTitle>
                       <CardDescription className="text-base mt-2 text-white/80">
                         {tier.description}
                       </CardDescription>
 
                       <div className="mt-12 mb-8">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-4xl font-bold tracking-tight">
+                          <span className="text-3xl md:text-4xl font-bold tracking-tight">
                             {tier.price}
                           </span>
                         </div>
