@@ -195,8 +195,8 @@ export function Navbar() {
 
   return (
     <>
-      <header className="pr-3 pl-3 sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-stone-50/35 border-b border-zinc-500">
-        <div className="container mx-auto px-responsive-xl flex items-center justify-between h-16">
+      <header className="sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-stone-50/35 border-b border-zinc-500">
+        <div className="container mx-auto px-responsive-lg flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-4 sm:gap-4">
             <Link

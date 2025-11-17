@@ -211,7 +211,7 @@ export function Roadmap() {
       <div className="container mx-auto px-4 md:px-16">
         {/* Header */}
         <div className="text-center mb-4">
-          <h2 className="text-[84px] md:text-[88px] font-parkinsans-semibold tracking-tight mb-4">
+          <h2 className="text-[clamp(3rem,8vw,4rem)] font-parkinsans-semibold tracking-tight mb-4">
             Roadmap
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">

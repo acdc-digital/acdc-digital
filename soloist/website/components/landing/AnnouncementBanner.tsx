@@ -10,7 +10,7 @@ export function AnnouncementBanner({
   className = "" 
 }: AnnouncementBannerProps) {
   return (
-    <div className={`hidden md:block w-full bg-background border-b border-zinc-500 py-1 px-24 ${className}`}>
+    <div className={`hidden md:block w-full bg-background py-1 px-24 ${className}`}>
       <div className="container mx-auto">
         <p className="text-center text-sm text-zinc-900/90 font-parkinsans-light italic">
           {text}

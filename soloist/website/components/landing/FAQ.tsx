@@ -324,11 +324,11 @@ export function FAQ() {
   const regularFAQs = filteredFAQs.filter(faq => !faq.featured);
 
   return (
-    <section id="faq" className="py-20 md:py-20 mt-4">
+    <section id="faq" className="py-20 md:py-20 mt-8 md:mt-12">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[84px] mb-4">
+          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4">
             Questions? Answers.
           </h2>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">

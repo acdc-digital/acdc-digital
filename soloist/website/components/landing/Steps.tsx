@@ -45,11 +45,11 @@ export function Steps() {
   ];
 
   return (
-    <section id="how-it-works" className="mt-3 w-full pt-12 md:pt-20">
-      <div className="container-mobile py-responsive-lg">
+    <section id="how-it-works" className="w-full pt-0 mt-8 md:mt-12">
+      <div className="container-mobile py-4 md:py-8">
         <div className="max-w-[83rem] mx-auto">
           <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-display-mobile tracking-tight font-parkinsans-semibold mb-4">
+            <h2 className="text-[clamp(3rem,8vw,4rem)] tracking-tight font-parkinsans-semibold mb-4">
               How it works
             </h2>
             <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
