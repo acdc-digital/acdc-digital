@@ -132,10 +132,10 @@ export default function CompetitiveComparison() {
   };
 
   return (
-    <section id="comparison" className="py-20 bg-background">
+    <section id="comparison" className="py-8 md:py-12 bg-background mt-4 md:mt-6">
       <div className="container mx-auto px-4 md:px-16">
-        <div className="mb-12 text-center space-y-4">
-          <h2 className="text-[84px] md:text-[88px] tracking-tight font-parkinsans-semibold">
+        <div className="mb-6 md:mb-8 text-center space-y-4">
+          <h2 className="text-[clamp(3rem,8vw,4rem)] tracking-tight font-parkinsans-semibold">
             Why it works
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">

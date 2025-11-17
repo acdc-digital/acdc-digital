@@ -195,11 +195,11 @@ export default function Pricing() {
   };
 
   return (
-    <section id="pricing" data-no-navbar-color-change="true" className="w-full mb-4 pt-0 pb-8">
-      <div className="container-mobile py-responsive-lg">
+    <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-8 md:mt-12">
+      <div className="container-mobile py-4 md:py-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-10 md:mb-14">
-          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-display-mobile mb-4">
+        <div className="mx-auto max-w-2xl text-center mb-6 md:mb-8">
+          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4">
             Pricing
           </h2>
           <div>
@@ -318,7 +318,7 @@ export default function Pricing() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mx-auto max-w-4xl text-center mt-16">
+        <div className="mx-auto max-w-4xl text-center mt-8 md:mt-10">
           <p className="text-muted-foreground text-md italic">
             No options that work for you? We're here to help,{" "}
             <a href="#" className="text-primary hover:underline">
