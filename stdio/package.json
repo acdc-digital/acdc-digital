@@ -10,9 +10,10 @@
     "convex": "convex dev"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.44",
+    "@ai-sdk/anthropic": "^2.0.45",
+    "@ai-sdk/react": "^2.0.93",
     "@radix-ui/react-slot": "^1.2.3",
-    "ai": "^3.4.33",
+    "ai": "^5.0.93",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.23.0",

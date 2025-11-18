@@ -17,6 +17,14 @@ import {
 import { Check, X, Circle, CheckCircle } from "lucide-react";
 
 export default function CompetitiveComparison() {
+  const competitors = [
+    { name: "Day One", key: "dayOne" },
+    { name: "Daylio", key: "daylio" },
+    { name: "Youper", key: "youper" },
+    { name: "Fabulous", key: "fabulous" },
+    { name: "Reflectly", key: "reflectly" },
+  ];
+
   const data = [
     {
       feature: "Purpose",
@@ -104,19 +112,19 @@ export default function CompetitiveComparison() {
     },
     {
       feature: "Pricing",
-      soloist: "$3 / mo ($30 / yr)",
+      soloist: "$36 / yr",
       soloistHighlight: true,
       dayOne: "$49.99 / yr",
       daylio: "$24 / yr",
-      youper: "$9.99 / mo",
+      youper: "$119.88 / yr",
       fabulous: "$59 / yr",
-      reflectly: "$5.99 / mo",
+      reflectly: "$71.88 / yr",
     },
   ];
 
   const renderIcon = (icon: string | undefined) => {
     if (!icon) return null;
-    
+
     switch (icon) {
       case "check":
         return <Check className="h-4 w-4 text-green-600" />;
@@ -144,7 +152,98 @@ export default function CompetitiveComparison() {
           </p>
         </div>
 
-        <Card className="w-full overflow-hidden border border-border bg-yellow-50/10 rounded-t-none rounded-b-lg">
+        {/* Mobile: Compact Comparison Cards */}
+        <div className="lg:hidden space-y-6 px-4 md:px-0">
+          {competitors.filter(comp => comp.key !== "reflectly").map((competitor) => {
+            const pricingRow = data.find(item => item.feature === "Pricing");
+            // Top 3 differentiating features per competitor
+            const topFeatures = [
+              data.find(item => item.feature === "Purpose"),
+              data.find(item => item.feature === "Adaptive Feedback"),
+              data.find(item => item.feature === "Daily Reflection Engine"),
+            ].filter(Boolean);
+
+            return (
+              <Card
+                key={competitor.key}
+                className="border border-border bg-yellow-50/10 overflow-hidden rounded-none rounded-b-lg"
+              >
+                {/* Header */}
+                <div className="bg-muted/30 px-3 py-2 border-b border-border">
+                  <h3 className="text-sm font-parkinsans-semibold text-foreground text-center">
+                    Soloist vs {competitor.name}
+                  </h3>
+                </div>
+
+                {/* Comparison Table */}
+                <div className="p-2.5 space-y-2.5">
+                  {topFeatures.map((item) => {
+                    if (!item) return null;
+                    const competitorValue = item[competitor.key as keyof typeof item];
+                    const competitorIcon = item[`${competitor.key}Icon` as keyof typeof item];
+
+                    return (
+                      <div key={item.feature} className="space-y-1.5">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                          {item.feature}
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {/* Soloist */}
+                          <div className="bg-blue-50 dark:bg-blue-950/20 p-2 border border-blue-200 dark:border-blue-900">
+                            <div className="flex items-start gap-1 mb-0.5">
+                              {renderIcon(item.soloistIcon as string)}
+                              <span className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 uppercase leading-tight">
+                                Soloist
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-foreground leading-tight">
+                              {item.soloist}
+                            </p>
+                          </div>
+
+                          {/* Competitor */}
+                          <div className="bg-muted/30 p-2 border border-border">
+                            <div className="flex items-start gap-1 mb-0.5">
+                              {renderIcon(competitorIcon as string)}
+                              <span className="text-[9px] font-semibold text-muted-foreground uppercase leading-tight">
+                                {competitor.name}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground leading-tight">
+                              {competitorValue as string}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Pricing Row */}
+                  <div className="pt-1.5 border-t border-border">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+                      Pricing (Annual)
+                    </div>
+                    <div className="flex items-center justify-between bg-gradient-to-r from-blue-50 to-muted/20 dark:from-blue-950/20 dark:to-muted/20 p-2 border border-border">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">Soloist:</span>
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">$36/yr</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium text-muted-foreground">{competitor.name}:</span>
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          {pricingRow?.[competitor.key as keyof typeof pricingRow] as string}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Desktop: Original Table */}
+        <Card className="hidden lg:block w-full overflow-hidden border border-border bg-yellow-50/10 rounded-t-none rounded-b-lg">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>

@@ -9,12 +9,12 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     const result = streamText({
-      model: anthropic('claude-3-5-sonnet-20241022'),
-      messages: [
-        { role: 'system', content: ROLE_SYSTEM_PROMPT },
-        { role: 'system', content: getComponentGenerationPrompt() },
-        ...messages,
+      model: anthropic('claude-haiku-4-5-20251001'),
+      system: [
+        ROLE_SYSTEM_PROMPT,
+        getComponentGenerationPrompt(),
       ],
+      messages,
       temperature: 0.7,
       maxTokens: 4000,
     });
@@ -22,6 +22,9 @@ export async function POST(req: Request) {
     return result.toDataStreamResponse();
   } catch (error) {
     console.error('Chat API error:', error);
-    return new Response('Error processing request', { status: 500 });
+    return new Response(JSON.stringify({ error: 'Error processing request' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

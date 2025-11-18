@@ -17,6 +17,9 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
     setIsLoading(true);
     setError(null);
 
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
     try {
       // For React, create a simple React setup with CDN
       const htmlContent = `
@@ -25,7 +28,6 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; script-src 'unsafe-inline' 'unsafe-eval' https:; style-src 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:;">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -43,20 +45,39 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    ${code}
+    try {
+      ${code}
+    } catch (err) {
+      document.getElementById('root').innerHTML = '<div style="color: red; padding: 20px;">Error: ' + err.message + '</div>';
+    }
   </script>
 </body>
 </html>`;
 
-      // Create data URL
-      const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
-      
-      if (iframeRef.current) {
-        iframeRef.current.src = dataUrl;
-      }
+      // Handle iframe load event
+      const handleLoad = () => {
+        setIsLoading(false);
+      };
 
-      // Set loading to false after a short delay
-      setTimeout(() => setIsLoading(false), 500);
+      const handleError = () => {
+        setError("Failed to load preview");
+        setIsLoading(false);
+      };
+
+      iframe.addEventListener('load', handleLoad);
+      iframe.addEventListener('error', handleError);
+
+      // Create blob URL instead of data URL (more reliable)
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const blobUrl = URL.createObjectURL(blob);
+      iframe.src = blobUrl;
+
+      // Cleanup
+      return () => {
+        iframe.removeEventListener('load', handleLoad);
+        iframe.removeEventListener('error', handleError);
+        URL.revokeObjectURL(blobUrl);
+      };
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to render preview");
       setIsLoading(false);
