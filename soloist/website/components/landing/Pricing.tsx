@@ -59,7 +59,7 @@ export default function Pricing() {
         "Basic insights & patterns",
         "Heatmap visualization",
       ],
-      cta: "Start Monthly",
+      cta: "Get Started Monthly",
       productId: "prod_SM2rv1Y1tRAaKo",
       priceId: "price_1RYaXeD4wGLfhDePZlRBINbJ",
       paymentMode: "subscription",
@@ -80,7 +80,7 @@ export default function Pricing() {
         "Data export & backup",
         "Pretty cool stuff",
       ],
-      cta: "Start Yearly",
+      cta: "Get Started Yearly",
       highlighted: true,
       productId: "prod_STXc0xIWjnn1R6",
       priceId: "price_1RYaXeD4wGLfhDePZlRBINbJ",
@@ -198,7 +198,7 @@ export default function Pricing() {
     <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-8 md:mt-12">
       <div className="container-mobile py-4 md:py-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center mb-6 md:mb-8">
+        <div className="mx-auto max-w-2xl text-center mb-8 md:mb-8">
           <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4">
             Pricing
           </h2>
@@ -210,8 +210,90 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-6">
+        <div className="mx-auto max-w-6xl px-4 md:px-0">
+          {/* Mobile: Compact Cards */}
+          <div className="md:hidden space-y-6">
+            {tiers.slice(0, 2).map((tier) => {
+              const Icon = tier.icon;
+              const isActive = hasActiveSubscription === true && tier.priceId;
+              
+              return (
+                <Card
+                  key={tier.name}
+                  className="relative flex flex-col rounded-none rounded-b-lg bg-yellow-50/10 border-border"
+                >
+                  {tier.badge && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 bg-white">
+                      <Badge
+                        variant={tier.badgeVariant || "default"}
+                        className="border border-black dark:border-white shadow-sm font-parkinsans text-xs px-3 py-1.5 rounded-tl-none rounded-tr-lg rounded-b-lg"
+                      >
+                        {tier.badge}
+                      </Badge>
+                    </div>
+                  )}
+
+                  <CardHeader className="p-4 pb-2">
+                    <div className="rounded-none rounded-b-lg p-4 -mx-4 -mt-4 font-parkinsans">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          {Icon && (
+                            <div className={`inline-flex w-8 h-8 items-center justify-center rounded-lg mb-2 ${
+                              tier.highlighted ? "bg-primary/10" : "bg-muted"
+                            }`}>
+                              <Icon className={`w-4 h-4 ${tier.highlighted ? "text-primary" : "text-muted-foreground"}`} />
+                            </div>
+                          )}
+                          <CardTitle className="text-lg">{tier.name}</CardTitle>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{tier.price}</div>
+                          {tier.priceSubtext && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              {tier.priceSubtext}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <CardDescription className="text-xs text-muted-foreground mb-3">
+                        {tier.description}
+                      </CardDescription>
+
+                      <ul className="space-y-1.5 border border-border bg-muted/30 rounded p-2.5">
+                        {tier.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Check className="h-3.5 w-3.5 shrink-0 mt-0.5 text-green-600" />
+                            <span className="text-[11px] leading-tight">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardHeader>
+
+                  <CardFooter className="p-4 pt-3">
+                    <Button
+                      onClick={() => handlePriceSelection(tier)}
+                      disabled={Boolean(isActive)}
+                      className={`w-full border text-sm ${
+                        tier.highlighted
+                          ? "bg-primary hover:bg-white border-primary"
+                          : "hover:bg-white"
+                      }`}
+                      variant={tier.highlighted ? "default" : "outline"}
+                    >
+                      {isActive ? "✓ Active Plan" : tier.cta}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop: Original Grid */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-6">
             {tiers.map((tier) => {
               const Icon = tier.icon;
               const isActive = hasActiveSubscription === true && tier.priceId;

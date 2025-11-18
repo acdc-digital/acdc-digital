@@ -328,27 +328,29 @@ export default function CompetitiveComparison() {
         </Card>
 
         {/* Legend */}
-        <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span>Enhanced Feature</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-600" />
-            <span>Available</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Circle className="h-4 w-4 text-muted-foreground" />
-            <span>Limited Functionality</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <X className="h-4 w-4 text-red-600" />
-            <span>Not Available</span>
+        <div className="mt-6 px-4 md:px-0">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs md:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Enhanced</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Available</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Circle className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+              <span className="whitespace-nowrap">Limited</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <X className="h-3.5 w-3.5 md:h-4 md:w-4 text-red-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Not Available</span>
+            </div>
           </div>
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center hidden md:block">
           <p className="text-xl text-foreground max-w-5xl mx-auto italic">
             Progress has a rhythm. Find yours with Soloist.
           </p>

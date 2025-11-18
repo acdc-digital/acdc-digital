@@ -21,6 +21,37 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
     if (!iframe) return;
 
     try {
+      // Transform imports to use CDN globals
+      let transformedCode = code;
+      
+      // Remove import statements and map to globals
+      transformedCode = transformedCode
+        .replace(/import\s+{([^}]+)}\s+from\s+['"]react['"]/g, 'const {$1} = React')
+        .replace(/import\s+{([^}]+)}\s+from\s+['"]lucide-react['"]/g, (match, icons) => {
+          const iconMap: Record<string, string> = {
+            'Check': '✓',
+            'X': '✗',
+            'ChevronRight': '→',
+            'ChevronDown': '↓',
+            'Star': '★',
+            'Heart': '♥',
+            'Circle': '•',
+            'ArrowRight': '→',
+            'Menu': '☰',
+            'Search': '🔍',
+            'Mail': '📧',
+            'Home': '🏠',
+            'User': '👤',
+            'Phone': '📱'
+          };
+          const iconNames = icons.split(',').map((i: string) => i.trim());
+          return iconNames.map((icon: string) => 
+            `const ${icon} = ({className = ''}) => React.createElement('span', {className: \`inline-block \${className}\`, style: {lineHeight: 1}}, '${iconMap[icon] || '•'}');`
+          ).join('\n');
+        })
+        .replace(/import\s+.*?from\s+['"].*?['"]/g, '// Import removed for preview')
+        .replace(/export\s+default\s+/g, ''); // Remove export default
+
       // For React, create a simple React setup with CDN
       const htmlContent = `
 <!DOCTYPE html>
@@ -31,6 +62,7 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
@@ -39,16 +71,28 @@ export function PreviewFrame({ code, framework }: PreviewFrameProps) {
       color: #1a1a1a;
       background: white;
       padding: 1rem;
+      overflow: auto;
     }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+    
     try {
-      ${code}
+      ${transformedCode}
+      
+      // Find the component (look for function Component or function [Name])
+      const componentMatch = ${JSON.stringify(transformedCode)}.match(/function\\s+(\\w+)/);
+      const componentName = componentMatch ? componentMatch[1] : 'Component';
+      
+      // Render the component
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(eval(componentName)));
     } catch (err) {
-      document.getElementById('root').innerHTML = '<div style="color: red; padding: 20px;">Error: ' + err.message + '</div>';
+      console.error('Preview error:', err);
+      document.getElementById('root').innerHTML = '<div style="color: red; padding: 20px; font-family: monospace; white-space: pre-wrap;">Error: ' + err.message + '\\n\\n' + err.stack + '</div>';
     }
   </script>
 </body>
