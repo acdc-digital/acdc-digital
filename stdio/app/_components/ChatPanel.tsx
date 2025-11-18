@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Send, Paperclip, Mic, Loader2 } from "lucide-react";
+import { Send, Paperclip, Mic, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChat } from '@ai-sdk/react';
 
@@ -17,6 +17,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const {
     messages: aiMessages,
     sendMessage,
@@ -124,10 +125,22 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
   };
 
   return (
-    <div className="w-80 bg-[#1e1e1e] border-l border-[#2d2d2d] flex flex-col shrink-0">
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
+    <div className={`bg-[#1e1e1e] border-l border-[#2d2d2d] flex flex-col shrink-0 transition-all duration-300 ${isCollapsed ? 'w-10' : 'w-80'}`}>
+      {/* Header */}
+      <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center px-3 shrink-0">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-[#858585] hover:text-[#cccccc] transition-colors"
+          title={isCollapsed ? 'Expand chat' : 'Collapse chat'}
+        >
+          {isCollapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <>
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">{messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-2">
               <div className="text-[#858585] text-xs">
@@ -166,8 +179,7 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
 
       {/* Input Area */}
       <div className="border-t border-[#2d2d2d] p-3">
-        <form onSubmit={handleSubmit} className="space-y-2">
-          {/* Toolbar */}
+        <form onSubmit={handleSubmit} className="space-y-2">{/* Toolbar */}
           <div className="flex items-center gap-1">
             <Button
               type="button"
@@ -223,6 +235,8 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
           </div>
         </form>
       </div>
+        </>
+      )}
     </div>
   );
 }
