@@ -4,10 +4,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { FileText, Zap, TrendingUp, Trophy } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ParticleAnimation } from "@/components/landing/ParticleAnimation";
 import { DailyLogCard } from "@/components/features/DailyLogCard";
 import { FeedCard } from "@/components/features/FeedCard";
 import { MoodForecastCard } from "@/components/features/MoodForecastCard";
@@ -57,18 +55,18 @@ export function Steps() {
             </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 md:gap-6 lg:items-start px-4 md:px-0">
             {steps.map((step, index) => (
               <Card
                 key={step.title}
-                className="border-border bg-yellow-50/10 hover:shadow-lg transition-all duration-300 relative overflow-hidden group flex-1 rounded-none rounded-b-xl"
+                className="border-border bg-yellow-50/10 hover:shadow-lg transition-all duration-300 relative overflow-hidden group rounded-none rounded-b-xl lg:flex-1"
               >
               {/* Step Number Badge */}
               <div className="absolute top-4 right-4 text-6xl font-bold text-muted/10 group-hover:text-primary/10 transition-colors">
                 {step.number}
               </div>
               
-              <CardHeader className="relative z-10 flex flex-col items-start space-y-4 p-4 md:p-6 lg:p-8">
+              <CardHeader className="relative z-10 flex flex-col items-start space-y-4 p-3 pb-4 md:p-6 md:pb-8 lg:p-8 lg:pb-10">
                 <div className="rounded-lg bg-primary/10 p-3 md:p-4 group-hover:bg-primary/20 transition-colors">
                   {step.icon}
                 </div>
@@ -130,7 +128,7 @@ export function Steps() {
           ))}
         </div>
 
-        <div className="text-center mt-10 md:mt-14">
+        <div className="text-center mt-4 md:mt-14">
           <p className="text-base md:text-xl text-foreground max-w-5xl mx-auto px-4">
             <span className="font-semibold">The Result: </span> Stop wondering why you feel the way you do. Start predicting and preparing for it.
           </p>

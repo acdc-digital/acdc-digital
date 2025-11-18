@@ -9,4 +9,14 @@ export default defineSchema({
   projects: defineTable({
     value: v.number(),
   }),
+  generatedComponents: defineTable({
+    code: v.string(),
+    title: v.string(),
+    framework: v.literal("react"),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_framework", ["framework"]),
 });

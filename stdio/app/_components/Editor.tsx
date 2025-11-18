@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
 import { PanelType } from "./ActivityBar";
+import { ComponentCanvas, ComponentCanvasRef } from "./canvas/ComponentCanvas";
 
 interface Tab {
   id: string;
@@ -12,14 +13,23 @@ interface Tab {
 
 interface EditorProps {
   activePanel: PanelType;
+  onGetCanvasRef?: (ref: ComponentCanvasRef | null) => void;
 }
 
-export function Editor({}: EditorProps) {
+export function Editor({ onGetCanvasRef }: EditorProps) {
+  const canvasRef = useRef<ComponentCanvasRef>(null);
   const [tabs, setTabs] = useState<Tab[]>([
     { id: "welcome", title: "Welcome", type: "welcome" }
   ]);
   const [activeTabId, setActiveTabId] = useState("welcome");
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+
+  // Pass canvas ref to parent
+  useEffect(() => {
+    if (onGetCanvasRef) {
+      onGetCanvasRef(canvasRef.current);
+    }
+  }, [onGetCanvasRef]);
 
   const closeTab = (tabId: string) => {
     const newTabs = tabs.filter(tab => tab.id !== tabId);
@@ -43,6 +53,11 @@ export function Editor({}: EditorProps) {
           </div>
         </div>
       );
+    }
+
+    // Render Canvas for welcome tab
+    if (activeTab.type === "welcome") {
+      return <ComponentCanvas ref={canvasRef} />;
     }
 
     // Future: Render different content based on activePanel and tab type
