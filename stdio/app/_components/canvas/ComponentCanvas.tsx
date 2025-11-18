@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import { Save, Code2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { PreviewFrame } from "./PreviewFrame";
@@ -103,32 +103,6 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
 
   return (
     <div className="h-full flex flex-col bg-[#1e1e1e]">
-        {/* Top Controls Bar */}
-        <div className="shrink-0 h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
-          <div className="flex items-center gap-2">
-          <span className="px-2 py-1 bg-[#1e1e1e] text-xs text-[#cccccc] border border-[#3e3e42] rounded font-medium">
-            React
-          </span>
-          <Code2 className="w-4 h-4 text-[#858585]" />
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="bg-transparent text-xs text-[#cccccc] border-none outline-none focus:outline-none w-48"
-            placeholder="Component title"
-          />
-        </div>
-
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="flex items-center gap-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white text-xs rounded transition-colors"
-        >
-          <Save className="w-3 h-3" />
-          {isSaving ? "Saving..." : "Save"}
-        </button>
-        </div>
-
         {/* Main Content Area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left: Code Editor */}
@@ -163,6 +137,10 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
               deviceMode={deviceMode}
               onDeviceModeChange={setDeviceMode}
               isGenerating={isGenerating}
+              title={title}
+              onTitleChange={setTitle}
+              onSave={handleSave}
+              isSaving={isSaving}
             />
             <div className="flex-1 flex items-center justify-center bg-[#181818] p-4 overflow-auto">
               <div
