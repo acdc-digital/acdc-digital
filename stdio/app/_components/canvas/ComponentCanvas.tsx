@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import { Save, Code2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, Code2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { PreviewFrame } from "./PreviewFrame";
 import { CanvasControls } from "./CanvasControls";
-import { ComponentStorage } from "./ComponentStorage";
 
 type DeviceMode = "desktop" | "tablet" | "mobile";
 
@@ -49,7 +47,6 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCodeCollapsed, setIsCodeCollapsed] = useState(false);
-  const [isStorageCollapsed, setIsStorageCollapsed] = useState(false);
   
   const saveComponent = useMutation(api.components.saveComponent);
 
@@ -90,16 +87,6 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleSelectComponent = (component: {
-    _id: Id<"generatedComponents">;
-    code: string;
-    title: string;
-    framework: "react";
-  }) => {
-    setCode(component.code);
-    setTitle(component.title);
   };
 
   const getPreviewWidth = () => {
@@ -186,25 +173,6 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
                 <PreviewFrame code={code} framework="react" />
               </div>
             </div>
-          </div>
-
-          {/* Storage Area */}
-          <div className={`border-t border-[#3e3e42] bg-[#1e1e1e] overflow-hidden transition-all duration-300 ${isStorageCollapsed ? 'h-[35px]' : 'h-64'}`}>
-            <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
-              <span className="text-xs text-[#858585]">Saved Components</span>
-              <button
-                onClick={() => setIsStorageCollapsed(!isStorageCollapsed)}
-                className="text-[#858585] hover:text-[#cccccc] transition-colors"
-                title={isStorageCollapsed ? 'Expand storage' : 'Collapse storage'}
-              >
-                {isStorageCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-            </div>
-            {!isStorageCollapsed && (
-              <div className="overflow-auto h-[calc(16rem-35px)]">
-                <ComponentStorage onSelectComponent={handleSelectComponent} />
-              </div>
-            )}
           </div>
         </div>
       </div>

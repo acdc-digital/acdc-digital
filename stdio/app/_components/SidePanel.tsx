@@ -3,19 +3,27 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PanelType } from "./ActivityBar";
+import { ComponentStorage } from "./canvas/ComponentStorage";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface SidePanelProps {
   activePanel: PanelType;
+  onSelectComponent?: (component: {
+    _id: Id<"generatedComponents">;
+    code: string;
+    title: string;
+    framework: "react";
+  }) => void;
 }
 
-export function SidePanel({ activePanel }: SidePanelProps) {
+export function SidePanel({ activePanel, onSelectComponent }: SidePanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   if (!activePanel) return null;
 
   const getPanelTitle = () => {
     switch (activePanel) {
-      case "dashboard": return "Dashboard";
+      case "dashboard": return "Components";
       case "invoices": return "Invoices";
       case "expenses": return "Expenses";
       case "reports": return "Reports";
@@ -30,18 +38,8 @@ export function SidePanel({ activePanel }: SidePanelProps) {
     switch (activePanel) {
       case "dashboard":
         return (
-          <div className="flex flex-col gap-4 p-4">
-            <div>
-              <h3 className="text-xs font-semibold text-[#cccccc] mb-2">Dashboard Overview</h3>
-              <div className="space-y-1">
-                <button className="w-full text-left px-2 py-1.5 text-xs text-[#cccccc] hover:bg-[#2d2d2d] rounded">
-                  Quick Stats
-                </button>
-                <button className="w-full text-left px-2 py-1.5 text-xs text-[#cccccc] hover:bg-[#2d2d2d] rounded">
-                  Recent Activity
-                </button>
-              </div>
-            </div>
+          <div className="flex flex-col h-full">
+            {onSelectComponent && <ComponentStorage onSelectComponent={onSelectComponent} />}
           </div>
         );
       

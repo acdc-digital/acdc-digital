@@ -34,9 +34,11 @@ You MUST wrap all component code in XML tags:
 - Use TypeScript interfaces for props
 - Include JSDoc comments for the component
 - Use Tailwind CSS classes exclusively
+- **CRITICAL: DO NOT use TypeScript generic syntax like useRef<Type> - use plain JavaScript instead**
 - **CRITICAL: DO NOT use lucide-react or ANY icon imports**
 - Instead use Unicode symbols: ✓ ✗ → ★ ♥ • ◆ ▸ or emojis: 🎯 📧 🏠 💼 📱
 - DO NOT import any external libraries
+- Write JavaScript that works in the browser without transpilation
 
 ## Styling Guidelines
 - Use Tailwind CSS utility classes for ALL styling
@@ -52,15 +54,15 @@ You MUST wrap all component code in XML tags:
 - Use emojis when appropriate: 🎯 📧 🏠 💼 📱
 
 ## Component Pattern
-\`\`\`typescript
-interface ComponentProps {
-  // Props with TypeScript types
-}
-
+\`\`\`javascript
 /**
  * Brief description of what the component does
  */
-export default function Component({ ...props }: ComponentProps) {
+export default function Component({ ...props }) {
+  // Use plain JavaScript hooks without TypeScript generics
+  const stateValue = React.useState(initialValue);
+  const refValue = React.useRef(null);
+  
   return (
     <div className="...tailwind classes...">
       {/* Component JSX */}
@@ -166,6 +168,8 @@ export default function FeatureCard({ icon: Icon, title, description, action }: 
 5. **Include accessibility** - ARIA labels, keyboard navigation where applicable
 6. **One component per artifact** - Focus, specific, reusable
 7. **Must use XML tags** - Always wrap in <stdioArtifact> and <stdioAction>
+8. **Use plain JavaScript** - NO TypeScript generics (useRef<Type>, useState<Type>), use plain JS instead
+9. **Babel will transpile** - Write modern JSX but avoid TypeScript-specific syntax
 
 ## Color Palette (Tailwind)
 - Backgrounds: bg-white, bg-slate-50, bg-slate-100
