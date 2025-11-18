@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Send, Paperclip, Mic, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useChat } from "ai/react";
+import { useChat } from '@ai-sdk/react';
 
 interface Message {
   id: string;
@@ -17,28 +17,45 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
-  const { messages: aiMessages, input, handleInputChange, handleSubmit: aiHandleSubmit, isLoading } = useChat({
-    api: '/api/chat',
-  });
-  
+  const {
+    messages: aiMessages,
+    sendMessage,
+    status
+  } = useChat();
+
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const isLoading = status === 'submitted';
+
   // Convert AI SDK messages to our Message format
-  const messages: Message[] = aiMessages.map(msg => ({
-    id: msg.id,
-    role: msg.role as "user" | "assistant",
-    content: msg.content,
-    timestamp: new Date(),
-  }));
+  const messages: Message[] = aiMessages.map((msg) => {
+    const content = msg.parts
+      .filter((part) => part.type === 'text')
+      .map((part) => (part as { type: 'text'; text: string }).text)
+      .join('');
+
+    return {
+      id: msg.id,
+      role: msg.role as "user" | "assistant",
+      content,
+      timestamp: new Date(),
+    };
+  });
 
   // Extract component code from assistant messages
   useEffect(() => {
     if (aiMessages.length > 0 && onComponentGenerated) {
       const lastMessage = aiMessages[aiMessages.length - 1];
       if (lastMessage.role === 'assistant') {
-        const artifactMatch = lastMessage.content.match(/<stdioArtifact\s+id="[^"]+"\s+title="([^"]+)">/);
-        const actionMatch = lastMessage.content.match(/<stdioAction\s+type="component">\s*([\s\S]*?)\s*<\/stdioAction>/);
+        const content = lastMessage.parts
+          .filter((part) => part.type === 'text')
+          .map((part) => (part as { type: 'text'; text: string }).text)
+          .join('');
+
+        const artifactMatch = content.match(/<stdioArtifact\s+id="[^"]+"\s+title="([^"]+)">/);
+        const actionMatch = content.match(/<stdioAction\s+type="component">\s*([\s\S]*?)\s*<\/stdioAction>/);
 
         if (artifactMatch && actionMatch) {
           const title = artifactMatch[1];
@@ -47,9 +64,7 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
         }
       }
     }
-  }, [aiMessages, onComponentGenerated]);
-
-  const scrollToBottom = () => {
+  }, [aiMessages, onComponentGenerated]);  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -57,10 +72,21 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    aiHandleSubmit(e);
+
+    const userMessage = input.trim();
+    setInput("");
+
+    await sendMessage({
+      role: 'user',
+      parts: [{ type: 'text', text: userMessage }],
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
