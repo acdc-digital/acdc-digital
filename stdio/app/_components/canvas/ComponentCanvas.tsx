@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import { Save, Code2 } from "lucide-react";
+import { Save, Code2, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -48,6 +48,8 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
   const [title, setTitle] = useState("Untitled Component");
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCodeCollapsed, setIsCodeCollapsed] = useState(false);
+  const [isStorageCollapsed, setIsStorageCollapsed] = useState(false);
   
   const saveComponent = useMutation(api.components.saveComponent);
 
@@ -143,21 +145,30 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
         {/* Main Content Area */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left: Code Editor */}
-          <div className="w-1/2 flex flex-col border-r border-[#3e3e42]">
-          <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center px-3">
-            <span className="text-xs text-[#858585]">Code</span>
+          <div className={`flex flex-col border-r border-[#3e3e42] transition-all duration-300 ${isCodeCollapsed ? 'w-10' : 'w-1/2'}`}>
+          <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
+            <span className="text-xs text-[#858585]">{isCodeCollapsed ? '' : 'Code'}</span>
+            <button
+              onClick={() => setIsCodeCollapsed(!isCodeCollapsed)}
+              className="text-[#858585] hover:text-[#cccccc] transition-colors"
+              title={isCodeCollapsed ? 'Expand code' : 'Collapse code'}
+            >
+              {isCodeCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
           </div>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="flex-1 bg-[#1e1e1e] text-[#cccccc] text-xs font-mono p-4 resize-none outline-none border-none"
-            placeholder="Enter your component code here..."
-            spellCheck={false}
-          />
+          {!isCodeCollapsed && (
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="flex-1 bg-[#1e1e1e] text-[#cccccc] text-xs font-mono p-4 resize-none outline-none border-none"
+              placeholder="Enter your component code here..."
+              spellCheck={false}
+            />
+          )}
         </div>
 
         {/* Right: Preview + Storage */}
-        <div className="w-1/2 flex flex-col">
+        <div className={`flex flex-col transition-all duration-300 ${isCodeCollapsed ? 'flex-1' : 'w-1/2'}`}>
           {/* Preview Area */}
           <div className="flex-1 flex flex-col">
             <CanvasControls
@@ -178,11 +189,22 @@ ReactDOM.render(<App />, document.getElementById('root'));`);
           </div>
 
           {/* Storage Area */}
-          <div className="h-64 border-t border-[#3e3e42] bg-[#1e1e1e] overflow-auto">
-            <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center px-3">
+          <div className={`border-t border-[#3e3e42] bg-[#1e1e1e] overflow-hidden transition-all duration-300 ${isStorageCollapsed ? 'h-[35px]' : 'h-64'}`}>
+            <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
               <span className="text-xs text-[#858585]">Saved Components</span>
+              <button
+                onClick={() => setIsStorageCollapsed(!isStorageCollapsed)}
+                className="text-[#858585] hover:text-[#cccccc] transition-colors"
+                title={isStorageCollapsed ? 'Expand storage' : 'Collapse storage'}
+              >
+                {isStorageCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
             </div>
-            <ComponentStorage onSelectComponent={handleSelectComponent} />
+            {!isStorageCollapsed && (
+              <div className="overflow-auto h-[calc(16rem-35px)]">
+                <ComponentStorage onSelectComponent={handleSelectComponent} />
+              </div>
+            )}
           </div>
         </div>
       </div>
