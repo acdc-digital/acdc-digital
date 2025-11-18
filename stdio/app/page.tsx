@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { 
   Header, 
   ActivityBar, 
@@ -12,10 +12,20 @@ import {
   ChatPanel,
   PanelType 
 } from "./_components";
+import { ComponentCanvasRef } from "./_components/canvas/ComponentCanvas";
 
 export default function StdioPage() {
   const [activePanel, setActivePanel] = useState<PanelType>("dashboard");
   const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
+  const [canvasRef, setCanvasRef] = useState<ComponentCanvasRef | null>(null);
+
+  const handleComponentGenerated = useCallback((code: string, title: string) => {
+    canvasRef?.handleComponentGenerated(code, title);
+  }, [canvasRef]);
+
+  const handleGeneratingChange = useCallback((isGenerating: boolean) => {
+    canvasRef?.setIsGenerating(isGenerating);
+  }, [canvasRef]);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0e0e0e] text-[#cccccc] overflow-hidden">
@@ -37,7 +47,10 @@ export default function StdioPage() {
         <div className="flex-1 flex flex-col overflow-hidden relative">
           {/* Editor - Main content area (full height) */}
           <div className="absolute inset-0 overflow-hidden">
-            <Editor activePanel={activePanel} />
+            <Editor
+              activePanel={activePanel}
+              onGetCanvasRef={setCanvasRef}
+            />
           </div>
 
           {/* Terminal - Overlays editor at bottom (doesn't extend under chat panel) */}
@@ -50,7 +63,9 @@ export default function StdioPage() {
         </div>
 
         {/* Chat Panel - Right sidebar */}
-        <ChatPanel />
+        <ChatPanel
+          onComponentGenerated={handleComponentGenerated}
+        />
       </div>
 
       {/* Navigator - Hidden placeholder for future implementation */}

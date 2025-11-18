@@ -1,0 +1,97 @@
+"use client";
+
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { Trash2, ExternalLink } from "lucide-react";
+import { useState } from "react";
+
+interface ComponentStorageProps {
+  onSelectComponent: (component: {
+    _id: Id<"generatedComponents">;
+    code: string;
+    title: string;
+    framework: "react";
+  }) => void;
+}
+
+export function ComponentStorage({ onSelectComponent }: ComponentStorageProps) {
+  const components = useQuery(api.components.listComponents);
+  const deleteComponent = useMutation(api.components.deleteComponent);
+  const [deletingId, setDeletingId] = useState<Id<"generatedComponents"> | null>(null);
+
+  const handleDelete = async (id: Id<"generatedComponents">) => {
+    if (!confirm("Are you sure you want to delete this component?")) return;
+    
+    setDeletingId(id);
+    try {
+      await deleteComponent({ componentId: id });
+    } catch (error) {
+      console.error("Failed to delete component:", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (components === undefined) {
+    return (
+      <div className="p-4">
+        <div className="text-xs text-[#858585]">Loading components...</div>
+      </div>
+    );
+  }
+
+  if (components.length === 0) {
+    return (
+      <div className="p-4">
+        <div className="text-xs text-[#858585]">
+          No saved components yet. Generate your first component to get started.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-0.5">
+      {components.map((component: {
+        _id: Id<"generatedComponents">;
+        code: string;
+        title: string;
+        framework: "react";
+        description?: string;
+        createdAt: number;
+        updatedAt: number;
+      }) => (
+        <div
+          key={component._id}
+          className="group flex items-center gap-2 px-2 py-1.5 hover:bg-[#252526] transition-colors cursor-pointer text-xs"
+          onClick={() => onSelectComponent(component)}
+        >
+          <ExternalLink className="w-3 h-3 text-[#858585] shrink-0" />
+          <span className="text-[#cccccc] truncate flex-1">
+            {component.title}
+          </span>
+          <span className="text-[#666] text-[10px] shrink-0">
+            {new Date(component.createdAt).toLocaleDateString(undefined, { 
+              month: 'short', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(component._id);
+            }}
+            disabled={deletingId === component._id}
+            className="p-1 rounded text-[#858585] hover:text-red-400 hover:bg-[#2d2d2d] transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50 shrink-0"
+            title="Delete component"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}

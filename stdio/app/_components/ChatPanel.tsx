@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Mic } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { Send, Paperclip, Mic, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useChat } from "ai/react";
 
 interface Message {
   id: string;
@@ -11,11 +12,42 @@ interface Message {
   timestamp: Date;
 }
 
-export function ChatPanel() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+interface ChatPanelProps {
+  onComponentGenerated?: (code: string, title: string) => void;
+}
+
+export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
+  const { messages: aiMessages, input, handleInputChange, handleSubmit: aiHandleSubmit, isLoading } = useChat({
+    api: '/api/chat',
+  });
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Convert AI SDK messages to our Message format
+  const messages: Message[] = aiMessages.map(msg => ({
+    id: msg.id,
+    role: msg.role as "user" | "assistant",
+    content: msg.content,
+    timestamp: new Date(),
+  }));
+
+  // Extract component code from assistant messages
+  useEffect(() => {
+    if (aiMessages.length > 0 && onComponentGenerated) {
+      const lastMessage = aiMessages[aiMessages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        const artifactMatch = lastMessage.content.match(/<stdioArtifact\s+id="[^"]+"\s+title="([^"]+)">/);
+        const actionMatch = lastMessage.content.match(/<stdioAction\s+type="component">\s*([\s\S]*?)\s*<\/stdioAction>/);
+
+        if (artifactMatch && actionMatch) {
+          const title = artifactMatch[1];
+          const code = actionMatch[1].trim();
+          onComponentGenerated(code, title);
+        }
+      }
+    }
+  }, [aiMessages, onComponentGenerated]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -25,38 +57,10 @@ export function ChatPanel() {
     scrollToBottom();
   }, [messages]);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 164)}px`;
-    }
-  }, [input]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages([...messages, newMessage]);
-    setInput("");
-
-    // Simulate assistant response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "I'm here to help! This is a simulated response.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    }, 500);
+    if (!input.trim() || isLoading) return;
+    aiHandleSubmit(e);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -92,7 +96,7 @@ export function ChatPanel() {
                       : "bg-[#252526] text-[#cccccc] border border-[#2d2d2d]"
                   }`}
                 >
-                  <div className="whitespace-pre-wrap break-words">{message.content}</div>
+                  <div className="whitespace-pre-wrap wrap-break-word">{message.content}</div>
                 </div>
                 <div className="text-[10px] text-[#858585] mt-1 px-1">
                   {message.timestamp.toLocaleTimeString([], {
@@ -137,21 +141,26 @@ export function ChatPanel() {
             <textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
-              className="w-full min-h-[48px] max-h-[164px] resize-none bg-[#252526] text-[#cccccc] text-xs border border-[#2d2d2d] rounded px-3 py-2 pr-10 placeholder:text-[#858585] focus:outline-none focus:ring-1 focus:ring-[#007acc] focus:border-[#007acc]"
+              placeholder="Describe the component you want to create..."
+              className="w-full min-h-12 max-h-[164px] resize-none bg-[#252526] text-[#cccccc] text-xs border border-[#2d2d2d] rounded px-3 py-2 pr-10 placeholder:text-[#858585] focus:outline-none focus:ring-1 focus:ring-[#007acc] focus:border-[#007acc]"
               rows={1}
+              disabled={isLoading}
             />
             <Button
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
               variant="ghost"
               size="icon"
               className="absolute right-1 bottom-1 w-8 h-8 rounded hover:bg-[#2d2d2d] disabled:opacity-50 disabled:cursor-not-allowed p-0"
               title="Send message"
             >
-              <Send className="w-3.5 h-3.5 text-[#007acc]" />
+              {isLoading ? (
+                <Loader2 className="w-3.5 h-3.5 text-[#007acc] animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5 text-[#007acc]" />
+              )}
             </Button>
           </div>
 
