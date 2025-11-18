@@ -353,7 +353,7 @@ export function FAQ() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-[300px_1fr] gap-8">
             {/* Left Side Container */}
-            <div className="bg-yellow-50/10 border border-black rounded-none p-3 h-[369px] overflow-y-auto">
+            <div className="bg-yellow-50/10 border border-black rounded-none p-3 h-fit md:h-[369px] overflow-y-auto">
               <nav className="space-y-0.5">
                 <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground mb-2">
                   <FolderOpen className="h-4 w-4 shrink-0" />

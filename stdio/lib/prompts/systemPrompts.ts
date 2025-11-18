@@ -30,32 +30,37 @@ You MUST wrap all component code in XML tags:
 \`\`\`
 
 ## Component Structure
-- Export a single functional component as default
+- Export component as: export default function Component
 - Use TypeScript interfaces for props
 - Include JSDoc comments for the component
 - Use Tailwind CSS classes exclusively
-- Import icons from 'lucide-react' if needed
+- **CRITICAL: DO NOT use lucide-react or ANY icon imports**
+- Instead use Unicode symbols: ✓ ✗ → ★ ♥ • ◆ ▸ or emojis: 🎯 📧 🏠 💼 📱
+- DO NOT import any external libraries
 
 ## Styling Guidelines
 - Use Tailwind CSS utility classes for ALL styling
 - Follow shadcn/ui color scheme: slate/zinc for neutrals, blue for primary
 - Use responsive classes (sm:, md:, lg:, xl:) for mobile-first design
-- Prefer \`className\` over inline styles
+- Prefer className over inline styles
 - Use Tailwind's animation utilities (animate-spin, animate-pulse, etc.)
+
+## Icons and Symbols
+- **NEVER import lucide-react** - icons are not available in preview
+- Use Unicode characters: ✓ (checkmark), ✗ (x), → (arrow), ★ (star)
+- Use HTML entities: &check; &times; &rarr;
+- Use emojis when appropriate: 🎯 📧 🏠 💼 📱
 
 ## Component Pattern
 \`\`\`typescript
-import { ComponentProps } from 'react';
-import { IconName } from 'lucide-react';
-
-interface ComponentNameProps {
+interface ComponentProps {
   // Props with TypeScript types
 }
 
 /**
  * Brief description of what the component does
  */
-export default function ComponentName({ ...props }: ComponentNameProps) {
+export default function Component({ ...props }: ComponentProps) {
   return (
     <div className="...tailwind classes...">
       {/* Component JSX */}

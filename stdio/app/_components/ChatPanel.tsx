@@ -31,10 +31,17 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
 
   // Convert AI SDK messages to our Message format
   const messages: Message[] = aiMessages.map((msg) => {
-    const content = msg.parts
+    let content = msg.parts
       .filter((part) => part.type === 'text')
       .map((part) => (part as { type: 'text'; text: string }).text)
       .join('');
+
+    // If assistant message contains component code, show friendly message instead
+    if (msg.role === 'assistant' && content.includes('<stdioArtifact')) {
+      const titleMatch = content.match(/<stdioArtifact[^>]+title="([^"]+)"/);
+      const title = titleMatch ? titleMatch[1] : 'Component';
+      content = `✨ I've created your "${title}"! Check out the code in the editor and preview on the right.`;
+    }
 
     return {
       id: msg.id,
@@ -44,9 +51,20 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
     };
   });
 
+  // Log messages for debugging
+  useEffect(() => {
+    if (aiMessages.length > 0) {
+      console.log('Total messages:', aiMessages.length);
+      console.log('Status:', status);
+      const lastMsg = aiMessages[aiMessages.length - 1];
+      console.log('Last message role:', lastMsg.role);
+      console.log('Last message parts:', lastMsg.parts.length);
+    }
+  }, [aiMessages, status]);
+
   // Extract component code from assistant messages
   useEffect(() => {
-    if (aiMessages.length > 0 && onComponentGenerated) {
+    if (aiMessages.length > 0 && onComponentGenerated && status === 'ready') {
       const lastMessage = aiMessages[aiMessages.length - 1];
       if (lastMessage.role === 'assistant') {
         const content = lastMessage.parts
@@ -54,17 +72,26 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
           .map((part) => (part as { type: 'text'; text: string }).text)
           .join('');
 
+        console.log('Checking for component in message:', content.substring(0, 200));
+
         const artifactMatch = content.match(/<stdioArtifact\s+id="[^"]+"\s+title="([^"]+)">/);
         const actionMatch = content.match(/<stdioAction\s+type="component">\s*([\s\S]*?)\s*<\/stdioAction>/);
 
         if (artifactMatch && actionMatch) {
           const title = artifactMatch[1];
-          const code = actionMatch[1].trim();
+          let code = actionMatch[1].trim();
+          
+          // Remove markdown code fences if present
+          code = code.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '');
+          
+          console.log('Component extracted! Title:', title, 'Code length:', code.length);
           onComponentGenerated(code, title);
+        } else {
+          console.log('No component found. Artifact match:', !!artifactMatch, 'Action match:', !!actionMatch);
         }
       }
     }
-  }, [aiMessages, onComponentGenerated]);  const scrollToBottom = () => {
+  }, [aiMessages, onComponentGenerated, status]);  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
