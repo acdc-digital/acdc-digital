@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PanelType } from "./ActivityBar";
 
 interface SidePanelProps {
@@ -7,7 +9,22 @@ interface SidePanelProps {
 }
 
 export function SidePanel({ activePanel }: SidePanelProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  
   if (!activePanel) return null;
+
+  const getPanelTitle = () => {
+    switch (activePanel) {
+      case "dashboard": return "Dashboard";
+      case "invoices": return "Invoices";
+      case "expenses": return "Expenses";
+      case "reports": return "Reports";
+      case "calendar": return "Calendar";
+      case "settings": return "Settings";
+      case "account": return "Account";
+      default: return "";
+    }
+  };
 
   const renderPanelContent = () => {
     switch (activePanel) {
@@ -163,8 +180,22 @@ export function SidePanel({ activePanel }: SidePanelProps) {
   };
 
   return (
-    <div className="w-[240px] bg-[#1e1e1e] border-r border-[#2d2d2d] flex-shrink-0 overflow-auto">
-      {renderPanelContent()}
+    <div className={`bg-[#1e1e1e] border-r border-[#2d2d2d] shrink-0 overflow-hidden transition-all duration-300 ${isCollapsed ? 'w-10' : 'w-60'}`}>
+      <div className="h-[35px] bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between px-3">
+        <span className="text-xs text-[#858585]">{isCollapsed ? '' : getPanelTitle()}</span>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-[#858585] hover:text-[#cccccc] transition-colors"
+          title={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+      </div>
+      {!isCollapsed && (
+        <div className="overflow-auto h-[calc(100%-35px)]">
+          {renderPanelContent()}
+        </div>
+      )}
     </div>
   );
 }

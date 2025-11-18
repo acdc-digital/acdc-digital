@@ -54,12 +54,12 @@ export default function StdioPage() {
           </div>
 
           {/* Terminal - Overlays editor at bottom (doesn't extend under chat panel) */}
-          <div className="absolute bottom-0 left-0 right-0 z-10">
+          {/* <div className="absolute bottom-0 left-0 right-0 z-10">
             <Terminal 
               isCollapsed={isTerminalCollapsed}
               onToggle={() => setIsTerminalCollapsed(!isTerminalCollapsed)}
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Chat Panel - Right sidebar */}
