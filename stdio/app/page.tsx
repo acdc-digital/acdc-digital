@@ -27,6 +27,15 @@ export default function StdioPage() {
     canvasRef?.setIsGenerating(isGenerating);
   }, [canvasRef]);
 
+  const handleSelectComponent = useCallback((component: {
+    _id: any;
+    code: string;
+    title: string;
+    framework: "react";
+  }) => {
+    canvasRef?.handleComponentGenerated(component.code, component.title);
+  }, [canvasRef]);
+
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0e0e0e] text-[#cccccc] overflow-hidden">
       {/* Header - Fixed at top */}
@@ -41,7 +50,10 @@ export default function StdioPage() {
         />
         
         {/* SidePanel - Left sidebar with context-specific content (full height) */}
-        <SidePanel activePanel={activePanel} />
+        <SidePanel
+          activePanel={activePanel}
+          onSelectComponent={handleSelectComponent}
+        />
 
         {/* Editor + Terminal Area */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
