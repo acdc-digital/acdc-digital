@@ -348,13 +348,6 @@ export default function CompetitiveComparison() {
             </div>
           </div>
         </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-8 text-center hidden md:block">
-          <p className="text-xl text-foreground max-w-5xl mx-auto italic">
-            Progress has a rhythm. Find yours with Soloist.
-          </p>
-        </div>
       </div>
     </section>
   );

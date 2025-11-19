@@ -9,7 +9,6 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SignInModal } from "@/modals/SignInModal";
-import { DocsModal } from "@/components/admin/Docs";
 import { Loader2, Menu, X, Shield, ShieldUserIcon, User, FileDown, LogOut } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { BouncingLogoCompact } from "@/components/features/BouncingLogoCompact";
@@ -217,20 +216,20 @@ export function Navbar() {
           </div>
 
           {/* Desktop Nav links */}
-          <nav className="hidden md:flex items-center font-parkinsans-nomral space-x-10">
+          <nav className="hidden md:flex items-center font-parkinsans-nomral space-x-4 md:space-x-6 lg:space-x-8 xl:space-x-10 mx-4 md:mx-6 lg:mx-8">
             <Link
               href="/"
-              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`text-base lg:text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Home
             </Link>
             {/* Pricing and FAQ - disabled on /wiki and /blog pages (scroll elements) */}
             {pathname === '/wiki' || pathname === '/blog' ? (
               <>
-                <span className={`text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
+                <span className={`text-base lg:text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
                   Pricing
                 </span>
-                <span className={`text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
+                <span className={`text-base lg:text-lg font-medium font-inter ${isScrolled ? 'text-white/30' : 'text-zinc-400/50'}`}>
                   FAQ
                 </span>
               </>
@@ -238,13 +237,13 @@ export function Navbar() {
               <>
                 <Link
                   href="#pricing"
-                  className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`text-base lg:text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                   Pricing
                 </Link>
                 <Link
                   href="#faq"
-                  className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+                  className={`text-base lg:text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                   FAQ
                 </Link>
@@ -258,13 +257,13 @@ export function Navbar() {
             </Link> */}
             <Link
               href="/wiki"
-              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`text-base lg:text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Docs
             </Link>
             <Link
               href="/blog"
-              className={`text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`text-base lg:text-lg font-medium transition-colors font-inter ${isScrolled ? 'text-white hover:text-white/80' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Blog
             </Link>
@@ -327,13 +326,13 @@ export function Navbar() {
                 </DropdownMenu>
                 <Link
                   href={process.env.NEXT_PUBLIC_APP_URL || "https://app.acdc.digital"}
-                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-5 py-2 text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter"
+                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter whitespace-nowrap"
                 >
                   Soloist.
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200"
+                  className="inline-flex items-center justify-center border border-black bg-white px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200 whitespace-nowrap"
                 >
                   Sign out
                 </button>
@@ -342,13 +341,13 @@ export function Navbar() {
               <>
                 <button
                   onClick={handleOpenSignIn}
-                  className="inline-flex items-center justify-center border border-black bg-white px-7 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="inline-flex items-center justify-center border border-black bg-white px-4 lg:px-7 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
                 >
                   Login
                 </button>
                 <button
                   onClick={handleOpenSignUp}
-                  className="inline-flex items-center justify-center border border-black bg-white px-5 py-2 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="inline-flex items-center justify-center border border-black bg-white px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
                 >
                   Sign-up
                 </button>

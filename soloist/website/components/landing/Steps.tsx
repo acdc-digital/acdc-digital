@@ -43,7 +43,7 @@ export function Steps() {
   ];
 
   return (
-    <section id="how-it-works" className="w-full pt-0 mt-8 md:mt-12">
+    <section id="how-it-works" className="w-full pt-0 mt-0 md:mt-0">
       <div className="container-mobile py-4 md:py-8">
         <div className="max-w-[83rem] mx-auto">
           <div className="text-center mb-8 md:mb-12">
@@ -128,12 +128,12 @@ export function Steps() {
           ))}
         </div>
 
-        <div className="text-center mt-4 md:mt-14">
+        <div className="text-center mt-4 md:mt-10">
           <p className="text-base md:text-xl text-foreground max-w-5xl mx-auto px-4">
-            <span className="font-semibold">The Result: </span> Stop wondering why you feel the way you do. Start predicting and preparing for it.
+            Stop wondering why you feel the way you do. Start predicting and preparing for it.
           </p>
           <p className="text-base md:text-xl text-foreground max-w-4xl mx-auto mt-1 px-4">
-            Like a weather forecast, but for your mind.
+            Like a weather forecast, but for your thoughts.
           </p>
         </div>
         </div>

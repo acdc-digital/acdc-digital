@@ -195,7 +195,7 @@ export default function Pricing() {
   };
 
   return (
-    <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-8 md:mt-12">
+    <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-4 md:mt-4">
       <div className="container-mobile py-4 md:py-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center mb-8 md:mb-8">

@@ -232,7 +232,7 @@ export function Roadmap() {
                 onClick={() => setActivePhase(phase)}
                 className={`inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-2 md:py-3 rounded-t-none rounded-b-lg text-xs md:text-sm font-semibold transition-all duration-200 border ${
                   activePhase === phase
-                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                    ? "bg-primary text-primary-foreground border-primary scale-105"
                     : "bg-card text-card-foreground border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
                 }`}
               >
