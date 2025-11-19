@@ -26,19 +26,28 @@ export function DemoApp() {
           </p>
         </div>
         
-        <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl overflow-hidden border-0 md:border border-border/40">
+        <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl overflow-hidden">
           {/* Iframe Container with responsive aspect ratio */}
           <div
             className={`bg-background w-full ${isFullscreen ? 'demo-container-fullscreen' : 'demo-container'}`}
           >
             <iframe
               src={demoUrl}
-              className="absolute inset-0 w-full h-full border-0"
+              className="absolute inset-0 w-full h-full"
               title="Soloist App Demo"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
               loading="lazy"
             />
           </div>
+        </div>
+
+        <div>
+          {/* Bottom CTA */}
+            <div className="mt-4 text-center hidden md:block">
+              <p className="text-xl text-foreground max-w-5xl mx-auto italic">
+                Progress has a rhythm. Find yours with Soloist.
+              </p>
+            </div>
         </div>
         
         {/* Get Started text - below demo on mobile */}

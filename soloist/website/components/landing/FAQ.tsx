@@ -22,7 +22,7 @@ const AccordionItem = ({ question, children, featured = false, defaultOpen = fal
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-card rounded-tl-none rounded-tr-xl rounded-b-xl border border-border p-1 mb-5 transition-all duration-200 hover:shadow-md">
+    <div className="bg-card rounded-tl-none rounded-tr-xl rounded-b-xl border border-border p-1 mb-5 transition-all duration-200">
       <button
         className="flex justify-between items-center w-full text-left px-6 py-5 group"
         onClick={() => setIsOpen(!isOpen)}

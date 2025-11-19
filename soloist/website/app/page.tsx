@@ -143,12 +143,13 @@ export default function LandingPage() {
       <AnnouncementBanner />
 
       {/* Hero Text Section */}
-      <div id="hero" className="text-left px-responsive-xl pt-8 md:pt-12 pb-2">
-        <div className="hidden md:flex items-end justify-between mb-8">
-          <p className="text-xs text-muted-foreground tracking-wide italic mb-0">
+      <div id="hero" className="text-center px-4 sm:px-6 md:px-8 lg:px-12 pt-8 md:pt-10 lg:pt-12 pb-2 w-full">
+        <div className="max-w-7xl mx-auto">
+          <div className="hidden md:flex flex-col items-center justify-center mb-6 md:mb-8 gap-4">
+          <p className="text-xs md:text-sm text-muted-foreground tracking-wide italic">
             you must be subscribed to download.
           </p>
-          <div className="flex gap-4 pb-1">
+          <div className="flex gap-3 md:gap-4">
             <DownloadModal>
               <button 
                 disabled={!downloadsEnabled}
@@ -200,22 +201,23 @@ export default function LandingPage() {
             </DownloadModal>
           </div>
         </div>
-        <h1 className="text-[clamp(3.5rem,12vw,5.5rem)] md:text-hero-mobile font-bold tracking-tight mb-6 md:mb-8 mt-6 md:mt-8 font-parkinsans-bold leading-[0.9]">
+        <h1 className="text-[clamp(1.75rem,7vw,5.5rem)] sm:text-[clamp(2rem,8vw,5.5rem)] md:text-[clamp(2.5rem,6vw,5.5rem)] lg:text-hero-mobile font-bold tracking-tight mb-4 md:mb-6 lg:mb-8 mt-4 md:mt-6 lg:mt-8 font-parkinsans-bold leading-[0.95] sm:leading-[0.9] lg:whitespace-nowrap">
           Track. Compute. Forecast.
         </h1>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-          <p className="text-subtitle-mobile text-muted-foreground font-medium font-parkinsans-bold">
-            The weather app for your mood.
+        <div className="flex flex-col items-center justify-center mb-2 md:mb-2 gap-3 md:gap-4">
+          <p className="text-base sm:text-lg md:text-xl lg:text-subtitle-mobile text-muted-foreground font-medium font-parkinsans-bold">
+            The next evolution in theraputic journaling.
           </p>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 max-w-md">
-            <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:inline">learn more</span>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md px-4 sm:px-0">
+            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap hidden sm:inline">learn more</span>
             <input
               type="email"
               placeholder="your-email@example.com"
-              className="flex-1 min-w-0 w-1/2 sm:w-48 px-2 py-1.5 text-xs border border-border rounded-full bg-background focus:outline-none focus:border-border"
+              className="w-full sm:flex-1 sm:min-w-[200px] md:min-w-[240px] px-3 py-1.5 text-xs border border-border rounded-full bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
             />
-            <span className="text-xs text-muted-foreground whitespace-nowrap sm:hidden pl-2">learn more</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap sm:hidden">learn more</span>
           </div>
+        </div>
         </div>
       </div>
 

@@ -62,8 +62,8 @@ export function NewsletterSignup({
 
   return (
     <form onSubmit={handleSubmit} className={`space-y-3 ${className}`}>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
+      <div className="flex flex-wrap gap-2">
+        <div className="relative flex-1 min-w-[200px]">
           <input
             type="email"
             value={email}

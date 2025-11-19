@@ -10,10 +10,12 @@ import {
   Github, 
   Slack, 
   Mail,
-  MapPin
+  MapPin,
+  Instagram,
+  Linkedin
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import { BouncingLogoCompact } from "@/components/features/BouncingLogoCompact";
 import { PrivacyPolicyModal } from "@/components/legal/privacyPolicy";
 import { TermsOfServiceModal } from "@/components/legal/termsOfService";
 import { NewsletterSignup } from "@/components/landing/NewsletterSignup";
@@ -32,14 +34,7 @@ export function Footer() {
             <div className="sm:col-span-2 md:col-span-3 lg:col-span-4">
               <div className="mb-4 md:mb-8">
                 <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                  <Image
-                    src="/soloicov2.svg"
-                    alt="Soloist Logo"
-                    width={32}
-                    height={32}
-                    className="w-6 h-6 md:w-8 md:h-8"
-                    priority
-                  />
+                  <BouncingLogoCompact size={32} className="w-6 h-6 md:w-8 md:h-8" />
                   <h3 className="text-lg md:text-2xl font-bold text-black">Soloist.</h3>
                 </div>
                 <p className="text-xs md:text-sm text-black leading-relaxed">
@@ -48,13 +43,42 @@ export function Footer() {
               </div>
 
               {/* Social Links */}
-              <div className="flex gap-2 md:gap-3">
+              <div className="flex flex-wrap gap-2 md:gap-3">
                 <Link 
                   href="https://github.com/acdc-digital/solopro" 
                   className="group p-1.5 md:p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 flex items-center justify-center"
                   aria-label="GitHub"
                 >
                   <Github className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                </Link>
+                <Link 
+                  href="https://www.instagram.com/soloist.pro" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-1.5 md:p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 flex items-center justify-center"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                </Link>
+                <Link 
+                  href="https://www.tiktok.com/@soloist.pro" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-1.5 md:p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 flex items-center justify-center"
+                  aria-label="TikTok"
+                >
+                  <svg className="h-3.5 w-3.5 md:h-4 md:w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  </svg>
+                </Link>
+                <Link 
+                  href="https://www.linkedin.com/company/acdc-digital" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group p-1.5 md:p-2.5 rounded-full bg-white border border-border text-black hover:text-black hover:border-foreground transition-all duration-200 flex items-center justify-center"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 </Link>
                 <Link 
                   href="https://acdcdigital.slack.com/archives/C0919GRUWB0" 
@@ -78,42 +102,42 @@ export function Footer() {
             {/* Quick Links - 2 columns */}
             <div className="md:col-span-2">
               <h4 className="font-semibold text-black mb-2 md:mb-6 text-xs md:text-base">Quick Links</h4>
-              <ul className="space-y-0 md:space-y-3">
+              <ul className="space-y-0 md:space-y-1">
                 <li>
-                  <Link href="#" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-1">
+                  <Link href="#" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-0.5">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link href="#features" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-1">
+                  <Link href="#features" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-0.5">
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="#pricing" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-1">
+                  <Link href="#pricing" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-0.5">
                     Pricing
                   </Link>
                 </li>
                 <li>
-                  <Link href="#roadmap" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-1">
+                  <Link href="#roadmap" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-0.5">
                     Roadmap
                   </Link>
                 </li>
                 <li>
-                  <Link href="#faq" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-1">
+                  <Link href="#faq" className="text-[10px] md:text-sm text-black hover:text-black transition-colors inline-flex items-center gap-1 group py-0.5 md:py-0.5">
                     FAQ
                   </Link>
                 </li>
                 <li>
                   <PrivacyPolicyModal>
-                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-1">
+                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-0.5">
                       Privacy Policy
                     </button>
                   </PrivacyPolicyModal>
                 </li>
                 <li>
                   <TermsOfServiceModal>
-                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-1">
+                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-0.5">
                       Terms of Service
                     </button>
                   </TermsOfServiceModal>
@@ -121,14 +145,19 @@ export function Footer() {
               </ul>
             </div>
 
-            {/* Feedback - 2 columns */}
+            {/* Community - 2 columns */}
             <div className="md:col-span-2">
-              <h4 className="font-semibold text-black mb-2 md:mb-6 text-xs md:text-base">Feedback</h4>
-              <ul className="space-y-0.5 md:space-y-3">
+              <h4 className="font-semibold text-black mb-2 md:mb-6 text-xs md:text-base">Community</h4>
+              <ul className="space-y-0 md:space-y-1">
+                <li>
+                  <Link href="/blog" className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-0.5">
+                    Blog
+                  </Link>
+                </li>
                 <li>
                   <FeedbackModal>
-                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left">
-                      Tell us what you think
+                    <button className="text-[10px] md:text-sm text-black hover:text-black transition-colors text-left py-0.5 md:py-0.5">
+                      Forum
                     </button>
                   </FeedbackModal>
                 </li>
@@ -204,7 +233,7 @@ export function Footer() {
               © {currentYear} ACDC.digital. All rights reserved.
             </div>
             
-            <div className="text-xs md:text-sm">
+            {/* <div className="text-xs md:text-sm">
               <Link 
                 href="https://github.com/acdc-digital/solopro" 
                 className="text-black hover:text-black transition-colors inline-flex items-center gap-2"
@@ -212,7 +241,7 @@ export function Footer() {
                 <Github className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 Open Source Project
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
