@@ -131,12 +131,6 @@ export function Navbar() {
     };
   }, [isMobileMenuOpen]);
 
-  const handleOpenSignIn = () => {
-    setSignInFlow("signIn");
-    setIsSignInModalOpen(true);
-    setIsMobileMenuOpen(false);
-  };
-
   const handleOpenSignUp = () => {
     setSignInFlow("signUp");
     setIsSignInModalOpen(true);
@@ -338,20 +332,12 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  onClick={handleOpenSignIn}
-                  className="inline-flex items-center justify-center border border-black bg-white px-4 lg:px-7 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={handleOpenSignUp}
-                  className="inline-flex items-center justify-center border border-black bg-white px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
-                >
-                  Sign-up
-                </button>
-              </>
+              <button
+                onClick={handleOpenSignUp}
+                className="inline-flex items-center justify-center border border-black bg-blue-500 px-4 lg:px-7 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-white hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
+              >
+                Get Started
+              </button>
             )}
           </div>
 
@@ -483,20 +469,12 @@ export function Navbar() {
                   </button>
                 </>
               ) : (
-                <>
-                  <button
-                    onClick={handleOpenSignIn}
-                    className="w-full inline-flex items-center justify-center rounded-3xl border border-black bg-white px-7 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={handleOpenSignUp}
-                    className="w-full inline-flex items-center justify-center rounded-3xl border border-black bg-white px-5 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    Sign up
-                  </button>
-                </>
+                <button
+                  onClick={handleOpenSignUp}
+                  className="w-full inline-flex items-center justify-center rounded-3xl border border-black bg-white px-7 py-2.5 text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                  Get Started
+                </button>
               )}
             </div>
           </nav>

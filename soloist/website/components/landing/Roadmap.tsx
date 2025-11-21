@@ -207,7 +207,7 @@ export function Roadmap() {
   const filteredItems = roadmapData.filter(item => item.phase === activePhase);
 
   return (
-    <section id="roadmap" className="py-0 bg-background">
+    <section id="roadmap" className="py-2 md:py-8 bg-background">
       <div className="container mx-auto px-4 md:px-16">
         {/* Header */}
         <div className="text-center mb-6 md:mb-4">
@@ -330,7 +330,7 @@ export function Roadmap() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="text-center mt-10 md:mt-14">
+        <div className="text-center mt-10 md:mt-10">
           <p className="text-base md:text-xl text-foreground max-w-3xl mx-auto">
             Our path forward blends science, reflection, and design.
           </p>

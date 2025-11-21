@@ -17,7 +17,7 @@ export function CTABanner() {
   return (
     <section 
       id="cta-banner"
-      className="pt-20 pb-4"
+      className="pt-6 pb-4"
     >
       <div className="container px-2 pt-12">
         <div className="max-w-7xl px-4 text-left">
