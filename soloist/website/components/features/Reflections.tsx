@@ -9,7 +9,7 @@ import { Download, CirclePlus, Smile } from "lucide-react";
 
 export function FeatureSection() {
   return (
-    <section className="pt-6 md:pt-8 lg:pt-12 pb-0 px-4 sm:px-6 md:px-10 mt-6 md:mt-8 lg:mt-12 overflow-hidden">
+    <section className="pt-6 md:pt-6 lg:pt-8 pb-0 px-4 sm:px-6 md:px-10 mt-6 md:mt-8 lg:mt-8 overflow-hidden">
       <div className="container mx-auto max-w-[94rem]">
         {/* Header */}
         <div className="mx-auto max-w-4xl text-center mb-6 md:mb-10 lg:mb-14 px-2 sm:px-4">
@@ -23,11 +23,11 @@ export function FeatureSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-start px-2 sm:px-4 md:px-0">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 xl:gap-12 items-stretch px-2 sm:px-4 md:px-0">
           {/* Left Side - Empty Container */}
-          <div className="relative bg-[#1E1E1E] border border-zinc-700 w-full max-w-[420px] sm:max-w-[480px] md:max-w-[520px] mx-auto lg:ml-12 lg:mr-0 h-auto lg:h-[560px] rounded-2xl p-2 flex flex-col items-center">
+          <div className="relative bg-[#1E1E1E] border border-zinc-700 w-full max-w-[420px] sm:max-w-[480px] md:max-w-[520px] xl:max-w-none mx-auto xl:mx-0 h-auto xl:h-full rounded-2xl p-2 flex flex-col items-center mb-6 xl:mb-0">
             {/* Date */}
-            <p className="text-[#969696] text-[10px] sm:text-xs mb-2">November 1, 2025</p>
+            <p className="text-[#969696] text-[10px] sm:text-xs mb-3">November 1, 2025</p>
             
             {/* Container with white border and download icon */}
             <div className="flex gap-2 sm:gap-3 md:gap-5 self-start items-center ml-1 sm:ml-2 mb-3 md:mb-4 w-full">
@@ -70,27 +70,29 @@ export function FeatureSection() {
           </div>
 
           {/* Right Side - Text Content */}
-          <div className="space-y-3 md:space-y-4 lg:mr-20 lg:-ml-12 w-full max-w-full lg:max-w-none px-4 sm:px-6 md:px-6 lg:px-0">
-            <div className="space-y-3 md:space-y-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-parkinsans-semibold tracking-tight">
-                How the data clicks...
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground">
-                Soloist helps you make sense of the past while bringing clarity and focus to what’s ahead.
-              </p>
-            </div>
+          <div className="flex flex-col justify-between w-full max-w-full px-4 sm:px-6 md:px-6 xl:px-0 h-full">
+            <div>
+              <div className="space-y-3 md:space-y-4">
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-parkinsans-semibold tracking-tight">
+                  How the data clicks...
+                </h2>
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground">
+                  Soloist helps you make sense of the past while bringing clarity and focus to what’s ahead.
+                </p>
+              </div>
 
-            <div className="space-y-3 md:space-y-4">
-              <p className="pt-1 text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
-                Not just another journal, habit tracker, or AI-powered productivity tool — Soloist blends modern technology with a calm, human-centered interface 
-                designed to help you understand yourself better, one day at a time.
-              </p>
-            </div>
+              <div className="space-y-3 md:space-y-4">
+                <p className="pt-1 text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
+                  Not just another journal, habit tracker, or AI-powered productivity tool — Soloist blends modern technology with a calm, human-centered interface
+                  designed to help you understand yourself better, one day at a time.
+                </p>
+              </div>
 
 
               <button className="pb-3 md:pb-4 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity text-xs sm:text-sm md:text-base px-4 py-2">
                 Learn More ─────▶
               </button>
+            </div>
 
             {/* Bottom Container */}
             <div className="h-auto w-full rounded-b-2xl bg-yellow-50/10 border border-black p-3 sm:p-4 md:pl-4 md:pr-6">
@@ -110,6 +112,12 @@ export function FeatureSection() {
             </div>
 
           </div>
+        </div>
+
+        <div className="text-center mt-10 md:mt-14 pb-0">
+          <p className="text-base md:text-xl text-foreground max-w-3xl mx-auto">
+            True clarity comes when you stop just tracking your days, and start understanding them.
+          </p>
         </div>
 
       </div>

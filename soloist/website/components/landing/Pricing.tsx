@@ -3,13 +3,13 @@
 
 "use client";
 
-import { Check, Sparkles, Zap, Users, TrendingUp } from "lucide-react";
+import { Check, Sparkles, Zap, Users, TrendingUp, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StripeCheckoutModal } from "@/modals/StripeCheckoutModal";
 import { SignInModal } from "@/modals/SignInModal";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -48,54 +48,52 @@ export default function Pricing() {
   const tiers: PricingTier[] = [
     {
       name: "Monthly",
-      description: "Perfect for getting started with mood tracking",
-      price: "$3",
+      description: "Try month to month. No commitments, cancel anytime.",
+      price: "$2.99",
       priceSubtext: "per month",
       features: [
-        "Full browser experience",
-        "Daily Feedback & Mood Forecasting",
-        "Auto-generate Daily entries",
-        "7-day History",
-        "Basic insights & patterns",
-        "Heatmap visualization",
+        "Everything Soloist has to offer:",
+        "Elegant design & user experience",
+        "Mood & Habit Tracking",
+        "Personalized Insights & Recommendations",
+        "Mood Forecasting and Actionable Guidance",
       ],
       cta: "Get Started Monthly",
       productId: "prod_SM2rv1Y1tRAaKo",
       priceId: "price_1RYaXeD4wGLfhDePZlRBINbJ",
       paymentMode: "subscription",
-      icon: Zap,
+      // icon: Zap,
       badge: "Get Started",
       badgeVariant: "secondary",
     },
     {
       name: "Yearly",
-      description: "Unlock your full emotional potential with advanced features",
-      price: "$30",
+      description: "Start your commitment to a better future you.",
+      price: "$30.49",
       priceSubtext: "per year (save 17%)",
       features: [
-        "Everything in Monthly, plus:",
-        "Native desktop application",
-        "Advanced analytics & trends",
-        "Interactive playground",
-        "Data export & backup",
-        "Pretty cool stuff",
+        "Same product as Monthly, billed once per year",
+        "Saves 17% compared to paying monthly",
+        "Daily Logs & Predictive Summary's",
+        "Unlimited Entries, Revisions, and Updates",
+        "Social Connections Coming Soon",
+        "Mobile App Coming Soon",
       ],
       cta: "Get Started Yearly",
       highlighted: true,
       productId: "prod_STXc0xIWjnn1R6",
       priceId: "price_1RYaXeD4wGLfhDePZlRBINbJ",
       paymentMode: "subscription",
-      icon: TrendingUp,
+      // icon: TrendingUp,
       badge: "Most Popular",
       badgeVariant: "default",
     },
     {
       name: "Teams",
-      description: "Share insights and support each other's wellbeing",
+      description: "Share insights and support each other's wellbeing.",
       price: "Coming 2026",
       priceSubtext: "Early access waitlist",
       features: [
-        "Group wellbeing challenges",
         "Collaborative mood tracking",
         "Team wellness dashboards",
         "Supportive community features",
@@ -104,7 +102,7 @@ export default function Pricing() {
       ],
       cta: "Join Waitlist",
       productId: "prod_SM2stqz0a2vhGb",
-      icon: Users,
+      // icon: Users,
       badge: "Coming Soon",
       badgeVariant: "outline",
     },
@@ -195,7 +193,7 @@ export default function Pricing() {
   };
 
   return (
-    <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-4 md:mt-4">
+    <section id="pricing" data-no-navbar-color-change="true" className="w-full pt-0 pb-0 mt-6 md:mt-6">
       <div className="container-mobile py-4 md:py-8">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center mb-8 md:mb-8">
@@ -212,7 +210,7 @@ export default function Pricing() {
         {/* Pricing Cards */}
         <div className="mx-auto max-w-6xl px-4 md:px-0">
           {/* Mobile: Compact Cards */}
-          <div className="md:hidden space-y-6">
+          <div className="md:hidden space-y-8">
             {tiers.slice(0, 2).map((tier) => {
               const Icon = tier.icon;
               const isActive = hasActiveSubscription === true && tier.priceId;
@@ -293,7 +291,7 @@ export default function Pricing() {
           </div>
 
           {/* Desktop: Original Grid */}
-          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-6">
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-6 lg:gap-6 items-start">
             {tiers.map((tier) => {
               const Icon = tier.icon;
               const isActive = hasActiveSubscription === true && tier.priceId;
@@ -302,27 +300,25 @@ export default function Pricing() {
               return (
                 <Card
                   key={tier.name}
-                  className={`relative flex flex-col rounded-t-none rounded-b-lg bg-yellow-50/10 ${
+                  className={`relative flex flex-col rounded-t-none rounded-b-lg bg-yellow-50/10 p-0 ${
                     tier.highlighted
-                      ? "border-primary lg:min-h-[850px]"
+                      ? "border-primary"
                       : ""
                   }`}
                 >
                   {tier.badge && (
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 bg-white">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 bg-white">
                       <Badge
                         variant={tier.badgeVariant || "default"}
-                        className="border border-black dark:border-white shadow-sm font-parkinsans text-base px-5 py-3 rounded-tl-none rounded-tr-lg rounded-b-lg"
+                        className="border border-black dark:border-white shadow-sm font-parkinsans text-sm px-4 py-2 rounded-tl-none rounded-tr-lg rounded-b-lg"
                       >
                         {tier.badge}
                       </Badge>
                     </div>
                   )}
 
-                  <CardHeader className="p-6 md:p-10 lg:p-14 pt-6 md:pt-10 lg:pt-14 pb-2">
-                    <div className={`bg-zinc-900 text-zinc-200 rounded-t-none rounded-b-lg p-6 -mx-6 -mt-2 font-parkinsans ${
-                      tier.highlighted ? "pb-24 -mb-24" : "pb-10 -mb-10"
-                    }`}>
+                  <CardHeader className="p-6 md:p-10 lg:p-14 pt-6 md:pt-10 lg:pt-12 pb-0">
+                    <div className="bg-zinc-900 text-zinc-200 rounded-t-none rounded-b-lg p-6 -mx-6 -mb-4 font-parkinsans">
                       {Icon && (
                         <div className={`inline-flex w-12 h-12 items-center justify-center rounded-lg mb-4 ${
                           tier.highlighted ? "bg-primary/10" : "bg-muted"
@@ -335,7 +331,7 @@ export default function Pricing() {
                         {tier.description}
                       </CardDescription>
 
-                      <div className="mt-12 mb-8">
+                      <div className="mt-8 mb-8">
                         <div className="flex items-baseline gap-1">
                           <span className="text-3xl md:text-4xl font-bold tracking-tight">
                             {tier.price}
@@ -348,27 +344,31 @@ export default function Pricing() {
                         )}
                       </div>
 
-                      <ul className={`space-y-3 mb-8 border border-zinc-700 bg-zinc-800/80 rounded-lg p-4 ${
-                        tier.highlighted ? "pb-10" : "pb-8"
-                      }`}>
-                        {tier.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-3 pb-0">
-                            <Check className={`h-5 w-5 shrink-0 mt-0.5 ${
-                              tier.highlighted ? "text-primary" : "text-white/70"
-                            }`} />
-                            <span className="text-sm leading-relaxed">
-                              {feature}
-                            </span>
-                          </li>
-                        ))}
+                      <ul className="space-y-1 mb-2 border border-zinc-700 bg-zinc-800/80 rounded-lg p-2 -mx-2 pb-3">
+                        {tier.features.map((feature, idx) => {
+                          const isComingSoon = feature.toLowerCase().includes('coming soon');
+                          const IconComponent = isComingSoon ? X : Check;
+
+                          return (
+                            <li key={idx} className="flex items-start gap-3 pb-0">
+                              <IconComponent className={`h-5 w-5 shrink-0 mt-0.5 ${
+                                isComingSoon 
+                                  ? "text-white/40" 
+                                  : tier.highlighted ? "text-primary" : "text-white/70"
+                              }`} />
+                              <span className={`text-sm leading-relaxed ${
+                                isComingSoon ? 'text-white/40' : ''
+                              }`}>
+                                {feature}
+                              </span>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="flex-1">
-                  </CardContent>
-
-                  <CardFooter className={tier.highlighted ? "pt-16 pb-8" : "pt-12"}>
+                  <CardFooter className="pl-8 pr-8 pb-6">
                     <Button
                       onClick={() => handlePriceSelection(tier)}
                       disabled={Boolean(

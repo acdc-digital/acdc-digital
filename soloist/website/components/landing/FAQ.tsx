@@ -22,7 +22,7 @@ const AccordionItem = ({ question, children, featured = false, defaultOpen = fal
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-card rounded-tl-none rounded-tr-xl rounded-b-xl border border-border p-1 mb-5 transition-all duration-200">
+    <div className="bg-card rounded-tl-none rounded-tr-xl rounded-b-xl border border-border p-1 mb-0 transition-all duration-200">
       <button
         className="flex justify-between items-center w-full text-left px-6 py-5 group"
         onClick={() => setIsOpen(!isOpen)}
@@ -324,11 +324,11 @@ export function FAQ() {
   const regularFAQs = filteredFAQs.filter(faq => !faq.featured);
 
   return (
-    <section id="faq" className="py-20 md:py-20 mt-8 md:mt-12">
+    <section id="faq" className="py-12 md:py-12 mt-10 md:mt-14">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4">
+          <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4 leading-[0.95] md:leading-tight">
             Questions? Answers.
           </h2>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
@@ -435,6 +435,11 @@ export function FAQ() {
               )}
             </div>
           </div>
+        </div>
+        <div className="text-center mt-4 md:mt-4">
+          <p className="text-base md:text-xl text-foreground max-w-3xl mx-auto">
+            Your journey is unique, but you don&apos;t have to navigate it alone.
+          </p>
         </div>
       </div>
     </section>

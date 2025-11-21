@@ -8,6 +8,7 @@
     "NEXT_PUBLIC_APP_URL": "",
     "STRIPE_SECRET_KEY": "",
     "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "",
-    "STRIPE_WEBHOOK_SECRET": ""
+    "STRIPE_WEBHOOK_SECRET": "",
+    "NEXT_PUBLIC_CONVEX_URL": "https://optimistic-bobcat-390.convex.cloud"
   }
 } 
