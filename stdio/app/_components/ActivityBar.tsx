@@ -1,18 +1,15 @@
 "use client";
 
 import { 
-  FileText, 
-  Calendar, 
-  DollarSign, 
   Crown,
-  BarChart3, 
+  Folder,
   Settings,
-  User,
   LucideIcon 
 } from "lucide-react";
 
 export type PanelType = 
   | "dashboard"
+  | "files"
   | "invoices" 
   | "expenses"
   | "reports"
@@ -29,11 +26,7 @@ interface ActivityBarProps {
 export function ActivityBar({ activePanel, onPanelChange }: ActivityBarProps) {
   const activityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
     { id: "dashboard", icon: Crown, label: "Dashboard" },
-    { id: "invoices", icon: FileText, label: "Invoices" },
-    { id: "expenses", icon: DollarSign, label: "Expenses" },
-    { id: "reports", icon: BarChart3, label: "Reports" },
-    { id: "calendar", icon: Calendar, label: "Calendar" },
-    { id: "account", icon: User, label: "Account" },
+    { id: "files", icon: Folder, label: "Files" },
   ];
 
   const bottomItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [

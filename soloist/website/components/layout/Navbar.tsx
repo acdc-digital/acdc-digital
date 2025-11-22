@@ -9,6 +9,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SignInModal } from "@/modals/SignInModal";
+import { SignupPaymentModal } from "@/modals/SignupPaymentModal";
 import { Loader2, Menu, X, Shield, ShieldUserIcon, User, FileDown, LogOut } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { BouncingLogoCompact } from "@/components/features/BouncingLogoCompact";
@@ -32,7 +33,8 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [signInFlow, setSignInFlow] = useState<"signIn" | "signUp" | "forgotPassword">("signIn");
+  const [isSignupPaymentModalOpen, setIsSignupPaymentModalOpen] = useState(false);
+  const [signInFlow] = useState<"signIn" | "signUp" | "forgotPassword">("signIn");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [detectedOS, setDetectedOS] = useState<'Windows' | 'macOS' | 'Other'>('Other');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -132,8 +134,7 @@ export function Navbar() {
   }, [isMobileMenuOpen]);
 
   const handleOpenSignUp = () => {
-    setSignInFlow("signUp");
-    setIsSignInModalOpen(true);
+    setIsSignupPaymentModalOpen(true);
     setIsMobileMenuOpen(false);
   };
 
@@ -334,7 +335,7 @@ export function Navbar() {
             ) : (
               <button
                 onClick={handleOpenSignUp}
-                className="inline-flex items-center justify-center border border-black bg-blue-500 px-4 lg:px-7 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-white hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
+                className="inline-flex items-center justify-center border border-black bg-[#0075DE] px-4 lg:px-7 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-white hover:bg-accent hover:text-accent-foreground transition-colors whitespace-nowrap"
               >
                 Get Started
               </button>
@@ -487,6 +488,12 @@ export function Navbar() {
         onClose={() => setIsSignInModalOpen(false)}
         initialFlow={signInFlow}
         onAuthSuccess={handleAuthSuccess}
+      />
+
+      {/* Signup Payment Modal */}
+      <SignupPaymentModal
+        isOpen={isSignupPaymentModalOpen}
+        onClose={() => setIsSignupPaymentModalOpen(false)}
       />
 
       {/* Profile Modal */}

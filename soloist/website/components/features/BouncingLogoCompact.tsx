@@ -53,8 +53,8 @@ export function BouncingLogoCompact({ size = 40, className = "" }: BouncingLogoC
     ballRef.current = {
       x: centerX + outerRadius - ballRadius - 5,
       y: centerY + 5,
-      vx: 0.04,
-      vy: 0.03,
+      vx: 0.08,
+      vy: 0.06,
       radius: ballRadius,
     }
 
@@ -80,7 +80,7 @@ export function BouncingLogoCompact({ size = 40, className = "" }: BouncingLogoC
       const distToTarget = Math.sqrt(toTargetX * toTargetX + toTargetY * toTargetY)
 
       if (distToTarget > 1) {
-        const force = 0.003
+        const force = 0.005
         ball.vx += (toTargetX / distToTarget) * force
         ball.vy += (toTargetY / distToTarget) * force
       }
@@ -113,7 +113,7 @@ export function BouncingLogoCompact({ size = 40, className = "" }: BouncingLogoC
         ball.y -= normalY * overlap
 
         const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy)
-        const targetSpeed = 0.25 + target.attempts * 0.004
+        const targetSpeed = 0.4 + target.attempts * 0.004
         ball.vx = (ball.vx / speed) * targetSpeed
         ball.vy = (ball.vy / speed) * targetSpeed
 

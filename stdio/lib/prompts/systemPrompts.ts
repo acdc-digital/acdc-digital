@@ -18,6 +18,14 @@ export function getComponentGenerationPrompt() {
   return `
 # Component Generation Guidelines
 
+## CRITICAL: Design File Priority
+**When design files are attached to the user's message, you MUST follow ALL specifications, guidelines, and constraints from those files.**
+- Design files contain mandatory requirements that override default styling
+- Color schemes, layouts, typography specified in design files are NON-NEGOTIABLE
+- Read and apply EVERY guideline from attached design documents
+- If a design file says "black and white only", use ONLY black, white, and grayscale colors
+- Design files take precedence over your default preferences
+
 ## Output Format - CRITICAL
 You MUST wrap all component code in XML tags:
 

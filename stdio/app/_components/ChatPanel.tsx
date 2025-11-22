@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Send, Paperclip, Mic, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
+import { Send, Paperclip, Mic, Loader2, ChevronRight, ChevronLeft, X, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useChat } from '@ai-sdk/react';
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface Message {
   id: string;
@@ -18,6 +20,8 @@ interface ChatPanelProps {
 
 export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [attachedFileIds, setAttachedFileIds] = useState<string[]>([]);
+  const [showFileMenu, setShowFileMenu] = useState(false);
   const {
     messages: aiMessages,
     sendMessage,
@@ -27,6 +31,7 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const files = useQuery(api.files.list);
 
   const isLoading = status === 'submitted';
 
@@ -107,10 +112,19 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
     const userMessage = input.trim();
     setInput("");
 
+    // Send message with attached file IDs
     await sendMessage({
       role: 'user',
       parts: [{ type: 'text', text: userMessage }],
+      experimental_attachments: attachedFileIds.map(fileId => ({
+        contentType: 'text/plain',
+        name: files?.find(f => f.anthropicFileId === fileId)?.filename || 'file',
+        url: `/api/files/${fileId}`,
+      })),
     });
+
+    // Clear attachments after sending
+    setAttachedFileIds([]);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -179,26 +193,87 @@ export function ChatPanel({ onComponentGenerated }: ChatPanelProps = {}) {
 
       {/* Input Area */}
       <div className="border-t border-[#2d2d2d] p-3">
-        <form onSubmit={handleSubmit} className="space-y-2">{/* Toolbar */}
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="w-7 h-7 rounded hover:bg-[#2d2d2d] p-0"
-              title="Attach file"
-            >
-              <Paperclip className="w-3.5 h-3.5 text-[#858585]" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="w-7 h-7 rounded hover:bg-[#2d2d2d] p-0"
-              title="Voice input"
-            >
-              <Mic className="w-3.5 h-3.5 text-[#858585]" />
-            </Button>
+        <form onSubmit={handleSubmit} className="space-y-2">
+          {/* Toolbar with File Attachment */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1">
+              {/* File Attachment Dropdown */}
+              <div className="relative">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="w-7 h-7 rounded hover:bg-[#2d2d2d] p-0"
+                  title="Attach files"
+                  onClick={() => setShowFileMenu(!showFileMenu)}
+                >
+                  <File className="w-3.5 h-3.5 text-[#858585]" />
+                </Button>
+                
+                {showFileMenu && files && files.length > 0 && (
+                  <div className="absolute left-0 bottom-full mb-1 bg-[#252526] border border-[#2d2d2d] rounded shadow-lg max-h-48 overflow-y-auto z-10 min-w-[200px]">
+                    {files.map((file) => (
+                      <button
+                        key={file._id}
+                        type="button"
+                        onClick={() => {
+                          if (!attachedFileIds.includes(file.anthropicFileId)) {
+                            setAttachedFileIds([...attachedFileIds, file.anthropicFileId]);
+                          }
+                          setShowFileMenu(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-xs text-[#cccccc] hover:bg-[#2d2d2d] flex items-center gap-2"
+                      >
+                        <File className="w-3 h-3 text-[#858585]" />
+                        <span className="truncate">{file.filename}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {showFileMenu && (!files || files.length === 0) && (
+                  <div className="absolute left-0 bottom-full mb-1 bg-[#252526] border border-[#2d2d2d] rounded shadow-lg p-3 z-10 min-w-[200px]">
+                    <p className="text-xs text-[#858585]">No files uploaded yet</p>
+                  </div>
+                )}
+              </div>
+              
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="w-7 h-7 rounded hover:bg-[#2d2d2d] p-0"
+                title="Voice input"
+              >
+                <Mic className="w-3.5 h-3.5 text-[#858585]" />
+              </Button>
+            </div>
+            
+            {/* Attached Files Display */}
+            {attachedFileIds.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {attachedFileIds.map((fileId) => {
+                  const file = files?.find(f => f.anthropicFileId === fileId);
+                  return (
+                    <div
+                      key={fileId}
+                      className="flex items-center gap-1 px-2 py-1 bg-[#2d2d2d] rounded text-xs text-[#cccccc]"
+                    >
+                      <File className="w-3 h-3 text-[#858585]" />
+                      <span className="max-w-[120px] truncate">{file?.filename || 'file'}</span>
+                      <button
+                        type="button"
+                        onClick={() => setAttachedFileIds(attachedFileIds.filter(id => id !== fileId))}
+                        className="hover:text-[#f44747]"
+                        title="Remove file"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Input Field */}

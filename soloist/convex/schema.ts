@@ -149,6 +149,12 @@ export default defineSchema({
   })
   .index("email", ["email"]),
 
+  learnMore: defineTable({
+    email: v.string(),
+    createdAt: v.number(),
+  })
+  .index("by_email", ["email"]),
+
   templates: defineTable({
     name: v.string(),
     userId: v.id("users"), // Use v.id("users") for consistency

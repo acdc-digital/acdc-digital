@@ -7,7 +7,6 @@ import {
   SidePanel, 
   Editor, 
   Navigator,
-  Terminal, 
   Footer,
   ChatPanel,
   PanelType 
@@ -16,19 +15,14 @@ import { ComponentCanvasRef } from "./_components/canvas/ComponentCanvas";
 
 export default function StdioPage() {
   const [activePanel, setActivePanel] = useState<PanelType>("dashboard");
-  const [isTerminalCollapsed, setIsTerminalCollapsed] = useState(true);
   const [canvasRef, setCanvasRef] = useState<ComponentCanvasRef | null>(null);
 
   const handleComponentGenerated = useCallback((code: string, title: string) => {
     canvasRef?.handleComponentGenerated(code, title);
   }, [canvasRef]);
 
-  const handleGeneratingChange = useCallback((isGenerating: boolean) => {
-    canvasRef?.setIsGenerating(isGenerating);
-  }, [canvasRef]);
-
   const handleSelectComponent = useCallback((component: {
-    _id: any;
+    _id: string;
     code: string;
     title: string;
     framework: "react";
