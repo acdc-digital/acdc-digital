@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.45",
     "@ai-sdk/react": "^2.0.93",
+    "@anthropic-ai/sdk": "^0.70.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/react-syntax-highlighter": "^15.5.13",
     "ai": "^5.0.93",

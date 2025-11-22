@@ -19,4 +19,14 @@ export default defineSchema({
   })
     .index("by_createdAt", ["createdAt"])
     .index("by_framework", ["framework"]),
+  uploadedFiles: defineTable({
+    filename: v.string(),
+    anthropicFileId: v.string(),
+    mimeType: v.string(),
+    sizeBytes: v.number(),
+    content: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_anthropicFileId", ["anthropicFileId"]),
 });

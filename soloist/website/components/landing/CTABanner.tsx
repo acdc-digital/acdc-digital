@@ -22,7 +22,7 @@ export function CTABanner() {
       <div className="container px-2 pt-12">
         <div className="max-w-7xl px-4 text-left">
           {/* Main headline */}
-          <h1 className="text-4xl font-parkinsans-semibold tracking-tight text-foreground mb-0">
+          <h1 className="mt-8 text-4xl font-parkinsans-semibold tracking-tight text-foreground mb-0">
             Soloist.   |   Take control of tomorrow, today.
           </h1>
         </div>

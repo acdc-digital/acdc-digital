@@ -9,8 +9,9 @@ import {
   XCircle,
   X,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/lib/hooks/useConvexUser";
 import { Navbar } from "@/components/layout/Navbar";
@@ -34,6 +35,8 @@ export default function LandingPage() {
   } | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(false);
   const [detectedOS, setDetectedOS] = useState<'Windows' | 'macOS' | 'Other'>('Other');
+  const [email, setEmail] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
   // Authentication and subscription state
   const { isAuthenticated, isLoading: authLoading, userId } = useConvexUser();
@@ -41,6 +44,9 @@ export default function LandingPage() {
     api.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
+
+  // Email submission mutation
+  const submitEmail = useMutation(api.learnMore.submitEmail);
 
   // Determine if downloads should be enabled
   const downloadsEnabled = isAuthenticated && hasActiveSubscription === true;
@@ -133,6 +139,34 @@ export default function LandingPage() {
     }
   }, []);
 
+  // Handle email submission
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || emailStatus === "submitting") return;
+
+    setEmailStatus("submitting");
+    
+    try {
+      await submitEmail({ email });
+      setEmailStatus("success");
+      setEmail("");
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setEmailStatus("idle");
+      }, 3000);
+    } catch (error) {
+      console.error("Failed to submit email:", error);
+      setEmailStatus("error");
+      
+      // Reset error message after 3 seconds
+      setTimeout(() => {
+        setEmailStatus("idle");
+      }, 3000);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Add EnvDebug component
@@ -208,15 +242,41 @@ export default function LandingPage() {
           <p className="text-base sm:text-lg md:text-xl lg:text-subtitle-mobile text-muted-foreground font-medium font-parkinsans-bold">
             The next evolution in theraputic journaling.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md px-4 sm:px-0">
+          <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 w-full max-w-xs sm:max-w-md px-4 sm:px-0">
             <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap hidden sm:inline">learn more</span>
-            <input
-              type="email"
-              placeholder="your-email@example.com"
-              className="w-full sm:flex-1 sm:min-w-[200px] md:min-w-[240px] px-3 py-1.5 text-xs border border-border rounded-full bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-            />
+            <div className="relative w-full sm:flex-1 sm:min-w-[200px] md:min-w-[240px]">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your-email@example.com"
+                disabled={emailStatus === "submitting" || emailStatus === "success"}
+                className="w-full px-3 py-1.5 pr-10 text-xs border border-border rounded-full bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                required
+              />
+              <button
+                type="submit"
+                disabled={emailStatus === "submitting" || emailStatus === "success" || !email}
+                className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Submit email"
+              >
+                {emailStatus === "submitting" ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : emailStatus === "success" ? (
+                  <CheckCircle className="w-3 h-3" />
+                ) : (
+                  <ArrowRight className="w-3 h-3" />
+                )}
+              </button>
+            </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap sm:hidden">learn more</span>
-          </div>
+          </form>
+          {emailStatus === "success" && (
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1">Thanks! We&apos;ll be in touch soon.</p>
+          )}
+          {emailStatus === "error" && (
+            <p className="text-xs text-red-600 dark:text-red-400 mt-1">Something went wrong. Please try again.</p>
+          )}
         </div>
         </div>
       </div>

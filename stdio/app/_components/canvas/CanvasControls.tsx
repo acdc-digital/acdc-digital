@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { RefreshCw, Monitor, Smartphone, Tablet, Loader2, Save, Code2 } from "lucide-react";
 
 type DeviceMode = "desktop" | "tablet" | "mobile";

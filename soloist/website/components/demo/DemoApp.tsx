@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import { SignupPaymentModal } from "../../modals/SignupPaymentModal";
 
 export function DemoApp() {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // The demo app runs on port 3003
   // This is a standalone browser-only version with no authentication
@@ -18,12 +20,15 @@ export function DemoApp() {
       <div className="w-full md:max-w-7xl md:mx-auto px-4 md:px-0">
         {/* Heading */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-3 pl-0 pr-0 md:px-2">
-          <p className="text-sm md:text-base lg:text-xl text-muted-foreground max-w-3xl">
+          <p className="text-sm md:text-base lg:text-xl text-muted-foreground max-w-4xl">
             Combine speed journaling with powerful predictions to take control of tomorrow, today
           </p>
-          <p className="text-sm text-muted-foreground whitespace-nowrap hidden md:block">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="text-sm text-blue-600 whitespace-nowrap hidden md:block focus:outline-none"
+          >
             Get Started ─────▶
-          </p>
+          </button>
         </div>
         
         <div id="demo-iframe-container" className="glass-strong-responsive rounded-2xl overflow-hidden">
@@ -51,10 +56,18 @@ export function DemoApp() {
         </div>
         
         {/* Get Started text - below demo on mobile */}
-        <p className="md:hidden text-sm text-muted-foreground text-left mt-5 pl-1 pr-1">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="md:hidden text-sm text-blue-600 text-left mt-5 pl-1 pr-1 focus:outline-none"
+        >
           Get Started ─────▶
-        </p>
+        </button>
       </div>
+
+      <SignupPaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
