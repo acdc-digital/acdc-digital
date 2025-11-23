@@ -3,7 +3,7 @@
 
 "use client";
 
-import { Check, Sparkles, Zap, Users, TrendingUp, X } from "lucide-react";
+import { Check, Sparkles, Zap, Users, TrendingUp, Construction } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -347,13 +347,13 @@ export default function Pricing() {
                       <ul className="space-y-1 mb-2 border border-zinc-700 bg-zinc-800/80 rounded-lg p-2 -mx-2 pb-3">
                         {tier.features.map((feature, idx) => {
                           const isComingSoon = feature.toLowerCase().includes('coming soon');
-                          const IconComponent = isComingSoon ? X : Check;
+                          const IconComponent = isComingSoon ? Construction : Check;
 
                           return (
                             <li key={idx} className="flex items-start gap-3 pb-0">
                               <IconComponent className={`h-5 w-5 shrink-0 mt-0.5 ${
-                                isComingSoon 
-                                  ? "text-white/40" 
+                                isComingSoon
+                                  ? "text-orange-400"
                                   : tier.highlighted ? "text-primary" : "text-white/70"
                               }`} />
                               <span className={`text-sm leading-relaxed ${

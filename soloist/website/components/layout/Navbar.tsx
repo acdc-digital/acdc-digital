@@ -357,65 +357,60 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu */}
-        <div className={`md:hidden fixed inset-x-0 top-16 glass-strong border-b border-border/40 shadow-lg transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+        <div className={`md:hidden fixed inset-x-0 top-16 bg-white border-b border-zinc-500 shadow-lg transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'max-h-[calc(100vh-4rem)] opacity-100' : 'max-h-0 opacity-0 pointer-events-none overflow-hidden'
         }`}>
-          <nav className="container mx-auto px-4 py-6">
-            {/* Mobile nav links */}
-            <div className="space-y-4 mb-6">
-              <Link
-                href="#features"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                Features
-              </Link>
-              <Link
-                href="#pricing"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="#faq"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                FAQ
-              </Link>
-              <Link
-                href="#roadmap"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                Roadmap
-              </Link>
-              <Link
-                href="/wiki"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                Docs
-              </Link>
-              <Link
-                href="/blog"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
-              >
-                Blog
-              </Link>
+          <nav className="h-full overflow-y-auto">
+            <div className="px-4 py-6">
+              {/* Mobile nav links */}
+              <div className="space-y-4 mb-6">
+                <Link
+                  href="#pricing"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="#faq"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+                >
+                  FAQ
+                </Link>
+                <Link
+                  href="#roadmap"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+                >
+                  Roadmap
+                </Link>
+                <Link
+                  href="/wiki"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+                >
+                  Docs
+                </Link>
+                <Link
+                  href="/blog"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  style={{ fontFamily: '"Nunito", "Quicksand", "Comfortaa", system-ui, sans-serif' }}
+                >
+                  Blog
+                </Link>
+              </div>
             </div>
 
             {/* Mobile auth buttons */}
-            <div className="space-y-3 pt-4 border-t border-border/40">
-              {isLoading ? (
+            <div className="border-t border-zinc-500">
+              <div className="px-4 py-4 space-y-3">
+                {isLoading ? (
                 <button
                   disabled
                   className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-muted px-5 py-2.5 text-base font-medium text-muted-foreground cursor-not-allowed"
@@ -477,6 +472,7 @@ export function Navbar() {
                   Get Started
                 </button>
               )}
+              </div>
             </div>
           </nav>
         </div>

@@ -325,7 +325,8 @@ export function FAQ() {
 
   return (
     <section id="faq" className="py-12 md:py-12 mt-10 md:mt-14">
-      <div className="container mx-auto px-4">
+      <div className="container-mobile py-4 md:py-8">
+        <div className="w-full md:max-w-[76rem] mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(3rem,8vw,4rem)] mb-4 leading-[0.95] md:leading-tight">
@@ -440,6 +441,7 @@ export function FAQ() {
           <p className="text-base md:text-xl text-foreground max-w-3xl mx-auto">
             Your journey is unique, but you don&apos;t have to navigate it alone.
           </p>
+        </div>
         </div>
       </div>
     </section>

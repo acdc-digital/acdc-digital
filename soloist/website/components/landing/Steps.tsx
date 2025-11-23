@@ -4,14 +4,16 @@
 "use client";
 
 import React from "react";
-import { FileText, Zap, TrendingUp, Trophy } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DailyLogCard } from "@/components/features/DailyLogCard";
-import { FeedCard } from "@/components/features/FeedCard";
-import { MoodForecastCard } from "@/components/features/MoodForecastCard";
-import { RecommendationCard } from "@/components/features/RecommendationCard";
+// import { FileText, Zap, TrendingUp, Trophy } from "lucide-react";
+// import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+// import { DailyLogCard } from "@/components/features/DailyLogCard";
+// import { FeedCard } from "@/components/features/FeedCard";
+// import { MoodForecastCard } from "@/components/features/MoodForecastCard";
+// import { RecommendationCard } from "@/components/features/RecommendationCard";
+import { Steps_v2 } from "./Steps_v2";
 
 export function Steps() {
+  /* ORIGINAL STEPS DATA - COMMENTED OUT FOR REFERENCE
   const steps = [
     {
       number: "01",
@@ -41,7 +43,13 @@ export function Steps() {
         "Make informed decisions with actionable recommendations tailored to your unique patterns.",
     },
   ];
+  */
 
+  return (
+    <Steps_v2 />
+  );
+
+  /* ORIGINAL STEPS COMPONENT - COMMENTED OUT FOR REFERENCE
   return (
     <section id="how-it-works" className="w-full pt-0 mt-0 md:mt-0">
       <div className="container-mobile py-4 md:py-8">
@@ -61,7 +69,6 @@ export function Steps() {
                 key={step.title}
                 className="border-border bg-yellow-50/10 hover:shadow-lg transition-all duration-300 relative overflow-hidden group rounded-none rounded-b-xl lg:flex-1"
               >
-              {/* Step Number Badge */}
               <div className="absolute top-4 right-4 text-6xl font-bold text-muted/10 group-hover:text-primary/10 transition-colors">
                 {step.number}
               </div>
@@ -97,7 +104,6 @@ export function Steps() {
                   {step.description}
                 </CardDescription>
                 
-                {/* Images for cards */}
                 {index === 0 && (
                   <div className="w-full mt-4">
                     <DailyLogCard />
@@ -120,7 +126,6 @@ export function Steps() {
                 )}
               </CardHeader>
 
-              {/* Optional connector line for desktop */}
               {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-border z-0" />
               )}
@@ -140,4 +145,5 @@ export function Steps() {
       </div>
     </section>
   );
+  */
 }
