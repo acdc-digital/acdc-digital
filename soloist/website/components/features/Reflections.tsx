@@ -10,7 +10,7 @@ import { Download, CirclePlus, Smile } from "lucide-react";
 export function FeatureSection() {
   return (
     <section className="pt-6 md:pt-6 lg:pt-8 pb-0 px-4 sm:px-6 md:px-10 mt-6 md:mt-8 lg:mt-8 overflow-hidden">
-      <div className="container mx-auto max-w-[94rem]">
+      <div className="container mx-auto md:max-w-[84rem]">
         {/* Header */}
         <div className="mx-auto max-w-4xl text-center mb-6 md:mb-10 lg:mb-14 px-2 sm:px-4">
           <h2 className="font-parkinsans-semibold font-bold tracking-tight text-[clamp(2rem,8vw,4rem)] mb-3 md:mb-4">

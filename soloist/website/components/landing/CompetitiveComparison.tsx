@@ -27,15 +27,6 @@ export default function CompetitiveComparison() {
 
   const data = [
     {
-      feature: "Purpose",
-      soloist: "Smart Journaling + Predictive Insights + Habit Forming",
-      dayOne: "Journaling",
-      daylio: "Mood Tracking",
-      youper: "AI Therapy",
-      fabulous: "Habit Coaching",
-      reflectly: "Guided Reflection",
-    },
-    {
       feature: "Emotional Depth",
       soloist: "Experiential reflection & reframing",
       soloistIcon: "green",
@@ -140,17 +131,17 @@ export default function CompetitiveComparison() {
   };
 
   return (
-    <section id="comparison" className="py-8 md:py-10 bg-background mt-4 md:mt-6">
+    <section id="comparison" className="py-8 md:py-8 bg-background mt-0 md:mt-0">
       <div className="container mx-auto px-4 md:px-16">
-        <div className="mb-6 md:mb-8 text-center space-y-4">
-          <h2 className="text-[clamp(3rem,8vw,4rem)] tracking-tight font-parkinsans-semibold">
-            Why it works
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Others track. Soloist understands. 
-            Combine the depth of journaling with adaptive insight for private, data-driven growth.
-          </p>
-        </div>
+        <div className="w-full md:max-w-[76rem] mx-auto">
+          <div className="mb-6 md:mb-8 text-center space-y-4">
+            <h2 className="text-[clamp(3rem,8vw,4rem)] tracking-tight font-parkinsans-semibold">
+              Why it works
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Combine the depth of journaling with adaptive insight for private, data-driven growth.
+            </p>
+          </div>
 
         {/* Mobile: Compact Comparison Cards */}
         <div className="lg:hidden space-y-6 px-4 md:px-0">
@@ -158,7 +149,7 @@ export default function CompetitiveComparison() {
             const pricingRow = data.find(item => item.feature === "Pricing");
             // Top 3 differentiating features per competitor
             const topFeatures = [
-              data.find(item => item.feature === "Purpose"),
+              data.find(item => item.feature === "Emotional Depth"),
               data.find(item => item.feature === "Adaptive Feedback"),
               data.find(item => item.feature === "Daily Reflection Engine"),
             ].filter(Boolean);
@@ -240,6 +231,28 @@ export default function CompetitiveComparison() {
               </Card>
             );
           })}
+        </div>
+
+        {/* Legend */}
+        <div className="hidden lg:block mb-4 px-4 md:px-0">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs md:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Enhanced</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Available</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Circle className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+              <span className="whitespace-nowrap">Limited</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <X className="h-3.5 w-3.5 md:h-4 md:w-4 text-red-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">Not Available</span>
+            </div>
+          </div>
         </div>
 
         {/* Desktop: Original Table */}
@@ -327,27 +340,13 @@ export default function CompetitiveComparison() {
           </CardContent>
         </Card>
 
-        {/* Legend */}
-        <div className="mt-6 px-4 md:px-0">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs md:text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
-              <span className="whitespace-nowrap">Enhanced</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
-              <span className="whitespace-nowrap">Available</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Circle className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
-              <span className="whitespace-nowrap">Limited</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <X className="h-3.5 w-3.5 md:h-4 md:w-4 text-red-600 flex-shrink-0" />
-              <span className="whitespace-nowrap">Not Available</span>
-            </div>
-          </div>
+        {/* Bottom Text */}
+        <div className="text-center mt-6 md:mt-8">
+          <p className="text-base md:text-xl text-foreground max-w-3xl mx-auto">
+            Others track. Soloist understands.
+          </p>
         </div>
+      </div>
       </div>
     </section>
   );

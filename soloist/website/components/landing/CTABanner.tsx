@@ -19,10 +19,10 @@ export function CTABanner() {
       id="cta-banner"
       className="pt-6 pb-4"
     >
-      <div className="container px-2 pt-12">
+      <div className="container px-2 pt-14">
         <div className="max-w-7xl px-4 text-left">
           {/* Main headline */}
-          <h1 className="mt-8 text-4xl font-parkinsans-semibold tracking-tight text-foreground mb-0">
+          <h1 className="mt-8 text-5xl font-parkinsans-semibold tracking-tight text-foreground mb-0">
             Soloist.   |   Take control of tomorrow, today.
           </h1>
         </div>

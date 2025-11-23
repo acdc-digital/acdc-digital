@@ -17,7 +17,7 @@ export function DemoApp() {
 
   return (
     <div className="demo-section-wrapper">
-      <div className="w-full md:max-w-7xl md:mx-auto px-4 md:px-0">
+      <div className="w-full md:max-w-[76rem] md:mx-auto px-4 md:px-0">
         {/* Heading */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-3 pl-0 pr-0 md:px-2">
           <p className="text-sm md:text-base lg:text-xl text-muted-foreground max-w-4xl">
