@@ -38,7 +38,7 @@ export function Footer() {
                   <h3 className="text-lg md:text-2xl font-bold text-black">Soloist.</h3>
                 </div>
                 <p className="text-xs md:text-sm text-black leading-relaxed">
-                Soloist is a for-profit, open-source wellness platform by ACDC.digital. Contributions are welcome—take what you need.
+                Soloist. is dedicated to making the transitions of life easier to understand. With clarity comes focus, we hope this helps you become the version of yourself that you want most.
                 </p>
               </div>
 
@@ -204,7 +204,6 @@ export function Footer() {
                 <div className="flex items-center space-x-4">
                   <div className="flex items-end space-x-2">
                     <div className="text-lg md:text-2xl font-bold text-primary">ACDC.digital</div>
-                    <span className="text-xs md:text-sm text-secondary">Full-Service Agentic Framework Studio</span>
                   </div>
                 </div>
               </div>

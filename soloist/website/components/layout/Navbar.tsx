@@ -190,9 +190,9 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-stone-50/35 border-b border-zinc-500">
-        <div className="container mx-auto px-responsive-lg flex items-center justify-between h-16">
+        <div className="container mx-auto px-3 sm:px-6 flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-4 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3.5">
             <Link
               href="/"
               className="hover:opacity-80 transition-opacity"
@@ -265,7 +265,7 @@ export function Navbar() {
           </nav>
 
           {/* Desktop Auth buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-8">
             {isLoading ? (
               <button
                 disabled
