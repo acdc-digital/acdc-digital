@@ -1,7 +1,8 @@
 import { ConvexError } from "convex/values";
 import { Password } from "@convex-dev/auth/providers/Password";
-import { ResendOTP } from "./ResendOTP";
-import { ResendOTPPasswordReset } from "./ResendOTPPasswordReset";
+// OTP verification temporarily disabled
+// import { ResendOTP } from "./ResendOTP";
+// import { ResendOTPPasswordReset } from "./ResendOTPPasswordReset";
 
 export const CustomPassword = Password({
   validatePasswordRequirements: (password: string) => {
@@ -31,6 +32,7 @@ export const CustomPassword = Password({
       throw new ConvexError(`Password validation failed: ${errors.join(", ")}`);
     }
   },
-  verify: ResendOTP,
-  reset: ResendOTPPasswordReset,
+  // OTP verification temporarily disabled - uncomment to re-enable
+  // verify: ResendOTP,
+  // reset: ResendOTPPasswordReset,
 }); 
