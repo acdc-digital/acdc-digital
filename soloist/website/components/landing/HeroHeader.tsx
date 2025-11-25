@@ -8,7 +8,7 @@ import { ArrowRight, Loader2, CheckCircle } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/lib/hooks/useConvexUser";
-import { DownloadModal } from "@/components/modals/DownloadModal";
+import { DownloadModal } from "@/modals/DownloadModal";
 
 export function HeroHeader() {
   const [detectedOS, setDetectedOS] = useState<'Windows' | 'macOS' | 'Other'>('Other');

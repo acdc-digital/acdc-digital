@@ -26,11 +26,15 @@ export default defineSchema({
     // Custom fields for your app
     authId: v.optional(v.string()),
     githubId: v.optional(v.number()),
+    googleId: v.optional(v.string()),
+    appleId: v.optional(v.string()),
     role: v.optional(v.union(v.literal("user"), v.literal("admin"))),
   })
   .index("email", ["email"])
   .index("byAuthId", ["authId"])
-  .index("byRole", ["role"]),
+  .index("byRole", ["role"])
+  .index("byGoogleId", ["googleId"])
+  .index("byAppleId", ["appleId"]),
 
    feedTags: defineTable({
     userId: v.string(), // Use string to match the actual usage in the codebase

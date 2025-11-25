@@ -5,11 +5,27 @@ import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { CustomPassword } from "./CustomPassword";
 import { ResendOTPPasswordReset } from "./ResendOTPPasswordReset";
+import Google from "@auth/core/providers/google";
+import Apple from "@auth/core/providers/apple";
 
-// Configure auth with CustomPassword provider including email verification and password reset
+// Configure auth with CustomPassword, Google, and Apple providers
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [
-    CustomPassword
+    CustomPassword,
+    Google,
+    Apple({
+      profile: (appleInfo) => {
+        // Apple only shares name on first auth, so we need to handle this carefully
+        const name = appleInfo.user
+          ? `${appleInfo.user.name.firstName} ${appleInfo.user.name.lastName}`
+          : undefined;
+        return {
+          id: appleInfo.sub,
+          name: name,
+          email: appleInfo.email,
+        };
+      },
+    }),
   ],
   callbacks: {
     async afterUserCreatedOrUpdated(ctx, { existingUserId, userId }) {
