@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-// Initialize Stripe with your secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
 
-// Check if we have a Stripe key
-if (!stripeSecretKey) {
-  console.error("Missing STRIPE_SECRET_KEY environment variable");
+// IMPORTANT: Create Stripe client lazily at request time, NOT module load time
+function getStripeClient(): Stripe | null {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) {
+    console.error("Missing STRIPE_SECRET_KEY environment variable");
+    return null;
+  }
+  return new Stripe(stripeSecretKey, {
+    apiVersion: "2025-05-28.basil" as any,
+  });
 }
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-05-28.basil" as any,
-});
 
 export async function GET(request: Request) {
   try {
@@ -31,8 +34,10 @@ export async function GET(request: Request) {
       );
     }
 
-    if (!stripeSecretKey) {
-      console.error("API Error: Stripe secret key is not configured");
+    // Get Stripe client at request time
+    const stripe = getStripeClient();
+    if (!stripe) {
+      console.error("API Error: Stripe client not initialized - check STRIPE_SECRET_KEY env var");
       return NextResponse.json(
         { error: "Payment service is not properly configured" },
         { status: 500 }

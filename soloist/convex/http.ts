@@ -111,8 +111,17 @@ http.route({
         console.log("User ID found:", userDocumentId, "from table:", existingUser._id.split("_")[0]);
       }
 
-      // Initialize Stripe
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      // Initialize Stripe - check for secret key at runtime
+      const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeSecretKey) {
+        console.error("Missing STRIPE_SECRET_KEY environment variable");
+        return new Response(
+          JSON.stringify({ error: "Payment service is not properly configured" }),
+          { status: 500, headers }
+        );
+      }
+      
+      const stripe = new Stripe(stripeSecretKey, {
         apiVersion: "2025-04-30.basil",
       });
 
