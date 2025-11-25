@@ -1,21 +1,28 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { X, Lock, Check, Loader2, CreditCard, CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import { api } from "@/convex/_generated/api";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { Badge } from "@/components/ui/badge";
 
-// Stripe promise - only initialize if key is available
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-if (!stripePublishableKey) {
-  console.error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
-}
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+// Lazy-load Stripe to avoid SSR issues
+let stripePromise: Promise<Stripe | null> | null = null;
+const getStripe = () => {
+  if (!stripePromise) {
+    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    if (!key) {
+      console.error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
+      return null;
+    }
+    stripePromise = loadStripe(key);
+  }
+  return stripePromise;
+};
 
 // Price IDs for subscriptions (Stripe Test Mode)
 const MONTHLY_PRICE_ID = "price_1SXB0ID6Nyv2PKYjXJo97d7n";
@@ -339,7 +346,8 @@ function PaymentPanel({
 
   // If we have a client secret, show embedded checkout
   if (clientSecret) {
-    if (!stripePromise) {
+    const stripe = getStripe();
+    if (!stripe) {
       return (
         <div className="h-full min-h-[400px] flex items-center justify-center">
           <p className="text-destructive text-sm">Payment system not configured</p>
@@ -349,7 +357,7 @@ function PaymentPanel({
     return (
       <div className="min-h-[400px]">
         <EmbeddedCheckoutProvider
-          stripe={stripePromise}
+          stripe={stripe}
           options={{
             clientSecret,
             onComplete: onCheckoutComplete,
