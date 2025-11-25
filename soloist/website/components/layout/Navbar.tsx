@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { ProfileModal } from "@/modals/ProfileModal";
-import { ExportDataModal } from "@/components/modals/ExportDataModal";
+import { ExportDataModal } from "@/modals/ExportDataModal";
 
 export function Navbar() {
   const { isAuthenticated, isLoading, userId } = useConvexUser();

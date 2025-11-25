@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { ChevronRight, MessageCircle, Sparkles, Shield, Clock, Zap, FolderOpen, FileText } from "lucide-react";
 import { PrivacyPolicyModal } from "@/components/legal/privacyPolicy";
-import { ExportDataModal } from "@/components/modals/ExportDataModal";
+import { ExportDataModal } from "@/modals/ExportDataModal";
 import { DocsModal } from "@/components/admin/Docs";
 
 type AccordionItemProps = {

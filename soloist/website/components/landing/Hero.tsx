@@ -11,7 +11,7 @@ import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/lib/hooks/useConvexUser";
 import { HeroFeature } from "@/components/landing/HeroFeature";
 import { DocsModal } from "@/components/admin/Docs";
-import { DownloadModal } from "@/components/modals/DownloadModal";
+import { DownloadModal } from "@/modals/DownloadModal";
 import { StripeCheckoutModal } from "@/modals/StripeCheckoutModal";
 import { SignInModal } from "@/modals/SignInModal";
 
