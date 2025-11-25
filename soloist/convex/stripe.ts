@@ -5,15 +5,26 @@ import { action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 
 // Initialize Stripe with dynamic import to avoid module resolution issues
+// IMPORTANT: Always read env vars at runtime, not module load time
 async function getStripe() {
   const Stripe = (await import("stripe")).default;
-  return new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+  }
+  return new Stripe(secretKey, {
     apiVersion: "2025-04-30.basil" as any,
   });
 }
 
-// Webhook secret from environment variable
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// Get webhook secret at runtime, not module load time
+function getWebhookSecret(): string {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error("STRIPE_WEBHOOK_SECRET environment variable is not set");
+  }
+  return secret;
+}
 
 /**
  * Handle webhook events from Stripe
@@ -24,7 +35,11 @@ export const handleWebhookEvent = internalAction({
     payload: v.string()
   },
   handler: async (ctx, { signature, payload }) => {
-    if (!endpointSecret) {
+    // Get webhook secret at runtime
+    let endpointSecret: string;
+    try {
+      endpointSecret = getWebhookSecret();
+    } catch (error) {
       console.error("Missing STRIPE_WEBHOOK_SECRET environment variable");
       return { success: false, error: "Webhook secret not configured" };
     }
@@ -123,13 +138,17 @@ async function handleCheckoutSessionCompleted(ctx: any, session: any) {
         
         console.log("Found existing Convex user ID:", convexUserId);
         
-        console.log("Updating payment status for session:", session.id);
-        // Update payment record in database
-        await ctx.runMutation(internal.payments.updatePaymentStatus, {
-          sessionId: session.id,
-          status: "complete",
-          customerId
-        });
+        // Try to update payment record if it exists (non-blocking)
+        try {
+          await ctx.runMutation(internal.payments.updatePaymentStatus, {
+            sessionId: session.id,
+            status: "complete",
+            customerId
+          });
+          console.log("Updated payment status for session:", session.id);
+        } catch (paymentError) {
+          console.log("No existing payment record found for session:", session.id, "- continuing with subscription creation");
+        }
         
         // Continue with subscription creation...
         if (session.mode === "subscription") {
@@ -173,13 +192,17 @@ async function handleCheckoutSessionCompleted(ctx: any, session: any) {
     const convexUserId = existingUser._id;
     console.log("Found existing Convex user ID:", convexUserId);
     
-    console.log("Updating payment status for session:", session.id);
-    // Update payment record in database
-    await ctx.runMutation(internal.payments.updatePaymentStatus, {
-      sessionId: session.id,
-      status: "complete",
-      customerId
-    });
+    // Try to update payment record if it exists (non-blocking)
+    try {
+      await ctx.runMutation(internal.payments.updatePaymentStatus, {
+        sessionId: session.id,
+        status: "complete",
+        customerId
+      });
+      console.log("Updated payment status for session:", session.id);
+    } catch (paymentError) {
+      console.log("No existing payment record found for session:", session.id, "- continuing with subscription creation");
+    }
     
     // For subscription mode, handle subscription data
     if (session.mode === "subscription") {

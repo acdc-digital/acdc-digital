@@ -6,35 +6,30 @@ import Stripe from "stripe";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
-// Initialize Stripe with your secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
 
-console.log("Stripe webhook config:", {
-  hasSecretKey: !!stripeSecretKey,
-  hasWebhookSecret: !!webhookSecret,
-  convexUrl
-});
-
-if (!stripeSecretKey) {
-  console.error("Missing STRIPE_SECRET_KEY environment variable");
+// IMPORTANT: Create clients lazily at request time, NOT module load time
+// This ensures environment variables are always read fresh
+function getStripeClient(): Stripe | null {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) {
+    console.error("Missing STRIPE_SECRET_KEY environment variable");
+    return null;
+  }
+  return new Stripe(stripeSecretKey, {
+    apiVersion: "2025-05-28.basil" as any,
+  });
 }
 
-if (!webhookSecret) {
-  console.error("Missing STRIPE_WEBHOOK_SECRET environment variable");
+function getConvexClient(): ConvexHttpClient | null {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!convexUrl) {
+    console.error("Missing NEXT_PUBLIC_CONVEX_URL environment variable");
+    return null;
+  }
+  return new ConvexHttpClient(convexUrl);
 }
-
-if (!convexUrl) {
-  console.error("Missing NEXT_PUBLIC_CONVEX_URL environment variable");
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-05-28.basil" as any,
-});
-
-// Initialize Convex client
-const convex = new ConvexHttpClient(convexUrl || "");
 
 export async function POST(request: Request) {
   console.log("=== WEBHOOK REQUEST RECEIVED ===");
@@ -60,10 +55,32 @@ export async function POST(request: Request) {
       );
     }
 
+    // Get webhook secret at request time
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
     if (!webhookSecret) {
       console.error("Webhook secret not configured");
       return NextResponse.json(
         { error: "Webhook secret not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Get Stripe client at request time
+    const stripe = getStripeClient();
+    if (!stripe) {
+      console.error("Stripe client not initialized");
+      return NextResponse.json(
+        { error: "Payment service not configured" },
+        { status: 500 }
+      );
+    }
+
+    // Get Convex client at request time
+    const convex = getConvexClient();
+    if (!convex) {
+      console.error("Convex client not initialized");
+      return NextResponse.json(
+        { error: "Backend service not configured" },
         { status: 500 }
       );
     }

@@ -10,17 +10,31 @@ import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import { Badge } from "@/components/ui/badge";
 
-// Lazy-load Stripe to avoid SSR issues
+// IMPORTANT: Don't cache the promise at module level when the key might not be available
+// This allows retrying if the first attempt failed due to missing env vars
 let stripePromise: Promise<Stripe | null> | null = null;
+let lastKnownKey: string | undefined = undefined;
+
 const getStripe = () => {
-  if (!stripePromise) {
-    const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  
+  // If the key changed or we don't have a promise yet, create a new one
+  // This handles the case where the first load had no key but now it's available
+  if (!stripePromise || lastKnownKey !== key) {
+    lastKnownKey = key;
+    
     if (!key) {
       console.error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
-      return null;
+      stripePromise = Promise.resolve(null);
+    } else {
+      stripePromise = loadStripe(key);
     }
-    stripePromise = loadStripe(key);
   }
+  
   return stripePromise;
 };
 
