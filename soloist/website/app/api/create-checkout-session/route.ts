@@ -1,5 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
 
 // CORS support
 const CORS_HEADERS = {
@@ -20,11 +23,11 @@ if (!stripeSecretKey) {
   console.error("Missing STRIPE_SECRET_KEY environment variable");
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
   apiVersion: "2025-05-28.basil" as any,
-});
+}) : null;
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     console.log("API: create-checkout-session called");
     
@@ -45,6 +48,14 @@ export async function POST(request: Request) {
       console.error("API Error: Stripe secret key is not configured");
       return NextResponse.json(
         { error: "Payment service is not properly configured" },
+        { status: 500, headers: CORS_HEADERS }
+      );
+    }
+
+    if (!stripe) {
+      console.error("API Error: Stripe client not initialized");
+      return NextResponse.json(
+        { error: "Payment service initialization failed" },
         { status: 500, headers: CORS_HEADERS }
       );
     }
@@ -105,15 +116,11 @@ export async function POST(request: Request) {
       },
     };
 
-    // Add subscription data with trial period for subscription mode
+    // Add subscription metadata
     if (paymentMode === "subscription") {
       sessionParams.subscription_data = {
-        trial_period_days: 14, // 14-day free trial
-        // Optional: Configure what happens if trial ends without payment method
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: 'create_invoice' // Will create an invoice if no payment method is provided
-          }
+        metadata: {
+          userId,
         }
       };
     }
