@@ -360,13 +360,9 @@ function PaymentPanel({
         
         {/* Redirect countdown after checkout complete */}
         {isCheckoutComplete && redirectCountdown !== null && (
-          <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-b-lg">
-            <div className="flex items-center justify-center gap-3">
-              <Loader2 className="w-5 h-5 text-green-600 animate-spin" />
-              <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                Redirecting to app in {redirectCountdown}s...
-              </p>
-            </div>
+          <div className="mt-4 ml-4 mr-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            <span>Redirecting to app in {redirectCountdown}s...</span>
           </div>
         )}
       </div>
