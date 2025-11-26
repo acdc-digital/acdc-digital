@@ -16,7 +16,7 @@ console.log("Stripe webhook config:", {
 
 // Initialize Stripe only if we have the secret key
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-08-27.basil" as any,
 }) : null;
 
 // Initialize Convex client

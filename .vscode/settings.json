@@ -21,15 +21,13 @@
     ".github": "github",
     ".notes": "docs",
     ".trunk": "config",
-    "acdc-digital": "app",
+    "acdc-digital": "home",
     "smnb": "app",
     "aura": "app",
-    "ruuf": "app",
-    "donut": "app",
     "soloist": "app",
     "lifeOS": "app",
     ".agents": "robot",
-    "solov2": "app",
+    "projects": "project"
   },
   
   // Custom file associations
@@ -84,17 +82,17 @@
       "folderNames": ["components"]
     },
     {
-      "name": "acdc-app",
-      "base": "app",
-      "color": "#f44336",
-      "lightColor": "#e53935",
+      "name": "acdc-home",
+      "base": "home",
+      "color": "#4CAF50",
+      "lightColor": "#66BB6A",
       "folderNames": ["acdc-digital"]
     }
   ],
   
   // Root folder customization
   "material-icon-theme.rootFolders.associations": {
-    "acdc-digital": "app"
+    "acdc-digital": "home"
   },
   "material-icon-theme.rootFolders.color": "#f44336",
   

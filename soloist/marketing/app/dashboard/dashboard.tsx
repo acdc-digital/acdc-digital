@@ -11,9 +11,22 @@ import {
   PanelType,
   Wiki
 } from "./_components";
+import { StdioPage } from "./_components/stdio";
 
 export function Dashboard() {
   const [activePanel, setActivePanel] = useState<PanelType>("dashboard");
+
+  // Render main content based on active panel
+  const renderMainContent = () => {
+    switch (activePanel) {
+      case "content":
+        return <Wiki />;
+      case "video":
+        return <StdioPage />;
+      default:
+        return <Editor showControls={activePanel === "dashboard"} />;
+    }
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
@@ -31,9 +44,9 @@ export function Dashboard() {
         {/* SidePanel - Left sidebar with marketing insights feed (only show on dashboard) */}
         {activePanel === "dashboard" && <SidePanel />}
 
-        {/* Main Content Area - Editor or Wiki */}
+        {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {activePanel === "content" ? <Wiki /> : <Editor />}
+          {renderMainContent()}
         </div>
       </div>
 
