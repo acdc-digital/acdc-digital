@@ -1,22 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  /* VS Code inspired color palette */
-  --background: #1e1e1e;
-  --foreground: #cccccc;
-  --card: #252526;
-  --card-foreground: #cccccc;
-  --primary: #007acc;
-  --primary-foreground: #ffffff;
-  --secondary: #2d2d30;
-  --secondary-foreground: #cccccc;
-  --muted: #2d2d30;
-  --muted-foreground: #858585;
-  --accent: #007acc;
-  --accent-foreground: #ffffff;
-  --border: #2d2d30;
-  --input: #2d2d30;
-  --ring: #007acc;
+  /* Light theme colors */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --primary: 210 100% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 210 100% 40%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+.dark {
+  /* Dark theme colors - VS Code inspired */
+  --background: 0 0% 11.8%;
+  --foreground: 0 0% 80%;
+  --card: 0 0% 14.5%;
+  --card-foreground: 0 0% 80%;
+  --primary: 210 100% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 17.6%;
+  --secondary-foreground: 0 0% 80%;
+  --muted: 0 0% 17.6%;
+  --muted-foreground: 0 0% 63.1%;
+  --accent: 0 0% 17.6%;
+  --accent-foreground: 0 0% 80%;
+  --border: 0 0% 65%;
+  --input: 0 0% 17.6%;
+  --ring: 210 100% 40%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
 }
 
 body {
@@ -59,4 +82,38 @@ body {
 
 .glow-primary:hover {
   box-shadow: 0 0 30px rgba(0, 122, 204, 0.5);
+}
+
+/* Custom border classes using CSS variables */
+.border-border {
+  border-color: hsl(var(--border));
+}
+
+/* Theme-aware utility classes */
+.text-foreground {
+  color: hsl(var(--foreground));
+}
+
+.text-muted-foreground {
+  color: hsl(var(--muted-foreground));
+}
+
+.bg-background {
+  background-color: hsl(var(--background));
+}
+
+.bg-primary {
+  background-color: hsl(var(--primary));
+}
+
+.text-primary-foreground {
+  color: hsl(var(--primary-foreground));
+}
+
+.bg-accent {
+  background-color: hsl(var(--accent));
+}
+
+.text-accent-foreground {
+  color: hsl(var(--accent-foreground));
 }

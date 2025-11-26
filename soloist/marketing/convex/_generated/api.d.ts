@@ -9,6 +9,7 @@
  */
 
 import type * as ai_generateInsight from "../ai/generateInsight.js";
+import type * as components_ from "../components.js";
 import type * as insights from "../insights.js";
 import type * as liveFeed from "../liveFeed.js";
 import type * as rateLimit from "../rateLimit.js";
@@ -29,6 +30,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "ai/generateInsight": typeof ai_generateInsight;
+  components: typeof components_;
   insights: typeof insights;
   liveFeed: typeof liveFeed;
   rateLimit: typeof rateLimit;

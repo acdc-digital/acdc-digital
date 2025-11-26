@@ -91,4 +91,16 @@ export default defineSchema({
   })
     .index("by_service", ["service"])
     .index("by_timestamp", ["timestamp"]),
+
+  // Stdio: Generated components storage
+  generatedComponents: defineTable({
+    code: v.string(),
+    title: v.string(),
+    framework: v.literal("react"),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_framework", ["framework"]),
 });

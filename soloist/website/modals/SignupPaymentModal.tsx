@@ -319,6 +319,7 @@ function PaymentPanel({
   onCheckoutComplete,
   isCheckoutComplete,
   redirectCountdown,
+  isUserIdLoading,
 }: {
   isAuthenticated: boolean;
   isLoadingCheckout: boolean;
@@ -330,6 +331,7 @@ function PaymentPanel({
   onCheckoutComplete: () => void;
   isCheckoutComplete: boolean;
   redirectCountdown: number | null;
+  isUserIdLoading: boolean;
 }) {
   const router = useRouter();
   const currentPricing = PRICING[billingPeriod];
@@ -443,9 +445,9 @@ function PaymentPanel({
         {/* CTA Button */}
         <button
           onClick={onPaymentClick}
-          disabled={!isAuthenticated || isLoadingCheckout}
+          disabled={!isAuthenticated || isLoadingCheckout || isUserIdLoading}
           className={`w-full py-3 px-4 font-parkinsans-semibold text-sm transition-all rounded-t-none rounded-b-lg flex items-center justify-center gap-2 ${
-            isAuthenticated
+            isAuthenticated && !isUserIdLoading
               ? "bg-white text-zinc-900 hover:bg-zinc-100"
               : "bg-zinc-700 text-zinc-400 cursor-not-allowed"
           }`}
@@ -454,6 +456,11 @@ function PaymentPanel({
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               Loading...
+            </>
+          ) : isUserIdLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Loading account...
             </>
           ) : isAuthenticated ? (
             <>
@@ -550,11 +557,25 @@ export function SignupPaymentModal({
 
   // Handle successful payment checkout
   const handlePaymentClick = useCallback(async () => {
-    if (!isAuthenticated || !userId) return;
+    console.log('handlePaymentClick called - isAuthenticated:', isAuthenticated, 'userId:', userId);
+    
+    if (!isAuthenticated) {
+      console.error('Cannot proceed: user not authenticated');
+      setError('Please sign in first');
+      return;
+    }
+    
+    if (!userId) {
+      console.error('Cannot proceed: userId not available yet');
+      setError('Loading account... please try again');
+      return;
+    }
 
     const selectedPricing = PRICING[billingPeriod];
+    console.log('Creating checkout session with:', { priceId: selectedPricing.priceId, userId });
     
     setIsLoadingCheckout(true);
+    setError(null);
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -754,6 +775,7 @@ export function SignupPaymentModal({
                 onCheckoutComplete={handleCheckoutComplete}
                 isCheckoutComplete={isCheckoutComplete}
                 redirectCountdown={redirectCountdown}
+                isUserIdLoading={isAuthenticated && userId === undefined}
               />
             </div>
 

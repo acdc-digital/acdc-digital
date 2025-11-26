@@ -12,12 +12,14 @@ import {
   BadgeCheck,
   LucideIcon, 
   IdCardLanyardIcon,
-  CircleUserIcon
+  CircleUserIcon,
+  Video
 } from "lucide-react";
 
 export type PanelType = 
   | "dashboard"
   | "content"
+  | "video"
   | "credentials"
   | "account"
   | "settings"
@@ -32,6 +34,7 @@ export function ActivityBar({ activePanel, onPanelChange }: ActivityBarProps) {
   const activityItems: Array<{ id: PanelType; icon: LucideIcon; label: string }> = [
     { id: "dashboard", icon: Layout, label: "Dashboard" },
     { id: "content", icon: Folder, label: "Documentation" },
+    { id: "video", icon: Video, label: "Video" },
     { id: "credentials", icon: CircleUserIcon, label: "Credentials" },
     { id: "account", icon: User, label: "Account" },
   ];
@@ -117,7 +120,7 @@ export function ActivityBar({ activePanel, onPanelChange }: ActivityBarProps) {
               title={item.label}
             >
               <Icon
-                className={`w-4.5 h-4.5 ${
+                className={`w-5 h-5 ${
                   isActive ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               />
