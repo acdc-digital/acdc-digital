@@ -3,7 +3,7 @@ import "./globals.css";
 import { ConvexClientProvider } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Marketing",
+  title: "Soloist. | Take control of tomorrow, today.",
   description: "Marketing pages and content for Soloist",
   icons: {
     icon: [
