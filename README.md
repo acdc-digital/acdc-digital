@@ -25,11 +25,11 @@
 
 ---
 
-We're building thoughtful digital products that simplify the everyday. At ACDC.digital, we believe technology should feel effortless—tools that fit naturally into your routine, helping you stay organized, informed, and balanced. Whether it's tracking your mood, curating the news that matters, or collaborating on documents seamlessly, our focus is on crafting experiences that just *work*. No friction, no complexity—just products that bridge the gap from work to life.
+Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others. Adaptive intelligence should enhance the human experience, not just feel human.
 
 ---
 
-#### This is where you'll find what we're working on, our developing projects, and our architectural foundation. Our playbook is simple:
+#### Our playbook is simple:
 
 ### 🎯 Featured Projects
 
