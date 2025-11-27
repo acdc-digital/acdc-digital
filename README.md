@@ -23,83 +23,53 @@
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=plastic&logo=github&logoColor=white&labelColor=0d1117)
 ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=plastic&logo=figma&logoColor=white&labelColor=c03d15)
 
+---
+
+We're building thoughtful digital products that simplify the everyday. At ACDC.digital, we believe technology should feel effortless—tools that fit naturally into your routine, helping you stay organized, informed, and balanced. Whether it's tracking your mood, curating the news that matters, or collaborating on documents seamlessly, our focus is on crafting experiences that just *work*. No friction, no complexity—just products that bridge the gap from work to life.
+
+---
+
 #### This is where you'll find what we're working on, our developing projects, and our architectural foundation. Our playbook is simple:
-352,728 lines of code across 5.5GB of projects
 
-| Project | Lines of Code | % of Codebase | Size | % of Space | Primary Focus |
-|---------|--------------|---------------|------|------------|---------------|
-| **smnb** | 98,569 | 27.9% | 491MB | 8.6% | News Management & Content Processing |
-| **aura** | 71,993 | 20.4% | 183MB | 3.2% | Collaborative Document Editing |
-| **lifeOS** | 54,164 | 15.4% | 1.9GB | 33.5% | Comprehensive Productivity Suite |
-| **soloist** | 53,484 | 15.2% | 29MB | 0.5% | Personal Analytics & Forecasting |
-| **solov2** | 14,838 | 4.2% | 625MB | 11.0% | Enhanced Analytics Platform |
-| **ruuf** | 11,312 | 3.2% | 164MB | 2.9% | Python-based Framework |
-| **tradies** | 10,925 | 3.1% | 578MB | 10.2% | Documentation & Notebooks |
-| **acdc-digital** | 10,170 | 2.9% | 375MB | 6.6% | Core Framework & Infrastructure |
-| **donut** | 9,966 | 2.8% | 655MB | 11.5% | Web Application Platform |
-| **grapes** | 9,591 | 2.7% | 146MB | 2.6% | Python Utilities |
-| **home** | 7,716 | 2.2% | 531MB | 9.4% | Home Website & Portfolio |
+### 🎯 Featured Projects
 
-## ACDC.digital - Full Service Agentic Framework Studio
+| Project | Description | Tech Stack | Status |
+|---------|-------------|------------|--------|
+| **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today. | Next.js, Convex, TypeScript, Stripe | 🟢 Active |
+| **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading. | React, Convex, Node.js | 🟢 Active |
+| **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting. | Next.js, Tailwind, Convex | 🟡 In Development |
 
-ACDC.digital is a **full-service agentic framework studio** that transforms concepts into production-ready intelligent systems. From initial design concepts to complex backend infrastructure, we deliver complete solutions that seamlessly blend autonomous agent capabilities with exceptional user experiences and natural conversation.
+> **78+ intelligent agents** power our products behind the scenes—coordinating tasks, analyzing data, and delivering personalized experiences across all projects.
 
-#### **Our End-to-End Process:**
-- **Design & UX**: Intuitive interfaces that make complex AI interactions feel natural through interactive chat conversations.
-- **Agent Development**: Sophisticated multi-agent orchestration and workflow automation built on top of a proven platform.
-- **Backend Infrastructure**: Scalable, real-time systems supporting concurrent agent operations for complex task management while you focus on the big picture.
-- **Full Deployment**: Production-grade delivery with monitoring and optimization, hosted, and maintained.
+## ACDC.digital - Full Service Digital Studio
 
-#### **Full-Service Capabilities**
+ACDC.digital is a **full-service digital studio** focused on making products that bridge the gap from work to life. We build intuitive tools that help people stay organized, make better decisions, and find balance in their daily routines. Our approach combines thoughtful design with intelligent automation—creating experiences that feel personal and effortless.
 
-| Service Area | Expertise | Technologies | Deliverables |
-|--------------|-----------|--------------|--------------|
-| **UI/UX Design** | Agent-Human Interaction Patterns | Figma, Tailwind CSS, Custom ShadnCN Component Library | Custom Interfaces, Design Systems, User Flows |
-| **Agent Orchestration** | Multi-Agent Coordination | TypeScript, Anthropic Provider, Convex Serverless Database | Autonomous Frameworks, Task Distribution Systems, Data Gathering & Analytics |
-| **Backend Infrastructure** | Real-Time & Scalable Systems | Convex, Node.js, Serverless Architecture | High-Performance APIs, Live Synchronization, Auto-Scaling |
-| **Technical Architecture** | End-to-End System Design | Next.js, Database Design, Deployment Pipelines | Complete Technical Specifications, Infrastructure Planning, and User Guides |
-| **AI Integration** | Accessible Multi-Model Communication | Anthropic Routing (Tools & Conversational, Artifacts) | Seamless AI Workflows, Intelligent Fallback Systems |
-| **Workflow Automation** | Process Optimization | Custom Orchestration, Decision Trees | Intelligent Routing, Adaptive Process Management, Human in the Loop |
+#### **What We Do:**
+- **Product Design**: Human-centered interfaces that make complex features feel simple and natural.
+- **Intelligent Automation**: Smart systems that learn, adapt, and handle the tedious stuff so you don't have to.
+- **Scalable Infrastructure**: Real-time, serverless backends built for reliability and performance.
+- **End-to-End Delivery**: From concept to launch, we handle design, development, deployment, and ongoing support.
 
-#### **Current Projects & Agent Ecosystem**
+#### **Our Capabilities**
 
-| Project | Active Agents | Core Technologies | Agent Capabilities | Use Case Focus |
-|---------|---------------|------------------|-------------------|----------------|
-| **Soloist** | 12+ agents | Next.js, Convex, TypeScript | Data Analysis, Predictive Modeling, Performance Tracking, Mood Forecasting | Personal Analytics & Productivity Optimization |
-| **SMNB** | 18+ agents | React, Convex, Node.js | Content Aggregation, Duplicate Detection, Threading, Classification | News Management & Content Processing |
-| **AURA** | 15+ agents | Next.js, Tailwind, Convex | Document Formatting, Real-time Collaboration, Auto-styling, Version Control | Collaborative Document Editing |
-| **LifeOS** | 22+ agents | TypeScript, React, Multi-model AI | Research Automation, File Management, Task Orchestration, Workflow Optimization | Comprehensive Productivity Suite |
-| **Framework Core** | 11+ agents | Model Context Protocol, Serverless | Agent Coordination, Communication Routing, Scalability Management | Foundation Infrastructure |
+| Service Area | What We Deliver | Technologies |
+|--------------|-----------------|--------------|
+| **UI/UX Design** | Intuitive interfaces, design systems, user flows | Figma, Tailwind CSS, Custom Component Libraries |
+| **Product Development** | Full-stack applications, real-time features, API integrations | Next.js, React, TypeScript, Convex |
+| **Intelligent Features** | Personalized recommendations, predictive insights, smart automation | AI/ML Integration, Multi-model Routing |
+| **Infrastructure** | High-performance APIs, live sync, auto-scaling | Serverless Architecture, Node.js, Vercel |
+| **Workflow Automation** | Process optimization, adaptive routing, background tasks | Custom Orchestration, Event-driven Systems |
 
-> **Total Active Agents**: 78+ across all projects with expanding multi-agent coordination capabilities
+#### **Behind the Scenes**
 
-#### **Framework Architecture**
-
-- Production-grade TypeScript development with strict type safety across agent communications
-  ```typescript
-  agentMessage({ from: AgentId, to: AgentId, payload: TypedPayload })
-  ```
-
-- Serverless-first architecture enabling elastic agent scaling and resource optimization
-  ```typescript
-  autoScale(currentLoad) → scheduler.spawn(optimalCapacity)
-  ```
-
-- Multi-model AI integration with intelligent routing and fallback mechanisms
-  ```typescript
-  aiRouter.route(task) → claude-3.5 || gpt-4o || gpt-4o-mini
-  ```
-
-- Mono-repo structure supporting modular agent development and deployment ensuring organization-wide consistency
-  ```typescript
-  class Agent<TContext, TCapabilities> { execute() → AgentResult }
-  ```
-
-- Advanced caching strategies and state management for high-performance agent coordination
-  ```typescript
-  cachedResult = storage.get(key) ?? compute.memoize(key, fn)
-  ```
+| Project | Active Agents | Core Focus |
+|---------|---------------|------------|
+| **Soloist** | 12+ | Data analysis, predictive modeling, mood forecasting |
+| **SMNB** | 18+ | Content aggregation, duplicate detection, smart threading |
+| **AURA** | 15+ | Document formatting, real-time collaboration, version control |
 
 ⚡⚡⚡
 
 ![ACDC Digital GitHub Stats](https://github-readme-stats.vercel.app/api?username=acdc-digital&show_icons=true&hide_border=true&bg_color=393939&title_color=f5f5f5&icon_color=d4d4d8&text_color=e5e5e5&count_private=true&border_radius=0)
+
