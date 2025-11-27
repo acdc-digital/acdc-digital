@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   title: "Marketing",
   description: "Marketing pages and content for Soloist",
   icons: {
-    icon: "/convex.svg",
+    icon: [
+      { url: "/soloicov2-marketing.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    shortcut: "/soloicov2-marketing.svg",
+    apple: { url: "/soloicov2-marketing.svg", sizes: "180x180" },
   },
 };
 
