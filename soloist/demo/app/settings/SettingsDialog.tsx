@@ -6,13 +6,12 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
 import Attributes from "./_components/Attributes";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@/hooks/convexHooks";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
-import { Loader2, CheckCircle2, X, Palette, User, Zap, Settings, Download, AlertCircle, RefreshCw, Smartphone } from "lucide-react";
+import { Loader2, CheckCircle2, X, User, Zap, Settings, Download, AlertCircle, RefreshCw, Smartphone } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +29,6 @@ interface SettingsDialogProps {
 }
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
-  const { theme, setTheme } = useTheme();
   const { isAuthenticated, isLoading: authLoading, userId } = useConvexUser();
   const [instructions, setInstructions] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -101,37 +99,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
         <ScrollArea className="flex-1 max-h-[70vh] p-6">
           <div className="space-y-6">
-            {/* Theme Section */}
-            <Card className="border-zinc-200 dark:border-zinc-700">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Palette className="h-4 w-4 text-blue-600 dark:text-blue-500" />
-                  Theme
-                </CardTitle>
-                <CardDescription className="text-sm">
-                  Choose your preferred appearance
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-zinc-700 dark:text-zinc-300">Current theme:</span>
-                    <Badge variant="outline" className="text-xs">
-                      {theme === "dark" ? "Dark" : "Light"}
-                    </Badge>
-                  </div>
-                  <Button 
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    size="sm"
-                    variant="outline"
-                    className="h-8"
-                  >
-                    Switch to {theme === "dark" ? "light" : "dark"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* App Version Section */}
             <Card className="border-zinc-200 dark:border-zinc-700">
               <CardHeader className="pb-3">

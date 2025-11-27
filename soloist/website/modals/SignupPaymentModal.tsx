@@ -541,6 +541,20 @@ export function SignupPaymentModal({
     }
   }, [redirectCountdown]);
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
@@ -670,18 +684,18 @@ export function SignupPaymentModal({
       <div className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-zinc-900 border border-border rounded-t-none rounded-b-2xl shadow-2xl flex flex-col overflow-hidden">
 
         {/* Header with brand - Fixed at top */}
-        <div className="bg-zinc-900 dark:bg-zinc-950 px-6 py-4 flex items-center justify-between flex-shrink-0">
+        <div className="bg-[#0075DE] dark:bg-zinc-900 px-6 py-4 flex items-center justify-between flex-shrink-0 border-b-2 border-zinc-300 dark:border-zinc-700">
           <div>
-            <h2 className="text-xl font-parkinsans-semibold text-white tracking-tight">
+            <h2 className="text-xl font-parkinsans-semibold text-zinc-100 tracking-tight">
               Soloist.
             </h2>
-            <p className="text-sm text-zinc-400 mt-0.5">
+            <p className="text-sm text-zinc-100 mt-0.5">
               Take control of tomorrow, Today.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800"
+            className="p-2 text-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
             aria-label="Close modal"
           >
             <X size={18} />
@@ -745,9 +759,9 @@ export function SignupPaymentModal({
             )}
           </div>
 
-          {/* Right Column - Payment (Scrollable) */}
+          {/* Right Column - Payment (Scrollable only when checkout is active) */}
           <div className="w-1/2 flex flex-col overflow-hidden bg-white dark:bg-zinc-900">
-            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+            <div className={`flex-1 p-6 md:p-8 ${clientSecret ? 'overflow-y-auto' : 'overflow-hidden'}`}>
               {/* Step indicator */}
               <div className="flex items-center gap-3 mb-5">
                 <div className={`w-7 h-7 rounded-t-none rounded-b-lg flex items-center justify-center text-xs font-parkinsans-bold ${

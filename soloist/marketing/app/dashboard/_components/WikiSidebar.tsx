@@ -20,10 +20,7 @@ interface WikiPage {
   icon: React.ReactNode;
 }
 
-interface WikiSection {
-  category: string;
-  items: WikiPage[];
-}
+// WikiSection interface available for future use if needed
 
 interface WikiSidebarProps {
   activeSection: string;
