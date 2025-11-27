@@ -22,6 +22,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Soloist. | Take control of tomorrow, today.",
   description: "Soloist Pro desktop application built with Electron and Next.js",
+  icons: {
+    icon: [
+      { url: "/soloicov2-rend.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    shortcut: "/soloicov2-rend.svg",
+    apple: { url: "/soloicov2-rend.svg", sizes: "180x180" },
+  },
 };
 
 export default function RootLayout({
