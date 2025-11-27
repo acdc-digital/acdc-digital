@@ -37,11 +37,10 @@ export const metadata: Metadata = {
   description: "Track your mood patterns and get AI-powered insights to improve your emotional well-being. Simple, private, and effective mood tracking for everyone.",
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
-      { url: "/acdc-soloistIcon.svg", type: "image/svg+xml", sizes: "512x512" },
+      { url: "/acdc-soloisticon_v2.svg", type: "image/svg+xml", sizes: "any" },
     ],
-    shortcut: "/favicon.svg",
-    apple: { url: "/acdc-soloistIcon.svg", sizes: "180x180" },
+    shortcut: "/acdc-soloisticon_v2.svg",
+    apple: { url: "/acdc-soloisticon_v2.svg", sizes: "180x180" },
   },
 };
 
