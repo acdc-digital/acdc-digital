@@ -35,6 +35,14 @@ const specialGothic = localFont({
 export const metadata: Metadata = {
   title: "Soloist. | Take control of tomorrow, today.",
   description: "Track your mood patterns and get AI-powered insights to improve your emotional well-being. Simple, private, and effective mood tracking for everyone.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+      { url: "/acdc-soloistIcon.svg", type: "image/svg+xml", sizes: "512x512" },
+    ],
+    shortcut: "/favicon.svg",
+    apple: { url: "/acdc-soloistIcon.svg", sizes: "180x180" },
+  },
 };
 
 export const viewport = {

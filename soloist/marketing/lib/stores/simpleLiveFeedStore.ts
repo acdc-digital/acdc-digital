@@ -174,7 +174,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
   
   // Actions
   setPosts: (posts) => {
-    set((state) => {
+    set(() => {
       console.log(`📋 Setting ${posts.length} posts`);
       return {
         posts,
@@ -254,6 +254,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       const convexInsights = await convex.query(api.insights.getAllInsights, {});
       
       // Convert to MarketingInsight format
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const insights: MarketingInsight[] = convexInsights.map((insight: any) => ({
         id: insight.insight_id,
         narrative: insight.narrative,
@@ -269,7 +270,7 @@ export const useSimpleLiveFeedStore = create<SimpleLiveFeedStore>((set, get) => 
       
       set({ insightHistory: insights });
       console.log(`✅ Loaded ${insights.length} insights`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Failed to load insights from Convex:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to load insights' });
     }

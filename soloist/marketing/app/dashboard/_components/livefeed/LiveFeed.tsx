@@ -18,6 +18,7 @@ export default function LiveFeed({ className }: LiveFeedProps) {
   const convexInsights = useQuery(api.insights.getAllInsights, {});
 
   // Convert Convex insights to store format
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const insightHistory = convexInsights?.map((insight: any) => ({
     id: insight.insight_id,
     narrative: insight.narrative,

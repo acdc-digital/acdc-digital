@@ -25,9 +25,15 @@ type RoadmapItem = {
 };
 
 export function Roadmap() {
+  const [isMounted, setIsMounted] = useState(false);
   const [activePhase, setActivePhase] = useState<RoadmapPhase>("shipped");
   const [waitlistStates, setWaitlistStates] = useState<Record<string, boolean>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+
+  // Prevent hydration mismatch by only rendering interactive content after mount
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const { signIn } = useAuthActions();
   const joinWaitlist = useMutation(api.waitlist.joinWaitlist);
@@ -223,7 +229,6 @@ export function Roadmap() {
         <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-8 md:mb-12">
           {(["shipped", "in-progress", "planned"] as const).map((phase) => {
             const config = phaseConfig[phase];
-            const PhaseIcon = config.icon;
             const itemCount = roadmapData.filter(item => item.phase === phase).length;
             
             return (
@@ -236,7 +241,9 @@ export function Roadmap() {
                     : "bg-card text-card-foreground border-border hover:bg-accent hover:text-accent-foreground hover:shadow-sm"
                 }`}
               >
-                <PhaseIcon className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                {isMounted && phase === "shipped" && <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4" />}
+                {isMounted && phase === "in-progress" && <Clock className="h-3.5 w-3.5 md:h-4 md:w-4" />}
+                {isMounted && phase === "planned" && <Circle className="h-3.5 w-3.5 md:h-4 md:w-4" />}
                 {config.label}
                 <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 rounded-full ${
                   activePhase === phase
@@ -265,7 +272,7 @@ export function Roadmap() {
                   <CardHeader className="pb-2 md:pb-4">
                     <div className="flex items-start justify-between mb-2 md:mb-3">
                       <div className={`p-2 md:p-3 rounded-t-none rounded-b-lg ${config.bg} transition-transform duration-300 group-hover:scale-110`}>
-                        <ItemIcon className={`h-5 w-5 md:h-6 md:w-6 ${config.color}`} />
+                        {isMounted && <ItemIcon className={`h-5 w-5 md:h-6 md:w-6 ${config.color}`} />}
                       </div>
                       <Badge
                         variant={config.badgeVariant}
@@ -287,13 +294,13 @@ export function Roadmap() {
                     <ul className="space-y-1.5 md:space-y-2 mb-3 md:mb-4 flex-1">
                       {item.features.map((feature, fIndex) => (
                         <li key={fIndex} className="flex items-start gap-2 text-[11px] md:text-sm">
-                          <CheckCircle2 className={`h-3.5 w-3.5 md:h-4 md:w-4 shrink-0 mt-0.5 ${
+                          {isMounted && <CheckCircle2 className={`h-3.5 w-3.5 md:h-4 md:w-4 shrink-0 mt-0.5 ${
                             item.phase === "shipped"
                               ? "text-green-600 dark:text-green-400"
                               : item.phase === "in-progress"
                               ? "text-blue-600 dark:text-blue-400"
                               : "text-muted-foreground"
-                          }`} />
+                          }`} />}
                           <span className={`leading-relaxed ${feature === "Personalized template evolution" ? "line-through" : ""}`}>
                             {feature}
                           </span>
@@ -316,7 +323,7 @@ export function Roadmap() {
                           : (
                             <>
                               <span>Join Waitlist</span>
-                              <ArrowRight className="h-4 w-4 ml-2" />
+                              {isMounted && <ArrowRight className="h-4 w-4 ml-2" />}
                             </>
                           )
                         }

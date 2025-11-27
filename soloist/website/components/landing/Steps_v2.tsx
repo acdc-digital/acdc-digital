@@ -204,7 +204,7 @@ export function Steps_v2() {
             </div>
             
             {/* Footer text under grid #1 and #2 */}
-            <div className="grid grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-5 gap-4 mb-12">
               <div className="col-span-5 lg:col-span-2 px-2">
                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
                   *5-minutes to get started

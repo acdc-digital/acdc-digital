@@ -6,7 +6,6 @@ import {
   Lightbulb, 
   TrendingUp, 
   Flag,
-  Signal,
   Bookmark,
   ExternalLink,
   ArrowUp,
@@ -36,7 +35,7 @@ const getInsightColor = (type: MarketingInsight['insight_type']) => {
   }
 };
 
-const getPriorityIcon = (priority: MarketingInsight['priority']) => {
+const getPriorityIcon = () => {
   return Flag;
 };
 
@@ -74,7 +73,7 @@ export default function InsightCard({ insight }: InsightCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   
   const InsightIcon = getInsightIcon(insight.insight_type);
-  const PriorityIcon = getPriorityIcon(insight.priority);
+  const PriorityIcon = getPriorityIcon();
 
   return (
     <div 

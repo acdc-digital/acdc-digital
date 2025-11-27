@@ -2,16 +2,10 @@
 
 import { 
   Folder, 
-  Calendar, 
-  BarChart3,
   Layout,
-  Image,
-  Mail,
   Settings,
   User,
-  BadgeCheck,
   LucideIcon, 
-  IdCardLanyardIcon,
   CircleUserIcon,
   Video
 } from "lucide-react";

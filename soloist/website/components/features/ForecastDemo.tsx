@@ -3,7 +3,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Info, TrendingUp, TrendingDown, Sparkles } from "lucide-react";
@@ -41,6 +41,12 @@ function getTextColor(score: number | null): string {
 
 export function ForecastDemo() {
   const [selectedDay, setSelectedDay] = useState(3); // Today (index 3)
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Demo data: 4 days of logs + today (logged) + 3 days of predictions
   const forecastDays = [
@@ -137,6 +143,38 @@ export function ForecastDemo() {
   const pointDifference = previousScore !== null && selected.score !== null 
     ? selected.score - previousScore 
     : null;
+
+  // Prevent hydration mismatch - show placeholder until mounted
+  if (!mounted) {
+    return (
+      <div className="absolute inset-0 p-3 flex flex-col">
+        <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
+          <div className="flex-shrink-0">
+            <span className="text-4xl font-bold text-neutral-900 dark:text-neutral-900">3</span>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+              Mood Forecasting
+            </h3>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              Research backed predictions to help you understand and plan ahead.
+            </p>
+          </div>
+        </div>
+        <Card className="w-full flex-1 min-h-0 bg-zinc-900 border-zinc-800 rounded-xl overflow-hidden flex flex-col p-4">
+          <div className="animate-pulse space-y-3">
+            <div className="h-6 bg-zinc-800 rounded w-1/2"></div>
+            <div className="h-4 bg-zinc-800 rounded w-3/4"></div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="h-16 bg-zinc-800 rounded-md"></div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 p-3 flex flex-col">
