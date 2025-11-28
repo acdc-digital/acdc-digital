@@ -56,15 +56,15 @@ const features = [
         <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
           {/* Number */}
           <div className="flex-shrink-0">
-            <span className="text-4xl font-bold text-neutral-900 dark:text-neutral-900">4</span>
+            <span className="text-4xl font-bold text-neutral-700">4</span>
           </div>
           
           {/* Text Content */}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
               Customize
             </h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-400">
               Tailor to your lifestyle
             </p>
           </div>
@@ -126,15 +126,15 @@ const features = [
         <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
           {/* Number */}
           <div className="flex-shrink-0">
-            <span className="text-4xl font-bold text-neutral-900 dark:text-neutral-900">5</span>
+            <span className="text-4xl font-bold text-neutral-700">5</span>
           </div>
           
           {/* Text Content */}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
               Learn
             </h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-400">
               Evolve with each entry
             </p>
           </div>
@@ -206,12 +206,12 @@ export function Steps_v2() {
             {/* Footer text under grid #1 and #2 */}
             <div className="grid grid-cols-5 gap-4 mb-12">
               <div className="col-span-5 lg:col-span-2 px-2">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-neutral-400">
                   *5-minutes to get started
                 </p>
               </div>
               <div className="col-span-5 lg:col-span-3 px-2">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-neutral-400">
                   *start generating predictions after just 4-days of logs
                 </p>
               </div>
@@ -226,7 +226,7 @@ export function Steps_v2() {
             {/* Footer text under grid #3 */}
             <div className="grid grid-cols-5 gap-4 mt-1">
               <div className="col-span-5 lg:col-span-3 px-2">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <p className="text-sm text-neutral-400">
                   *Meaningful insights with every log generated
                 </p>
               </div>

@@ -43,6 +43,12 @@ export function Navbar() {
   // Check if current user is admin
   const isAdmin = useQuery(api.admin.isCurrentUserAdmin);
 
+  // Check if user has active subscription
+  const hasActiveSubscription = useQuery(
+    api.userSubscriptions.hasActiveSubscription,
+    isAuthenticated && userId ? {} : "skip"
+  );
+
   // Get user details
   const user = useQuery(
     api.users.viewer,
@@ -295,36 +301,45 @@ export function Navbar() {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 bg-white border border-black rounded-none shadow-md" align="end" forceMount>
                     <div className="flex flex-col space-y-1 p-2">
-                      <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-sm font-medium leading-none text-zinc-900">{user?.name || "User"}</p>
+                      <p className="text-xs leading-none text-zinc-500">
                         {user?.email || "user@example.com"}
                       </p>
                     </div>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="bg-zinc-200" />
                     <DropdownMenuItem
                       onClick={() => setIsProfileModalOpen(true)}
-                      className="cursor-pointer flex items-center gap-2"
+                      className="cursor-pointer flex items-center gap-2 text-zinc-700 hover:bg-zinc-100 rounded-none"
                     >
                       <User className="h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => signOut()}
-                      className="cursor-pointer flex items-center gap-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      className="cursor-pointer flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-none"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Sign out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Link
-                  href={process.env.NEXT_PUBLIC_APP_URL || "https://app.acdc.digital"}
-                  className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter whitespace-nowrap"
-                >
-                  Soloist.
-                </Link>
+                {hasActiveSubscription ? (
+                  <Link
+                    href={process.env.NEXT_PUBLIC_APP_URL || "https://soloist-app.acdc.digital/dashboard"}
+                    className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter whitespace-nowrap"
+                  >
+                    Soloist.
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => setIsSignupPaymentModalOpen(true)}
+                    className="inline-flex items-center justify-center bg-blue-500 border border-blue-900 px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base text-white hover:bg-blue-700 hover:border-blue-700 transition-all duration-200 font-bold font-inter whitespace-nowrap"
+                  >
+                    Soloist.
+                  </button>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="inline-flex items-center justify-center border border-black bg-white px-3 lg:px-5 py-1.5 lg:py-2 text-sm lg:text-base font-medium text-foreground hover:bg-accent hover:text-accent-foreground hover:border-foreground transition-all duration-200 whitespace-nowrap"

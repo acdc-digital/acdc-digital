@@ -80,15 +80,15 @@ export function HeatmapJournalDemo() {
       <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
         {/* Number */}
         <div className="flex-shrink-0">
-          <span className="text-5xl font-bold text-neutral-700 dark:text-neutral-700">2</span>
+          <span className="text-5xl font-bold text-neutral-700">2</span>
         </div>
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
             Track & Reflect
           </h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-400">
             Immediately begin logging your days and reviewing a daily summary dedicated to help you reflect and make adjustments for tomorrow.
           </p>
         </div>
