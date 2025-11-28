@@ -14,15 +14,15 @@ export function BaselineAssessmentDemo() {
       <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
         {/* Number */}
         <div className="flex-shrink-0">
-          <span className="text-5xl font-bold text-neutral-700 dark:text-neutral-700">1</span>
+          <span className="text-5xl font-bold text-neutral-700">1</span>
         </div>
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-300 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
             Personality Profile
           </h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-400">
             Create the baseline for future days. Update or change at any time.
           </p>
         </div>

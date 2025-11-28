@@ -150,13 +150,13 @@ export function ForecastDemo() {
       <div className="absolute inset-0 p-3 flex flex-col">
         <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
           <div className="flex-shrink-0">
-            <span className="text-4xl font-bold text-neutral-900 dark:text-neutral-900">3</span>
+            <span className="text-4xl font-bold text-neutral-700">3</span>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
               Mood Forecasting
             </h3>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-400">
               Research backed predictions to help you understand and plan ahead.
             </p>
           </div>
@@ -182,15 +182,15 @@ export function ForecastDemo() {
       <div className="mb-3 px-2 flex items-start gap-3 flex-shrink-0">
         {/* Number */}
         <div className="flex-shrink-0">
-          <span className="text-4xl font-bold text-neutral-900 dark:text-neutral-900">3</span>
+          <span className="text-4xl font-bold text-neutral-700">3</span>
         </div>
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
             Mood Forecasting
           </h3>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-400">
             Research backed predictions to help you understand and plan ahead.
           </p>
         </div>
