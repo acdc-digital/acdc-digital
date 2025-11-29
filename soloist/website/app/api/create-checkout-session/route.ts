@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+// Force Node.js runtime (required for Stripe SDK)
+export const runtime = 'nodejs';
+
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
 
@@ -23,8 +26,9 @@ function getStripeClient(): Stripe | null {
     console.error("Missing STRIPE_SECRET_KEY environment variable");
     return null;
   }
+  console.log("Stripe key found, length:", stripeSecretKey.length);
   return new Stripe(stripeSecretKey, {
-    apiVersion: "2025-05-28.basil" as any,
+    apiVersion: "2025-04-30.basil" as any,
   });
 }
 
