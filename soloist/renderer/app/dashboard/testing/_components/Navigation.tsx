@@ -108,14 +108,14 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
   }, [selectedDateRange.end]);
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+    <div className="flex flex-col gap-4 p-5 rounded-xl bg-zinc-800/50 border border-zinc-700 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-black flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
             <div className="w-1 h-5 bg-blue-500 rounded-full"></div>
             Date Range Selection
           </h3>
-          <p className="text-sm text-black/70 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Select historical data range for AI-powered forecast analysis
           </p>
         </div>
@@ -129,8 +129,8 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
           }
           variant="outline"
           className={cn(
-            "transition-all duration-200 h-9 px-4 bg-white border-black text-black hover:bg-gray-50",
-            forecastGenerated && "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+            "transition-all duration-200 h-9 px-4 bg-zinc-800 border-zinc-600 text-zinc-100 hover:bg-zinc-700",
+            forecastGenerated && "bg-emerald-900/50 text-emerald-300 border-emerald-700 hover:bg-emerald-900/70"
           )}
           size="sm"
         >
@@ -156,26 +156,26 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
 
       {/* Range display */}
       {selectedDateRange.start && selectedDateRange.end && (
-        <div className="mt-3 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-gradient-to-b from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-800/50 transition-all duration-500 animate-in slide-in-from-bottom-2 fade-in-50">
+        <div className="mt-3 rounded-xl border border-zinc-700 overflow-hidden bg-zinc-800/50">
           <div className="p-4 space-y-3">
             {/* Historical Period */}
             <div className="flex items-center justify-between group">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 transition-transform group-hover:scale-110">
-                  <div className="w-2.5 h-2.5 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                <div className="p-2 rounded-lg bg-blue-900/30">
+                  <div className="w-2.5 h-2.5 bg-blue-400 rounded-full"></div>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                     Historical Period
                   </span>
-                  <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-0.5">
+                  <div className="text-sm font-medium text-zinc-100 mt-0.5">
                     {format(selectedDateRange.start, 'MMM d')} → {format(selectedDateRange.end, 'MMM d, yyyy')}
                   </div>
                 </div>
               </div>
               <Badge
                 variant="secondary"
-                className="text-xs px-2.5 py-1 bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
+                className="text-xs px-2.5 py-1 bg-blue-900/30 text-blue-300 border-blue-800"
               >
                 4 days
               </Badge>
@@ -184,10 +184,10 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-zinc-200 dark:border-zinc-700"></div>
+                <div className="w-full border-t border-zinc-700"></div>
               </div>
               <div className="relative flex justify-center">
-                <span className="px-3 bg-white dark:bg-zinc-900 text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1">
+                <span className="px-3 bg-zinc-800 text-xs text-zinc-500 flex items-center gap-1">
                   <ChevronRight className="w-3 h-3" />
                   then
                 </span>
@@ -198,21 +198,21 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
             {forecastDates && (
               <div className="flex items-center justify-between group">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 transition-transform group-hover:scale-110">
-                    <div className="w-2.5 h-2.5 bg-emerald-600 dark:bg-emerald-400 rounded-full"></div>
+                  <div className="p-2 rounded-lg bg-emerald-900/30">
+                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full"></div>
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                       Forecast Period
                     </span>
-                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-0.5">
+                    <div className="text-sm font-medium text-zinc-100 mt-0.5">
                       {format(forecastDates.forecastStart, 'MMM d')} → {format(forecastDates.forecastEnd, 'MMM d, yyyy')}
                     </div>
                   </div>
                 </div>
                 <Badge
                   variant="outline"
-                  className="text-xs px-2.5 py-1 border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/20"
+                  className="text-xs px-2.5 py-1 border-emerald-800 text-emerald-300 bg-emerald-900/20"
                 >
                   3 days
                 </Badge>

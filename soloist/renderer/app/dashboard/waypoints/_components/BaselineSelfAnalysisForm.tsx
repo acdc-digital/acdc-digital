@@ -6,11 +6,38 @@ import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, CheckCircle2, TrendingUp, Save } from "lucide-react";
+import { Loader2, CheckCircle2, Sparkles, Save, RefreshCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+// Auto-expanding textarea component using CSS field-sizing
+interface AutoExpandingInputProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  minHeight?: number;
+  maxHeight?: number;
+}
+
+const AutoExpandingInput = React.forwardRef<HTMLTextAreaElement, AutoExpandingInputProps>(
+  ({ minHeight = 36, maxHeight = 200, className, ...props }, ref) => {
+    return (
+      <textarea
+        ref={ref}
+        className={cn(
+          "flex w-full border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 resize-none overflow-y-auto transition-all",
+          // Use CSS field-sizing for native auto-resize
+          "[field-sizing:content]",
+          className
+        )}
+        style={{ 
+          minHeight: `${minHeight}px`, 
+          maxHeight: `${maxHeight}px`,
+        }}
+        rows={1}
+        {...props}
+      />
+    );
+  }
+);
+AutoExpandingInput.displayName = "AutoExpandingInput";
 
 type BaselineFormValues = {
   // Emotional Landscape
@@ -51,7 +78,7 @@ export function BaselineSelfAnalysisForm({
   onBaselineComputed,
   onAnalysisStateChange,
 }: BaselineSelfAnalysisFormProps) {
-  const { register, handleSubmit, reset, watch, formState } = useForm<BaselineFormValues>({
+  const { register, handleSubmit, reset, watch, setValue, formState } = useForm<BaselineFormValues>({
     mode: "onChange",
   });
 
@@ -163,523 +190,525 @@ export function BaselineSelfAnalysisForm({
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#252526] text-[#cccccc]">
-      {/* VS Code-style Header */}
-      <div className="flex-shrink-0 border-b border-[#2d2d30] bg-[#1e1e1e] px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-[15px] font-semibold text-white mb-1">Baseline Self-Analysis</h1>
-            <p className="text-[13px] text-[#858585]">
-              Establish your psychological baseline for personalized insights
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {saveStatus === "saving" && (
-              <div className="flex items-center gap-2 text-[12px] text-[#858585]">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span>Saving...</span>
+    <div className="ml-2 border-l border-white/20 border-r border-r-white/20 h-full flex flex-col bg-neutral-100 dark:bg-neutral-800">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
+        <div className="pb-2 pt-2">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-3">
+              {/* Solo Dot - the individual within the circle */}
+              <div className="mt-1 w-7 h-7 rounded-full bg-neutral-900 dark:bg-white flex items-center justify-center pl-2.5 pt-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
               </div>
-            )}
-            {saveStatus === "saved" && (
-              <div className="flex items-center gap-2 text-[12px] text-[#4ec9b0]">
-                <CheckCircle2 className="h-3 w-3" />
-                <span>Saved</span>
+              <div>
+                <h2 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
+                  Your Baseline
+                </h2>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs mt-0s">
+                  Discover your rhythm. Understand your patterns.
+                </p>
               </div>
-            )}
-            {computedBaseline && (
-              <div className="flex items-center gap-4 text-[12px] px-3 py-1.5 bg-[#1e1e1e] border border-[#007acc]/30 rounded">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#858585]">Index:</span>
-                  <span className="text-[#007acc] font-mono font-semibold">{computedBaseline.scores.baseline_index}</span>
-                </div>
-                <div className="w-px h-3 bg-[#2d2d30]" />
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#858585]">Confidence:</span>
-                  <span className="text-[#4ec9b0] font-mono font-semibold">{computedBaseline.scores.confidence}%</span>
-                </div>
-              </div>
-            )}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  // Reset to empty values
+                  reset({
+                    emotionalFrequency: "",
+                    stressRecovery: "",
+                    typicalMood: "",
+                    emotionalAwareness: "",
+                    goodDayDescription: "",
+                    decisionStyle: "",
+                    overthinking: "",
+                    reactionToSetback: "",
+                    motivationType: "",
+                    focusTrigger: "",
+                    successDefinition: "",
+                    consistency: "",
+                    reflectionFrequency: "",
+                    resetStrategy: "",
+                    socialLevel: "",
+                    rechargeMethod: "",
+                    selfUnderstanding: "",
+                    selfImprovementFocus: "",
+                  });
+                }}
+                disabled={isSubmitting}
+                className="flex flex-col items-center gap-0.5 p-1.5 rounded-md text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors disabled:opacity-50"
+                title="Start Over"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                <span className="text-[10px]">Refresh</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* Emotional Landscape */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#2d2d30]">
-            <div className="w-1 h-5 bg-[#007acc] rounded-sm" />
-            <h3 className="text-[13px] font-semibold text-white uppercase tracking-wide">
-              Emotional Landscape
-            </h3>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                How often do you experience strong emotions?
-              </Label>
-              <RadioGroup 
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("emotionalFrequency")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), emotionalFrequency: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="rarely" />
-                  <Label htmlFor="rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sometimes" id="sometimes" />
-                  <Label htmlFor="sometimes" className="font-normal cursor-pointer text-[13px]">Sometimes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="often" id="often" />
-                  <Label htmlFor="often" className="font-normal cursor-pointer text-[13px]">Often</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="constantly" id="constantly" />
-                  <Label htmlFor="constantly" className="font-normal cursor-pointer text-[13px]">Constantly</Label>
-                </div>
-              </RadioGroup>
+      {/* Scrollable Form Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Form Content - continuous list */}
+        <div className="px-5 py-5 space-y-6">
+          {/* Emotional Landscape */}
+          <div className="space-y-5">
+            <div className="pb-1">
+              <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
+                Emotional Landscape
+              </h3>
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                How you experience and process feelings
+              </p>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                How often do you experience strong emotions?
+              </Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Rarely", "Sometimes", "Often", "Constantly"].map((option) => {
+                  const isSelected = watch("emotionalFrequency") === option.toLowerCase();
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("emotionalFrequency", option.toLowerCase())}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 When stressed, how long does it take you to recover?
               </Label>
-              <Input
-                className="mt-2 bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md h-8 text-[13px]"
+              <AutoExpandingInput
+                className="mt-1.5 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
                 placeholder="e.g., A few hours, a day, several days..."
                 {...register("stressRecovery")}
               />
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 What's your typical baseline mood?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("typicalMood")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), typicalMood: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="optimistic" id="optimistic" />
-                  <Label htmlFor="optimistic" className="font-normal cursor-pointer text-[13px]">Optimistic</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="neutral" id="neutral" />
-                  <Label htmlFor="neutral" className="font-normal cursor-pointer text-[13px]">Neutral</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cautious" id="cautious" />
-                  <Label htmlFor="cautious" className="font-normal cursor-pointer text-[13px]">Cautious</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="varies" id="varies" />
-                  <Label htmlFor="varies" className="font-normal cursor-pointer text-[13px]">Varies widely</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Optimistic", "Neutral", "Cautious", "Varies widely"].map((option) => {
+                  const optionValue = option.toLowerCase().replace(" ", "-");
+                  const isSelected = watch("typicalMood") === optionValue;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("typicalMood", optionValue)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                Describe what a good day feels like for you
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                What does a good day feel like for you?
               </Label>
-              <Textarea
-                className="mt-2 min-h-[80px] bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md text-[13px]"
-                placeholder="What does a calm, happy, or productive day look like for you?"
+              <AutoExpandingInput
+                className="mt-2 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
+                placeholder="Describe the rhythm of your best days..."
+                minHeight={72}
+                maxHeight={200}
                 {...register("goodDayDescription")}
               />
             </div>
           </div>
-        </section>
 
-        {/* Cognitive Patterns */}
-        <section className="space-y-4 pt-6">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#2d2d30]">
-            <div className="w-1 h-5 bg-[#8b5cf6] rounded-sm" />
-            <h3 className="text-[13px] font-semibold text-white uppercase tracking-wide">
-              Cognitive Patterns
-            </h3>
-          </div>
+          {/* Cognitive Patterns */}
+          <div className="-ml-5 w-[calc(65%+1.25rem)] h-px bg-white/40" />
+          <div className="space-y-5">
+            <div className="pb-1">
+              <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
+                Cognitive Patterns
+              </h3>
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                How you think and process decisions
+              </p>
+            </div>
 
-          <div className="space-y-6">
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 When making decisions, do you rely more on logic or instinct?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("decisionStyle")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), decisionStyle: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="logic" id="logic" />
-                  <Label htmlFor="logic" className="font-normal cursor-pointer text-[13px]">Logic</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="balanced" id="balanced" />
-                  <Label htmlFor="balanced" className="font-normal cursor-pointer text-[13px]">Balanced</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="instinct" id="instinct" />
-                  <Label htmlFor="instinct" className="font-normal cursor-pointer text-[13px]">Instinct</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Logic", "Balanced", "Instinct"].map((option) => {
+                  const isSelected = watch("decisionStyle") === option.toLowerCase();
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("decisionStyle", option.toLowerCase())}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                How often do you overthink or second-guess yourself?
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                How often do you find yourself overthinking?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("overthinking")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), overthinking: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="overthink-rarely" />
-                  <Label htmlFor="overthink-rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="sometimes" id="overthink-sometimes" />
-                  <Label htmlFor="overthink-sometimes" className="font-normal cursor-pointer text-[13px]">Sometimes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="often" id="overthink-often" />
-                  <Label htmlFor="often" className="font-normal cursor-pointer text-[13px]">Often</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="constantly" id="overthink-constantly" />
-                  <Label htmlFor="overthink-constantly" className="font-normal cursor-pointer text-[13px]">Constantly</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Rarely", "Sometimes", "Often", "Constantly"].map((option) => {
+                  const isSelected = watch("overthinking") === option.toLowerCase();
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("overthinking", option.toLowerCase())}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 When faced with a setback, your first reaction is usually to...
               </Label>
-              <Input
-                className="mt-2 bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md h-8 text-[13px]"
-                placeholder="e.g., Analyze what went wrong, blame yourself, move on quickly..."
+              <AutoExpandingInput
+                className="mt-1.5 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
+                placeholder="e.g., Analyze what went wrong, take a break, move on..."
                 {...register("reactionToSetback")}
               />
             </div>
           </div>
-        </section>
 
-        {/* Motivation & Focus */}
-        <section className="space-y-4 pt-6">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#2d2d30]">
-            <div className="w-1 h-5 bg-[#4ec9b0] rounded-sm" />
-            <h3 className="text-[13px] font-semibold text-white uppercase tracking-wide">
-              Motivation & Focus
-            </h3>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                What motivates you most when pursuing goals?
-              </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("motivationType")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), motivationType: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="achievement" id="achievement" />
-                  <Label htmlFor="achievement" className="font-normal cursor-pointer text-[13px]">Achievement</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="growth" id="growth" />
-                  <Label htmlFor="growth" className="font-normal cursor-pointer text-[13px]">Growth</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="curiosity" id="curiosity" />
-                  <Label htmlFor="curiosity" className="font-normal cursor-pointer text-[13px]">Curiosity</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="impact" id="impact" />
-                  <Label htmlFor="impact" className="font-normal cursor-pointer text-[13px]">Impact</Label>
-                </div>
-              </RadioGroup>
+          {/* Motivation & Focus */}
+          <div className="-ml-5 w-[calc(65%+1.25rem)] h-px bg-white/40" />
+          <div className="space-y-5">
+            <div className="pb-1">
+              <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
+                Motivation & Focus
+              </h3>
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                What drives you and captures your attention
+              </p>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                What typically triggers your deepest focus?
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                What motivates you most when pursuing goals?
               </Label>
-              <Input
-                className="mt-2 bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md h-8 text-[13px]"
-                placeholder="e.g., Tight deadlines, personal interest, external pressure..."
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Achievement", "Growth", "Curiosity", "Impact"].map((option) => {
+                  const isSelected = watch("motivationType") === option.toLowerCase();
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("motivationType", option.toLowerCase())}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                What triggers your deepest focus?
+              </Label>
+              <AutoExpandingInput
+                className="mt-1.5 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
+                placeholder="e.g., Tight deadlines, personal interest, quiet mornings..."
                 {...register("focusTrigger")}
               />
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How do you define success for yourself?
               </Label>
-              <Textarea
-                className="mt-2 min-h-[80px] bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md text-[13px]"
-                placeholder="Your personal definition of success..."
+              <AutoExpandingInput
+                className="mt-2 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
+                placeholder="What does progress look like in your life?"
+                minHeight={72}
+                maxHeight={200}
                 {...register("successDefinition")}
               />
             </div>
           </div>
-        </section>
 
-        {/* Behavioral Rhythms */}
-        <section className="space-y-4 pt-6">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#2d2d30]">
-            <div className="w-1 h-5 bg-[#ce9178] rounded-sm" />
-            <h3 className="text-[13px] font-semibold text-white uppercase tracking-wide">
-              Behavioral Rhythms
-            </h3>
-          </div>
+          {/* Behavioral Rhythms */}
+          <div className="-ml-5 w-[calc(65%+1.25rem)] h-px bg-white/40" />
+          <div className="space-y-5">
+            <div className="pb-1">
+              <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
+                Behavioral Rhythms
+              </h3>
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                Your daily patterns and routines
+              </p>
+            </div>
 
-          <div className="space-y-6">
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How consistent are your daily routines?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("consistency")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), consistency: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-consistent" id="very-consistent" />
-                  <Label htmlFor="very-consistent" className="font-normal cursor-pointer text-[13px]">Very Consistent</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="somewhat" id="somewhat" />
-                  <Label htmlFor="somewhat" className="font-normal cursor-pointer text-[13px]">Somewhat</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="unpredictable" id="unpredictable" />
-                  <Label htmlFor="unpredictable" className="font-normal cursor-pointer text-[13px]">Unpredictable</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Very Consistent", "Somewhat", "Unpredictable"].map((option) => {
+                  const optionValue = option.toLowerCase().replace(" ", "-");
+                  const isSelected = watch("consistency") === optionValue;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("consistency", optionValue)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How often do you reflect on your day or week?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("reflectionFrequency")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), reflectionFrequency: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="daily" id="daily" />
-                  <Label htmlFor="daily" className="font-normal cursor-pointer text-[13px]">Daily</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="weekly" id="weekly" />
-                  <Label htmlFor="weekly" className="font-normal cursor-pointer text-[13px]">Weekly</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="occasionally" id="occasionally" />
-                  <Label htmlFor="occasionally" className="font-normal cursor-pointer text-[13px]">Occasionally</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="rarely" id="reflect-rarely" />
-                  <Label htmlFor="reflect-rarely" className="font-normal cursor-pointer text-[13px]">Rarely</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {["Daily", "Weekly", "Occasionally", "Rarely"].map((option) => {
+                  const isSelected = watch("reflectionFrequency") === option.toLowerCase();
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("reflectionFrequency", option.toLowerCase())}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 When you feel off balance, what helps you reset?
               </Label>
-              <Input
-                className="mt-2 bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md h-8 text-[13px]"
+              <AutoExpandingInput
+                className="mt-1.5 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
                 placeholder="e.g., Music, nature, journaling, exercise..."
                 {...register("resetStrategy")}
               />
             </div>
           </div>
-        </section>
 
-        {/* Social & Self-Perception */}
-        <section className="space-y-4 pt-6">
-          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#2d2d30]">
-            <div className="w-1 h-5 bg-[#569cd6] rounded-sm" />
-            <h3 className="text-[13px] font-semibold text-white uppercase tracking-wide">
-              Social & Self-Perception
-            </h3>
-          </div>
+          {/* Social & Self-Perception */}
+          <div className="-ml-5 w-[calc(65%+1.25rem)] h-px bg-white/40" />
+          <div className="space-y-5">
+            <div className="pb-1">
+              <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
+                Social & Self-Perception
+              </h3>
+              <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                How you relate to others and understand yourself
+              </p>
+            </div>
 
-          <div className="space-y-6">
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How much social interaction do you typically have per week?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("socialLevel")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), socialLevel: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="minimal" id="minimal" />
-                  <Label htmlFor="minimal" className="font-normal cursor-pointer text-[13px]">Minimal</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="moderate" id="moderate" />
-                  <Label htmlFor="moderate" className="font-normal cursor-pointer text-[13px]">Moderate</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="frequent" id="frequent" />
-                  <Label htmlFor="frequent" className="font-normal cursor-pointer text-[13px]">Frequent</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-frequent" id="very-frequent" />
-                  <Label htmlFor="very-frequent" className="font-normal cursor-pointer text-[13px]">Very Frequent</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Minimal", "Moderate", "Frequent", "Very Frequent"].map((option) => {
+                  const optionValue = option.toLowerCase().replace(" ", "-");
+                  const isSelected = watch("socialLevel") === optionValue;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("socialLevel", optionValue)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How do you typically recharge?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("rechargeMethod")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), rechargeMethod: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="alone" id="alone" />
-                  <Label htmlFor="alone" className="font-normal cursor-pointer text-[13px]">Alone time</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="social" id="social" />
-                  <Label htmlFor="social" className="font-normal cursor-pointer text-[13px]">Social time</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="both" id="both" />
-                  <Label htmlFor="both" className="font-normal cursor-pointer text-[13px]">Both</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Alone time", "Social time", "Both"].map((option) => {
+                  const optionValue = option.toLowerCase().replace(" ", "-");
+                  const isSelected = watch("rechargeMethod") === optionValue;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("rechargeMethod", optionValue)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 How well do you think you understand yourself?
               </Label>
-              <RadioGroup
-                className="mt-2 flex flex-wrap gap-3"
-                value={watch("selfUnderstanding")}
-                onValueChange={(value) => {
-                  reset({ ...watch(), selfUnderstanding: value });
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="very-well" id="very-well" />
-                  <Label htmlFor="very-well" className="font-normal cursor-pointer text-[13px]">Very well</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="fairly-well" id="fairly-well" />
-                  <Label htmlFor="fairly-well" className="font-normal cursor-pointer text-[13px]">Fairly well</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="somewhat" id="understand-somewhat" />
-                  <Label htmlFor="understand-somewhat" className="font-normal cursor-pointer text-[13px]">Somewhat</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="unsure" id="unsure" />
-                  <Label htmlFor="unsure" className="font-normal cursor-pointer text-[13px]">Unsure</Label>
-                </div>
-              </RadioGroup>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["Very well", "Fairly well", "Somewhat", "Still learning"].map((option) => {
+                  const optionValue = option.toLowerCase().replace(" ", "-");
+                  const isSelected = watch("selfUnderstanding") === optionValue;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setValue("selfUnderstanding", optionValue)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-white/40 bg-transparent text-white/80"
+                          : "border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div>
-              <Label className="text-[13px] font-medium text-[#cccccc]">
-                What part of yourself are you most interested in understanding better?
+              <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                What part of yourself are you most curious to understand better?
               </Label>
-              <Textarea
-                className="mt-2 min-h-[80px] bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md text-[13px]"
-                placeholder="Your focus of growth or curiosity..."
+              <AutoExpandingInput
+                className="mt-2 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-tl-none rounded-tr-lg rounded-b-lg"
+                placeholder="What patterns would you like to discover about yourself?"
+                minHeight={72}
+                maxHeight={200}
                 {...register("selfImprovementFocus")}
               />
             </div>
           </div>
-        </section>
+        </div>
       </div>
 
-      {/* VS Code-style Footer */}
-      <div className="flex-shrink-0 border-t border-[#2d2d30] bg-[#1e1e1e] px-6 py-4 flex items-center justify-between">
+      {/* Footer */}
+      <div className="flex-shrink-0 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-300 dark:border-neutral-600 flex items-center justify-between">
         <Button
-          variant="ghost"
-          onClick={() => reset()}
-          disabled={isSubmitting}
-          className="h-8 px-3 text-[12px] text-[#cccccc] hover:bg-[#2d2d30] hover:text-white border border-[#2d2d30] rounded-md transition-all duration-200"
+          type="submit"
+          onClick={handleSubmit(onSubmit)}
+          disabled={isSubmitting || isComputing}
+          className="h-8 px-6 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all"
         >
-          Reset Form
+          {isComputing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Finding your rhythm...
+            </>
+          ) : isSubmitting ? (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Saving...
+            </>
+          ) : computedBaseline ? (
+            <>
+              Recompute Baseline
+            </>
+          ) : (
+            <>
+              Discover Your Baseline
+            </>
+          )}
         </Button>
-        
         <div className="flex items-center gap-3">
+          {saveStatus === "saving" && (
+            <div className="flex items-center gap-2 text-sm text-neutral-500">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span>Saving...</span>
+            </div>
+          )}
+          {saveStatus === "saved" && (
+            <div className="flex items-center gap-2 text-sm text-emerald-600">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span>Saved</span>
+            </div>
+          )}
           {computedBaseline && (
-            <div className="flex items-center gap-3 text-[12px] px-3 py-1.5 bg-[#252526] border border-[#2d2d30] rounded-md">
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="h-3 w-3 text-[#007acc]" />
-                <span className="text-[#858585]">Index:</span>
-                <span className="text-[#007acc] font-mono font-semibold">{computedBaseline.scores.baseline_index}</span>
+            <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-neutral-500 dark:text-neutral-400">Index</span>
+                <span className="text-[#3B82F6] font-mono font-semibold">{computedBaseline.scores.baseline_index}</span>
               </div>
-              <div className="w-px h-3 bg-[#2d2d30]" />
-              <div className="flex items-center gap-1.5">
-                <span className="text-[#858585]">Confidence:</span>
-                <span className="text-[#4ec9b0] font-mono font-semibold">{computedBaseline.scores.confidence}%</span>
+              <div className="w-px h-4 bg-neutral-300 dark:bg-neutral-600" />
+              <div className="flex items-center gap-2">
+                <span className="text-neutral-500 dark:text-neutral-400">Confidence</span>
+                <span className="text-emerald-600 font-mono font-semibold">{computedBaseline.scores.confidence}%</span>
               </div>
             </div>
           )}
-          
-          <Button
-            type="submit"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting || isComputing}
-            className="h-8 px-4 text-[12px] bg-[#007acc] hover:bg-[#005a9e] text-white border-none rounded-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#007acc]/20 font-medium"
-          >
-            {isComputing ? (
-              <>
-                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                Computing...
-              </>
-            ) : isSubmitting ? (
-              <>
-                <Save className="mr-1.5 h-3 w-3" />
-                Saving...
-              </>
-            ) : computedBaseline ? (
-              "Recompute Baseline"
-            ) : (
-              "Compute Baseline"
-            )}
-          </Button>
         </div>
       </div>
     </div>

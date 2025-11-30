@@ -42,8 +42,8 @@ const BentoCard = ({
     key={name}
     className={cn(
       "group relative col-span-5 flex flex-col justify-between overflow-hidden rounded-b-xl",
-      // Force dark styles for demo cards
-      "bg-black border border-zinc-900 transform-gpu",
+      // Match pricing card style - light background with border
+      "bg-yellow-50/10 border border-border transform-gpu",
       className,
     )}
   >

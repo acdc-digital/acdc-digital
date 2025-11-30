@@ -30,15 +30,15 @@ export default function WaypointsPage() {
   }, [latestBaselineAnswers, currentBaselineAnswerId]);
 
   return (
-    <div className="flex w-full h-full overflow-hidden bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex w-full h-full overflow-hidden bg-[#f9f9f9] dark:bg-neutral-900">
       {/* Left Panel - Form */}
-      <div className="flex-1 border-r border-zinc-200 dark:border-[#2d2d30] flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <BaselineSelfAnalysisForm
           onBaselineComputed={setCurrentBaselineAnswerId}
           onAnalysisStateChange={setIsGeneratingAnalysis}
         />
       </div>
-      
+
       {/* Right Panel - Chat */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <BaselineChatPanel

@@ -220,7 +220,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
                   onClick={() => !isFuture && click(key)}
                   className={`
                     flex items-center justify-center
-                    w-6 h-6 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
+                    w-8 h-8 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
                     text-[10px] font-medium transition-all duration-150
                     ${getColorClass(score, isFuture)}
                     ${show ? "" : "opacity-30"}

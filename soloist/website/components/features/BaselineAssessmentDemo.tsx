@@ -19,10 +19,10 @@ export function BaselineAssessmentDemo() {
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-1">
             Personality Profile
           </h3>
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-600">
             Create the baseline for future days. Update or change at any time.
           </p>
         </div>
