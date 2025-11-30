@@ -64,7 +64,7 @@ export default function TestWeeklyPatterns({ data, historicalForecastData }: Wee
   };
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <ResponsiveContainer width="100%" height={150}>
       <LineChart data={chartData} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
         <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} dy={5} />
