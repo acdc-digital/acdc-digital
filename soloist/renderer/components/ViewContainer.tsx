@@ -29,7 +29,7 @@ export function ViewContainer({
   return (
     <div
       className={cn(
-        "absolute top-0 bottom-0 right-0 left-14 flex flex-col bg-zinc-50 dark:bg-zinc-900",
+        "absolute top-0 bottom-0 right-0 left-16 flex flex-col bg-neutral-100 dark:bg-neutral-800",
         !isActive && "hidden",
         className
       )}

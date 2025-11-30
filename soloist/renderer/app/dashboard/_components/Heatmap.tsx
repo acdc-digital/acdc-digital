@@ -11,7 +11,6 @@ import { useConvexUser } from "@/hooks/useConvexUser";
 import { useFeedStore } from "@/store/feedStore";
 
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipProvider,
@@ -166,7 +165,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
 
   /* ─────────────── Render ─────────────── */
   return (
-    <div className="flex flex-col h-full">
+    <div className="absolute inset-0 flex flex-col overflow-hidden p-4">
       {/* Spinner overlay if not ready */}
       {!ready && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/5 dark:bg-black/20 z-10">
@@ -174,8 +173,8 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
         </div>
       )}
 
-      {/* Header badges */}
-      <div className="flex-shrink-0 flex items-center justify-between mb-2 px-0 pt-2">
+      {/* Header badges - fixed height */}
+      <div className="flex-shrink-0 flex items-center justify-between mb-3">
         <div className="flex items-center gap-2 text-sm">
           <Badge variant="outline" className="border-zinc-700 text-zinc-600 dark:text-zinc-300">
             {totalLogs} Logs
@@ -198,47 +197,45 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
         </TooltipProvider>
       </div>
 
-      {/* Calendar grid */}
-      <div className="flex-1 px-0 min-h-0 border border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-900/50 rounded-md mx-0">
-        <ScrollArea className="h-full">
-          <div className="flex flex-wrap gap-1 p-3">
-            {allDates.map((d) => {
-              const key = buildDateKey(d);
-              const log = logMap.get(key);
-              const score = log?.score ?? null;
-              const isFuture = isFutureDate(d);
+      {/* Calendar grid - THIS is the only scrollable section */}
+      <div className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto">
+        <div className="flex flex-wrap gap-1 p-3">
+          {allDates.map((d) => {
+            const key = buildDateKey(d);
+            const log = logMap.get(key);
+            const score = log?.score ?? null;
+            const isFuture = isFutureDate(d);
 
-              const show =
-                hover === null ||
-                LEGEND.find((l) => l.label === hover)?.ok(score as number);
+            const show =
+              hover === null ||
+              LEGEND.find((l) => l.label === hover)?.ok(score as number);
 
-              const isToday = key === todayKey;
+            const isToday = key === todayKey;
 
-              return (
-                <div
-                  key={key}
-                  onClick={() => !isFuture && click(key)}
-                  className={`
-                    flex items-center justify-center
-                    w-8 h-8 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
-                    text-[10px] font-medium transition-all duration-150
-                    ${getColorClass(score, isFuture)}
-                    ${show ? "" : "opacity-30"}
-                    ${selectedDate === key ? "ring-1 ring-blue-600" : isToday ? "ring-1 ring-red-600 dark:ring-zinc-300" : ""}
-                    text-zinc-800/90 dark:text-zinc-100/90
-                  `}
-                  style={{ outline: "0.5px solid rgba(0,0,0,0.1)" }}
-                >
-                  {d.getDate()}
-                </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
+            return (
+              <div
+                key={key}
+                onClick={() => !isFuture && click(key)}
+                className={`
+                  flex items-center justify-center
+                  w-8 h-8 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
+                  text-[10px] font-medium transition-all duration-150
+                  ${getColorClass(score, isFuture)}
+                  ${show ? "" : "opacity-30"}
+                  ${selectedDate === key ? "ring-1 ring-blue-600" : isToday ? "ring-1 ring-red-600 dark:ring-zinc-300" : ""}
+                  text-zinc-800/90 dark:text-zinc-100/90
+                `}
+                style={{ outline: "0.5px solid rgba(0,0,0,0.1)" }}
+              >
+                {d.getDate()}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Legend */}
-      <div className="flex-shrink-0 mt-2 mb-2 px-0 text-xs text-zinc-500 dark:text-zinc-400">
+      {/* Legend - fixed at bottom, never scrolls */}
+      <div className="flex-shrink-0 mt-3 text-xs text-zinc-500 dark:text-zinc-400">
         <div className="mb-2">Score legend:</div>
         <div className="flex flex-wrap gap-2">
           {LEGEND.map((l) => (

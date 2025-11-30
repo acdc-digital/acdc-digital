@@ -488,10 +488,10 @@ export default function Dashboard() {
         <ViewsWrapper>
           {/* Dashboard View */}
           <ViewContainer view="dashboard" currentView={currentView}>
-            <main className="flex-1 flex flex-col relative">
+            <main className="flex-1 flex flex-col relative bg-neutral-700/20">
               {/* Year controls */}
-              <div className="sticky top-0 z-10 px-4 mt-2">
-                <div className="flex justify-between items-center mb-2">
+              <div className="sticky top-0 z-10 px-4 pt-3">
+                <div className="flex justify-between items-center mb-3">
                   <Controls
                     selectedYear={selectedYear}
                     onYearChange={handleYearChange}
@@ -505,7 +505,7 @@ export default function Dashboard() {
               </div>
 
               {/* Heatmap */}
-              <div className="flex-1 overflow-auto px-4 pb-2">
+              <div className="flex-1 overflow-hidden relative">
                 <Heatmap
                   year={parseInt(selectedYear)}
                   onSelectDate={handleSelectDate}

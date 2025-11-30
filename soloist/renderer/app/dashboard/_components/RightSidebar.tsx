@@ -21,11 +21,11 @@ export function RightSidebar({
   title = "Details",
   children,
 }: RightSidebarProps) {
-  const [width, setWidth] = useState(450);
+  const [width, setWidth] = useState(320);
   const [windowWidth, setWindowWidth] = useState(0);
-  const MIN_WIDTH = 450;
+  const MIN_WIDTH = 240;
   // Dynamic MAX_WIDTH: 50% of window width, with a reasonable minimum
-  const MAX_WIDTH = Math.max(650, Math.floor(windowWidth * 0.45));
+  const MAX_WIDTH = Math.max(500, Math.floor(windowWidth * 0.45));
   const [isResizeHovered, setIsResizeHovered] = useState(false);
 
   // Track window width for dynamic max width calculation
@@ -73,10 +73,10 @@ export function RightSidebar({
       }}
       className={`
         relative flex-shrink-0 h-full
-        bg-white dark:bg-zinc-900
+        bg-neutral-100 dark:bg-[#2b2b2b]
         border-l ${isResizeHovered 
           ? "border-l-zinc-400 dark:border-l-zinc-500" 
-          : "border-l-zinc-200 dark:border-l-zinc-700"}
+          : "border-l-zinc-200 dark:border-l-zinc-600"}
         transition-colors duration-150
         ${open ? "opacity-100" : "opacity-0 overflow-hidden"}
       `}

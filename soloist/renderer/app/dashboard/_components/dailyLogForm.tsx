@@ -530,9 +530,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   /* UI                                        */
   /* ────────────────────────────────────────── */
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 overflow-x-hidden">
+    <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-x-hidden">
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-100 dark:bg-zinc-800 z-10">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-200 dark:bg-neutral-600 z-10">
         <div
           className="h-full bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
@@ -541,7 +541,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
 
       {/* Clean Header Controls */}
       {(hasActiveSubscription || onCustomize) && (
-        <div className="px-4 py-2 flex justify-end gap-3">
+        <div className="px-4 py-2 flex justify-end gap-3 bg-neutral-100 dark:bg-transparent">
           {/* Customize Button */}
           {onCustomize && (
             <Button
@@ -626,11 +626,11 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         </ScrollArea>
 
         {/* Enhanced fade effects */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-zinc-900 to-transparent pointer-events-none z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-neutral-100 dark:from-[#2b2b2b] to-transparent pointer-events-none z-10" />
       </div>
 
       {/* Enhanced Footer with better save button */}
-      <div className="sticky bottom-0 w-full border-t border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3">
+      <div className="sticky bottom-0 w-full border-t border-neutral-300 dark:border-zinc-600 bg-neutral-100 dark:bg-[#2b2b2b] px-4 py-3">
         {error && (
           <div className="flex items-center space-x-2 mb-3 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
             <AlertCircle size={16} />
