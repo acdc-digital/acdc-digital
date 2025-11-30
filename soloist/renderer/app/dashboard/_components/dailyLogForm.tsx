@@ -20,8 +20,11 @@ import {
   X,
   Zap,
   Check,
+  FileText,
+  List,
 } from "lucide-react";
 import { useFeedStore } from "@/store/feedStore";
+import LongForm from "./LongForm";
 import { addDays, format, subDays } from "date-fns";
 import { useConvex } from "convex/react";
 import { useBrowserEnvironment } from "@/utils/environment";
@@ -63,6 +66,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   console.log("DailyLogForm mounted", { date, hasActiveSubscription });
   const { isAuthenticated, isLoading: userLoading, userId } = useConvexUser();
   const isBrowser = useBrowserEnvironment();
+
+  // Editor mode: 'daily' for structured log, 'longform' for free writing
+  const [editorMode, setEditorMode] = useState<'daily' | 'longform'>('daily');
 
   // Templates integration
   const {
@@ -521,6 +527,43 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   /* ────────────────────────────────────────── */
   /* UI                                        */
   /* ────────────────────────────────────────── */
+  // If in longform mode, render the LongForm component instead
+  if (editorMode === 'longform') {
+    return (
+      <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-hidden">
+        {/* Mode Toggle Header */}
+        <div className="flex-shrink-0 px-5 py-2 flex items-center justify-between bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
+          <div className="flex items-center gap-1 bg-neutral-200 dark:bg-neutral-700 rounded-sm p-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setEditorMode('daily')}
+              className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-transparent text-xs px-2 py-1 h-6 transition-colors"
+            >
+              <List className="h-3 w-3 mr-1.5" />
+              Daily Log
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="bg-neutral-100 dark:bg-neutral-600 text-neutral-900 dark:text-white text-xs px-2 py-1 h-6 rounded-sm"
+              disabled
+            >
+              <FileText className="h-3 w-3 mr-1.5" />
+              Long Form
+            </Button>
+          </div>
+        </div>
+        {/* LongForm takes the rest of the space */}
+        <div className="flex-1 overflow-hidden">
+          <LongForm onClose={onClose} date={date} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-x-hidden relative">
       {/* Progress bar */}
@@ -532,8 +575,33 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       </div>
 
       {/* Header Controls */}
-      {(hasActiveSubscription || onCustomize) && (
-        <div className="flex-shrink-0 px-5 py-2 flex justify-end gap-3 bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
+      <div className="flex-shrink-0 px-5 py-2 flex items-center justify-between bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
+        {/* Mode Toggle */}
+        <div className="flex items-center gap-1 bg-neutral-200 dark:bg-neutral-700 rounded-sm p-0.5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="bg-neutral-100 dark:bg-neutral-600 text-neutral-900 dark:text-white text-xs px-2 py-1 h-6 rounded-sm"
+            disabled
+          >
+            <List className="h-3 w-3 mr-1.5" />
+            Daily Log
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setEditorMode('longform')}
+            className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-transparent text-xs px-2 py-1 h-6 transition-colors"
+          >
+            <FileText className="h-3 w-3 mr-1.5" />
+            Long Form
+          </Button>
+        </div>
+
+        {/* Right side controls */}
+        <div className="flex items-center gap-3">
           {/* Customize Button */}
           {onCustomize && (
             <Button
@@ -582,7 +650,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             </TooltipProvider>
           )}
         </div>
-      )}
+      </div>
 
       {/* Scrollable Form Content */}
       <div className="flex-1 overflow-y-auto">
