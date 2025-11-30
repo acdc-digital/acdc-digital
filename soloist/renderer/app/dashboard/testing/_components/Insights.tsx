@@ -144,7 +144,7 @@ export default function Insights({ userId, sevenDayData, selectedDateRange }: In
 
   if (!insightsList || insightsList.length === 0) {
     return (
-      <div className="text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="text-sm text-neutral-500 dark:text-neutral-400">
         No key insights available for this period.
       </div>
     );
@@ -153,8 +153,8 @@ export default function Insights({ userId, sevenDayData, selectedDateRange }: In
   return (
     <ul className="space-y-2">
       {insightsList.map((insight, index) => (
-        <li key={index} className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-          <ArrowRight className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+        <li key={index} className="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <ArrowRight className="h-4 w-4 mt-0.5 text-neutral-500 dark:text-neutral-400 flex-shrink-0" />
           <span>{insight}</span>
         </li>
       ))}

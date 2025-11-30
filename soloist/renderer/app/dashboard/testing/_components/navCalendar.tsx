@@ -1,6 +1,4 @@
-// NAVCAL
-// /Users/matthewsimon/Projects/solopro/renderer/src/app/dashboard/testing/_components/navCalendar.tsx
-
+// NAVCAL - REDESIGNED
 // /Users/matthewsimon/Projects/solopro/renderer/src/app/dashboard/testing/_components/navCalendar.tsx
 
 "use client";
@@ -15,19 +13,19 @@ import { cn } from "@/lib/utils";
 interface NavCalendarProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedDate: Date | undefined; // Changed from selectedRange to selectedDate
-  onSelect: (date: Date | undefined) => void; // Changed to single date selection
+  selectedDate: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
   onReset: () => void;
   triggerText: string;
   disabled?: boolean;
   className?: string;
-  defaultMonth?: Date; // Add defaultMonth prop
+  defaultMonth?: Date;
 }
 
 export function NavCalendar({
   isOpen,
   onOpenChange,
-  selectedDate, // Changed from selectedRange
+  selectedDate,
   onSelect,
   onReset,
   triggerText,
@@ -37,63 +35,59 @@ export function NavCalendar({
 }: NavCalendarProps) {
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      {/* This PopoverTrigger is the button that is visible on the page. It was missing before. */}
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
-            "w-full h-11 justify-between text-left font-normal transition-all duration-200",
-            "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900",
-            "hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-sm",
-            "focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900",
-            !selectedDate && "text-zinc-500 dark:text-zinc-400",
+            "w-full h-9 justify-between text-left font-normal rounded-none transition-all duration-200",
+            "border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800",
+            "hover:border-neutral-400 dark:hover:border-neutral-500",
+            "focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 dark:focus:ring-offset-neutral-900",
+            !selectedDate && "text-neutral-500 dark:text-neutral-400",
             className
           )}
           disabled={disabled}
         >
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800">
-              <CalendarIcon className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
-            </div>
-            <span className="text-sm font-medium">{triggerText}</span>
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+            <span className="text-xs font-medium">{triggerText}</span>
           </div>
-          <div className="text-xs text-zinc-400 dark:text-zinc-500">
+          <span className="text-[10px] text-neutral-400 dark:text-neutral-500">
             Click to change
-          </div>
+          </span>
         </Button>
       </PopoverTrigger>
 
-      {/* This PopoverContent is the calendar that appears when you click the trigger button. */}
       <PopoverContent
         className="w-fit p-0"
         align="start"
         sideOffset={8}
       >
-        <div className="rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg">
+        <div className="overflow-hidden border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900">
           {/* Header Section */}
-          <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50">
+          <div className="px-3 py-2 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                <h4 className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
                   Select Starting Date
                 </h4>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Choose start date<br />(auto-calculates 4-day period)
+                <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                  Auto-calculates 4-day period
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onReset}
-                className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 h-8 px-2 text-xs"
+                className="text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-300 h-6 px-2 text-[10px] rounded-none"
                 disabled={!selectedDate}
               >
-                <RefreshCcw className="h-3 w-3 mr-1" />
+                <RefreshCcw className="h-2.5 w-2.5 mr-1" />
                 Reset
               </Button>
             </div>
           </div>
-          
+
           {/* Calendar Container */}
           <div className="p-0">
             <Calendar
@@ -104,7 +98,7 @@ export function NavCalendar({
               disabled={(date) => {
                 const today = new Date();
                 today.setHours(23, 59, 59, 999);
-                return date > today; // Only disable future dates
+                return date > today;
               }}
               defaultMonth={defaultMonth || selectedDate || new Date()}
               captionLayout="dropdown"
@@ -114,12 +108,12 @@ export function NavCalendar({
               className="rounded-none border-none"
             />
           </div>
-          
+
           {/* Footer Section */}
-          <div className="px-4 py-3 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50/30 dark:bg-zinc-800/30">
-            <div className="text-xs text-zinc-500 dark:text-zinc-400">
-              <span className="font-medium">Tip:</span> Select any date to automatically create<br />a 4-day analysis period
-            </div>
+          <div className="px-3 py-2 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30">
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+              <span className="font-medium">Tip:</span> Select any date to create a 4-day analysis period
+            </p>
           </div>
         </div>
       </PopoverContent>

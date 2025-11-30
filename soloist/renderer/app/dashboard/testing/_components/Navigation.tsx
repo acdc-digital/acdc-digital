@@ -1,4 +1,4 @@
-// NAVIGATION COMPONENT
+// NAVIGATION COMPONENT - REDESIGNED
 // /Users/matthewsimon/Documents/Github/electron-nextjs/renderer/src/app/dashboard/testing/_components/Navigation.tsx
 
 "use client";
@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { NavCalendar } from "./navCalendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Calendar } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useTestingStore } from "../../../../store/Testingstore";
@@ -103,21 +103,23 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
     if (!selectedDateRange.end) return null;
 
     const forecastStart = addDays(selectedDateRange.end, 1);
-    const forecastEnd = addDays(forecastStart, 2); // Changed from 3 to 2 to match 3-day forecast
+    const forecastEnd = addDays(forecastStart, 2);
     return { forecastStart, forecastEnd };
   }, [selectedDateRange.end]);
 
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl bg-zinc-800/50 border border-zinc-700 shadow-sm">
+    <div className="flex flex-col gap-3 p-4 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-zinc-100 flex items-center gap-2">
-            <div className="w-1 h-5 bg-blue-500 rounded-full"></div>
-            Date Range Selection
-          </h3>
-          <p className="text-sm text-zinc-400 mt-1">
-            Select historical data range for AI-powered forecast analysis
-          </p>
+        <div className="flex items-center gap-3">
+          <Calendar className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+          <div>
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Date Range Selection
+            </h3>
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+              Select historical data range for AI-powered forecast analysis
+            </p>
+          </div>
         </div>
         <Button
           onClick={onGenerateForecast}
@@ -129,8 +131,9 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
           }
           variant="outline"
           className={cn(
-            "transition-all duration-200 h-9 px-4 bg-zinc-800 border-zinc-600 text-zinc-100 hover:bg-zinc-700",
-            forecastGenerated && "bg-emerald-900/50 text-emerald-300 border-emerald-700 hover:bg-emerald-900/70"
+            "h-7 px-3 text-xs rounded-none transition-all duration-200",
+            "border-neutral-400 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
+            forecastGenerated && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700"
           )}
           size="sm"
         >
@@ -156,27 +159,24 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
 
       {/* Range display */}
       {selectedDateRange.start && selectedDateRange.end && (
-        <div className="mt-3 rounded-xl border border-zinc-700 overflow-hidden bg-zinc-800/50">
-          <div className="p-4 space-y-3">
+        <div className="border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800/50">
+          <div className="p-3 space-y-2">
             {/* Historical Period */}
-            <div className="flex items-center justify-between group">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-900/30">
-                  <div className="w-2.5 h-2.5 bg-blue-400 rounded-full"></div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1 bg-blue-100 dark:bg-blue-900/30">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                     Historical Period
                   </span>
-                  <div className="text-sm font-medium text-zinc-100 mt-0.5">
+                  <div className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
                     {format(selectedDateRange.start, 'MMM d')} → {format(selectedDateRange.end, 'MMM d, yyyy')}
                   </div>
                 </div>
               </div>
-              <Badge
-                variant="secondary"
-                className="text-xs px-2.5 py-1 bg-blue-900/30 text-blue-300 border-blue-800"
-              >
+              <Badge className="h-5 text-[10px] rounded-none bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
                 4 days
               </Badge>
             </div>
@@ -184,11 +184,11 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-zinc-700"></div>
+                <div className="w-full border-t border-neutral-300 dark:border-neutral-600" />
               </div>
               <div className="relative flex justify-center">
-                <span className="px-3 bg-zinc-800 text-xs text-zinc-500 flex items-center gap-1">
-                  <ChevronRight className="w-3 h-3" />
+                <span className="px-2 bg-neutral-50 dark:bg-neutral-800/50 text-[10px] text-neutral-500 flex items-center gap-1">
+                  <ChevronRight className="w-2.5 h-2.5" />
                   then
                 </span>
               </div>
@@ -196,24 +196,21 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
 
             {/* Forecast Period */}
             {forecastDates && (
-              <div className="flex items-center justify-between group">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-900/30">
-                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full"></div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-emerald-100 dark:bg-emerald-900/30">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full" />
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                    <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                       Forecast Period
                     </span>
-                    <div className="text-sm font-medium text-zinc-100 mt-0.5">
+                    <div className="text-xs font-medium text-neutral-900 dark:text-neutral-100">
                       {format(forecastDates.forecastStart, 'MMM d')} → {format(forecastDates.forecastEnd, 'MMM d, yyyy')}
                     </div>
                   </div>
                 </div>
-                <Badge
-                  variant="outline"
-                  className="text-xs px-2.5 py-1 border-emerald-800 text-emerald-300 bg-emerald-900/20"
-                >
+                <Badge className="h-5 text-[10px] rounded-none bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
                   3 days
                 </Badge>
               </div>
