@@ -9,7 +9,6 @@ import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useTemplates } from "@/hooks/useTemplates";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,16 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   AlertCircle,
   Loader2,
-  Settings,
   Settings2,
   X,
   Zap,
-  Star,
-  Heart,
-  MessageSquare,
-  User,
-  Plus,
-  Minus,
   Check,
 } from "lucide-react";
 import { useFeedStore } from "@/store/feedStore";
@@ -371,20 +363,20 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         const percentage = ((sliderValue - (field.min || 1)) / (max - (field.min || 1))) * 100;
 
         return (
-          <div key={field.id} className="space-y-3 group">
+          <div key={field.id} className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor={field.id} className="text-sm text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-colors duration-200">
+              <Label htmlFor={field.id} className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 {field.label}
                 {field.required && <span className="text-amber-500 ml-1">•</span>}
               </Label>
-              <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100 px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded min-w-[2rem] text-center transition-all duration-200">
+              <div className="text-xs font-medium text-neutral-900 dark:text-neutral-100 px-2 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded min-w-[2.5rem] text-center">
                 {sliderValue}/{max}
               </div>
             </div>
 
             <div className="relative group/slider">
-              {/* Enhanced track with gradient and inner shadow */}
-              <div className="relative h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden shadow-inner">
+              {/* Track */}
+              <div className="relative h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                 <div
                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${percentage}%` }}
@@ -398,17 +390,17 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
                 min={field.min || 1}
                 max={max}
                 step={field.step || 1}
-                className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:ring-offset-2"
+                className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer"
                 {...register(field.id, {
                   required: field.required,
                   valueAsNumber: true,
                 })}
               />
 
-              {/* Enhanced thumb with better shadow and hover effects */}
+              {/* Thumb */}
               <div
-                className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white dark:bg-zinc-100 border border-zinc-200 dark:border-zinc-600 rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.1)] dark:shadow-[0_2px_4px_rgba(0,0,0,0.3)] transition-all duration-200 pointer-events-none group-hover/slider:scale-110 group-hover/slider:shadow-[0_4px_8px_rgba(0,0,0,0.15)] dark:group-hover/slider:shadow-[0_4px_8px_rgba(0,0,0,0.4)]"
-                style={{ left: `calc(${percentage}% - 10px)` }}
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white dark:bg-neutral-100 border border-neutral-300 dark:border-neutral-500 rounded-full shadow-sm transition-transform pointer-events-none group-hover/slider:scale-110"
+                style={{ left: `calc(${percentage}% - 8px)` }}
               />
             </div>
           </div>
@@ -417,9 +409,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       case "number":
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm text-zinc-600 dark:text-zinc-300">
+            <Label htmlFor={field.id} className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-amber-500 ml-1">•</span>}
             </Label>
             <Input
               id={field.id}
@@ -428,7 +420,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
               min={field.min}
               max={field.max}
               placeholder={field.placeholder}
-              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors duration-200"
+              className="bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 rounded-tl-none rounded-tr-lg rounded-b-lg px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:border-neutral-400 dark:focus:border-neutral-500 focus:ring-1 focus:ring-neutral-400/20 transition-colors"
               {...register(field.id, {
                 required: field.required,
                 valueAsNumber: true,
@@ -443,12 +435,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             <input
               id={field.id}
               type="checkbox"
-              className="w-4 h-4 border border-zinc-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-800 checked:bg-blue-500 checked:border-blue-500 focus:ring-1 focus:ring-blue-400 transition-colors duration-200"
+              className="w-4 h-4 border border-neutral-300 dark:border-neutral-600 rounded bg-neutral-200 dark:bg-neutral-700 checked:bg-blue-500 checked:border-blue-500 focus:ring-1 focus:ring-blue-400/20 transition-colors cursor-pointer"
               {...register(field.id)}
             />
-            <Label htmlFor={field.id} className="text-sm text-zinc-600 dark:text-zinc-300 cursor-pointer">
+            <Label htmlFor={field.id} className="text-sm font-medium text-neutral-700 dark:text-neutral-300 cursor-pointer">
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-amber-500 ml-1">•</span>}
             </Label>
           </div>
         );
@@ -457,8 +449,8 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         const textareaValue = watchValue || '';
         const maxLength = 500;
         return (
-          <div key={field.id} className="space-y-2 group">
-            <Label htmlFor={field.id} className="text-sm text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-colors duration-200">
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id} className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               {field.label}
               {field.required && <span className="text-amber-500 ml-1">•</span>}
             </Label>
@@ -468,10 +460,10 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
                 placeholder={getSmartPlaceholder(field.id, field.label)}
                 rows={3}
                 maxLength={maxLength}
-                className="bg-white dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:scale-[1.02] resize-none transition-all duration-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ring-1 ring-zinc-100/50 dark:ring-zinc-800/50 ring-inset"
+                className="bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 rounded-tl-none rounded-tr-lg rounded-b-lg px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:border-neutral-400 dark:focus:border-neutral-500 focus:ring-1 focus:ring-neutral-400/20 resize-none transition-colors placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
                 {...register(field.id, { required: field.required })}
               />
-              <div className="absolute bottom-2 right-3 text-xs text-zinc-400 dark:text-zinc-500">
+              <div className="absolute bottom-2 right-3 text-xs text-neutral-500 dark:text-neutral-400">
                 {textareaValue.length}/{maxLength}
               </div>
             </div>
@@ -481,15 +473,15 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       case "text":
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id} className="text-sm text-zinc-600 dark:text-zinc-300">
+            <Label htmlFor={field.id} className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
               {field.label}
-              {field.required && <span className="text-red-500 ml-1">*</span>}
+              {field.required && <span className="text-amber-500 ml-1">•</span>}
             </Label>
             <Input
               id={field.id}
               type="text"
               placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
-              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-3 py-2 text-zinc-900 dark:text-zinc-100 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-colors duration-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+              className="bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 rounded-tl-none rounded-tr-lg rounded-b-lg px-3 py-2 text-neutral-900 dark:text-neutral-100 focus:border-neutral-400 dark:focus:border-neutral-500 focus:ring-1 focus:ring-neutral-400/20 transition-colors placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
               {...register(field.id, { required: field.required })}
             />
           </div>
@@ -516,12 +508,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
     other: "Other Fields",
   };
 
-  const categoryIcons: Record<string, React.ReactNode> = {
-    ratings: <Star className="w-3 h-3" />,
-    wellness: <Heart className="w-3 h-3" />,
-    reflections: <MessageSquare className="w-3 h-3" />,
-    custom: <User className="w-3 h-3" />,
-    other: <Settings className="w-3 h-3" />,
+  const categorySubtitles: Record<string, string> = {
+    ratings: "Rate different aspects of your day",
+    wellness: "Track your physical wellbeing",
+    reflections: "Capture thoughts and learnings",
+    custom: "Your personalized tracking fields",
+    other: "Additional fields",
   };
 
   const progress = calculateProgress();
@@ -530,18 +522,18 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   /* UI                                        */
   /* ────────────────────────────────────────── */
   return (
-    <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-x-hidden">
+    <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-x-hidden relative">
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-neutral-200 dark:bg-neutral-600 z-10">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-200 dark:bg-zinc-700 z-10">
         <div
           className="h-full bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      {/* Clean Header Controls */}
+      {/* Header Controls */}
       {(hasActiveSubscription || onCustomize) && (
-        <div className="px-4 py-2 flex justify-end gap-3 bg-neutral-100 dark:bg-transparent">
+        <div className="flex-shrink-0 px-5 py-2 flex justify-end gap-3 bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
           {/* Customize Button */}
           {onCustomize && (
             <Button
@@ -592,45 +584,46 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         </div>
       )}
 
-      {/* Enhanced Form Fields with better cards */}
-      <div className="relative flex-1 overflow-hidden">
-        <ScrollArea className="h-full overflow-x-hidden px-4 py-0">
+      {/* Scrollable Form Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-5 py-5">
           <form
             id="daily-log-form"
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4 w-full max-w-full mt-0 mb-6"
+            className="space-y-6 w-full max-w-full"
           >
-            {Object.entries(groupedFields).map(([category, fields]) => (
-              <div key={category} className="bg-white dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-700/60 rounded-md p-5 transition-all duration-200 ring-1 ring-zinc-100/50 dark:ring-zinc-800/50 ring-inset">
-                <div className="mb-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    {categoryIcons[category] && (
-                      <span className="text-zinc-500 dark:text-zinc-400">
-                        {categoryIcons[category]}
-                      </span>
-                    )}
-                    <h3 className="text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-medium">
+            {Object.entries(groupedFields).map(([category, fields], index) => (
+              <React.Fragment key={category}>
+                {/* Section separator - show before all sections except first */}
+                {index > 0 && (
+                  <div className="-ml-5 w-[calc(65%+1.25rem)] h-px bg-white/40" />
+                )}
+                
+                {/* Section */}
+                <div className="space-y-5">
+                  {/* Section header */}
+                  <div className="pb-1">
+                    <h3 className="text-sm font-medium tracking-tight text-neutral-900 dark:text-white">
                       {categoryNames[category] || category}
                     </h3>
-                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-700 px-2 py-0.5 rounded-full">
-                      {fields.length} item{fields.length !== 1 ? 's' : ''}
-                    </span>
+                    <p className="text-neutral-500 dark:text-neutral-400 text-xs">
+                      {categorySubtitles[category] || ""}
+                    </p>
+                  </div>
+                  
+                  {/* Section fields */}
+                  <div className="space-y-5">
+                    {fields.map(renderTemplateField)}
                   </div>
                 </div>
-                <div className="space-y-5">
-                  {fields.map(renderTemplateField)}
-                </div>
-              </div>
+              </React.Fragment>
             ))}
           </form>
-        </ScrollArea>
-
-        {/* Enhanced fade effects */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-neutral-100 dark:from-[#2b2b2b] to-transparent pointer-events-none z-10" />
+        </div>
       </div>
 
-      {/* Enhanced Footer with better save button */}
-      <div className="sticky bottom-0 w-full border-t border-neutral-300 dark:border-zinc-600 bg-neutral-100 dark:bg-[#2b2b2b] px-4 py-3">
+      {/* Footer */}
+      <div className="flex-shrink-0 w-full border-t border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-[#2b2b2b] px-5 py-3">
         {error && (
           <div className="flex items-center space-x-2 mb-3 p-3 bg-red-50 border border-red-200 rounded-md text-red-700">
             <AlertCircle size={16} />
@@ -644,9 +637,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             disabled={isSubmitting || isGenerating}
             className={`${
               showSuccess
-                ? "bg-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
-                : "bg-gradient-to-r from-emerald-500 to-emerald-500 hover:from-emerald-600 hover:to-emerald-700 shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:shadow-[0_6px_16px_rgba(16,185,129,0.35)] hover:scale-105"
-            } text-white px-6 py-2.5 rounded-md transition-all duration-200 font-medium`}
+                ? "bg-emerald-600 border-emerald-500 text-white"
+                : "border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+            } h-8 px-6 text-sm font-medium rounded-none transition-all disabled:opacity-50`}
           >
             {showSuccess ? (
               <>
@@ -669,7 +662,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             variant="ghost"
             onClick={onClose}
             disabled={isSubmitting || isGenerating}
-            className="text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 transition-all duration-200"
+            className="h-8 px-4 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
           >
             Cancel
           </Button>
