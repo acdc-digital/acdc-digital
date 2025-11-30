@@ -98,6 +98,43 @@ export function BaselineSelfAnalysisForm({
   } | null>(null);
   const [hasLoadedInitialData, setHasLoadedInitialData] = React.useState(false);
 
+  // Calculate form completion percentage
+  const calculateProgress = () => {
+    const watchedValues = watch();
+    const fields = [
+      "emotionalFrequency",
+      "stressRecovery",
+      "typicalMood",
+      "emotionalAwareness",
+      "goodDayDescription",
+      "decisionStyle",
+      "overthinking",
+      "reactionToSetback",
+      "motivationType",
+      "focusTrigger",
+      "successDefinition",
+      "consistency",
+      "reflectionFrequency",
+      "resetStrategy",
+      "socialLevel",
+      "rechargeMethod",
+      "selfUnderstanding",
+      "selfImprovementFocus",
+    ];
+    
+    let completedFields = 0;
+    fields.forEach((fieldId) => {
+      const value = watchedValues[fieldId as keyof BaselineFormValues];
+      if (typeof value === "string" && value.trim()) {
+        completedFields += 1;
+      }
+    });
+
+    return fields.length > 0 ? (completedFields / fields.length) * 100 : 0;
+  };
+
+  const progress = calculateProgress();
+
   // Load existing baseline answers when available
   React.useEffect(() => {
     if (latestBaselineAnswers) {
@@ -190,7 +227,15 @@ export function BaselineSelfAnalysisForm({
   };
 
   return (
-    <div className="ml-2 border-l border-white/20 border-r border-r-white/20 h-full flex flex-col bg-neutral-100 dark:bg-neutral-800">
+    <div className="border-r border-white/20 h-full flex flex-col bg-neutral-100 dark:bg-neutral-800 relative">
+      {/* Progress bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-200 dark:bg-zinc-700 z-10">
+        <div
+          className="h-full bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
       {/* Fixed Header */}
       <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
         <div className="pb-2 pt-2">

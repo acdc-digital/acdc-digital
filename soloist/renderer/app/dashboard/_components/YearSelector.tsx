@@ -42,14 +42,14 @@ export function YearSelector({
 
   return (
     <Select value={selectedYear} onValueChange={onYearChange}>
-      <SelectTrigger className={className}>
+      <SelectTrigger className={`${className} rounded-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0`}>
         <SelectValue />
       </SelectTrigger>
 
       {/* The only difference: set a max-height and overflow to limit visible items to ~5 */}
-      <SelectContent className="max-h-56 overflow-y-auto">
+      <SelectContent className="max-h-56 overflow-y-auto rounded-none border-neutral-600 bg-neutral-800 text-zinc-200">
         {years.map((year) => (
-          <SelectItem key={year} value={year}>
+          <SelectItem key={year} value={year} className="rounded-none text-zinc-200 focus:bg-neutral-700 focus:text-zinc-100">
             {year}
           </SelectItem>
         ))}

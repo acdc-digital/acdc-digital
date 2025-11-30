@@ -141,7 +141,7 @@ export default function Controls({
           size="icon"
           onClick={handlePrevYear}
           disabled={+selectedYear <= minYear}
-          className="h-8 w-8"
+          className="h-8 w-8 border-neutral-600 bg-neutral-800/50 hover:bg-neutral-700 text-zinc-300 hover:text-zinc-100 disabled:opacity-40 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -151,7 +151,7 @@ export default function Controls({
           onYearChange={onYearChange}
           minYear={minYear}
           maxYear={maxYear}
-          className="w-28 h-8 font-medium"
+          className="w-28 h-8 font-medium border-neutral-600 bg-neutral-800/50 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
 
         <Button
@@ -159,7 +159,7 @@ export default function Controls({
           size="icon"
           onClick={handleNextYear}
           disabled={+selectedYear >= maxYear}
-          className="h-8 w-8"
+          className="h-8 w-8 border-neutral-600 bg-neutral-800/50 hover:bg-neutral-700 text-zinc-300 hover:text-zinc-100 disabled:opacity-40 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -171,16 +171,20 @@ export default function Controls({
           <Button 
             variant={hasAnyFilter ? "default" : "outline"} 
             size="sm" 
-            className="h-8 flex items-center gap-1.5"
+            className={`h-8 flex items-center gap-1.5 focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 ${
+              hasAnyFilter 
+                ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-500" 
+                : "border-neutral-600 bg-neutral-800/50 hover:bg-neutral-700 text-zinc-300 hover:text-zinc-100"
+            }`}
           >
-            <FilterIcon className="h-3.5 w-3.5 text-zinc-500" />
+            <FilterIcon className={`h-3.5 w-3.5 ${hasAnyFilter ? "text-white" : "text-zinc-400"}`} />
             <span className="hidden sm:inline">
               {hasAnyFilter ? "Filters Active" : "Filter"}
             </span>
             {hasAnyFilter && (
               <Badge
                 variant="secondary"
-                className="ml-1 h-5 px-1 rounded-sm cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                className="ml-1 h-5 px-1 rounded-sm cursor-pointer bg-blue-500/30 text-white hover:bg-blue-500/50"
               >
                 {hasTagFilter ? selectedTags.length : ""}
                 {hasLegendFilter ? (hasTagFilter ? "+" : "") + selectedLegend : ""}
@@ -188,20 +192,20 @@ export default function Controls({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-60 p-2">
+        <PopoverContent className="w-60 p-2 rounded-none border-neutral-600 bg-neutral-800">
           {/* Score Range Filter */}
           <div className="space-y-1.5 py-1">
-            <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-2 px-1">
+            <div className="text-xs font-medium text-zinc-400 mb-2 px-1">
               Filter by score range:
             </div>
             <div className="grid grid-cols-2 gap-1.5">
               {legendItems.map((item) => (
                 <div
                   key={item.label}
-                  className={`flex items-center gap-1.5 text-xs rounded-sm px-2 py-1.5 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-1.5 text-xs rounded-none px-2 py-1.5 cursor-pointer transition-colors ${
                     selectedLegend === item.label
-                      ? "bg-zinc-100 dark:bg-zinc-800 font-medium"
-                      : "hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
+                      ? "bg-neutral-700 font-medium"
+                      : "hover:bg-neutral-700/50"
                   }`}
                   onClick={() =>
                     onLegendFilterChange(
@@ -210,7 +214,7 @@ export default function Controls({
                   }
                 >
                   <div className={`w-3 h-3 rounded-sm flex-shrink-0 ${item.color}`} />
-                  <span className="text-zinc-700 dark:text-zinc-300">{item.label}</span>
+                  <span className="text-zinc-300">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -219,10 +223,10 @@ export default function Controls({
           {/* Tags section - only show if we have tags */}
           {availableTags.length > 0 && (
             <>
-              <Separator className="my-2" />
+              <Separator className="my-2 bg-neutral-600" />
               <div className="space-y-1.5 py-1">
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1 px-1 flex items-center gap-1">
+                  <div className="text-xs font-medium text-zinc-400 mb-1 px-1 flex items-center gap-1">
                     <TagIcon className="h-3 w-3" />
                     <span>Filter by tags:</span>
                   </div>
@@ -251,7 +255,7 @@ export default function Controls({
             <Button
               variant="ghost"
               size="sm"
-              className="w-full mt-2 h-7 text-xs"
+              className="w-full mt-2 h-7 text-xs rounded-none text-zinc-300 hover:bg-neutral-700 hover:text-zinc-100"
               onClick={() => {
                 if (hasLegendFilter) onLegendFilterChange(null);
                 if (hasTagFilter) onTagFilterChange([]);
@@ -267,23 +271,23 @@ export default function Controls({
       <div className="flex-grow"></div>
 
       {/* ----- Rightmost: Clean Toggle for Right Sidebar View ----- */}
-      <div className="flex bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 gap-1">
+      <div className="flex bg-neutral-800/50 border border-neutral-600 rounded-lg p-1 gap-1">
         <button
           onClick={() => handleTabChange("log")}
-          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
+          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-0 ${
             activeTab === "log"
-              ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm"
-              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              ? "bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500"
+              : "text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50"
           }`}
         >
           Log
         </button>
         <button
           onClick={() => handleTabChange("feed")}
-          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 ${
+          className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-0 ${
             activeTab === "feed"
-              ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm"
-              : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+              ? "bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500"
+              : "text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50"
           }`}
         >
           Feed
