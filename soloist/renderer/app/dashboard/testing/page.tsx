@@ -477,72 +477,66 @@ export default function TestingPage() {
             error={forecastError} />;
   }
 
-  // --- Main Render - Redesigned layout ---
+  // --- Main Render - Compact data playground layout ---
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden bg-neutral-100 dark:bg-[#2b2b2b]">
       <div className="flex-1 overflow-auto">
-        <div className="w-full p-4 flex flex-col gap-3">
+        <div className="w-full p-3 flex flex-col gap-2">
 
-          {/* Navigation Component */}
-          <Navigation onGenerateForecast={handleGenerateForecast} />
-
-          {/* Header Section */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FlaskConical className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
-              <div>
-                <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">7-Day Test Forecast</h1>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  {selectedDateRange.start && selectedDateRange.end ? (
-                    `Testing ${selectedDateRange.start.toLocaleDateString()} - ${selectedDateRange.end.toLocaleDateString()}`
-                  ) : (
-                    "Select a date range to test forecast accuracy"
-                  )}
-                </p>
-              </div>
+          {/* Top Row: Navigation (constrained) + Header + Badges */}
+          <div className="grid grid-cols-12 gap-3">
+            {/* Navigation Component - constrained to left side */}
+            <div className="col-span-12 lg:col-span-7">
+              <Navigation onGenerateForecast={handleGenerateForecast} />
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
-                Test Mode
-              </Badge>
-              <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
-                Avg: {averageScore !== null ? averageScore.toFixed(1) : "N/A"}
-              </Badge>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="cursor-help">
-                      <Info className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-neutral-800 border-neutral-700 text-neutral-200 text-xs">
-                    Testing environment for forecast functionality
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            
+            {/* Header + Badges - right side on large screens */}
+            <div className="col-span-12 lg:col-span-5 flex flex-col justify-center">
+              <div className="flex items-center justify-between lg:justify-end gap-3">
+                <div className="flex items-center gap-2 lg:hidden">
+                  <FlaskConical className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                  <h1 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">7-Day Test Forecast</h1>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
+                    Test Mode
+                  </Badge>
+                  <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
+                    Avg: {averageScore !== null ? averageScore.toFixed(1) : "N/A"}
+                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-help">
+                          <Info className="h-3 w-3 text-neutral-500 dark:text-neutral-400" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-neutral-800 border-neutral-700 text-neutral-200 text-xs">
+                        Testing environment for forecast functionality
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Asymmetric divider */}
-          <div className="-ml-4 w-[calc(65%+1rem)] h-px bg-neutral-300 dark:bg-white/40" />
-
-          {/* Error display */}
+          {/* Error display - compact */}
           {forecastError && (
-            <div className="p-2 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs">
+            <div className="p-1.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[11px]">
               {forecastError === "Not enough data for forecast"
                 ? "You need daily logs for all 4 days in the selected range."
                 : forecastError.includes("Missing logs")
                 ? (
-                    <div>
-                      <p className="font-medium mb-1">Missing Logs Error</p>
-                      <p className="text-[10px]">{forecastError}</p>
+                    <div className="flex items-center gap-2">
+                      <span>{forecastError}</span>
                       <Button
                         onClick={() => window.location.reload()}
                         variant="outline"
                         size="sm"
-                        className="h-5 text-[10px] mt-1.5 rounded-none"
+                        className="h-4 text-[9px] px-1.5 rounded-none"
                       >
-                        Refresh Page
+                        Refresh
                       </Button>
                     </div>
                   )
@@ -550,115 +544,138 @@ export default function TestingPage() {
             </div>
           )}
 
-          {/* 7-Day Forecast Grid - compact */}
-          <div className="grid grid-cols-7 gap-1">
-            {[...Array(7)].map((_, idx: number) => {
-              const day: ForecastDay | undefined = formattedDisplayData[idx];
-              if (!day) {
-                return (
-                  <div key={idx} className="flex flex-col items-center justify-between p-1.5 border aspect-square bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60">
-                    <div className="text-[10px] font-medium text-neutral-400">—</div>
-                    <span className="text-xl font-bold text-neutral-400">?</span>
-                  </div>
-                );
-              }
-              const score = day.emotionScore;
-              const colorClass = getColorClass(score);
-              const borderColorClass = getBorderColorClass(score);
-              const textColorClass = getTextColorClass(score);
-              const isFutureDay = day.isFuture;
-              const needsGen = isFutureDay && ((score === null || score === 0 || score === undefined) || (day.description === "Forecast Needed" || day.description === "Forecast needed"));
-              const isSelected = selectedDayIndex === idx;
+          {/* Main Content Grid - 7-day grid + chart side by side */}
+          <div className="grid grid-cols-12 gap-2">
+            
+            {/* Left Column: 7-Day Grid + Feedback */}
+            <div className="col-span-12 lg:col-span-5 flex flex-col gap-1">
+              {/* 7-Day Forecast Grid - compact */}
+              <div className="grid grid-cols-7 gap-0.5">
+                {[...Array(7)].map((_, idx: number) => {
+                  const day: ForecastDay | undefined = formattedDisplayData[idx];
+                  if (!day) {
+                    return (
+                      <div key={idx} className="flex flex-col items-center justify-between p-1 border aspect-square bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60">
+                        <div className="text-[9px] font-medium text-neutral-400">—</div>
+                        <span className="text-lg font-bold text-neutral-400">?</span>
+                      </div>
+                    );
+                  }
+                  const score = day.emotionScore;
+                  const colorClass = getColorClass(score);
+                  const borderColorClass = getBorderColorClass(score);
+                  const textColorClass = getTextColorClass(score);
+                  const isFutureDay = day.isFuture;
+                  const needsGen = isFutureDay && ((score === null || score === 0 || score === undefined) || (day.description === "Forecast Needed" || day.description === "Forecast needed"));
+                  const isSelected = selectedDayIndex === idx;
 
-              return (
-                <div
-                  key={day.date || idx}
-                  title={`${day.date}: ${score ?? 'N/A'}`}
-                  className={`
-                    flex flex-col items-center justify-between p-1.5 border aspect-square cursor-pointer
-                    ${colorClass} ${borderColorClass}
-                    ${isSelected ? 'ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900' : ''}
-                    ${day.isPast ? 'opacity-75 hover:opacity-100' : ''}
-                    ${day.isToday ? 'relative ring-1 ring-inset ring-white/50' : ''}
-                    ${needsGen ? 'border-dashed border-neutral-500 bg-neutral-700/30' : ''}
-                    transition-all duration-100
-                  `}
-                  onClick={() => setSelectedDayIndex(idx)}
-                >
-                  <div className="text-center">
-                    <div className={`text-[10px] font-semibold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
-                      {day.shortDay || format(parseISODate(day.date), 'EEE')}
+                  return (
+                    <div
+                      key={day.date || idx}
+                      title={`${day.date}: ${score ?? 'N/A'}`}
+                      className={`
+                        flex flex-col items-center justify-between p-1 border aspect-square cursor-pointer
+                        ${colorClass} ${borderColorClass}
+                        ${isSelected ? 'ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900' : ''}
+                        ${day.isPast ? 'opacity-75 hover:opacity-100' : ''}
+                        ${day.isToday ? 'relative ring-1 ring-inset ring-white/50' : ''}
+                        ${needsGen ? 'border-dashed border-neutral-500 bg-neutral-700/30' : ''}
+                        transition-all duration-100
+                      `}
+                      onClick={() => setSelectedDayIndex(idx)}
+                    >
+                      <div className="text-center">
+                        <div className={`text-[9px] font-semibold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
+                          {day.shortDay || format(parseISODate(day.date), 'EEE')}
+                        </div>
+                        <div className={`text-[7px] ${needsGen ? 'text-neutral-500' : textColorClass} opacity-75 hidden sm:block`}>
+                          {day.formattedDate || format(parseISODate(day.date), 'MMM d')}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <span className={`text-lg font-bold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
+                          {score !== null && score !== undefined && score > 0 ? score : (needsGen ? '?' : '—')}
+                        </span>
+                        {score !== null && score > 0 && !needsGen && day.trend && <TrendIcon trend={day.trend} />}
+                      </div>
+                      {day.isToday && <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-white/80" />}
                     </div>
-                    <div className={`text-[8px] ${needsGen ? 'text-neutral-500' : textColorClass} opacity-75 hidden sm:block`}>
-                      {day.formattedDate || format(parseISODate(day.date), 'MMM d')}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-0.5">
-                    <span className={`text-xl font-bold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
-                      {score !== null && score !== undefined && score > 0 ? score : (needsGen ? '?' : '—')}
-                    </span>
-                    {score !== null && score > 0 && !needsGen && day.trend && <TrendIcon trend={day.trend} />}
-                  </div>
-                  {day.isToday && <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-white/80" />}
+                  );
+                })}
+              </div>
+
+              {/* Feedback Row - compact */}
+              {formattedDisplayData.length >= 7 && (
+                <div className="grid grid-cols-7 gap-0.5">
+                  {formattedDisplayData.map((day, idx) => {
+                    const isFutureDay = day.isFuture;
+                    const feedback = feedbackState[day.date];
+                    return (
+                      <div key={day.date || idx} className="flex justify-center items-center h-5">
+                        {isFutureDay && (
+                          <div className="flex gap-0.5">
+                            <button
+                              className="p-0.5"
+                              onClick={() => handleFeedback(day.date, "up")}
+                              aria-label="Forecast was correct"
+                              type="button"
+                            >
+                              <ThumbsUp className={`h-3 w-3 transition-colors ${feedback === "up" ? "text-green-500" : "text-neutral-400 hover:text-neutral-500"}`} />
+                            </button>
+                            <button
+                              className="p-0.5"
+                              onClick={() => handleFeedback(day.date, "down")}
+                              aria-label="Forecast was incorrect"
+                              type="button"
+                            >
+                              <ThumbsDown className={`h-3 w-3 transition-colors ${feedback === "down" ? "text-rose-500" : "text-neutral-400 hover:text-neutral-500"}`} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            {/* Right Column: Weekly Pattern Chart */}
+            <div className="col-span-12 lg:col-span-7 flex flex-col">
+              <div className="flex items-center gap-1.5 mb-1">
+                <BarChart3 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                <h3 className="text-xs font-medium text-neutral-900 dark:text-neutral-50">Weekly Pattern</h3>
+              </div>
+              <div className="flex-1 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-1.5 min-h-[140px]">
+                {Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 ? (
+                  <WeeklyPatterns data={formattedDisplayData} historicalForecastData={historicalForecasts} />
+                ) : (
+                  <div className="text-center text-neutral-500 text-xs py-8">No data available</div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Feedback Row - compact */}
-          {formattedDisplayData.length >= 7 && (
-            <div className="grid grid-cols-7 gap-1">
-              {formattedDisplayData.map((day, idx) => {
-                const isFutureDay = day.isFuture;
-                const feedback = feedbackState[day.date];
-                return (
-                  <div key={day.date || idx} className="flex justify-center items-center h-6">
-                    {isFutureDay && (
-                      <div className="flex gap-1">
-                        <button
-                          className="p-0.5"
-                          onClick={() => handleFeedback(day.date, "up")}
-                          aria-label="Forecast was correct"
-                          type="button"
-                        >
-                          <ThumbsUp className={`h-4 w-4 transition-colors ${feedback === "up" ? "text-green-500" : "text-neutral-400 hover:text-neutral-500"}`} />
-                        </button>
-                        <button
-                          className="p-0.5"
-                          onClick={() => handleFeedback(day.date, "down")}
-                          aria-label="Forecast was incorrect"
-                          type="button"
-                        >
-                          <ThumbsDown className={`h-4 w-4 transition-colors ${feedback === "down" ? "text-rose-500" : "text-neutral-400 hover:text-neutral-500"}`} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          {/* Thin divider */}
+          <div className="-ml-3 w-[calc(50%+0.75rem)] h-px bg-neutral-300 dark:bg-white/30" />
 
-          {/* Asymmetric divider */}
-          <div className="-ml-4 w-[calc(45%+1rem)] h-px bg-neutral-300 dark:bg-white/30" />
-
-          {/* Details + Chart Section */}
+          {/* Bottom Row: Details + Insights side by side */}
           {selectedDayIndex >= 0 && selectedDayIndex < formattedDisplayData.length && formattedDisplayData[selectedDayIndex] && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="grid grid-cols-12 gap-2">
+              
               {/* Selected Day Details */}
-              <div className="flex flex-col">
+              <div className="col-span-12 lg:col-span-6 flex flex-col">
                 {/* Navigation */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <Button
                     variant="ghost"
                     size="sm"
                     disabled={selectedDayIndex === 0}
                     onClick={navigatePrevDay}
-                    className="h-6 px-2 text-xs text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    className="h-5 px-1.5 text-[10px] text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
                   >
-                    <ChevronLeft className="h-3 w-3 mr-0.5" /> Prev
+                    <ChevronLeft className="h-3 w-3" /> Prev
                   </Button>
-                  <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                  <h3 className="text-xs font-medium text-neutral-900 dark:text-neutral-50">
                     {formattedDisplayData[selectedDayIndex]?.day || getDayName(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))} - {formattedDisplayData[selectedDayIndex]?.formattedDate || getFormattedMonthDay(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))}
                   </h3>
                   <Button
@@ -666,9 +683,9 @@ export default function TestingPage() {
                     size="sm"
                     disabled={selectedDayIndex >= formattedDisplayData.length - 1}
                     onClick={navigateNextDay}
-                    className="h-6 px-2 text-xs text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                    className="h-5 px-1.5 text-[10px] text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
                   >
-                    Next <ChevronRight className="h-3 w-3 ml-0.5" />
+                    Next <ChevronRight className="h-3 w-3" />
                   </Button>
                 </div>
 
@@ -682,14 +699,14 @@ export default function TestingPage() {
                   const needsGen = isFutureDay && (score === 0 || score === null || selectedDay.description === "Forecast Needed");
 
                   return (
-                    <div className="flex gap-3 p-3 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
+                    <div className="flex gap-2 p-2 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
                       {/* Score Box - compact */}
                       <div className={`
-                        flex-shrink-0 w-16 h-16 flex flex-col items-center justify-center border
+                        flex-shrink-0 w-12 h-12 flex flex-col items-center justify-center border
                         ${getColorClass(score)} ${getBorderColorClass(score)}
                         ${needsGen ? 'border-dashed border-neutral-500' : ''}
                       `}>
-                        <span className={`text-2xl font-bold ${needsGen ? 'text-neutral-400' : getTextColorClass(score)}`}>
+                        <span className={`text-lg font-bold ${needsGen ? 'text-neutral-400' : getTextColorClass(score)}`}>
                           {score !== null ? (needsGen ? '?' : score) : '—'}
                         </span>
                         {score !== null && score > 0 && !needsGen && selectedDay.trend && (
@@ -698,7 +715,7 @@ export default function TestingPage() {
                       </div>
 
                       {/* Consult Component */}
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 text-[11px]">
                         {userId && selectedDay && selectedDateRange.start && selectedDateRange.end ? (
                           <Consult
                             userId={userId}
@@ -715,51 +732,33 @@ export default function TestingPage() {
                 })()}
               </div>
 
-              {/* Weekly Pattern Chart */}
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                  <BarChart3 className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
-                  <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">Weekly Pattern</h3>
+              {/* Key Insights Section - compact, side by side */}
+              <div className="col-span-12 lg:col-span-6 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+                  <h3 className="text-xs font-medium text-neutral-900 dark:text-neutral-50">Key Insights</h3>
                 </div>
-                <div className="flex-1 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-2 min-h-[180px]">
-                  {Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 ? (
-                    <WeeklyPatterns data={formattedDisplayData} historicalForecastData={historicalForecasts} />
+                <div className="flex-1 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-2">
+                  {userId && Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 && selectedDateRange.start && selectedDateRange.end ? (
+                    <Insights
+                      userId={userId}
+                      sevenDayData={formattedDisplayData}
+                      selectedDateRange={selectedDateRange}
+                    />
                   ) : (
-                    <div className="text-center text-neutral-500 text-xs py-10">No data available</div>
+                    <div className="space-y-1">
+                      {mockInsights.slice(0, 3).map((insight, index) => (
+                        <div key={index} className="flex items-start gap-1 text-[10px] text-neutral-600 dark:text-neutral-400">
+                          <ArrowRight className="h-2.5 w-2.5 mt-0.5 text-blue-500 flex-shrink-0" />
+                          <span className="line-clamp-2">{insight}</span>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           )}
-
-          {/* Asymmetric divider */}
-          <div className="-ml-4 w-[calc(55%+1rem)] h-px bg-neutral-300 dark:bg-white/30" />
-
-          {/* Key Insights Section - compact */}
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <Sparkles className="h-4 w-4 text-blue-500" />
-              <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">Key Insights</h3>
-            </div>
-            <div className="border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-3">
-              {userId && Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 && selectedDateRange.start && selectedDateRange.end ? (
-                <Insights
-                  userId={userId}
-                  sevenDayData={formattedDisplayData}
-                  selectedDateRange={selectedDateRange}
-                />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                  {mockInsights.map((insight, index) => (
-                    <div key={index} className="flex items-start gap-1.5 text-[11px] text-neutral-600 dark:text-neutral-400 p-1.5">
-                      <ArrowRight className="h-3 w-3 mt-0.5 text-blue-500 flex-shrink-0" />
-                      <span className="line-clamp-2">{insight}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
 
         </div>
       </div>
