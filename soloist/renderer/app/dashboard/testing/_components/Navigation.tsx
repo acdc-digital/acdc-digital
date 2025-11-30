@@ -108,14 +108,19 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
   }, [selectedDateRange.end]);
 
   return (
-    <div className="flex flex-col gap-2 p-2 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
-      {/* Top row: Title + Generate button */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <Calendar className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400 flex-shrink-0" />
-          <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100 truncate">
-            Date Range Selection
-          </span>
+    <div className="flex flex-col gap-3 p-3 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
+      {/* Header row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+          <div>
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Date Range Selection
+            </h3>
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+              Select historical data range for forecast analysis
+            </p>
+          </div>
         </div>
         <Button
           onClick={onGenerateForecast}
@@ -127,7 +132,7 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
           }
           variant="outline"
           className={cn(
-            "h-6 px-2 text-[10px] rounded-none transition-all duration-200 flex-shrink-0",
+            "h-7 px-3 text-xs rounded-none transition-all duration-200",
             "border-neutral-400 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
             forecastGenerated && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700"
           )}
@@ -141,7 +146,7 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
         </Button>
       </div>
 
-      {/* Date picker using NavCalendar component */}
+      {/* Date picker */}
       <NavCalendar
         isOpen={isOpen}
         onOpenChange={setIsOpen}
@@ -153,37 +158,33 @@ export default function Navigation({ onGenerateForecast }: NavigationProps) {
         defaultMonth={selectedDateRange.start || undefined}
       />
 
-      {/* Compact Range display */}
-      {selectedDateRange.start && selectedDateRange.end && (
-        <div className="border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800/50 p-2">
-          <div className="flex items-center gap-2 text-[10px]">
-            {/* Historical */}
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-              <span className="text-neutral-600 dark:text-neutral-400">Historical:</span>
-              <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                {format(selectedDateRange.start, 'MMM d')} - {format(selectedDateRange.end, 'MMM d')}
-              </span>
-              <Badge className="h-4 text-[8px] px-1 rounded-none bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
-                4d
-              </Badge>
-            </div>
-            
-            <ChevronRight className="w-3 h-3 text-neutral-400" />
-            
-            {/* Forecast */}
-            {forecastDates && (
-              <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                <span className="text-neutral-600 dark:text-neutral-400">Forecast:</span>
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                  {format(forecastDates.forecastStart, 'MMM d')} - {format(forecastDates.forecastEnd, 'MMM d')}
-                </span>
-                <Badge className="h-4 text-[8px] px-1 rounded-none bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
-                  3d
-                </Badge>
-              </div>
-            )}
+      {/* Range display - horizontal layout */}
+      {selectedDateRange.start && selectedDateRange.end && forecastDates && (
+        <div className="flex items-center gap-3 text-xs">
+          {/* Historical */}
+          <div className="flex items-center gap-2 px-2 py-1.5 border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
+            <div className="w-2 h-2 bg-blue-500 rounded-full" />
+            <span className="text-neutral-600 dark:text-neutral-400">Historical:</span>
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+              {format(selectedDateRange.start, 'MMM d')} → {format(selectedDateRange.end, 'MMM d')}
+            </span>
+            <Badge className="h-4 text-[9px] px-1 rounded-none bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
+              4 days
+            </Badge>
+          </div>
+          
+          <ChevronRight className="w-4 h-4 text-neutral-400" />
+          
+          {/* Forecast */}
+          <div className="flex items-center gap-2 px-2 py-1.5 border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+            <span className="text-neutral-600 dark:text-neutral-400">Forecast:</span>
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">
+              {format(forecastDates.forecastStart, 'MMM d')} → {format(forecastDates.forecastEnd, 'MMM d')}
+            </span>
+            <Badge className="h-4 text-[9px] px-1 rounded-none bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+              3 days
+            </Badge>
           </div>
         </div>
       )}
