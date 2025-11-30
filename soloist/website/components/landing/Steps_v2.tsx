@@ -61,10 +61,10 @@ const features = [
           
           {/* Text Content */}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-800 mb-1">
               Customize
             </h3>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-neutral-600">
               Tailor to your lifestyle
             </p>
           </div>
@@ -79,7 +79,7 @@ const features = [
         
         {/* Features List */}
         <div className="flex-1 overflow-hidden">
-          <div className="border border-zinc-700 bg-zinc-800 rounded-tl-lg p-5 h-full">
+          <div className="border border-zinc-700 bg-zinc-900 rounded-tl-lg p-5 h-full">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-xs text-zinc-300 leading-relaxed">
@@ -131,10 +131,10 @@ const features = [
           
           {/* Text Content */}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-800 mb-1">
               Learn
             </h3>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-neutral-600">
               Evolve with each entry
             </p>
           </div>
@@ -142,7 +142,7 @@ const features = [
         
         {/* Features List */}
         <div className="flex-1 overflow-hidden">
-          <div className="border border-zinc-700 bg-zinc-800 rounded-tl-lg p-5 h-full">
+          <div className="border border-zinc-700 bg-zinc-900 rounded-tl-lg p-5 h-full">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-xs text-zinc-300 leading-relaxed">

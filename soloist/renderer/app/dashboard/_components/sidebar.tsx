@@ -1,9 +1,6 @@
 // NAVIGATION SIDEBAR
 // /Users/matthewsimon/Documents/Github/electron-nextjs/renderer/src/app/dashboard/_components/sidebar.tsx
 
-// NAVIGATION SIDEBAR
-// /Users/matthewsimon/Documents/Github/electron-nextjs/renderer/src/app/dashboard/_components/sidebar.tsx
-
 "use client";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -13,14 +10,41 @@ import { useView } from "@/providers/ViewProvider";
 import {
   Plus,
   Settings,
-  PersonStanding,
+  ChartSpline,
   Activity,
-  CircleHelpIcon,
+  MessageCircleQuestion,
   User,
-  Calendar,
   Download,
-  ClipboardCheck,
+  LucideIcon,
 } from "lucide-react";
+import { HeatmapIcon } from "@/components/icons/HeatmapIcon";
+
+// Custom Waypoints Icon - follows Lucide design principles (24x24 canvas, 2px stroke, round caps/joins)
+function WaypointsIcon({ className, isActive }: { className?: string; isActive?: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn(
+        "h-5 w-5 transition-colors",
+        isActive ? "text-foreground" : "text-muted-foreground",
+        className
+      )}
+    >
+      {/* Waypoint marker dot */}
+      <circle cx="5" cy="6" r="2" fill="currentColor" />
+      {/* Smooth wavelength path */}
+      <path d="M2 18 Q 7 12 12 16 Q 17 20 22 14" />
+    </svg>
+  );
+}
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -226,7 +250,7 @@ export function Sidebar({ className }: SidebarProps) {
     setIsProfileModalOpen(true);
     console.log("Profile modal opened");
   };
-  
+
   const handleSettingsClick = () => {
     handleGoToSettings();
   };
@@ -235,32 +259,7 @@ export function Sidebar({ className }: SidebarProps) {
     signOut();
     console.log("User signed out");
   };
-  
-  // Items that show only if expanded
-  const mainActions = [
-    { id: "soloist",  label: "Soloist",        icon: PersonStanding,  action: handleSoloist, active: currentView === "soloist", disabled: false },
-    // For browser users: always show playground but disabled if no subscription
-    // For desktop users: only show if they have subscription
-    ...(isBrowser === true ? [{
-      id: "testing", 
-      label: "Playground", 
-      icon: Activity, 
-      action: effectiveSubscription ? handleTesting : () => {}, 
-      active: currentView === "testing",
-      disabled: !effectiveSubscription
-    }] : effectiveSubscription ? [{
-      id: "testing", 
-      label: "Playground", 
-      icon: Activity, 
-      action: handleTesting, 
-      active: currentView === "testing",
-      disabled: false
-    }] : []),
-    { id: "calendar", label: "Calendar",       icon: Calendar,        action: handleCalendar, active: currentView === "dashboard", disabled: false },
-    { id: "new-log",  label: "Create New Log", icon: Plus,            action: handleCreateNewLog, active: false, disabled: false },
-    { id: "help",     label: "Help",           icon: CircleHelpIcon,  action: handleGoTohelp, disabled: false },
-  ];
-  
+
   // Get user initials for avatar fallback
   const userInitials = React.useMemo(() => {
     if (!effectiveUser?.name) return "U";
@@ -268,191 +267,211 @@ export function Sidebar({ className }: SidebarProps) {
     if (names.length === 1) return names[0].substring(0, 1).toUpperCase();
     return (names[0][0] + names[names.length - 1][0]).toUpperCase();
   }, [effectiveUser?.name]);
+
+  // Activity bar item component matching Slack design with text labels outside highlight
+  const ActivityBarItem = ({
+    icon: Icon,
+    label,
+    isActive,
+    onClick,
+    disabled = false,
+    variant = "default",
+    iconSize = "default"
+  }: {
+    icon: LucideIcon;
+    label: string;
+    isActive?: boolean;
+    onClick?: () => void;
+    disabled?: boolean;
+    variant?: "default" | "download";
+    iconSize?: "default" | "large";
+  }) => (
+    <div
+      className={cn(
+        "w-full px-2.5 py-1.5 flex flex-col items-center gap-1",
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      )}
+      onClick={disabled ? undefined : onClick}
+    >
+      <div
+        className={cn(
+          "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+          !disabled && "hover:bg-white/10",
+          isActive && !disabled && "bg-white/15 border border-white/20",
+          variant === "download" && !disabled && "hover:bg-emerald-500/10"
+        )}
+        title={label}
+      >
+        <Icon
+          className={cn(
+            iconSize === "large" ? "w-6 h-6" : "w-5 h-5",
+            "transition-colors",
+            disabled
+              ? "text-muted-foreground/50"
+              : isActive
+                ? "text-foreground"
+                : "text-muted-foreground",
+            variant === "download" && !disabled && "text-emerald-600 dark:text-emerald-400"
+          )}
+        />
+      </div>
+      <span
+        className={cn(
+          "text-[10px] font-medium leading-none transition-colors",
+          disabled
+            ? "text-muted-foreground/50"
+            : isActive
+              ? "text-foreground"
+              : "text-muted-foreground",
+          variant === "download" && !disabled && "text-emerald-600 dark:text-emerald-400"
+        )}
+      >
+        {label}
+      </span>
+    </div>
+  );
   
   return (
     <TooltipProvider delayDuration={300}>
       <div className={cn("relative h-screen", className)}>
-        <div
+        <aside
           className={cn(
-            "flex flex-col justify-between h-full w-14",
-            // Glass morphism effect with stronger blur and transparency
-            "bg-zinc-50 dark:bg-gray-900/5 backdrop-blur-xl",
-            // Very subtle border for definition
-            "border-r border-white/10 dark:border-white/5",
-            "overflow-hidden"
+            "flex flex-col h-full w-16",
+            "bg-neutral-700/20 border-r border-border"
           )}
         >
           {/* TOP SECTION - Activity Bar */}
-          <div className="relative flex flex-col items-center pt-4 space-y-2">
-            {/* Action Buttons */}
-            {/* Waypoints */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleWaypoints}
-                  className={cn(
-                    "h-10 w-10 rounded-lg",
-                    "hover:bg-white/10 dark:hover:bg-white/5",
-                    currentView === "waypoints" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                  )}
-                >
-                  <ClipboardCheck className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Waypoints</p>
-              </TooltipContent>
-            </Tooltip>
+          <div className="flex flex-col items-center pt-2">
+            {/* Calendar/Heatmap - Default View */}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center gap-1 cursor-pointer"
+              onClick={handleCalendar}
+            >
+              <div
+                className={cn(
+                  "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+                  "hover:bg-white/10",
+                  currentView === "dashboard" && "bg-white/15 border border-white/20"
+                )}
+                title="Calendar"
+              >
+                <HeatmapIcon isActive={currentView === "dashboard"} />
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium leading-none transition-colors",
+                  currentView === "dashboard"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                Heatmap
+              </span>
+            </div>
 
-            {/* Calendar - moved to second position */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCalendar}
-                  className={cn(
-                    "h-10 w-10 rounded-lg",
-                    "hover:bg-white/10 dark:hover:bg-white/5",
-                    currentView === "dashboard" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                  )}
-                >
-                  <Calendar className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Calendar</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* Waypoints/Base */}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center gap-1 cursor-pointer"
+              onClick={handleWaypoints}
+            >
+              <div
+                className={cn(
+                  "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+                  "hover:bg-white/10",
+                  currentView === "waypoints" && "bg-white/15 border border-white/20"
+                )}
+                title="Base"
+              >
+                <WaypointsIcon isActive={currentView === "waypoints"} />
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium leading-none transition-colors",
+                  currentView === "waypoints"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                Base
+              </span>
+            </div>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSoloist}
-                  className={cn(
-                    "h-10 w-10 rounded-lg",
-                    "hover:bg-white/10 dark:hover:bg-white/5",
-                    currentView === "soloist" && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                  )}
-                >
-                  <PersonStanding className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Soloist</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* Soloist/Baseline */}
+            <ActivityBarItem
+              icon={ChartSpline}
+              label="Weekly"
+              isActive={currentView === "soloist"}
+              onClick={handleSoloist}
+            />
 
-            {/* Playground - Always visible, disabled if no subscription */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={effectiveSubscription ? handleTesting : undefined}
-                  disabled={!effectiveSubscription}
-                  className={cn(
-                    "h-10 w-10 rounded-lg",
-                    effectiveSubscription
-                      ? "hover:bg-white/10 dark:hover:bg-white/5"
-                      : "opacity-50 cursor-not-allowed",
-                    currentView === "testing" && effectiveSubscription && "bg-blue-500/10 dark:bg-blue-400/10 border border-blue-500/30 dark:border-blue-400/30"
-                  )}
-                >
-                  <Activity className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{effectiveSubscription ? "Playground" : "Playground (Subscribe)"}</p>
-              </TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleCreateNewLog}
-                  className="h-10 w-10 rounded-lg hover:bg-white/10 dark:hover:bg-white/5"
-                >
-                  <Plus className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Create New Log</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* Playground */}
+            <ActivityBarItem
+              icon={Activity}
+              label="Sandbox"
+              isActive={currentView === "testing"}
+              onClick={handleTesting}
+            />
 
             {/* Download App - Only for browser users with subscription */}
             {isBrowser === true && effectiveSubscription && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleDownload}
-                    className="h-10 w-10 rounded-lg hover:bg-emerald-500/10 dark:hover:bg-emerald-500/10 border border-emerald-500/20 dark:border-emerald-500/20"
-                  >
-                    <Download className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Download App</p>
-                </TooltipContent>
-              </Tooltip>
+              <ActivityBarItem
+                icon={Download}
+                label="Download App"
+                onClick={handleDownload}
+                variant="download"
+              />
             )}
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleGoTohelp}
-                  className="h-10 w-10 rounded-lg hover:bg-white/10 dark:hover:bg-white/5"
-                >
-                  <CircleHelpIcon className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Help</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* Help */}
+            <ActivityBarItem
+              icon={MessageCircleQuestion}
+              label="Help"
+              onClick={handleGoTohelp}
+              iconSize="large"
+            />
+
+            {/* Create New Log - Icon only */}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center cursor-pointer"
+              onClick={handleCreateNewLog}
+            >
+              <div
+                className="w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md hover:bg-white/10"
+                title="New Log"
+              >
+                <Plus className="w-5 h-5 text-muted-foreground transition-colors" />
+              </div>
+            </div>
           </div>
 
           {/* FOOTER SECTION - User Avatar */}
-        <div className={cn(
-          "relative flex flex-col items-center",
-          isBrowser === true ? "pb-24 mb-4" : "pb-12" // Extra padding in browser mode for footer
-        )}>
-          {/* Show avatar when: in browser mode (once determined) OR authenticated in desktop */}
-          {isBrowser !== null && effectiveUser && ((isBrowser === true) || isAuthenticated) && (
-            <div className="pt-3 w-full flex justify-center">
+          <div className={cn(
+            "mt-auto flex flex-col items-center",
+            isBrowser === true ? "pb-4" : "pb-4"
+          )}>
+            {/* Show avatar when: in browser mode (once determined) OR authenticated in desktop */}
+            {isBrowser !== null && effectiveUser && ((isBrowser === true) || isAuthenticated) && (
               <Tooltip>
                 <DropdownMenu onOpenChange={setIsDropdownOpen}>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 rounded-full hover:bg-white/10 dark:hover:bg-white/5"
+                      <button
+                        className="w-12 h-12 hover:bg-accent/10 flex items-center justify-center cursor-pointer relative transition-all duration-200"
+                        title={effectiveUser.name || "User"}
                       >
-                        <Avatar className="h-8 w-8">
+                        <Avatar className="h-7 w-7">
                           <AvatarImage src={effectiveUser.image || undefined} alt={effectiveUser.name || "User"} />
-                          <AvatarFallback className="text-xs bg-white/20 dark:bg-white/10 text-zinc-700 dark:text-zinc-300">
+                          <AvatarFallback className="text-xs bg-muted text-muted-foreground border border-zinc-500">
                             {userInitials}
                           </AvatarFallback>
                         </Avatar>
-                      </Button>
+                      </button>
                     </DropdownMenuTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>{effectiveUser.name || "User"}</p>
                   </TooltipContent>
-                  <DropdownMenuContent className="w-56 mb-2 ml-12" align="start" side="top">
+                  <DropdownMenuContent className="w-56 mb-2 ml-10" align="start" side="top">
                     <div className="flex flex-col space-y-1 p-2">
                       <p className="text-sm font-medium leading-none">{effectiveUser.name || "User"}</p>
                       <p className="text-xs leading-none text-muted-foreground">
@@ -485,10 +504,9 @@ export function Sidebar({ className }: SidebarProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </Tooltip>
-            </div>
-          )}
-        </div>
-        </div>
+            )}
+          </div>
+        </aside>
         
         {/* Our SettingsDialog component, controlled by local state */}
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />

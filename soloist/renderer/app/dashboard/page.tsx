@@ -116,14 +116,6 @@ export default function Dashboard() {
     }
   }, [simulateCheckout]);
 
-  // Redirect non-subscribers away from testing view
-  useEffect(() => {
-    if (currentView === "testing" && hasActiveSubscription === false) {
-      console.log("Non-subscriber trying to access testing view, redirecting to dashboard");
-      transitionTo("dashboard");
-    }
-  }, [currentView, hasActiveSubscription, transitionTo]);
-
   // Show loading while checking authentication (Electron mode only)
   if (isBrowser === false && isLoading) {
     return (

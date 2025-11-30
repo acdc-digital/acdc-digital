@@ -314,8 +314,8 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
                   onClick={() => !isFuture && click(key)}
                   className={`
                     flex items-center justify-center
-                    w-6 h-6 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
-                    text-[10px] font-medium transition-all duration-150
+                    w-7 h-7 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
+                    text-xs font-medium transition-all duration-150
                     ${getColorClass(score, isFuture)}
                     ${show ? "" : "opacity-30"}
                     ${selectedDate === key ? "ring-1 ring-blue-600" : isToday ? "ring-1 ring-red-600 dark:ring-zinc-300" : ""}

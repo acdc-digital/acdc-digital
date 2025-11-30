@@ -1,15 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SignupPaymentModal } from "../../modals/SignupPaymentModal";
 
 export function DemoApp() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cacheKey, setCacheKey] = useState("");
   
   // The demo app runs on port 3003
   // This is a standalone browser-only version with no authentication
-  const demoUrl = process.env.NEXT_PUBLIC_DEMO_URL || "http://localhost:3003/dashboard";
+  // PRODUCTION: const baseUrl = process.env.NEXT_PUBLIC_DEMO_URL || "http://localhost:3003/dashboard";
+  // DEV: Using local demo server for testing
+  const baseUrl = "http://localhost:3003/dashboard";
+  
+  // Set cache key on client side only to avoid hydration mismatch
+  useEffect(() => {
+    setCacheKey(`?v=${Date.now()}`);
+  }, []);
+  
+  const demoUrl = `${baseUrl}${cacheKey}`;
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);

@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, User, Bot, Sparkles } from "lucide-react";
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputSubmit,
+} from "@/components/ai/prompt-input";
+import { User, Bot, Sparkles, MessageCircle, Trash2, Loader2 } from "lucide-react";
 
 interface BaselineChatPanelProps {
   userId: Id<"users">;
@@ -55,115 +58,148 @@ export function BaselineChatPanel({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   return (
-    <div className="flex flex-col h-full bg-[#1e1e1e] overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0 border-b border-[#2d2d30] bg-[#252526] px-6 py-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-[#8b5cf6]" />
-          <h2 className="text-[13px] font-semibold text-white">AI Psychoanalysis</h2>
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {!baselineAnswerId ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-[#858585] space-y-2">
-              <Bot className="h-12 w-12 mx-auto opacity-30" />
-              <p className="text-[13px]">Complete the baseline questionnaire to receive your analysis</p>
-            </div>
-          </div>
-        ) : isGeneratingAnalysis ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-[#858585] space-y-3">
-              <Loader2 className="h-8 w-8 mx-auto animate-spin text-[#007acc]" />
-              <p className="text-[13px]">Generating your personalized psychoanalysis...</p>
-            </div>
-          </div>
-        ) : messages && messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-[#858585] space-y-2">
-              <Bot className="h-12 w-12 mx-auto opacity-30" />
-              <p className="text-[13px]">No analysis yet. Try recomputing your baseline.</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {messages?.map((msg: { _id: Id<"baseline_chats">; role: "user" | "assistant" | "system"; content: string; createdAt: number }) => (
-              <div
-                key={msg._id}
-                className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                {msg.role === "assistant" && (
-                  <div className="flex-shrink-0 w-7 h-7 rounded-md bg-[#8b5cf6] flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-white" />
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-3 ${
-                    msg.role === "user"
-                      ? "bg-[#007acc] text-white"
-                      : "bg-[#252526] text-[#cccccc] border border-[#2d2d30]"
-                  }`}
-                >
-                  <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                  <span className="text-[11px] opacity-50 mt-2 block">
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-                {msg.role === "user" && (
-                  <div className="flex-shrink-0 w-7 h-7 rounded-md bg-[#007acc] flex items-center justify-center">
-                    <User className="h-4 w-4 text-white" />
-                  </div>
-                )}
+    <div className="mr-2 border-r border-r-white/20 h-full flex flex-col bg-neutral-100 dark:bg-neutral-800">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
+        <div className="pb-2 pt-2">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-3">
+              {/* Solo Dot - inverted colors (red background, white dot) */}
+              <div className="mt-1 w-7 h-7 rounded-full bg-[#EF4444] flex items-center justify-center pr-2.5 pb-2">
+                <div className="w-2 h-2 rounded-full bg-white" />
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </>
-        )}
+              <div>
+                <h2 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
+                  Your Analysis
+                </h2>
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs mt-0s">
+                  AI-powered insights into your patterns.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMessage("")}
+                disabled={isSending}
+                className="flex flex-col items-center gap-0.5 p-1.5 rounded-md text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors disabled:opacity-50"
+                title="Clear Input"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="text-[10px]">Clear</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-[#2d2d30] bg-[#252526] p-4">
-        <div className="flex gap-3">
-          <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              baselineAnswerId
-                ? "Ask questions about your analysis..."
-                : "Complete the questionnaire first..."
-            }
-            disabled={!baselineAnswerId || isSending || isGeneratingAnalysis}
-            className="flex-1 min-h-[60px] max-h-[120px] bg-[#1e1e1e] border-[#2d2d30] text-[#cccccc] placeholder:text-[#858585] focus:border-[#007acc] focus:ring-1 focus:ring-[#007acc] rounded-md text-[13px] resize-none"
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!message.trim() || !baselineAnswerId || isSending || isGeneratingAnalysis}
-            className="h-[60px] px-4 bg-[#007acc] hover:bg-[#005a9e] text-white border-none rounded-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#007acc]/20"
-          >
-            {isSending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-5 py-5 space-y-4">
+          {!baselineAnswerId ? (
+            <div className="flex items-center justify-center h-full min-h-[300px]">
+              <div className="text-center text-neutral-500 dark:text-neutral-400 space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
+                  <MessageCircle className="h-6 w-6 text-neutral-400 dark:text-neutral-500" />
+                </div>
+                <p className="text-sm max-w-[200px]">Complete the baseline questionnaire to discover your rhythm</p>
+              </div>
+            </div>
+          ) : isGeneratingAnalysis ? (
+            <div className="flex items-center justify-center h-full min-h-[300px]">
+              <div className="text-center text-neutral-500 dark:text-neutral-400 space-y-4">
+                <div className="relative w-12 h-12 mx-auto">
+                  <div className="absolute inset-0 rounded-full bg-neutral-300 dark:bg-neutral-600 animate-pulse" />
+                  <div className="absolute inset-2 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-neutral-500 dark:text-neutral-400" />
+                  </div>
+                </div>
+                <p className="text-sm">Analyzing your patterns...</p>
+              </div>
+            </div>
+          ) : messages && messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full min-h-[300px]">
+              <div className="text-center text-neutral-500 dark:text-neutral-400 space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-neutral-400 dark:text-neutral-500" />
+                </div>
+                <p className="text-sm max-w-[200px]">No analysis yet. Complete your baseline to begin.</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {messages?.map((msg: { _id: Id<"baseline_chats">; role: "user" | "assistant" | "system"; content: string; createdAt: number }) => (
+                <div
+                  key={msg._id}
+                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  {msg.role === "assistant" && (
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-900 dark:bg-white flex items-center justify-center">
+                      <Bot className="h-3.5 w-3.5 text-white dark:text-neutral-900" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] px-4 py-3 ${
+                      msg.role === "user"
+                        ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg rounded-tr-none"
+                        : "bg-transparent text-neutral-700 dark:text-neutral-300 border border-white/40 rounded-lg rounded-tl-none"
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                    <span className={`text-xs mt-2 block ${msg.role === "user" ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500"}`}>
+                      {new Date(msg.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  {msg.role === "user" && (
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-900 dark:bg-white flex items-center justify-center">
+                      <User className="h-3.5 w-3.5 text-white dark:text-neutral-900" />
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </>
+          )}
         </div>
-        <p className="text-[11px] text-[#858585] mt-2">
-          Press <kbd className="px-1 py-0.5 bg-[#1e1e1e] border border-[#2d2d30] rounded text-[10px]">Enter</kbd> to send, <kbd className="px-1 py-0.5 bg-[#1e1e1e] border border-[#2d2d30] rounded text-[10px]">Shift+Enter</kbd> for new line
-        </p>
+      </div>
+
+      {/* Footer - Input Area */}
+      <div className="flex-shrink-0 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-300 dark:border-neutral-600">
+        <PromptInput
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendMessage();
+          }}
+          className="gap-2"
+        >
+          <div className="flex gap-2 items-end">
+            <PromptInputTextarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder={
+                baselineAnswerId
+                  ? "Ask about your patterns..."
+                  : "Complete the questionnaire first..."
+              }
+              disabled={!baselineAnswerId || isSending || isGeneratingAnalysis}
+              minHeight={48}
+              maxHeight={120}
+              className="flex-1 bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white placeholder:text-neutral-500 focus:border-neutral-600 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none rounded-lg text-sm"
+            />
+            <PromptInputSubmit
+              disabled={!message.trim() || !baselineAnswerId || isGeneratingAnalysis}
+              status={isSending ? "submitted" : "ready"}
+              className="h-12 w-12 shrink-0 border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 rounded-lg transition-all"
+            />
+          </div>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            Press <kbd className="px-1.5 py-0.5 bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded text-xs font-mono">Enter</kbd> to send
+          </p>
+        </PromptInput>
       </div>
     </div>
   );

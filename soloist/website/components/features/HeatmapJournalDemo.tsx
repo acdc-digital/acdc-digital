@@ -85,10 +85,10 @@ export function HeatmapJournalDemo() {
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-1">
             Track & Reflect
           </h3>
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-600">
             Immediately begin logging your days and reviewing a daily summary dedicated to help you reflect and make adjustments for tomorrow.
           </p>
         </div>

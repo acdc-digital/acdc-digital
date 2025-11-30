@@ -153,10 +153,10 @@ export function ForecastDemo() {
             <span className="text-4xl font-bold text-neutral-700">3</span>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+            <h3 className="text-lg font-semibold text-neutral-800 mb-1">
               Mood Forecasting
             </h3>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-neutral-600">
               Research backed predictions to help you understand and plan ahead.
             </p>
           </div>
@@ -187,10 +187,10 @@ export function ForecastDemo() {
         
         {/* Text Content */}
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-neutral-300 mb-1">
+          <h3 className="text-lg font-semibold text-neutral-800 mb-1">
             Mood Forecasting
           </h3>
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-600">
             Research backed predictions to help you understand and plan ahead.
           </p>
         </div>
