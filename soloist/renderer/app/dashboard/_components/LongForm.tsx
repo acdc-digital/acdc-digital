@@ -4,6 +4,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,13 +41,37 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Track changes
+  // Convex mutation
+  const saveLongFormEntry = useMutation(api.longForm.saveLongFormEntry);
+
+  // Load existing entry for this date
+  const existingEntry = useQuery(
+    api.longForm.getLongFormEntry,
+    userId ? { userId, date } : "skip"
+  );
+
+  // Populate form with existing entry data
   useEffect(() => {
-    if (title || content) {
+    if (existingEntry && !isLoaded) {
+      setTitle(existingEntry.title || "");
+      setContent(existingEntry.content || "");
+      setLastSaved(new Date(existingEntry.updatedAt));
+      setHasUnsavedChanges(false);
+      setIsLoaded(true);
+    } else if (existingEntry === null && !isLoaded) {
+      // No existing entry, mark as loaded
+      setIsLoaded(true);
+    }
+  }, [existingEntry, isLoaded]);
+
+  // Track changes (only after initial load)
+  useEffect(() => {
+    if (isLoaded && (title || content)) {
       setHasUnsavedChanges(true);
     }
-  }, [title, content]);
+  }, [title, content, isLoaded]);
 
   // Format the display date
   const displayDate = format(new Date(date), "EEEE, MMMM d, yyyy");
@@ -75,8 +101,16 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
     setIsSubmitting(true);
 
     try {
-      // TODO: Implement Convex mutation for long-form entries
-      // await saveLongFormEntry({ date, userId, title, content });
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
+      await saveLongFormEntry({
+        userId,
+        date,
+        title: title.trim() || undefined,
+        content,
+      });
 
       console.log("Long form entry saved:", { date, userId, title, content });
 
@@ -97,17 +131,22 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
   /*  Auto-save handler (optional)              */
   /* ────────────────────────────────────────── */
   const handleAutoSave = useCallback(async () => {
-    if (!hasUnsavedChanges || !content.trim()) return;
+    if (!hasUnsavedChanges || !content.trim() || !userId) return;
 
     try {
-      // TODO: Implement auto-save logic
-      console.log("Auto-saving...", { title, content });
+      await saveLongFormEntry({
+        userId,
+        date,
+        title: title.trim() || undefined,
+        content,
+      });
+      console.log("Auto-saved:", { title, content });
       setLastSaved(new Date());
       setHasUnsavedChanges(false);
     } catch (err) {
       console.error("Auto-save failed:", err);
     }
-  }, [hasUnsavedChanges, title, content]);
+  }, [hasUnsavedChanges, title, content, userId, date, saveLongFormEntry]);
 
   /* ────────────────────────────────────────── */
   /*  UI                                        */

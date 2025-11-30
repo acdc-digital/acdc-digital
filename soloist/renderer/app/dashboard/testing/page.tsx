@@ -1,13 +1,11 @@
-// TESTING ENVIRONMENT FOR FORECAST FUNCTIONALITY
+// TESTING ENVIRONMENT FOR FORECAST FUNCTIONALITY - REDESIGNED
 // /Users/matthewsimon/Documents/Github/electron-nextjs/renderer/src/app/dashboard/testing/page.tsx
 
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Info, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, TrendingDown, Sparkles, Loader2, ThumbsUp, ThumbsDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Info, ChevronLeft, ChevronRight, ArrowRight, TrendingUp, TrendingDown, Sparkles, Loader2, ThumbsUp, ThumbsDown, Calendar, BarChart3, FlaskConical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -51,9 +49,9 @@ interface SevenDayForecastResult {
 
 // Helper component for Loading State
 const LoadingState = ({ message = "Loading..." }: { message?: string }) => (
-  <div className="flex-1 h-full flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900">
-    <Loader2 className="h-8 w-8 animate-spin text-zinc-500 dark:text-zinc-400 mb-4" />
-    <div className="text-zinc-600 dark:text-zinc-400">{message}</div>
+  <div className="flex-1 h-full flex flex-col items-center justify-center bg-neutral-100 dark:bg-[#2b2b2b]">
+    <Loader2 className="h-6 w-6 animate-spin text-neutral-500 dark:text-neutral-400 mb-3" />
+    <div className="text-sm text-neutral-600 dark:text-neutral-400">{message}</div>
   </div>
 );
 
@@ -65,41 +63,41 @@ const EmptyState = ({ title, description, onGenerate, isGenerating, error }: {
   isGenerating?: boolean;
   error?: string | null;
 }) => (
-  <div className="flex-1 h-full flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 text-center px-4">
-    <div className="text-zinc-600 dark:text-zinc-400 mb-4">{title}</div>
-    <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{description}</p>
+  <div className="flex-1 h-full flex flex-col items-center justify-center bg-neutral-100 dark:bg-[#2b2b2b] text-center px-4">
+    <div className="text-neutral-600 dark:text-neutral-400 mb-3 text-sm">{title}</div>
+    <p className="text-xs text-neutral-500 dark:text-neutral-400 mb-4">{description}</p>
     {onGenerate && (
       <Button
         variant="outline"
         size="sm"
         onClick={onGenerate}
         disabled={isGenerating}
-        className="h-8 text-xs"
+        className="h-7 text-xs rounded-none border-neutral-300 dark:border-neutral-600 hover:bg-neutral-200 dark:hover:bg-neutral-700"
       >
         {isGenerating ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-3 w-3 animate-spin" />
             Testing...
           </>
         ) : (
           <>
-            <Sparkles className="mr-2 h-4 w-4" />
+            <Sparkles className="mr-2 h-3 w-3" />
             Run Test
           </>
         )}
       </Button>
     )}
     {error && (
-      <div className="mt-4 p-2 w-full max-w-md bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm rounded-md">
+      <div className="mt-3 p-2 w-full max-w-md bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs">
         Test Error: {error}
       </div>
     )}
   </div>
 );
 
-// Helper functions
+// Helper functions - using standardized color scale
 function getBorderColorClass(score: number | null | undefined): string {
-  if (score == null) return "border-zinc-700/50";
+  if (score == null) return "border-neutral-600/50";
   if (score >= 90) return "border-indigo-500";
   if (score >= 80) return "border-blue-500";
   if (score >= 70) return "border-sky-500";
@@ -113,15 +111,15 @@ function getBorderColorClass(score: number | null | undefined): string {
 }
 
 function getTextColorClass(score: number | null | undefined): string {
-  if (score == null) return "text-zinc-400";
-  if (score >= 60) return "text-zinc-900"; // Dark text for lighter backgrounds
-  return "text-zinc-100"; // Light text for darker backgrounds
+  if (score == null) return "text-neutral-400";
+  if (score >= 60) return "text-neutral-900";
+  return "text-neutral-100";
 }
 
 const TrendIcon = ({ trend }: { trend?: string | null }) => {
-  if (trend === "up") return <TrendingUp className="h-4 w-4 text-green-500" />;
-  if (trend === "down") return <TrendingDown className="h-4 w-4 text-rose-500" />;
-  return <Sparkles className="h-4 w-4 text-blue-400 opacity-70" />;
+  if (trend === "up") return <TrendingUp className="h-3 w-3 text-green-500" />;
+  if (trend === "down") return <TrendingDown className="h-3 w-3 text-rose-500" />;
+  return <Sparkles className="h-3 w-3 text-blue-400 opacity-70" />;
 };
 
 const mockInsights = [
@@ -479,316 +477,288 @@ export default function TestingPage() {
             error={forecastError} />;
   }
 
-  // --- Main Render (uses formattedDisplayData) ---
+  // --- Main Render - Redesigned layout ---
   return (
-    <div className="flex-1 h-full flex flex-col overflow-hidden bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex-1 h-full flex flex-col overflow-hidden bg-neutral-100 dark:bg-[#2b2b2b]">
       <div className="flex-1 overflow-auto">
-        <div className="w-full py-4 px-4 flex flex-col h-full">
-          <div className="flex flex-col gap-4 pb-4">
-            <Navigation
-              onGenerateForecast={handleGenerateForecast}
-            />
+        <div className="w-full p-4 flex flex-col gap-3">
+
+          {/* Navigation Component */}
+          <Navigation onGenerateForecast={handleGenerateForecast} />
+
+          {/* Header Section */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FlaskConical className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+              <div>
+                <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">7-Day Test Forecast</h1>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {selectedDateRange.start && selectedDateRange.end ? (
+                    `Testing ${selectedDateRange.start.toLocaleDateString()} - ${selectedDateRange.end.toLocaleDateString()}`
+                  ) : (
+                    "Select a date range to test forecast accuracy"
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
+                Test Mode
+              </Badge>
+              <Badge className="h-5 text-[10px] rounded-none border-neutral-300 dark:border-neutral-600 text-neutral-600 dark:text-neutral-300 bg-transparent">
+                Avg: {averageScore !== null ? averageScore.toFixed(1) : "N/A"}
+              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="cursor-help">
+                      <Info className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-neutral-800 border-neutral-700 text-neutral-200 text-xs">
+                    Testing environment for forecast functionality
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
 
-          <Card className="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm mb-4">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div>
-                  <CardTitle className="text-xl font-bold text-zinc-900 dark:text-zinc-50">7-Day Test Forecast</CardTitle>
-                  <CardDescription className="text-zinc-500 dark:text-zinc-400">
-                    {selectedDateRange.start && selectedDateRange.end ? (
-                      `Testing forecast for ${selectedDateRange.start.toLocaleDateString()} - ${selectedDateRange.end.toLocaleDateString()}`
-                    ) : (
-                      "Select a date range to test forecast accuracy"
+          {/* Asymmetric divider */}
+          <div className="-ml-4 w-[calc(65%+1rem)] h-px bg-neutral-300 dark:bg-white/40" />
+
+          {/* Error display */}
+          {forecastError && (
+            <div className="p-2 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-xs">
+              {forecastError === "Not enough data for forecast"
+                ? "You need daily logs for all 4 days in the selected range."
+                : forecastError.includes("Missing logs")
+                ? (
+                    <div>
+                      <p className="font-medium mb-1">Missing Logs Error</p>
+                      <p className="text-[10px]">{forecastError}</p>
+                      <Button
+                        onClick={() => window.location.reload()}
+                        variant="outline"
+                        size="sm"
+                        className="h-5 text-[10px] mt-1.5 rounded-none"
+                      >
+                        Refresh Page
+                      </Button>
+                    </div>
+                  )
+                : `Error: ${forecastError}`}
+            </div>
+          )}
+
+          {/* 7-Day Forecast Grid - compact */}
+          <div className="grid grid-cols-7 gap-1">
+            {[...Array(7)].map((_, idx: number) => {
+              const day: ForecastDay | undefined = formattedDisplayData[idx];
+              if (!day) {
+                return (
+                  <div key={idx} className="flex flex-col items-center justify-between p-1.5 border aspect-square bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60">
+                    <div className="text-[10px] font-medium text-neutral-400">—</div>
+                    <span className="text-xl font-bold text-neutral-400">?</span>
+                  </div>
+                );
+              }
+              const score = day.emotionScore;
+              const colorClass = getColorClass(score);
+              const borderColorClass = getBorderColorClass(score);
+              const textColorClass = getTextColorClass(score);
+              const isFutureDay = day.isFuture;
+              const needsGen = isFutureDay && ((score === null || score === 0 || score === undefined) || (day.description === "Forecast Needed" || day.description === "Forecast needed"));
+              const isSelected = selectedDayIndex === idx;
+
+              return (
+                <div
+                  key={day.date || idx}
+                  title={`${day.date}: ${score ?? 'N/A'}`}
+                  className={`
+                    flex flex-col items-center justify-between p-1.5 border aspect-square cursor-pointer
+                    ${colorClass} ${borderColorClass}
+                    ${isSelected ? 'ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900' : ''}
+                    ${day.isPast ? 'opacity-75 hover:opacity-100' : ''}
+                    ${day.isToday ? 'relative ring-1 ring-inset ring-white/50' : ''}
+                    ${needsGen ? 'border-dashed border-neutral-500 bg-neutral-700/30' : ''}
+                    transition-all duration-100
+                  `}
+                  onClick={() => setSelectedDayIndex(idx)}
+                >
+                  <div className="text-center">
+                    <div className={`text-[10px] font-semibold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
+                      {day.shortDay || format(parseISODate(day.date), 'EEE')}
+                    </div>
+                    <div className={`text-[8px] ${needsGen ? 'text-neutral-500' : textColorClass} opacity-75 hidden sm:block`}>
+                      {day.formattedDate || format(parseISODate(day.date), 'MMM d')}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <span className={`text-xl font-bold ${needsGen ? 'text-neutral-400' : textColorClass}`}>
+                      {score !== null && score !== undefined && score > 0 ? score : (needsGen ? '?' : '—')}
+                    </span>
+                    {score !== null && score > 0 && !needsGen && day.trend && <TrendIcon trend={day.trend} />}
+                  </div>
+                  {day.isToday && <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-white/80" />}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Feedback Row - compact */}
+          {formattedDisplayData.length >= 7 && (
+            <div className="grid grid-cols-7 gap-1">
+              {formattedDisplayData.map((day, idx) => {
+                const isFutureDay = day.isFuture;
+                const feedback = feedbackState[day.date];
+                return (
+                  <div key={day.date || idx} className="flex justify-center items-center h-6">
+                    {isFutureDay && (
+                      <div className="flex gap-1">
+                        <button
+                          className="p-0.5"
+                          onClick={() => handleFeedback(day.date, "up")}
+                          aria-label="Forecast was correct"
+                          type="button"
+                        >
+                          <ThumbsUp className={`h-4 w-4 transition-colors ${feedback === "up" ? "text-green-500" : "text-neutral-400 hover:text-neutral-500"}`} />
+                        </button>
+                        <button
+                          className="p-0.5"
+                          onClick={() => handleFeedback(day.date, "down")}
+                          aria-label="Forecast was incorrect"
+                          type="button"
+                        >
+                          <ThumbsDown className={`h-4 w-4 transition-colors ${feedback === "down" ? "text-rose-500" : "text-neutral-400 hover:text-neutral-500"}`} />
+                        </button>
+                      </div>
                     )}
-                  </CardDescription>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Asymmetric divider */}
+          <div className="-ml-4 w-[calc(45%+1rem)] h-px bg-neutral-300 dark:bg-white/30" />
+
+          {/* Details + Chart Section */}
+          {selectedDayIndex >= 0 && selectedDayIndex < formattedDisplayData.length && formattedDisplayData[selectedDayIndex] && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {/* Selected Day Details */}
+              <div className="flex flex-col">
+                {/* Navigation */}
+                <div className="flex items-center justify-between mb-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={selectedDayIndex === 0}
+                    onClick={navigatePrevDay}
+                    className="h-6 px-2 text-xs text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  >
+                    <ChevronLeft className="h-3 w-3 mr-0.5" /> Prev
+                  </Button>
+                  <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">
+                    {formattedDisplayData[selectedDayIndex]?.day || getDayName(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))} - {formattedDisplayData[selectedDayIndex]?.formattedDate || getFormattedMonthDay(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={selectedDayIndex >= formattedDisplayData.length - 1}
+                    onClick={navigateNextDay}
+                    className="h-6 px-2 text-xs text-neutral-600 dark:text-neutral-300 rounded-none hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  >
+                    Next <ChevronRight className="h-3 w-3 ml-0.5" />
+                  </Button>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <Badge variant="outline" className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300">
-                    Test Mode
-                  </Badge>
-                  <Badge variant="outline" className="border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300">
-                    Avg: {averageScore !== null ? averageScore.toFixed(1) : "N/A"}
-                  </Badge>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-help">
-                          <Info className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Testing environment for forecast functionality</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="pt-0">
-              {/* Display any forecast generation errors */}
-              {forecastError && (
-                <div className="mb-3 p-2 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-sm rounded-md">
-                  {forecastError === "Not enough data for forecast"
-                    ? "You need to have daily logs for all 4 days in the selected range to generate a forecast. Please add logs for the missing days."
-                    : forecastError.includes("Missing logs")
-                    ? <>
-                        <p className="font-medium mb-1">Missing Logs Error</p>
-                        <p>{forecastError}</p>
-                        <p className="mt-2">Try these steps:</p>
-                        <ol className="list-decimal list-inside mt-1 ml-1 space-y-0.5">
-                          <li>Click &quot;Generate Forecast&quot; again</li>
-                          <li>Try selecting a different date range</li>
-                          <li>Check that logs exist for the selected dates</li>
-                        </ol>
-                        <div className="flex gap-2 mt-2">
-                          <Button 
-                            onClick={() => window.location.reload()} 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-7"
-                          >
-                            Refresh Page
-                          </Button>
-                        </div>
-                      </>
-                    : `Error: ${forecastError}`}
-                </div>
-              )}
-              
-              {/* 7-Day Forecast Strip */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 pt-1 mb-2">
-                {[...Array(7)].map((_, idx: number) => {
-                  const day: ForecastDay | undefined = formattedDisplayData[idx];
-                  if (!day) {
-                    // Render placeholder for missing day
-                    return (
-                      <div key={idx} className="flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-md border aspect-square bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 opacity-60">
-                        <div className="text-xs font-medium text-center text-zinc-400">—</div>
-                        <span className="text-lg sm:text-2xl font-bold text-zinc-400">?</span>
-                      </div>
-                    );
-                  }
-                  const score = day.emotionScore;
-                  const colorClass = getColorClass(score);
-                  const borderColorClass = getBorderColorClass(score);
-                  const textColorClass = getTextColorClass(score);
-                  const isFutureDay = day.isFuture;
-                  const needsGen = isFutureDay && 
-                    ((score === null || score === 0 || score === undefined) || 
-                    (day.description === "Forecast Needed" || day.description === "Forecast needed"));
-                  const isSelected = selectedDayIndex === idx;
+
+                {/* Details content */}
+                {(() => {
+                  const selectedDay = formattedDisplayData[selectedDayIndex];
+                  if (!selectedDay) return null;
+
+                  const score = selectedDay.emotionScore;
+                  const isFutureDay = selectedDay.isFuture;
+                  const needsGen = isFutureDay && (score === 0 || score === null || selectedDay.description === "Forecast Needed");
+
                   return (
-                    <div
-                      key={day.date || idx}
-                      title={`Date: ${day.date}, Score: ${score ?? 'N/A'}`}
-                      className={`
-                        flex flex-col items-center justify-between p-1 sm:p-1.5 rounded-md cursor-pointer border aspect-square
-                        ${colorClass} ${borderColorClass}
-                        ${isSelected ? 'ring-2 ring-offset-1 ring-offset-zinc-900 dark:ring-offset-black ring-indigo-400' : ''}
-                        ${day.isPast ? 'opacity-80 hover:opacity-100' : ''}
-                        ${day.isToday ? 'relative ring-1 ring-inset ring-white/50' : ''}
-                        ${isFutureDay && !needsGen ? 'opacity-85 hover:opacity-100' : ''}
-                        ${needsGen ? 'border-dashed border-zinc-500 bg-zinc-800/30 hover:bg-zinc-700/40' : ''}
-                        transition-all duration-150 ease-in-out
-                      `}
-                      onClick={() => setSelectedDayIndex(idx)}
-                    >
-                      <div className="text-xs font-medium text-center">
-                        <div className={`${needsGen ? 'text-zinc-400' : textColorClass} text-[10px] sm:text-xs font-semibold`}>
-                          {day.shortDay || format(parseISODate(day.date), 'EEE')}
-                        </div>
-                        <div className={`text-[10px] ${needsGen ? 'text-zinc-500' : textColorClass} opacity-80 hidden sm:block`}>
-                          {day.formattedDate || format(parseISODate(day.date), 'MMM d')}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 mt-auto">
-                        {isFutureDay && !needsGen ? (
-                          <span className={`text-lg sm:text-2xl font-bold px-2 py-1 rounded-full ${colorClass} ${textColorClass}`} style={{ minWidth: 32, display: 'inline-block', textAlign: 'center' }}>
-                            {score !== null && score !== undefined ? score : '?'}
-                          </span>
-                        ) : (
-                          <span className={`text-lg sm:text-2xl font-bold ${needsGen ? 'text-zinc-400' : textColorClass}`}>
-                            {score !== null && score !== undefined && score > 0 ? score : (needsGen ? '?' : '—')}
-                          </span>
+                    <div className="flex gap-3 p-3 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
+                      {/* Score Box - compact */}
+                      <div className={`
+                        flex-shrink-0 w-16 h-16 flex flex-col items-center justify-center border
+                        ${getColorClass(score)} ${getBorderColorClass(score)}
+                        ${needsGen ? 'border-dashed border-neutral-500' : ''}
+                      `}>
+                        <span className={`text-2xl font-bold ${needsGen ? 'text-neutral-400' : getTextColorClass(score)}`}>
+                          {score !== null ? (needsGen ? '?' : score) : '—'}
+                        </span>
+                        {score !== null && score > 0 && !needsGen && selectedDay.trend && (
+                          <TrendIcon trend={selectedDay.trend} />
                         )}
-                        {score !== null && score > 0 && !needsGen && day.trend &&
-                          <TrendIcon trend={day.trend} />
-                        }
                       </div>
-                      {day.isToday && <div className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-white/80"></div>}
+
+                      {/* Consult Component */}
+                      <div className="flex-1 min-w-0">
+                        {userId && selectedDay && selectedDateRange.start && selectedDateRange.end ? (
+                          <Consult
+                            userId={userId}
+                            selectedDay={selectedDay}
+                            selectedDateRange={selectedDateRange}
+                            sevenDayData={formattedDisplayData}
+                          />
+                        ) : (
+                          <div className="text-xs text-neutral-500">Select a day to see details.</div>
+                        )}
+                      </div>
                     </div>
                   );
-                })}
-              </div>
-              {/* Minimal, subtle message if all 7 are placeholders */}
-              {formattedDisplayData.filter(Boolean).length === 0 && (
-                <div className="text-center text-xs text-zinc-400 mt-2">Submit a log to start your forecast.</div>
-              )}
-
-              {/* Feedback Row for Forecasted Days */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4">
-                {formattedDisplayData.length < 7 ? (
-                  <div className="col-span-7"></div>
-                ) : (
-                  formattedDisplayData.map((day, idx) => {
-                    const isFutureDay = day.isFuture;
-                    const feedback = feedbackState[day.date];
-                    return (
-                      <div key={day.date || idx} className="flex justify-center items-center min-h-[32px]">
-                        {isFutureDay && (
-                          <div className="flex gap-2">
-                            <button
-                              className="p-1"
-                              onClick={() => handleFeedback(day.date, "up")}
-                              aria-label="Forecast was correct"
-                              type="button"
-                            >
-                              <ThumbsUp
-                                className={`h-5 w-5 transition-colors ${feedback === "up" ? "text-green-600" : "text-zinc-400"}`}
-                              />
-                            </button>
-                            <button
-                              className="p-1"
-                              onClick={() => handleFeedback(day.date, "down")}
-                              aria-label="Forecast was incorrect"
-                              type="button"
-                            >
-                              <ThumbsDown
-                                className={`h-5 w-5 transition-colors ${feedback === "down" ? "text-red-600" : "text-zinc-400"}`}
-                              />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
+                })()}
               </div>
 
-              {/* Separator, Navigation, and Details only if selected day is valid */}
-              {selectedDayIndex >= 0 && selectedDayIndex < formattedDisplayData.length && formattedDisplayData[selectedDayIndex] && (
-                <>
-                  <Separator className="my-3 bg-zinc-200 dark:bg-zinc-800" />
+              {/* Weekly Pattern Chart */}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                  <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">Weekly Pattern</h3>
+                </div>
+                <div className="flex-1 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-2 min-h-[180px]">
+                  {Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 ? (
+                    <WeeklyPatterns data={formattedDisplayData} historicalForecastData={historicalForecasts} />
+                  ) : (
+                    <div className="text-center text-neutral-500 text-xs py-10">No data available</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
-                  {/* Selected Day Navigation */}
-                  <div className="flex items-center justify-between mb-2">
-                    <Button variant="ghost" size="sm" disabled={selectedDayIndex === 0} onClick={navigatePrevDay} className="h-8 px-2 text-zinc-600 dark:text-zinc-300">
-                      <ChevronLeft className="h-4 w-4 mr-1" /> Previous
-                    </Button>
-                    <h3 className="text-base font-medium text-center text-zinc-900 dark:text-zinc-50">
-                      {formattedDisplayData[selectedDayIndex]?.day || getDayName(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))} - {formattedDisplayData[selectedDayIndex]?.formattedDate || getFormattedMonthDay(parseISODate(formattedDisplayData[selectedDayIndex]?.date || ''))}
-                    </h3>
-                    <Button variant="ghost" size="sm" disabled={selectedDayIndex >= formattedDisplayData.length - 1} onClick={navigateNextDay} className="h-8 px-2 text-zinc-600 dark:text-zinc-300">
-                      Next <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
+          {/* Asymmetric divider */}
+          <div className="-ml-4 w-[calc(55%+1rem)] h-px bg-neutral-300 dark:bg-white/30" />
 
-                  {/* Selected Day Details */}
-                  {(() => {
-                    const selectedDay = formattedDisplayData[selectedDayIndex];
-                    if (!selectedDay) return null;
-
-                    const score = selectedDay.emotionScore;
-                    const isFutureDay = selectedDay.isFuture;
-                    const needsGen = isFutureDay && (score === 0 || score === null || selectedDay.description === "Forecast Needed");
-
-                    return (
-                      <div className="flex flex-col sm:flex-row gap-4 p-3 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white/30 dark:bg-zinc-900/30">
-                        {/* Score Box */}
-                        <div className={`
-                          flex-shrink-0 w-full sm:w-28 h-28 rounded-md flex flex-col items-center justify-center border
-                          ${getColorClass(score)}
-                          ${getBorderColorClass(score)}
-                          ${needsGen ? 'border-dashed border-zinc-500' : ''}
-                         `}>
-                          <span className={`text-4xl font-bold ${needsGen ? 'text-zinc-400' : getTextColorClass(score)}`}>
-                            {score !== null ? (needsGen ? '?' : score) : '—'}
-                          </span>
-                          <div className="flex items-center mt-1">
-                             {/* Only show trend icon if score exists, it's not needing generation, and trend is present */}
-                            {score !== null && score > 0 && !needsGen && selectedDay.trend && (
-                               <>
-                                <TrendIcon trend={selectedDay.trend} />
-                                <span className={`text-xs ml-1 ${needsGen ? 'text-zinc-400' : getTextColorClass(score)} opacity-90`}>
-                                  {selectedDay.trend === "up" ? "Rising" : selectedDay.trend === "down" ? "Falling" : "Stable"}
-                                </span>
-                               </>
-                            )}
-                             {/* Placeholder if no trend */}
-                             {!(score !== null && score > 0 && !needsGen && selectedDay.trend) && !needsGen && (
-                                <span className={`text-xs ml-1 ${getTextColorClass(score)} opacity-70`}>-</span>
-                             )}
-                             {needsGen && (
-                                <span className={`text-xs ml-1 text-zinc-400 opacity-70`}>Forecast</span>
-                             )}
-                          </div>
-                        </div>
-                        {/* Text Details replaced by Consult component */}
-                        <div className="flex-1">
-                          {userId && selectedDay && selectedDateRange.start && selectedDateRange.end ? (
-                            <Consult
-                              userId={userId}
-                              selectedDay={selectedDay}
-                              selectedDateRange={selectedDateRange}
-                              sevenDayData={formattedDisplayData}
-                            />
-                          ) : (
-                            <div className="p-4 text-center text-zinc-500">
-                              Select a day to see details.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </>
+          {/* Key Insights Section - compact */}
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Sparkles className="h-4 w-4 text-blue-500" />
+              <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-50">Key Insights</h3>
+            </div>
+            <div className="border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 p-3">
+              {userId && Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 && selectedDateRange.start && selectedDateRange.end ? (
+                <Insights
+                  userId={userId}
+                  sevenDayData={formattedDisplayData}
+                  selectedDateRange={selectedDateRange}
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  {mockInsights.map((insight, index) => (
+                    <div key={index} className="flex items-start gap-1.5 text-[11px] text-neutral-600 dark:text-neutral-400 p-1.5">
+                      <ArrowRight className="h-3 w-3 mt-0.5 text-blue-500 flex-shrink-0" />
+                      <span className="line-clamp-2">{insight}</span>
+                    </div>
+                  ))}
+                </div>
               )}
-
-            </CardContent>
-          </Card>
-
-          {/* Weekly Pattern and Key Insights Cards (Using Mock Data for now) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-            <Card className="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-medium text-zinc-900 dark:text-zinc-50">Weekly Pattern</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 ? (
-                  <WeeklyPatterns data={formattedDisplayData} historicalForecastData={historicalForecasts} />
-                ) : (
-                  <div className="text-center text-zinc-500 py-10">No data available</div>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-medium text-zinc-900 dark:text-zinc-50">Key Insights</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {userId && Array.isArray(formattedDisplayData) && formattedDisplayData.length > 0 && selectedDateRange.start && selectedDateRange.end ? (
-                  <Insights 
-                    userId={userId} 
-                    sevenDayData={formattedDisplayData} 
-                    selectedDateRange={selectedDateRange} 
-                  />
-                ) : (
-                  <div className="text-center text-zinc-500 py-10">
-                    {/* Display mock insights if not enough data for the real component */}
-                    <ul className="space-y-2">
-                      {mockInsights.map((insight, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                          <ArrowRight className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
-                          <span>{insight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            </div>
           </div>
 
         </div>

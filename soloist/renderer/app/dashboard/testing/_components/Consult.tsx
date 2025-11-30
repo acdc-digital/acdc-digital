@@ -281,17 +281,17 @@ export default function Consult({ userId, selectedDay, selectedDateRange, sevenD
   // Render loading state
   if (isGenerating) {
     return (
-      <Card className="p-4 min-h-[200px] flex flex-col items-center justify-center">
+      <div className="p-3 min-h-[120px] flex flex-col items-center justify-center bg-white/50 dark:bg-neutral-800/30 border border-neutral-300 dark:border-neutral-600">
         <div className="flex flex-col items-center gap-2">
-          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-            Generating Daily Details...
+          <RefreshCw className="h-5 w-5 animate-spin text-blue-500" />
+          <p className="text-neutral-600 dark:text-neutral-400 text-xs">
+            Generating Details...
           </p>
           <Skeleton className="h-4 w-3/4 my-1" />
           <Skeleton className="h-4 w-1/2 my-1" />
           <Skeleton className="h-4 w-5/6 my-1" />
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -300,98 +300,96 @@ export default function Consult({ userId, selectedDay, selectedDateRange, sevenD
     const isNoLogsError = error.includes("No logs found");
     
     return (
-      <Card className="p-4 min-h-[200px]">
+      <div className="p-3 min-h-[120px] bg-white/50 dark:bg-neutral-800/30 border border-neutral-300 dark:border-neutral-600">
         <div className="flex flex-col items-center gap-2 text-center">
           {isNoLogsError ? (
-            <CalendarX className="h-8 w-8 text-amber-500" />
+            <CalendarX className="h-5 w-5 text-amber-500" />
           ) : (
-            <AlertCircle className="h-8 w-8 text-rose-500" />
+            <AlertCircle className="h-5 w-5 text-rose-500" />
           )}
-          <h3 className="text-base font-medium">
+          <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
             {isNoLogsError ? "No Daily Log Found" : "Unable to Generate Details"}
           </h3>
-          <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-3">{error}</p>
+          <p className="text-neutral-600 dark:text-neutral-400 text-xs mb-2">{error}</p>
           {!isNoLogsError && (
-            <Button onClick={() => handleGenerateConsultation(true)} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" /> Try Again
+            <Button onClick={() => handleGenerateConsultation(true)} variant="outline" size="sm" className="h-6 text-[10px] rounded-none">
+              <RefreshCw className="h-3 w-3 mr-1" /> Try Again
             </Button>
           )}
         </div>
-      </Card>
+      </div>
     );
   }
 
   // Render empty state (if no valid day selected initially)
   if (!selectedDay?.date) {
      return (
-      <Card className="p-4 min-h-[200px] flex flex-col items-center justify-center">
-        <Sparkles className="h-8 w-8 text-blue-400 mb-2" />
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm text-center">
-          Select a day to view its details.
+      <div className="p-3 min-h-[80px] flex flex-col items-center justify-center bg-white/50 dark:bg-neutral-800/30 border border-neutral-300 dark:border-neutral-600">
+        <Sparkles className="h-4 w-4 text-blue-400 mb-1" />
+        <p className="text-neutral-500 dark:text-neutral-400 text-[10px] text-center">
+          Select a day to view details.
         </p>
-      </Card>
+      </div>
     );
   }
   
   // Render the actual detail (uses currentDetail state)
   if (currentDetail) {
     return (
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-base font-medium">Daily Details</h3>
-          </div>
+      <div className="p-3">
+        <div className="flex items-center gap-1.5 mb-2">
+          <Sparkles className="h-3 w-3 text-blue-500" />
+          <h3 className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Daily Details</h3>
         </div>
         
-        <div className="prose prose-sm dark:prose-invert max-w-none">
+        <div className="prose prose-sm dark:prose-invert max-w-none text-xs">
           <ReactMarkdown
             components={{
-              p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
-              strong: ({ children }) => <strong className="font-semibold text-zinc-900 dark:text-zinc-100">{children}</strong>,
-              em: ({ children }) => <em className="italic text-zinc-700 dark:text-zinc-300">{children}</em>,
-              ul: ({ children }) => <ul className="list-disc list-inside my-2 space-y-1">{children}</ul>,
-              ol: ({ children }) => <ol className="list-decimal list-inside my-2 space-y-1">{children}</ol>,
+              p: ({ children }) => <p className="my-1 leading-relaxed text-neutral-700 dark:text-neutral-300">{children}</p>,
+              strong: ({ children }) => <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{children}</strong>,
+              em: ({ children }) => <em className="italic text-neutral-600 dark:text-neutral-400">{children}</em>,
+              ul: ({ children }) => <ul className="list-disc list-inside my-1 space-y-0.5">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal list-inside my-1 space-y-0.5">{children}</ol>,
             }}
           >
             {currentDetail}
           </ReactMarkdown>
         </div>
         
-        <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400">
-          Details for: {selectedDay.day}, {selectedDay.date} <br/>
-          Context based on data from: {formatDateRangeForUI()} 
+        <div className="mt-2 pt-2 border-t border-neutral-200 dark:border-neutral-700 text-[10px] text-neutral-500 dark:text-neutral-400">
+          {selectedDay.day}, {selectedDay.date} • {formatDateRangeForUI()}
         </div>
-      </Card>
+      </div>
     );
   }
   
   // Fallback / Initial state before loading/generation/error for a valid selected day
   // This might show briefly before the useEffect triggers generation
   return (
-    <Card className="p-4 min-h-[200px]">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Sparkles className="h-8 w-8 text-blue-400" />
-        <h3 className="text-base font-medium">Daily Details</h3>
-        <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-3">
+    <div className="p-3 min-h-[100px] bg-white/50 dark:bg-neutral-800/30 border border-neutral-300 dark:border-neutral-600">
+      <div className="flex flex-col items-center gap-1.5 text-center">
+        <Sparkles className="h-4 w-4 text-blue-400" />
+        <h3 className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Daily Details</h3>
+        <p className="text-neutral-600 dark:text-neutral-400 text-[10px] mb-2">
           Ready to generate insights for {selectedDay.day}.
         </p>
-        <Button 
-          onClick={() => handleGenerateConsultation()} 
-          variant="outline" 
-          size="sm" 
+        <Button
+          onClick={() => handleGenerateConsultation()}
+          variant="outline"
+          size="sm"
           disabled={!selectedDay?.date || !userId || isGenerating || (!selectedDay.isFuture && !dayHasUserLogs(selectedDay))}
+          className="h-6 text-[10px] rounded-none"
         >
-          {isGenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+          {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
           Get Details
         </Button>
         {!selectedDay.isFuture && !dayHasUserLogs(selectedDay) && (
-          <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+          <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">
             Please log your daily activities first
           </p>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 

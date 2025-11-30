@@ -70,9 +70,9 @@ export default function TestWeeklyPatterns({ data, historicalForecastData }: Wee
         <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} dy={5} />
         <YAxis domain={[0, 100]} fontSize={12} tickLine={false} axisLine={false} dx={-5}/>
         <Tooltip
-           contentStyle={{ backgroundColor: 'rgba(30, 41, 59, 0.8)', border: 'none', borderRadius: '4px', fontSize: '12px', padding: '5px 10px' }}
-           labelStyle={{ color: '#cbd5e1' }}
-           itemStyle={{ color: '#e2e8f0' }}
+           contentStyle={{ backgroundColor: 'rgba(43, 43, 43, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0px', fontSize: '12px', padding: '8px 12px' }}
+           labelStyle={{ color: '#a3a3a3' }}
+           itemStyle={{ color: '#e5e5e5' }}
         />
         <Legend iconSize={10} wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
         

@@ -353,4 +353,19 @@ export default defineSchema({
     updatedAt: v.number(),
   })
   .index("by_userId", ["userId"]),
+
+  // Long-form journal entries for free-form writing
+  longFormEntries: defineTable({
+    userId: v.id("users"),
+    date: v.string(), // YYYY-MM-DD format
+    title: v.optional(v.string()),
+    content: v.string(),
+    wordCount: v.number(),
+    charCount: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+  .index("by_userId", ["userId"])
+  .index("by_userId_and_date", ["userId", "date"])
+  .index("by_userId_and_createdAt", ["userId", "createdAt"]),
 });
