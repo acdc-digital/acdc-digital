@@ -15,7 +15,6 @@ import type * as admin from "../admin.js";
 import type * as anthropic from "../anthropic.js";
 import type * as auth from "../auth.js";
 import type * as baseline from "../baseline.js";
-import type * as baselineAnalysis from "../baselineAnalysis.js";
 import type * as baselineChat from "../baselineChat.js";
 import type * as baselineChatActions from "../baselineChatActions.js";
 import type * as checkRateLimits from "../checkRateLimits.js";
@@ -72,7 +71,6 @@ declare const fullApi: ApiFromModules<{
   anthropic: typeof anthropic;
   auth: typeof auth;
   baseline: typeof baseline;
-  baselineAnalysis: typeof baselineAnalysis;
   baselineChat: typeof baselineChat;
   baselineChatActions: typeof baselineChatActions;
   checkRateLimits: typeof checkRateLimits;

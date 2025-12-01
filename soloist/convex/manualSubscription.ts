@@ -1,11 +1,11 @@
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
 /**
- * Manually create a subscription for testing (simulates webhook)
+ * Manually create a subscription for testing (internal only)
  */
-export const manuallyCreateSubscription = mutation({
+export const manuallyCreateSubscription = internalMutation({
   args: {},
   handler: async (ctx) => {
     // Current user in the database

@@ -2,7 +2,7 @@
 // /Users/matthewsimon/Documents/Github/solopro/convex/admin.ts
 
 import { v } from "convex/values";
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError } from "convex/values";
 
@@ -156,25 +156,14 @@ export const getAllUsers = query({
 });
 
 /**
- * Promote user to admin (admin only)
+ * Promote user to admin (internal only)
  */
-export const promoteToAdmin = mutation({
+export const promoteToAdmin = internalMutation({
   args: {
     targetUserId: v.id("users"),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Check if current user is admin
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new ConvexError("Not authenticated");
-    }
-    
-    const currentUser = await ctx.db.get(userId);
-    if (currentUser?.role !== "admin") {
-      throw new ConvexError("Unauthorized: admin access required");
-    }
-    
     // Update target user's role
     await ctx.db.patch(args.targetUserId, {
       role: "admin",
@@ -203,9 +192,9 @@ export const setDefaultRole = internalMutation({
 });
 
 /**
- * Development helper: Promote first user to admin (remove in production)
+ * Development helper: Promote first user to admin (internal only)
  */
-export const promoteFirstUserToAdmin = mutation({
+export const promoteFirstUserToAdmin = internalMutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
@@ -226,9 +215,9 @@ export const promoteFirstUserToAdmin = mutation({
 });
 
 /**
- * Migration helper: Set default role for existing users without a role
+ * Migration helper: Set default role for existing users without a role (internal only)
  */
-export const migrateExistingUsers = mutation({
+export const migrateExistingUsers = internalMutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {

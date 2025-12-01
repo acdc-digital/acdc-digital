@@ -1,7 +1,7 @@
-import { query } from "./_generated/server";
+import { internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
-export const checkSubscriptionDetails = query({
+export const checkSubscriptionDetails = internalQuery({
   args: { userId: v.string() },
   handler: async (ctx, { userId }) => {
     // Get subscription by user ID

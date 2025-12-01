@@ -1,4 +1,4 @@
-import { internalMutation, action } from "./_generated/server";
+import { internalMutation, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 
 export const clearAllTables = internalMutation({
@@ -62,7 +62,7 @@ export const clearAllTables = internalMutation({
   },
 });
 
-export const clearDatabase = action({
+export const clearDatabase = internalAction({
   args: {},
   handler: async (ctx) => {
     return await ctx.runMutation(internal.clearDatabase.clearAllTables, {});

@@ -1,10 +1,10 @@
 // CHECK AUTH RATE LIMITS
-// Lists all rate limit records
+// Lists all rate limit records (internal only)
 
-import { query } from "./_generated/server";
+import { internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
-export const listRateLimits = query({
+export const listRateLimits = internalQuery({
   args: {},
   returns: v.any(),
   handler: async (ctx) => {
@@ -16,7 +16,7 @@ export const listRateLimits = query({
   },
 });
 
-export const clearAllRateLimits = query({
+export const clearAllRateLimits = internalQuery({
   args: {},
   returns: v.any(),
   handler: async (ctx) => {

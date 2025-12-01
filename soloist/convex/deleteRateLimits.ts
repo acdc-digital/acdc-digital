@@ -1,10 +1,10 @@
 // DELETE RATE LIMITS
-// Removes rate limit records to unblock login attempts
+// Removes rate limit records to unblock login attempts (internal only)
 
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 
-export const deleteAllRateLimits = mutation({
+export const deleteAllRateLimits = internalMutation({
   args: {},
   returns: v.object({
     success: v.boolean(),
