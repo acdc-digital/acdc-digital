@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: blob: https:",
           "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.clerk.accounts.dev https://api.stripe.com",
-          "frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.stripe.com",
+          "frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.stripe.com https://website-demo-eight.vercel.app",
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",
