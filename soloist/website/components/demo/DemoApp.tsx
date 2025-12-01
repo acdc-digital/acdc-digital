@@ -8,11 +8,11 @@ export function DemoApp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cacheKey, setCacheKey] = useState("");
   
-  // The demo app runs on port 3003
+  // The demo app runs on port 3003 locally
   // This is a standalone browser-only version with no authentication
-  // PRODUCTION: const baseUrl = process.env.NEXT_PUBLIC_DEMO_URL || "http://localhost:3003/dashboard";
-  // DEV: Using local demo server for testing
-  const baseUrl = "http://localhost:3003/dashboard";
+  // DEV: const baseUrl = "http://localhost:3003/dashboard";
+  // PRODUCTION:
+  const baseUrl = "https://website-demo-eight.vercel.app/dashboard";
   
   // Set cache key on client side only to avoid hydration mismatch
   useEffect(() => {

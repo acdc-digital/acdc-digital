@@ -18,6 +18,26 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: false, // Enable optimization for web deployment
   },
+
+  // Security headers - allow embedding in soloist.acdc.digital
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            // Allow being framed by the main Soloist website
+            key: "X-Frame-Options",
+            value: "ALLOW-FROM https://soloist.acdc.digital",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self' https://soloist.acdc.digital",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
