@@ -204,14 +204,14 @@ export function Steps_v2() {
             </div>
             
             {/* Footer text under grid #1 and #2 */}
-            <div className="grid grid-cols-5 gap-4 mb-12">
+            <div className="grid grid-cols-5 gap-4 mb-16">
               <div className="col-span-5 lg:col-span-2 px-2">
-                <p className="text-sm text-neutral-400">
+                <p className="text-sm text-neutral-900">
                   *5-minutes to get started
                 </p>
               </div>
               <div className="col-span-5 lg:col-span-3 px-2">
-                <p className="text-sm text-neutral-400">
+                <p className="text-sm text-neutral-900">
                   *start generating predictions after just 4-days of logs
                 </p>
               </div>
@@ -226,7 +226,7 @@ export function Steps_v2() {
             {/* Footer text under grid #3 */}
             <div className="grid grid-cols-5 gap-4 mt-1">
               <div className="col-span-5 lg:col-span-3 px-2">
-                <p className="text-sm text-neutral-400">
+                <p className="text-sm text-neutral-900">
                   *Meaningful insights with every log generated
                 </p>
               </div>
