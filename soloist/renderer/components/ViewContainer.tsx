@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-export type ViewType = "dashboard" | "soloist" | "testing" | "waypoints";
+export type ViewType = "dashboard" | "soloist" | "soloistNew" | "testing" | "waypoints" | "superpowers" | "canvas";
 
 interface ViewContainerProps {
   view: ViewType;
