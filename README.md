@@ -74,3 +74,5 @@ ACDC.digital is a **full-service digital studio** focused on making products tha
 [![GitHub followers](https://img.shields.io/github/followers/acdc-digital?style=flat-square&logo=github&label=Followers&color=393939)](https://github.com/acdc-digital)
 [![GitHub stars](https://img.shields.io/github/stars/acdc-digital?style=flat-square&logo=github&label=Stars&color=393939)](https://github.com/acdc-digital)
 
+![ACDC Digital GitHub Stats](https://github-readme-stats.vercel.app/api?username=acdc-digital&show_icons=true&hide_border=true&bg_color=393939&title_color=f5f5f5&icon_color=d4d4d8&text_color=e5e5e5&include_all_commits=true&border_radius=0)
+
