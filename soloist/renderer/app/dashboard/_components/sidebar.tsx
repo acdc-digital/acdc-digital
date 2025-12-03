@@ -16,6 +16,8 @@ import {
   User,
   Download,
   LucideIcon,
+  Zap,
+  CircleFadingPlus,
 } from "lucide-react";
 import { HeatmapIcon } from "@/components/icons/HeatmapIcon";
 
@@ -42,6 +44,31 @@ function WaypointsIcon({ className, isActive }: { className?: string; isActive?:
       <circle cx="5" cy="6" r="2" fill="currentColor" />
       {/* Smooth wavelength path */}
       <path d="M2 18 Q 7 12 12 16 Q 17 20 22 14" />
+    </svg>
+  );
+}
+
+// Custom Squiggle Icon - line squiggle for Canvas view
+function SquiggleIcon({ className, isActive }: { className?: string; isActive?: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn(
+        "h-5 w-5 transition-colors",
+        isActive ? "text-foreground" : "text-muted-foreground",
+        className
+      )}
+    >
+      {/* Squiggle line path */}
+      <path d="M3 12 Q 6 6 9 12 Q 12 18 15 12 Q 18 6 21 12" />
     </svg>
   );
 }
@@ -202,6 +229,39 @@ export function Sidebar({ className }: SidebarProps) {
     setSidebarOpen(false);
     
     console.log("Testing action clicked");
+  };
+
+  const handleSuperpowers = () => {
+    // Switch to Superpowers view
+    transitionTo("superpowers");
+    
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("Superpowers action clicked");
+  };
+
+  const handleSoloistNew = () => {
+    // Switch to SoloistNew view
+    transitionTo("soloistNew");
+    
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("SoloistNew action clicked");
+  };
+
+  const handleCanvas = () => {
+    // Switch to Canvas view
+    transitionTo("canvas");
+    
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("Canvas action clicked");
   };
 
   const handleWaypoints = () => {
@@ -396,21 +456,56 @@ export function Sidebar({ className }: SidebarProps) {
               </span>
             </div>
 
-            {/* Soloist/Baseline */}
-            <ActivityBarItem
+            {/* Soloist/Baseline - COMMENTED OUT: Replaced by new Soloist view */}
+            {/* <ActivityBarItem
               icon={ChartSpline}
               label="Weekly"
               isActive={currentView === "soloist"}
               onClick={handleSoloist}
-            />
+            /> */}
 
-            {/* Playground */}
-            <ActivityBarItem
+            {/* Playground - COMMENTED OUT: Replaced by new Soloist view */}
+            {/* <ActivityBarItem
               icon={Activity}
               label="Sandbox"
               isActive={currentView === "testing"}
               onClick={handleTesting}
+            /> */}
+
+            {/* Soloist New */}
+            <ActivityBarItem
+              icon={CircleFadingPlus}
+              label="Soloist"
+              isActive={currentView === "soloistNew"}
+              onClick={handleSoloistNew}
             />
+
+            {/* Canvas */}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center gap-1 cursor-pointer"
+              onClick={handleCanvas}
+            >
+              <div
+                className={cn(
+                  "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+                  "hover:bg-white/10",
+                  currentView === "canvas" && "bg-white/15 border border-white/20"
+                )}
+                title="Canvas"
+              >
+                <SquiggleIcon isActive={currentView === "canvas"} />
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium leading-none transition-colors",
+                  currentView === "canvas"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                Canvas
+              </span>
+            </div>
 
             {/* Download App - Only for browser users with subscription */}
             {isBrowser === true && effectiveSubscription && (

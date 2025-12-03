@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export type ViewType = "dashboard" | "soloist" | "testing" | "waypoints";
+export type ViewType = "dashboard" | "soloist" | "soloistNew" | "testing" | "waypoints" | "superpowers" | "canvas";
 
 export type TransitionState = "idle" | "transitioning" | "active" | "error";
 
@@ -205,6 +205,15 @@ async function preTransitionCleanup(fromView: ViewType): Promise<void> {
       break;
     case "waypoints":
       // Example: Save waypoint progress
+      break;
+    case "superpowers":
+      // Example: Clear any superpowers state
+      break;
+    case "soloistNew":
+      // Example: Clear any soloistNew state
+      break;
+    case "canvas":
+      // Example: Clear any canvas state
       break;
   }
   

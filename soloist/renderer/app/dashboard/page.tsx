@@ -32,7 +32,9 @@ import Controls from "./_components/Controls";
 import DailyLogForm from "./_components/dailyLogForm";
 import Feed from "./_components/Feed";
 import { RightSidebar } from "./_components/RightSidebar";
-import SoloistPage from "./soloist/page";
+import SoloistPage from "./weekly/page";
+import SoloistNewPage from "./soloist/page";
+import CanvasPage from "./canvsas/page";
 import TestingPage from "./testing/page";
 import WaypointsPage from "./waypoints/page";
 import { Loader2, ArrowRightToLine } from "lucide-react";
@@ -534,6 +536,20 @@ export default function Dashboard() {
               <WaypointsPage />
             </main>
           </ViewContainer>
+
+          {/* Soloist New View */}
+          <ViewContainer view="soloistNew" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <SoloistNewPage />
+            </main>
+          </ViewContainer>
+
+          {/* Canvas View */}
+          <ViewContainer view="canvas" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <CanvasPage />
+            </main>
+          </ViewContainer>
         </ViewsWrapper>
 
         {/* Right sidebar - Show only for dashboard view, positioned outside ViewContainer */}
@@ -593,27 +609,6 @@ export default function Dashboard() {
               )}
             </RightSidebar>
           )}
-
-          {/* Soloist View */}
-          <ViewContainer view="soloist" currentView={currentView}>
-            <main className="flex-1 overflow-hidden">
-              <SoloistPage />
-            </main>
-          </ViewContainer>
-
-          {/* Testing View */}
-          <ViewContainer view="testing" currentView={currentView}>
-            <main className="flex-1 overflow-hidden">
-              <TestingPage />
-            </main>
-          </ViewContainer>
-
-          {/* Waypoints View */}
-          <ViewContainer view="waypoints" currentView={currentView}>
-            <main className="flex-1 overflow-hidden">
-              <WaypointsPage />
-            </main>
-          </ViewContainer>
       </div>
       
       {/* Browser Footer - Only show when confirmed browser mode */}

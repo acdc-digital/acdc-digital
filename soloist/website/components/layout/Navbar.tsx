@@ -10,7 +10,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { SignInModal } from "@/modals/SignInModal";
 import { SignupPaymentModal } from "@/modals/SignupPaymentModal";
-import { Loader2, Menu, X, Shield, ShieldUserIcon, User, FileDown, LogOut } from "lucide-react";
+import { Loader2, Menu, X, Shield, User, FileDown, LogOut } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { BouncingLogoCompact } from "@/components/features/BouncingLogoCompact";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -285,10 +285,10 @@ export function Navbar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="inline-flex items-center justify-center rounded-full border border-red-600 bg-red-50 h-10 w-10 text-red-600 hover:bg-red-100 hover:border-red-700 transition-all duration-200"
+                    className="inline-flex items-center justify-center rounded-full border border-red-600 bg-red-50 h-9 w-9 text-red-600 hover:bg-red-100 hover:border-red-700 transition-all duration-200 font-normal text-xl"
                     title="Admin Dashboard"
                   >
-                    <ShieldUserIcon className="h- w-6" strokeWidth={1.5} />
+                    A
                   </Link>
                 )}
                 {/* User Avatar Dropdown */}
