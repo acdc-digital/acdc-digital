@@ -1,8 +1,8 @@
 {
   "node": {
-    "nodeVersion": "22",
     "externalPackages": [
       "@node-rs/argon2"
-    ]
+    ],
+    "nodeVersion": "22"
   }
 }

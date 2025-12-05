@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
   // Keep strict mode for development
   reactStrictMode: true,
@@ -19,8 +21,13 @@ const nextConfig: NextConfig = {
     unoptimized: false, // Enable optimization for web deployment
   },
 
-  // Security headers - allow embedding in soloist.acdc.digital
+  // Security headers - allow embedding in soloist.acdc.digital (and localhost in dev)
   async headers() {
+    // In development, allow localhost origins for testing
+    const frameAncestors = isDev 
+      ? "'self' https://soloist.acdc.digital http://localhost:* https://localhost:*"
+      : "'self' https://soloist.acdc.digital";
+    
     return [
       {
         source: "/:path*",
@@ -32,7 +39,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' https://soloist.acdc.digital",
+            value: `frame-ancestors ${frameAncestors}`,
           },
         ],
       },

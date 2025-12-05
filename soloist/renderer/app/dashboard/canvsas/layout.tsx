@@ -11,7 +11,7 @@ interface CanvasLayoutProps {
 
 export default function CanvasLayout({ children }: CanvasLayoutProps) {
   return (
-    <div className="flex-1 h-full flex flex-col overflow-hidden bg-neutral-100 dark:bg-[#2b2b2b]">
+    <div className="flex-1 h-full flex flex-col overflow-hidden bg-neutral-100 dark:bg-neutral-500/20">
       {children}
     </div>
   );

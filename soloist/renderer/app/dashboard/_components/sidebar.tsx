@@ -17,7 +17,6 @@ import {
   Download,
   LucideIcon,
   Zap,
-  CircleFadingPlus,
 } from "lucide-react";
 import { HeatmapIcon } from "@/components/icons/HeatmapIcon";
 
@@ -48,8 +47,37 @@ function WaypointsIcon({ className, isActive }: { className?: string; isActive?:
   );
 }
 
-// Custom Squiggle Icon - line squiggle for Canvas view
-function SquiggleIcon({ className, isActive }: { className?: string; isActive?: boolean }) {
+// Custom Soloist Icon - exact Lucide circle-fading-plus paths without the plus
+function SoloistIcon({ className, isActive }: { className?: string; isActive?: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn(
+        "h-5.5 w-5.5 transition-colors",
+        isActive ? "text-foreground" : "text-muted-foreground",
+        className
+      )}
+    >
+      {/* Exact Lucide circle-fading-plus paths (without plus) */}
+      <path d="M12 2a10 10 0 0 1 7.38 16.75" />
+      <path d="M2.5 8.875a10 10 0 0 0-.5 3" />
+      <path d="M2.83 16a10 10 0 0 0 2.43 3.4" />
+      <path d="M4.636 5.235a10 10 0 0 1 .891-.857" />
+      <path d="M8.644 21.42a10 10 0 0 0 7.631-.38" />
+    </svg>
+  );
+}
+
+// Custom Palette Icon - color palette for Canvas view (based on Lucide palette icon)
+function PaletteIcon({ className, isActive }: { className?: string; isActive?: boolean }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -62,13 +90,13 @@ function SquiggleIcon({ className, isActive }: { className?: string; isActive?: 
       strokeLinecap="round"
       strokeLinejoin="round"
       className={cn(
-        "h-5 w-5 transition-colors",
+        "h-5.5 w-5.5 transition-colors",
         isActive ? "text-foreground" : "text-muted-foreground",
         className
       )}
     >
-      {/* Squiggle line path */}
-      <path d="M3 12 Q 6 6 9 12 Q 12 18 15 12 Q 18 6 21 12" />
+      {/* Palette shape */}
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z" />
     </svg>
   );
 }
@@ -473,12 +501,31 @@ export function Sidebar({ className }: SidebarProps) {
             /> */}
 
             {/* Soloist New */}
-            <ActivityBarItem
-              icon={CircleFadingPlus}
-              label="Soloist"
-              isActive={currentView === "soloistNew"}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center gap-1 cursor-pointer"
               onClick={handleSoloistNew}
-            />
+            >
+              <div
+                className={cn(
+                  "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+                  "hover:bg-white/10",
+                  currentView === "soloistNew" && "bg-white/15 border border-white/20"
+                )}
+                title="Soloist"
+              >
+                <SoloistIcon isActive={currentView === "soloistNew"} />
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium leading-none transition-colors",
+                  currentView === "soloistNew"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                Soloist
+              </span>
+            </div>
 
             {/* Canvas */}
             <div
@@ -493,7 +540,7 @@ export function Sidebar({ className }: SidebarProps) {
                 )}
                 title="Canvas"
               >
-                <SquiggleIcon isActive={currentView === "canvas"} />
+                <PaletteIcon isActive={currentView === "canvas"} />
               </div>
               <span
                 className={cn(
