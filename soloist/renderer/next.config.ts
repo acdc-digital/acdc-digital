@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Keep strict mode for development
   reactStrictMode: true,
   
+  // Ensure convex packages are resolved from the same location
+  transpilePackages: ['convex', '@convex-dev/auth'],
+  
   // Configure for deployment
   eslint: {
     ignoreDuringBuilds: true,

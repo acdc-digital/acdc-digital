@@ -25,7 +25,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "convex": "^1.23.0",
+    "convex": "^1.28.0",
     "date-fns": "^3.6.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.511.0",
@@ -41,6 +41,7 @@
     "stripe": "^18.3.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "tldraw": "^4.2.0",
     "zustand": "^5.0.5"
   },
   "devDependencies": {

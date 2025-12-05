@@ -4,6 +4,10 @@ import path from "path";
 const nextConfig: NextConfig = {
   // Suppress X-Powered-By header to avoid leaking server information
   poweredByHeader: false,
+  
+  // Ensure convex packages are resolved from the same location
+  transpilePackages: ['convex', '@convex-dev/auth'],
+  
   experimental: {
     externalDir: true, // Allow imports from outside the website directory
   },
@@ -28,12 +32,12 @@ const nextConfig: NextConfig = {
         key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.convex.cloud https://*.clerk.accounts.dev https://challenges.cloudflare.com",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.convex.cloud https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.stripe.com https://*.stripe.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com data:",
           "img-src 'self' data: blob: https:",
-          "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.clerk.accounts.dev https://api.stripe.com",
-          "frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.stripe.com https://website-demo-eight.vercel.app",
+          "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.clerk.accounts.dev https://api.stripe.com https://*.stripe.com",
+          "frame-src 'self' https://*.clerk.accounts.dev https://challenges.cloudflare.com https://js.stripe.com https://*.stripe.com https://website-demo-eight.vercel.app",
           "object-src 'none'",
           "base-uri 'self'",
           "form-action 'self'",

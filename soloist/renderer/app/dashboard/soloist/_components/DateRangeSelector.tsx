@@ -101,7 +101,7 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
   }, [selectedDateRange.end]);
 
   return (
-    <div className="flex flex-col gap-3 p-3 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30">
+    <div className="flex flex-col gap-3 p-3 border border-neutral-300 dark:border-neutral-600 bg-white/50 dark:bg-neutral-800/30 rounded-lg">
       {/* Header row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
           }
           variant="outline"
           className={cn(
-            "h-7 px-3 text-xs rounded-none transition-all duration-200",
+            "h-7 px-3 text-xs rounded-md transition-all duration-200",
             "border-neutral-400 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
             isGenerated && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700"
           )}
@@ -160,25 +160,25 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
       {selectedDateRange.start && selectedDateRange.end && forecastDates && (
         <div className="flex flex-col gap-2 text-xs">
           {/* Historical */}
-          <div className="flex items-center gap-2 px-2 py-1.5 border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
+          <div className="flex items-center gap-2 px-2 py-1.5 border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 rounded-md">
             <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
             <span className="text-neutral-600 dark:text-neutral-400">Historical:</span>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">
               {format(selectedDateRange.start, 'MMM d')} → {format(selectedDateRange.end, 'MMM d')}
             </span>
-            <Badge className="h-4 text-[9px] px-1 rounded-none bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 ml-auto">
+            <Badge className="h-4 text-[9px] px-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 ml-auto">
               4 days
             </Badge>
           </div>
           
           {/* Forecast */}
-          <div className="flex items-center gap-2 px-2 py-1.5 border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20">
+          <div className="flex items-center gap-2 px-2 py-1.5 border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 rounded-md">
             <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" />
             <span className="text-neutral-600 dark:text-neutral-400">Forecast:</span>
             <span className="font-medium text-neutral-900 dark:text-neutral-100">
               {format(forecastDates.forecastStart, 'MMM d')} → {format(forecastDates.forecastEnd, 'MMM d')}
             </span>
-            <Badge className="h-4 text-[9px] px-1 rounded-none bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 ml-auto">
+            <Badge className="h-4 text-[9px] px-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 ml-auto">
               3 days
             </Badge>
           </div>

@@ -59,41 +59,8 @@ export function BaselineChatPanel({
   };
 
   return (
-    <div className="mr-2 border-r border-r-white/20 h-full flex flex-col bg-neutral-100 dark:bg-neutral-800">
-      {/* Fixed Header */}
-      <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
-        <div className="pb-2 pt-2">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-3">
-              {/* Solo Dot - inverted colors (red background, white dot) */}
-              <div className="mt-1 w-7 h-7 rounded-full bg-[#EF4444] flex items-center justify-center pr-2.5 pb-2">
-                <div className="w-2 h-2 rounded-full bg-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-                  Your Analysis
-                </h2>
-                <p className="text-neutral-500 dark:text-neutral-400 text-xs mt-0s">
-                  AI-powered insights into your patterns.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setMessage("")}
-                disabled={isSending}
-                className="flex flex-col items-center gap-0.5 p-1.5 rounded-md text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors disabled:opacity-50"
-                title="Clear Input"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span className="text-[10px]">Clear</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="h-full flex flex-col bg-neutral-100 dark:bg-neutral-800 p-4">
+      <div className="flex-1 flex flex-col border border-neutral-300 dark:border-neutral-600 rounded-lg overflow-hidden bg-neutral-200/50 dark:bg-neutral-700/30">
       {/* Scrollable Messages Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-5 py-5 space-y-4">
@@ -167,8 +134,8 @@ export function BaselineChatPanel({
         </div>
       </div>
 
-      {/* Footer - Input Area */}
-      <div className="flex-shrink-0 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-300 dark:border-neutral-600">
+      {/* Footer - Input Area (COMMENTED OUT) */}
+      {/* <div className="flex-shrink-0 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-300 dark:border-neutral-600">
         <PromptInput
           onSubmit={(e) => {
             e.preventDefault();
@@ -200,6 +167,7 @@ export function BaselineChatPanel({
             Press <kbd className="px-1.5 py-0.5 bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded text-xs font-mono">Enter</kbd> to send
           </p>
         </PromptInput>
+      </div> */}
       </div>
     </div>
   );

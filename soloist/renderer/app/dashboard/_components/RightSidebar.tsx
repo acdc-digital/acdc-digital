@@ -21,11 +21,11 @@ export function RightSidebar({
   title = "Details",
   children,
 }: RightSidebarProps) {
-  const [width, setWidth] = useState(320);
+  const [width, setWidth] = useState(460);
   const [windowWidth, setWindowWidth] = useState(0);
-  const MIN_WIDTH = 240;
-  // Dynamic MAX_WIDTH: 50% of window width, with a reasonable minimum
-  const MAX_WIDTH = Math.max(500, Math.floor(windowWidth * 0.45));
+  const MIN_WIDTH = 460;
+  // Dynamic MAX_WIDTH: capped at 620, or 45% of window width if smaller
+  const MAX_WIDTH = Math.min(620, Math.max(460, Math.floor(windowWidth * 0.45)));
   const [isResizeHovered, setIsResizeHovered] = useState(false);
 
   // Track window width for dynamic max width calculation
