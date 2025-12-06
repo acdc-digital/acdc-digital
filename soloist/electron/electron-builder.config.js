@@ -186,6 +186,14 @@ module.exports = {
       console.log(`   API Key file exists: NO - File not found!`);
     }
 
+    // Skip notarization in CI for now - app is still signed
+    if (process.env.SKIP_NOTARIZATION === 'true' || process.env.CI === 'true') {
+      console.log('⚠️  Skipping notarization in CI environment');
+      console.log('   The app is still code-signed, but users may see Gatekeeper warnings on first launch.');
+      console.log('   To enable notarization, remove the CI check and ensure credentials are correct.');
+      return;
+    }
+
     try {
       await notarize({
         appBundleId: 'com.soloistpro.app',
