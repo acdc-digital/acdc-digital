@@ -9,7 +9,7 @@ const { spawn } = require("child_process");
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 // Production renderer URL - UPDATE THIS TO YOUR VERCEL URL
-const PRODUCTION_RENDERER_URL = 'https://app.acdc.digital'; // Your actual renderer URL
+const PRODUCTION_RENDERER_URL = 'https://soloist-app.acdc.digital'; // Your actual renderer URL
 
 let nextServer = null;
 let serverPort = 3002; // Default port for the renderer
