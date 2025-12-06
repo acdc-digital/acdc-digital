@@ -47,11 +47,11 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 
 ### 🎯 Featured Projects
 
-| Project | Description | Tech Stack | Status |
-|---------|-------------|------------|--------|
-| **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today. | Next.js, Convex, TypeScript, Stripe | 🟢 Active |
-| **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading. | React, Convex, Node.js | 🟢 Active |
-| **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting. | Next.js, Tailwind, Convex | 🟡 In Development |
+| Project | Description |
+|---------|-------------|
+| **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today.
+| **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading.
+| **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting.
 
 > **78+ intelligent agents** power our products behind the scenes—coordinating tasks, analyzing data, and delivering personalized experiences across all projects.
 
