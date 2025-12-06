@@ -71,7 +71,9 @@ module.exports = {
     entitlements: "build/entitlements.mac.plist",
     entitlementsInherit: "build/entitlements.mac.plist",
     // Code signing identity
-    identity: process.env.CSC_NAME || "Matthew Simon (JNNAATJZ3T)"
+    identity: process.env.CSC_NAME || "Matthew Simon (JNNAATJZ3T)",
+    // Disable built-in notarization - we handle it in afterSign hook
+    notarize: false
   },
   dmg: {
     contents: [
