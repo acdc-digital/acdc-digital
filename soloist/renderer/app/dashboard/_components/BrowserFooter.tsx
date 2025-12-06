@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { Github, ExternalLink, MessageSquare } from "lucide-react";
 import { PrivacyPolicyModal } from "./legal/privacyPolicy";
 import { TermsOfServiceModal } from "./legal/termsOfService";
-import { useDashboardStore } from "@/app/dashboard/store/dashboardStore";
+import { useDashboardStore } from "@/store/dashboardStore";
 import {
   Dialog,
   DialogContent,
