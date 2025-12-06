@@ -11,6 +11,7 @@ node_modules/
 .next/
 out/
 build
+!soloist/electron/build/
 dist
 
 # Runtime data
