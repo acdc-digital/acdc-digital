@@ -660,7 +660,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 w-full max-w-full"
           >
-            {Object.entries(groupedFields).map(([category, fields]: [string, TemplateField[]], index) => (
+            {(Object.entries(groupedFields) as [string, TemplateField[]][]).map(([category, fields], index) => (
               <React.Fragment key={category}>
                 {/* Section separator - show before all sections except first */}
                 {index > 0 && (
