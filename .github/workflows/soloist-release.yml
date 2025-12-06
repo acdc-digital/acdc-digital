@@ -82,10 +82,12 @@ jobs:
         env:
           APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY }}
         run: |
-          # Write the API key to a file
+          # Write the API key to a file (using printf to preserve newlines)
           mkdir -p $RUNNER_TEMP/private_keys
-          echo "$APPLE_API_KEY_CONTENT" > $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+          printf '%s\n' "$APPLE_API_KEY_CONTENT" > $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           echo "API key written to: $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8"
+          echo "API key file size: $(wc -c < $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8) bytes"
+          echo "API key first line: $(head -1 $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8)"
 
       - name: Build renderer
         run: pnpm run build:renderer

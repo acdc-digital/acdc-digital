@@ -150,6 +150,8 @@ module.exports = {
     const appPath = `${appOutDir}/${appName}.app`;
 
     // Check if notarization credentials are properly set
+    const appleApiKey = process.env.APPLE_API_KEY;
+    const appleApiKeyId = process.env.APPLE_API_KEY_ID;
     const appleApiIssuer = process.env.APPLE_API_ISSUER;
 
     if (!appleApiIssuer || appleApiIssuer === 'YOUR_ISSUER_ID') {
@@ -159,20 +161,30 @@ module.exports = {
       return;
     }
 
+    if (!appleApiKey) {
+      console.log('⚠️  Skipping notarization - APPLE_API_KEY not set');
+      return;
+    }
+
     console.log('🍎 Starting notarization process...');
+    console.log(`   App path: ${appPath}`);
+    console.log(`   API Key ID: ${appleApiKeyId}`);
+    console.log(`   API Key file: ${appleApiKey}`);
+    console.log(`   Issuer ID: ${appleApiIssuer ? appleApiIssuer.substring(0, 8) + '...' : 'not set'}`);
 
     try {
       await notarize({
         appBundleId: 'com.soloistpro.app',
         appPath: appPath,
-        appleApiKey: process.env.APPLE_API_KEY || './certs/AuthKey_5X66MM738M.p8',
-        appleApiKeyId: process.env.APPLE_API_KEY_ID || '5X66MM738M',
+        appleApiKey: appleApiKey,
+        appleApiKeyId: appleApiKeyId,
         appleApiIssuer: appleApiIssuer
       });
 
       console.log('✅ Notarization completed successfully!');
     } catch (error) {
       console.error('❌ Notarization failed:', error.message);
+      console.error('Full error:', error);
 
       // Check for specific API errors
       if (error.message.includes('403') || error.message.includes('agreement')) {
