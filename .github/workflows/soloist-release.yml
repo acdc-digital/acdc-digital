@@ -1,0 +1,204 @@
+name: Build & Release Soloist
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggered when you push a Git tag like v2.0.0
+  workflow_dispatch:
+    inputs:
+      skip_signing:
+        description: 'Skip macOS code signing (for testing)'
+        type: boolean
+        default: false
+
+# Ensure only one release build runs at a time
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: soloist
+
+jobs:
+  # ============================================
+  # Build macOS with code signing & notarization
+  # ============================================
+  build-macos:
+    runs-on: macos-14  # Apple Silicon runner with Xcode & notarytool
+    
+    env:
+      CSC_NAME:           ${{ secrets.CSC_NAME }}
+      APPLE_API_KEY:      ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_KEY_ID:   ${{ secrets.APPLE_API_KEY_ID }}
+      APPLE_API_ISSUER:   ${{ secrets.APPLE_API_ISSUER }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: soloist/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup environment variables
+        run: |
+          echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.NEXT_PUBLIC_CONVEX_URL }}" > renderer/.env.local
+
+      - name: Build renderer
+        run: pnpm run build:renderer
+
+      - name: Build macOS (signed + notarized)
+        run: pnpm --filter solopro-electron run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS DMGs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Soloist-macOS
+          path: |
+            soloist/electron/dist/*.dmg
+            soloist/electron/dist/*.dmg.blockmap
+          retention-days: 7
+
+  # ============================================
+  # Build Windows
+  # ============================================
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: soloist/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup environment variables
+        run: |
+          echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.NEXT_PUBLIC_CONVEX_URL }}" > renderer/.env.local
+
+      - name: Build renderer
+        run: pnpm run build:renderer
+
+      - name: Build Windows
+        run: |
+          cd electron
+          pnpm run build -- --win --publish=never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Soloist-Windows
+          path: |
+            soloist/electron/dist/*.exe
+            soloist/electron/dist/*.exe.blockmap
+          retention-days: 7
+
+  # ============================================
+  # Build Linux
+  # ============================================
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: soloist/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup environment variables
+        run: |
+          echo "NEXT_PUBLIC_CONVEX_URL=${{ secrets.NEXT_PUBLIC_CONVEX_URL }}" > renderer/.env.local
+
+      - name: Build renderer
+        run: pnpm run build:renderer
+
+      - name: Build Linux packages
+        run: |
+          cd electron
+          pnpm run build -- --linux --publish=never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Soloist-Linux
+          path: |
+            soloist/electron/dist/*.AppImage
+            soloist/electron/dist/*.deb
+            soloist/electron/dist/*.rpm
+          retention-days: 7
+
+  # ============================================
+  # Upload all artifacts to GitHub Release
+  # ============================================
+  publish-release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Display structure of downloaded files
+        run: find dist -type f -name "*"
+        working-directory: .
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*.dmg
+            dist/**/*.dmg.blockmap
+            dist/**/*.exe
+            dist/**/*.exe.blockmap
+            dist/**/*.AppImage
+            dist/**/*.deb
+            dist/**/*.rpm
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
