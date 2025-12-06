@@ -11,6 +11,10 @@ on:
         type: boolean
         default: false
 
+# Required permissions for creating releases
+permissions:
+  contents: write
+
 # Ensure only one release build runs at a time
 concurrency:
   group: release-${{ github.ref }}
