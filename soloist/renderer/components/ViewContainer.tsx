@@ -2,8 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-
-export type ViewType = "dashboard" | "soloist" | "soloistNew" | "testing" | "waypoints" | "superpowers" | "canvas";
+import { ViewType } from "@/store/viewOrchestrator";
 
 interface ViewContainerProps {
   view: ViewType;
