@@ -1,11 +1,11 @@
 {
   "name": "solopro-electron",
-  "version": "1.6.6",
+  "version": "2.0.0",
   "description": "SoloPro - AI-powered mood tracking and emotional well-being platform",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/acdc-digital/solopro.git"
+    "url": "https://github.com/acdc-digital/acdc-digital.git"
   },
   "scripts": {
     "dev": "NODE_ENV=development npx electron@latest .",

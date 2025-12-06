@@ -176,12 +176,12 @@ export function Navbar() {
 
     // Default to the user's OS, but fallback to macOS if unknown
     if (detectedOS === 'Windows') {
-      downloadUrl = 'https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-Setup-1.6.5.exe';
+      downloadUrl = 'https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-Setup-2.0.0.exe';
     } else if (detectedOS === 'macOS') {
-      downloadUrl = 'https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.5-x64.dmg';
+      downloadUrl = 'https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0-x64.dmg';
     } else {
       // Default to macOS x64 for other OS
-      downloadUrl = 'https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.5-x64.dmg';
+      downloadUrl = 'https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0-x64.dmg';
     }
 
     // Create a temporary link and trigger download

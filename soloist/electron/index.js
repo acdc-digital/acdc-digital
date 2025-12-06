@@ -237,7 +237,7 @@ ipcMain.on('window-close', (event) => {
 
 // Handle in-app update requests
 ipcMain.on('app-update', () => {
-  const latestReleaseUrl = 'https://github.com/acdc-digital/solopro/releases/latest';
+  const latestReleaseUrl = 'https://github.com/acdc-digital/acdc-digital/releases/latest';
   shell.openExternal(latestReleaseUrl);
 });
 

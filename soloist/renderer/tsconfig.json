@@ -24,7 +24,14 @@
     ],
     "paths": {
       "@/convex/*": ["./convex/*"],
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/dashboard/*": ["./app/dashboard/*"],
+      "@/dashboard/heatmap/*": ["./app/dashboard/heatmap/*"],
+      "@/dashboard/base/*": ["./app/dashboard/base/*"],
+      "@/dashboard/soloist/*": ["./app/dashboard/soloist/*"],
+      "@/dashboard/canvas/*": ["./app/dashboard/canvas/*"],
+      "@/dashboard/user/*": ["./app/dashboard/user/*"],
+      "@/dashboard/help/*": ["./app/dashboard/help/*"]
     }
   },
   "include": [

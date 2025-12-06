@@ -33,8 +33,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProfileModal } from "./modals/ProfileModal";
-import { PricingModal } from "./modals/PricingModal";
+import { ProfileModal } from "@/dashboard/user/_components/ProfileModal";
+import { PricingModal } from "@/dashboard/user/_components/PricingModal";
 
 export function BrowserNavbar() {
   const { isAuthenticated, userId } = useConvexUser();

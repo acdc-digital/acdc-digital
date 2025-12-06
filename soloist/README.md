@@ -56,11 +56,11 @@ Built for individuals seeking deeper self-understanding, Soloist combines intell
 
 | Platform | File | Direct Link |
 |----------|------|-------------|
-| macOS (Intel) | `Soloist.Pro-1.6.6-x64.dmg` | [Download](https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.6-x64.dmg) |
-| macOS (Apple Silicon) | `Soloist.Pro-1.6.6-arm64.dmg` | [Download](https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.6-arm64.dmg) |
-| Windows | `Soloist.Pro-Setup-1.6.6.exe` | [Download](https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-Setup-1.6.6.exe) |
-| Linux (AppImage) | `Soloist.Pro-1.6.6.AppImage` | [Download](https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.6.AppImage) |
-| Linux (Deb) | `solopro-electron-1.6.6.deb` | [Download](https://github.com/acdc-digital/solopro/releases/download/v1.6.6/solopro-electron-1.6.6.deb) |
+| macOS (Intel) | `Soloist.Pro-2.0.0-x64.dmg` | [Download](https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0-x64.dmg) |
+| macOS (Apple Silicon) | `Soloist.Pro-2.0.0-arm64.dmg` | [Download](https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0-arm64.dmg) |
+| Windows | `Soloist.Pro-Setup-2.0.0.exe` | [Download](https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-Setup-2.0.0.exe) |
+| Linux (AppImage) | `Soloist.Pro-2.0.0.AppImage` | [Download](https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0.AppImage) |
+| Linux (Deb) | `solopro-electron-2.0.0.deb` | [Download](https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/solopro-electron-2.0.0.deb) |
 
 **System Requirements**: All platforms require 4GB RAM minimum, 500MB storage space. Internet connection required for AI features.
 

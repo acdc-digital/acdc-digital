@@ -27,21 +27,25 @@ import { useBrowserEnvironment } from "@/utils/environment";
 import { Sidebar } from "./_components/sidebar";
 import { BrowserNavbar } from "@/app/dashboard/_components/BrowserNavbar";
 import { BrowserFooter } from "@/app/dashboard/_components/BrowserFooter";
-import Heatmap from "./_components/Heatmap";
-import Controls from "./_components/Controls";
-import DailyLogForm from "./_components/dailyLogForm";
-import Feed from "./_components/Feed";
 import { RightSidebar } from "./_components/RightSidebar";
-import SoloistPage from "./weekly/page";
+// Heatmap-specific components
+import Heatmap from "@/dashboard/heatmap/_components/Heatmap";
+import Controls from "@/dashboard/heatmap/_components/Controls";
+import DailyLogForm from "@/dashboard/heatmap/_components/dailyLogForm";
+import Feed from "@/dashboard/heatmap/_components/Feed";
+import { Tag } from "@/dashboard/heatmap/_components/Tags";
+import TemplateSelector from "@/dashboard/heatmap/_components/TemplateSelector";
+import Templates, { Template } from "@/dashboard/heatmap/_components/Templates";
+// View pages
+// Legacy views (moved to /app/legacy)
+// import SoloistPage from "./weekly/page";
+// import TestingPage from "./testing/page";
 import SoloistNewPage from "./soloist/page";
-import CanvasPage from "./canvsas/page";
-import TestingPage from "./testing/page";
-import WaypointsPage from "./waypoints/page";
+import CanvasPage from "./canvas/page";
+import WaypointsPage from "./base/page";
+import HelpPage from "./help/page";
 import { Loader2, ArrowRightToLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tag } from "./_components/Tags";
-import TemplateSelector from "./_components/TemplateSelector";
-import Templates, { Template } from "./_components/Templates";
 import { useTemplates } from "@/hooks/useTemplates";
 import { ViewContainer, ViewsWrapper } from "@/components/ViewContainer";
 
@@ -516,19 +520,19 @@ export default function Dashboard() {
             </main>
           </ViewContainer>
 
-          {/* Soloist View */}
-          <ViewContainer view="soloist" currentView={currentView}>
+          {/* Soloist View - LEGACY: Moved to /app/legacy/weekly */}
+          {/* <ViewContainer view="soloist" currentView={currentView}>
             <main className="flex-1 overflow-hidden">
               <SoloistPage />
             </main>
-          </ViewContainer>
+          </ViewContainer> */}
 
-          {/* Testing View */}
-          <ViewContainer view="testing" currentView={currentView}>
+          {/* Testing View - LEGACY: Moved to /app/legacy/testing */}
+          {/* <ViewContainer view="testing" currentView={currentView}>
             <main className="flex-1 overflow-hidden">
               <TestingPage />
             </main>
-          </ViewContainer>
+          </ViewContainer> */}
 
           {/* Waypoints View */}
           <ViewContainer view="waypoints" currentView={currentView}>
@@ -548,6 +552,13 @@ export default function Dashboard() {
           <ViewContainer view="canvas" currentView={currentView}>
             <main className="flex-1 overflow-hidden">
               <CanvasPage />
+            </main>
+          </ViewContainer>
+
+          {/* Help View */}
+          <ViewContainer view="help" currentView={currentView}>
+            <main className="flex-1 overflow-hidden">
+              <HelpPage />
             </main>
           </ViewContainer>
         </ViewsWrapper>
