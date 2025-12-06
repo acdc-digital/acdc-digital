@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { Github, ExternalLink, MessageSquare } from "lucide-react";
 import { PrivacyPolicyModal } from "./legal/privacyPolicy";
 import { TermsOfServiceModal } from "./legal/termsOfService";
-import { FeedbackModal } from "./modals/FeedbackModal";
+import { useDashboardStore } from "@/app/dashboard/store/dashboardStore";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ export function BrowserFooter() {
   const currentYear = new Date().getFullYear();
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
-  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+  const { transitionTo } = useDashboardStore();
   const lastUpdated = "January 2025";
 
   const handleLinkClick = (url: string) => {
@@ -50,7 +50,7 @@ export function BrowserFooter() {
             <nav className="flex items-center">
               <div className="flex items-center gap-1 pr-4">
                 <button
-                  onClick={() => setFeedbackModalOpen(true)}
+                  onClick={() => transitionTo("help")}
                   className="px-3 py-1.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/60 rounded-md transition-all duration-200 font-medium flex items-center gap-1.5"
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
@@ -300,12 +300,6 @@ export function BrowserFooter() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      
-      {/* Feedback Modal */}
-      <FeedbackModal
-        open={feedbackModalOpen}
-        onOpenChange={setFeedbackModalOpen}
-      />
     </>
   );
 } 
