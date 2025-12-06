@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { Github, ExternalLink, MessageSquare } from "lucide-react";
 import { PrivacyPolicyModal } from "./legal/privacyPolicy";
 import { TermsOfServiceModal } from "./legal/termsOfService";
-import { useDashboardStore } from "@/store/dashboardStore";
+import { useView } from "@/providers/ViewProvider";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ export function BrowserFooter() {
   const currentYear = new Date().getFullYear();
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
-  const { transitionTo } = useDashboardStore();
+  const { transitionTo } = useView();
   const lastUpdated = "January 2025";
 
   const handleLinkClick = (url: string) => {
