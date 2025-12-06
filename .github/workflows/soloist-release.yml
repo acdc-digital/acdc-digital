@@ -82,12 +82,24 @@ jobs:
         env:
           APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY }}
         run: |
-          # Write the API key to a file (using printf to preserve newlines)
+          # Create private_keys directory in both expected locations
+          mkdir -p ~/.appstoreconnect/private_keys
+          mkdir -p ~/.private_keys
           mkdir -p $RUNNER_TEMP/private_keys
+          
+          # Write the API key to files (using printf to preserve newlines)
+          printf '%s\n' "$APPLE_API_KEY_CONTENT" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
+          printf '%s\n' "$APPLE_API_KEY_CONTENT" > ~/.private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
           printf '%s\n' "$APPLE_API_KEY_CONTENT" > $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-          echo "API key written to: $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8"
-          echo "API key file size: $(wc -c < $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8) bytes"
-          echo "API key first line: $(head -1 $RUNNER_TEMP/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8)"
+          
+          echo "API key written to multiple locations"
+          echo "API key file size: $(wc -c < ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8) bytes"
+          echo "API key first line: $(head -1 ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8)"
+          echo "API key last line: $(tail -1 ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8)"
+          
+          # Test notarytool can find the key
+          echo "Testing notarytool store-credentials..."
+          xcrun notarytool --help > /dev/null 2>&1 && echo "notarytool is available" || echo "notarytool not found"
 
       - name: Build renderer
         run: pnpm run build:renderer
