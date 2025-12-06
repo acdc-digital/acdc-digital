@@ -110,8 +110,7 @@ import {
 } from "@/components/ui/tooltip";
 // Import Stores & Modals
 import { SettingsDialog } from "@/app/settings/SettingsDialog";
-import { HelpModal } from "./modals/HelpModal";
-import { ProfileModal } from "./modals/ProfileModal";
+import { ProfileModal } from "@/dashboard/user/_components/ProfileModal";
 import { useFeedStore } from "@/store/feedStore";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { useQuery } from "convex/react";
@@ -183,9 +182,6 @@ export function Sidebar({ className }: SidebarProps) {
   
   // State to control the SettingsDialog
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-  
-  // State to control the HelpModal
-  const [isHelpOpen, setIsHelpOpen] = React.useState(false);
 
   // State to control the ProfileModal
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
@@ -315,20 +311,24 @@ export function Sidebar({ className }: SidebarProps) {
   };
   
   const handleGoTohelp = () => {
-    // Open the help modal
-    setIsHelpOpen(true);
+    // Switch to Help view
+    transitionTo("help");
     
-    console.log("Help modal opened");
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("Help action clicked");
   };
   
   const handleDownload = () => {
     // Direct download for the desktop application
-    const downloadUrl = 'https://github.com/acdc-digital/solopro/releases/download/v1.6.6/Soloist.Pro-1.6.6-x64.dmg';
+    const downloadUrl = 'https://github.com/acdc-digital/acdc-digital/releases/download/v2.0.0/Soloist.Pro-2.0.0-x64.dmg';
 
     // Create a temporary link and trigger download
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.download = 'Soloist.Pro-1.6.6-x64.dmg';
+    link.download = 'Soloist.Pro-2.0.0-x64.dmg';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -572,8 +572,8 @@ export function Sidebar({ className }: SidebarProps) {
               iconSize="large"
             />
 
-            {/* Create New Log - Icon only */}
-            <div
+            {/* Create New Log - Icon only - COMMENTED OUT: Cleaning up sidebar navigation */}
+            {/* <div
               className="w-full px-2.5 py-1.5 flex flex-col items-center cursor-pointer"
               onClick={handleCreateNewLog}
             >
@@ -583,7 +583,7 @@ export function Sidebar({ className }: SidebarProps) {
               >
                 <Plus className="w-5 h-5 text-muted-foreground transition-colors" />
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* FOOTER SECTION - User Avatar */}
@@ -653,8 +653,7 @@ export function Sidebar({ className }: SidebarProps) {
         {/* Our SettingsDialog component, controlled by local state */}
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
         
-        {/* Our HelpModal component, controlled by local state */}
-        <HelpModal open={isHelpOpen} onOpenChange={setIsHelpOpen} />
+
 
         {/* Our ProfileModal component, controlled by local state */}
         <ProfileModal open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />

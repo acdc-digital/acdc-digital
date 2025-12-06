@@ -2,8 +2,11 @@
 # scripts/update-version.sh
 # Automated version update script for SoloPro
 
-OLD_VERSION="1.6.5"
-NEW_VERSION="1.6.6"
+OLD_VERSION="2.0.0"
+NEW_VERSION="2.0.1"
+
+# Repository URL (update this when changing repository)
+REPO_URL="https://github.com/acdc-digital/acdc-digital"
 
 echo "🚀 Updating version from $OLD_VERSION to $NEW_VERSION"
 echo ""

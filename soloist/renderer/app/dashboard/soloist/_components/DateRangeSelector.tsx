@@ -11,7 +11,7 @@ import { ChevronRight, Calendar } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSoloistStore } from "@/store/soloistStore";
-import { NavCalendar } from "@/app/dashboard/testing/_components/navCalendar";
+import { NavCalendar } from "@/app/legacy/testing/_components/navCalendar";
 
 interface DateRangeSelectorProps {
   onGenerateForecast?: () => Promise<void>;
