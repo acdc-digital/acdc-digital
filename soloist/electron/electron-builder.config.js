@@ -174,6 +174,18 @@ module.exports = {
     console.log(`   API Key file: ${appleApiKey}`);
     console.log(`   Issuer ID: ${appleApiIssuer ? appleApiIssuer.substring(0, 8) + '...' : 'not set'}`);
 
+    // Verify key file exists and has content
+    const fs = require('fs');
+    if (fs.existsSync(appleApiKey)) {
+      const keyContent = fs.readFileSync(appleApiKey, 'utf8');
+      console.log(`   API Key file exists: YES`);
+      console.log(`   API Key file length: ${keyContent.length} characters`);
+      console.log(`   API Key starts with: ${keyContent.substring(0, 30)}...`);
+      console.log(`   API Key ends with: ...${keyContent.substring(keyContent.length - 30)}`);
+    } else {
+      console.log(`   API Key file exists: NO - File not found!`);
+    }
+
     try {
       await notarize({
         appBundleId: 'com.soloistpro.app',
