@@ -3,6 +3,7 @@ packages:
   - electron
   - renderer
   - demo
+  - marketing
 ignoredBuiltDependencies:
   - '@tailwindcss/oxide'
   - electron

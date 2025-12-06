@@ -11,11 +11,15 @@ const nextConfig: NextConfig = {
   experimental: {
     externalDir: true, // Allow imports from outside the website directory
   },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+  
+  // Turbopack configuration (default in Next.js 16)
+  turbopack: {
+    resolveAlias: {
+      '@/convex': path.resolve(__dirname, '../convex'),
+    },
   },
+  
+  // Webpack fallback for production builds using --webpack flag
   webpack: (config, { isServer }) => {
     // Add alias for convex to point to the root convex directory
     config.resolve.alias = {

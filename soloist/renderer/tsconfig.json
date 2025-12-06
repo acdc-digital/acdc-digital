@@ -15,7 +15,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "plugins": [
       {
@@ -23,15 +23,33 @@
       }
     ],
     "paths": {
-      "@/convex/*": ["./convex/*"],
-      "@/*": ["./*"],
-      "@/dashboard/*": ["./app/dashboard/*"],
-      "@/dashboard/heatmap/*": ["./app/dashboard/heatmap/*"],
-      "@/dashboard/base/*": ["./app/dashboard/base/*"],
-      "@/dashboard/soloist/*": ["./app/dashboard/soloist/*"],
-      "@/dashboard/canvas/*": ["./app/dashboard/canvas/*"],
-      "@/dashboard/user/*": ["./app/dashboard/user/*"],
-      "@/dashboard/help/*": ["./app/dashboard/help/*"]
+      "@/convex/*": [
+        "./convex/*"
+      ],
+      "@/*": [
+        "./*"
+      ],
+      "@/dashboard/*": [
+        "./app/dashboard/*"
+      ],
+      "@/dashboard/heatmap/*": [
+        "./app/dashboard/heatmap/*"
+      ],
+      "@/dashboard/base/*": [
+        "./app/dashboard/base/*"
+      ],
+      "@/dashboard/soloist/*": [
+        "./app/dashboard/soloist/*"
+      ],
+      "@/dashboard/canvas/*": [
+        "./app/dashboard/canvas/*"
+      ],
+      "@/dashboard/user/*": [
+        "./app/dashboard/user/*"
+      ],
+      "@/dashboard/help/*": [
+        "./app/dashboard/help/*"
+      ]
     }
   },
   "include": [
@@ -39,7 +57,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    "out/types/**/*.ts"
+    "out/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

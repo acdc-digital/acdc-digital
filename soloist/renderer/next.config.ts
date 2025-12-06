@@ -7,11 +7,6 @@ const nextConfig: NextConfig = {
   // Ensure convex packages are resolved from the same location
   transpilePackages: ['convex', '@convex-dev/auth'],
   
-  // Configure for deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
   // Image optimization - keep it enabled for server mode
   images: {
     unoptimized: false, // Enable optimization for web deployment

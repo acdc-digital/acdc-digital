@@ -29,6 +29,20 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 
 ---
 
+### Migrate to Nextjs 16 & React 19 - Security Update December 2025
+
+| Project | Next.js | React | Status | Last Updated |
+|---------|---------|-------|--------|--------------|
+| **acdc-digital** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/renderer** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/website** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/demo** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/marketing** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+
+> All projects updated to address [CVE-2025-66478](https://vercel.link/CVE-2025-66478) - React Server Components vulnerability.
+
+---
+
 #### Our playbook is simple:
 
 ### 🎯 Featured Projects

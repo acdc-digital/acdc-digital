@@ -8,9 +8,9 @@
     "dev:convex": "convex dev",
     "predev": "echo \"Convex should be started from the repo root, not here.\"",
     "prebuild": "mkdir -p convex/_generated && cp -r ../convex/_generated/* convex/_generated/ 2>/dev/null || true",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start -p 3004",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.87",
@@ -28,9 +28,9 @@
     "fastq": "^1.19.1",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.511.0",
-    "next": "15.2.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "next": "16.0.7",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "recharts": "^2.15.4",
     "resend": "^4.6.0",
     "stripe": "^18.1.1",
@@ -45,7 +45,7 @@
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.7",
     "eslint": "^9",
-    "eslint-config-next": "15.2.3",
+    "eslint-config-next": "16.0.7",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.5.1",
     "prettier": "^3.5.3",
