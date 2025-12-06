@@ -6,11 +6,6 @@ const nextConfig: NextConfig = {
   // Keep strict mode for development
   reactStrictMode: true,
 
-  // Configure for deployment
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   typescript: {
     // Ignore type errors during build for demo mode
     ignoreBuildErrors: true,
