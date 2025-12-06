@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Template, TemplateField } from "@/app/dashboard/_components/Templates";
+import { Template, TemplateField } from "@/app/dashboard/heatmap/_components/Templates";
 import { useEffect, useState } from "react";
 import { useTemplateStore } from "@/store/templateStore";
 
