@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export type ViewType = "dashboard" | "soloist" | "soloistNew" | "testing" | "waypoints" | "superpowers" | "canvas";
+export type ViewType = "dashboard" | "soloist" | "soloistNew" | "testing" | "waypoints" | "superpowers" | "canvas" | "help";
 
 export type TransitionState = "idle" | "transitioning" | "active" | "error";
 
