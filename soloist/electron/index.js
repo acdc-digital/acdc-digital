@@ -105,7 +105,7 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 1024,
     height: 768,
-    frame: false, // Remove the title bar (back to original design)
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
