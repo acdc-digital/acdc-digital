@@ -46,7 +46,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   // Once authenticated, render the dashboard layout children
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-zinc-950 relative">
+    <div className="flex flex-col h-screen overflow-hidden relative">
       {/* Header - fixed at top - Only show in Electron mode */}
       {!isBrowser && (
         <div className="absolute top-0 left-0 right-0 z-50">
