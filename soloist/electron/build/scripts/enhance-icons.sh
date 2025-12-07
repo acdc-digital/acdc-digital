@@ -3,7 +3,7 @@
 echo "🎨 Generating high-quality icons from SVG source..."
 
 # Check if we have the SVG logo
-SVG_SOURCE="../../renderer/public/solologo.svg"
+SVG_SOURCE="../icon.svg"
 if [ ! -f "$SVG_SOURCE" ]; then
     echo "❌ SVG source not found at $SVG_SOURCE"
     exit 1
