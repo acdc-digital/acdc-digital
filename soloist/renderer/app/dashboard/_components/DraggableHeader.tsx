@@ -28,44 +28,20 @@ const DraggableHeader: React.FC = () => {
   return (
     <>
       <div
-        className="flex h-9 items-center justify-between px-3 bg-zinc-50 dark:bg-zinc-800 select-none border-b border-zinc-200 dark:border-zinc-700"
+        className="flex items-center justify-between px-3 h-[37px] bg-zinc-50 dark:bg-zinc-800 select-none border-b border-zinc-200 dark:border-zinc-700"
         style={{
           WebkitAppRegion: 'drag',
           userSelect: 'none'
         } as React.CSSProperties & { WebkitAppRegion: string }}
       >
-        {/* Left side - spacing for native macOS controls */}
-        <div className="w-20" />
-
-        {/* Center - title text */}
-        <div className="flex-1 flex justify-center">
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        {/* Left side - spacing for native macOS controls + title text */}
+        <div className="flex items-center gap-3">
+          <div className="w-20" />
+          <span className="pl-8 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Soloist. | Take control of tomorrow, today.
           </span>
         </div>
-
-        {/* Right side - subscription button for non-subscribers in browser mode */}
-        <div
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties & { WebkitAppRegion: string }}
-        >
-          {isBrowser && isAuthenticated && hasActiveSubscription === false && (
-            <Button
-              onClick={handleSubscribeClick}
-              size="sm"
-              className="h-6 px-3 text-xs bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border-0 shadow-[0_2px_8px_rgba(16,185,129,0.25)] hover:shadow-[0_4px_12px_rgba(16,185,129,0.35)] transition-all duration-200"
-            >
-              <Crown className="w-3 h-3 mr-1" />
-              Upgrade
-            </Button>
-          )}
-        </div>
       </div>
-
-      {/* Pricing Modal */}
-      <PricingModal
-        open={isPricingModalOpen}
-        onOpenChange={setIsPricingModalOpen}
-      />
     </>
   );
 };
