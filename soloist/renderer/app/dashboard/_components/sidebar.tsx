@@ -421,7 +421,7 @@ export function Sidebar({ className }: SidebarProps) {
   
   return (
     <TooltipProvider delayDuration={300}>
-      <div className={cn("relative h-screen", className)}>
+      <div className={cn("relative h-full", className)}>
         <aside
           className={cn(
             "flex flex-col h-full w-16",
