@@ -23,9 +23,9 @@ export default function SoloistPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 p-4 pb-0">
+      {/* <div className="flex-shrink-0 p-4 pb-0">
         <Header />
-      </div>
+      </div> */}
 
       {/* Content area with sidebar */}
       <div className="flex-1 flex">
