@@ -46,11 +46,10 @@ export default function WaypointsPage() {
   return (
     <div className="flex flex-col w-full h-full overflow-hidden bg-[#f9f9f9] dark:bg-neutral-900">
       {/* Full-width Header */}
-      <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
+      {/* <div className="flex-shrink-0 px-5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-300 dark:border-neutral-600">
         <div className="pb-2 pt-2">
           <div className="flex items-center justify-between">
             <div className="flex gap-3">
-              {/* Solo Dot - inverted colors (red background, white dot) */}
               <div className="mt-1 w-7 h-7 rounded-full bg-[#EF4444] flex items-center justify-center pr-2.5 pb-2">
                 <div className="w-2 h-2 rounded-full bg-white" />
               </div>
@@ -76,7 +75,7 @@ export default function WaypointsPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Content Panels */}
       <div className="flex flex-1 overflow-hidden">
@@ -102,12 +101,13 @@ export default function WaypointsPage() {
 
       {/* Full-width Footer */}
       <div className="flex-shrink-0 px-5 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-300 dark:border-neutral-600 flex items-center justify-between">
-        <Button
-          type="button"
-          onClick={() => formRef.current?.submitForm()}
-          disabled={formState.isSubmitting || formState.isComputing}
-          className="h-8 px-6 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all"
-        >
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            onClick={() => formRef.current?.submitForm()}
+            disabled={formState.isSubmitting || formState.isComputing}
+            className="h-8 px-6 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all"
+          >
           {formState.isComputing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -127,7 +127,17 @@ export default function WaypointsPage() {
               Discover Your Baseline
             </>
           )}
-        </Button>
+          </Button>
+          <button
+            type="button"
+            onClick={() => formRef.current?.resetForm()}
+            className="h-8 px-4 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all flex items-center gap-2"
+            title="Start Over"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </button>
+        </div>
         <div className="flex items-center gap-3">
           {formState.saveStatus === "saving" && (
             <div className="flex items-center gap-2 text-sm text-neutral-500">
@@ -142,15 +152,15 @@ export default function WaypointsPage() {
             </div>
           )}
           {formState.computedBaseline && (
-            <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-3 text-xs">
               <div className="flex items-center gap-2">
-                <span className="text-neutral-500 dark:text-neutral-400">Index</span>
-                <span className="text-[#3B82F6] font-mono font-semibold">{formState.computedBaseline.scores.baseline_index}</span>
+                <span className="text-neutral-500 dark:text-neutral-300">Index</span>
+                <span className="text-neutral-200 font-parkinsans font-semibold">{formState.computedBaseline.scores.baseline_index}</span>
               </div>
               <div className="w-px h-4 bg-neutral-300 dark:bg-neutral-600" />
               <div className="flex items-center gap-2">
-                <span className="text-neutral-500 dark:text-neutral-400">Confidence</span>
-                <span className="text-emerald-600 font-mono font-semibold">{formState.computedBaseline.scores.confidence}%</span>
+                <span className="text-neutral-500 dark:text-neutral-300">Confidence</span>
+                <span className="text-neutral-200 font-parkinsans font-semibold">{formState.computedBaseline.scores.confidence}%</span>
               </div>
             </div>
           )}

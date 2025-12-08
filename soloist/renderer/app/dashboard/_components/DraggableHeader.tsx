@@ -37,7 +37,7 @@ const DraggableHeader: React.FC = () => {
         {/* Left side - spacing for native macOS controls + title text */}
         <div className="flex items-center gap-3">
           <div className="w-20" />
-          <span className="pl-8 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <span className="pl-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Soloist. | Take control of tomorrow, today.
           </span>
         </div>

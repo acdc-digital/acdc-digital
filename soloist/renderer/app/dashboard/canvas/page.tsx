@@ -24,7 +24,7 @@ export default function CanvasPage() {
   return (
     <div className="h-full w-full flex flex-col">
       {/* Header */}
-      <CanvasHeader className="px-4 pt-4 pb-0 shrink-0" />
+      {/* <CanvasHeader className="px-4 pt-4 pb-0 shrink-0" /> */}
       
       {/* Canvas with left/right margins */}
       <div className="flex-1 px-4 pt-4 pb-4 min-h-0">
