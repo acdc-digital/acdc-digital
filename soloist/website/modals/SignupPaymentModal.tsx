@@ -350,7 +350,7 @@ function PaymentPanel({
           Your subscription is active
         </p>
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => window.location.href = process.env.NEXT_PUBLIC_APP_URL || "https://soloist-app.acdc.digital/dashboard"}
           className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-parkinsans-semibold text-sm transition-all rounded-t-none rounded-b-lg flex items-center gap-2"
         >
           Go to Dashboard
@@ -509,8 +509,8 @@ export function SignupPaymentModal({
   const [isCheckoutComplete, setIsCheckoutComplete] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
 
-  // Redirect URL - change this for production
-  const REDIRECT_URL = "http://localhost:3002/";
+  // Redirect URL
+  const REDIRECT_URL = process.env.NEXT_PUBLIC_APP_URL || "https://soloist-app.acdc.digital/dashboard";
 
   // Derived state
   const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription ?? false;
