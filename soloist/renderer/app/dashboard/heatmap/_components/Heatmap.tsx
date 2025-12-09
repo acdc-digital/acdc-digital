@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { Info, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 /* ─────────────────────────────── */
 /* Types & Props                   */
@@ -174,31 +174,17 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
       )}
 
       {/* Header badges - fixed height */}
-      <div className="flex-shrink-0 flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2 text-sm">
-          <Badge variant="outline" className="border-zinc-700 text-zinc-600 dark:text-zinc-300">
-            {totalLogs} Logs
-          </Badge>
-          <Badge variant="outline" className="border-zinc-700 text-zinc-600 dark:text-zinc-300">
-            Avg: {Number.isNaN(avg) ? "0.0" : avg.toFixed(1)}
-          </Badge>
-        </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="cursor-help">
-                <Info className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="bg-zinc-800 border-zinc-700 text-zinc-200">
-              Scroll to see all days. Click a square to view or add a log.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="flex-shrink-0 flex items-center gap-2 text-sm mb-3">
+        <Badge variant="outline" className="border-zinc-700 text-zinc-600 dark:text-zinc-300">
+          {totalLogs} Logs
+        </Badge>
+        <Badge variant="outline" className="border-zinc-700 text-zinc-600 dark:text-zinc-300">
+          Avg: {Number.isNaN(avg) ? "0.0" : avg.toFixed(1)}
+        </Badge>
       </div>
 
       {/* Calendar grid - THIS is the only scrollable section */}
-      <div className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto">
+      <div className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto scrollbar-hide">
         <div className="flex flex-wrap gap-1 p-3">
           {allDates.map((d) => {
             const key = buildDateKey(d);

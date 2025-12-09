@@ -201,6 +201,30 @@ export default function Dashboard() {
     }
   }, [isBrowser, currentView, selectedDate, sidebarOpen, activeTab, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
 
+// Desktop mode: Set today as default selected date and open feed
+  useEffect(() => {
+    if (isBrowser === false && currentView === "dashboard") {
+      let updated = false;
+
+      // Set today as selected date if none selected
+      if (!selectedDate) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const dateKey = `${yyyy}-${mm}-${dd}`;
+        updateDatePreserveTab(dateKey);
+        updated = true;
+      }
+      // Open sidebar and set to feed tab on first load
+      if (!sidebarOpen) {
+        setSidebarOpen(true);
+        setActiveTab("feed");
+        updated = true;
+      }
+    }
+  }, [isBrowser, currentView, selectedDate, sidebarOpen, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
+
   // Tag filtering state from dashboard store
   const availableTags = useDashboardStore((state) => state.availableTags);
   const setAvailableTags = useDashboardStore((state) => state.setAvailableTags);
@@ -497,7 +521,7 @@ export default function Dashboard() {
             <main className="flex-1 flex flex-col relative bg-neutral-700/20">
               {/* Year controls */}
               <div className="sticky top-0 z-10 px-4 pt-3">
-                <div className="flex justify-between items-center mb-3">
+                <div className="flex justify-between items-center mb-0">
                   <Controls
                     selectedYear={selectedYear}
                     onYearChange={handleYearChange}
