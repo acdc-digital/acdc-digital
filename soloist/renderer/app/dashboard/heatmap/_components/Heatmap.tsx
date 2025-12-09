@@ -142,6 +142,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
 
   /* 6. UI state hooks (hover + feed selection) */
   const [hover, setHover] = React.useState<string | null>(null);
+  const [isResizing, setIsResizing] = React.useState(false);
   const {
     selectedDate,
     setSelectedDate,
@@ -155,6 +156,25 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
     setActiveTab("feed");
     setSidebarOpen(true);
   };
+
+  /* 7. Resize blur effect */
+  React.useEffect(() => {
+    let resizeTimer: NodeJS.Timeout;
+    
+    const handleResize = () => {
+      setIsResizing(true);
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        setIsResizing(false);
+      }, 150);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
+  }, []);
 
   /* For debugging */
   React.useEffect(() => {
@@ -185,7 +205,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
 
       {/* Calendar grid - THIS is the only scrollable section */}
       <div className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto scrollbar-hide">
-        <div className="flex flex-wrap gap-1 p-3">
+        <div className="grid gap-1 p-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(32px, 1fr))' }}>
           {allDates.map((d) => {
             const key = buildDateKey(d);
             const log = logMap.get(key);
@@ -204,12 +224,14 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
                 onClick={() => !isFuture && click(key)}
                 className={`
                   flex items-center justify-center
-                  w-8 h-8 rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
-                  text-[10px] font-medium transition-all duration-150
+                  aspect-square rounded-sm ${!isFuture ? 'cursor-pointer' : 'cursor-not-allowed'}
+                  text-[10px] font-medium
                   ${getColorClass(score, isFuture)}
                   ${show ? "" : "opacity-30"}
                   ${selectedDate === key ? "ring-1 ring-blue-600" : isToday ? "ring-1 ring-red-600 dark:ring-zinc-300" : ""}
                   text-zinc-800/90 dark:text-zinc-100/90
+                  ${isResizing ? 'blur-[0.5px]' : ''}
+                  transition-[width,height] duration-700 ease-out
                 `}
                 style={{ outline: "0.5px solid rgba(0,0,0,0.1)" }}
               >
