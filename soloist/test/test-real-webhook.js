@@ -7,7 +7,12 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '/Users/matthewsimon/Projects/solopro/website/.env.local' });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const webhookSecret = 'whsec_AJa6SnOLmUOsKrdiMQDf6EowEHQzkHm0'; // Use the new production secret
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!webhookSecret) {
+  console.error('❌ STRIPE_WEBHOOK_SECRET not found in environment variables');
+  process.exit(1);
+}
 
 async function testRealWebhook() {
   try {
