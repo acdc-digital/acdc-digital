@@ -467,13 +467,9 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
   if (!selectedDate) {
     console.log("Feed rendering no-date-selected state");
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-        <div className="mb-4 p-3 rounded-full bg-gray-100">
-          <Calendar className="h-8 w-8 text-blue-600" />
-        </div>
-        <h3 className="text-xl font-medium mb-2 text-gray-900">Select a date</h3>
-        <p className="text-sm text-gray-600 max-w-xs">
-          Choose a date from the calendar to view insights generated for that day&apos;s log.
+      <div className="flex items-center justify-center h-full p-6">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          Select a date from the calendar to view insights.
         </p>
       </div>
     );
@@ -588,13 +584,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
           ) : !hasLogForDate ? (
             // No daily log exists for this date
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-              <div className="mb-6 p-4 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
-                <AlertCircle className="h-10 w-10 text-amber-600 dark:text-amber-500" />
+              <div className="mb-6 p-4 rounded-full bg-neutral-200 dark:bg-neutral-700">
+                <FileEdit className="h-8 w-8 text-neutral-600 dark:text-neutral-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-zinc-900 dark:text-zinc-100">
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-2">
                 No Daily Log Yet
               </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-sm mb-6 leading-relaxed">
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-sm mb-6 leading-relaxed">
                 Start your day by creating a daily log for {new Date(selectedDate).toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
@@ -605,13 +601,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
               
               <Button 
                 onClick={handleCreateDailyLog}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg shadow-sm transition-all duration-200 flex items-center gap-2"
+                className="border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-white hover:bg-neutral-300 dark:hover:bg-neutral-600 px-6 py-2 rounded-none transition-all duration-200 flex items-center gap-2"
               >
                 <FileEdit className="h-4 w-4" />
                 Create Daily Log
               </Button>
               
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-4">
+              <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-4">
                 Switch to the Log tab to get started
               </p>
             </div>
