@@ -105,7 +105,8 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 1024,
     height: 768,
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
+    trafficLightPosition: process.platform === 'darwin' ? { x: 10, y: 10 } : undefined,
     icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),

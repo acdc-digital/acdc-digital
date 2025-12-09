@@ -170,6 +170,11 @@ const globalFileTree: FileNode[] = [
       { name: "Terms of Service", type: "file", path: "/wiki/terms-of-service" },
     ],
   },
+  {
+    name: "System Requirements",
+    type: "file",
+    path: "/wiki/system-requirements",
+  },
 ];
 
 export default function WikiLayout({
@@ -227,6 +232,12 @@ export default function WikiLayout({
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Terms of Service
+            </a>
+            <a
+              href="/wiki/system-requirements"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              System Requirements
             </a>
           </nav>
         </div>
