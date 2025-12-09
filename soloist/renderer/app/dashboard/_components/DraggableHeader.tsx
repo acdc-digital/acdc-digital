@@ -31,13 +31,13 @@ const DraggableHeader: React.FC = () => {
         className="flex items-center justify-between px-3 h-[37px] bg-zinc-50 dark:bg-zinc-800 select-none border-b border-zinc-200 dark:border-zinc-700"
         style={{
           WebkitAppRegion: 'drag',
-          userSelect: 'none'
+          userSelect: 'none',
+          paddingLeft: '80px' // Space for macOS traffic lights
         } as React.CSSProperties & { WebkitAppRegion: string }}
       >
-        {/* Left side - spacing for native macOS controls + title text */}
+        {/* Title text - no extra spacing needed since padding handles it */}
         <div className="flex items-center gap-3">
-          <div className="w-20" />
-          <span className="pl-46 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Soloist. | Take control of tomorrow, today.
           </span>
         </div>
