@@ -1,6 +1,6 @@
 {
   "name": "solopro-electron",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "SoloPro - AI-powered mood tracking and emotional well-being platform",
   "main": "index.js",
   "repository": {
