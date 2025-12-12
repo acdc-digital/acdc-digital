@@ -42,19 +42,19 @@ export default function SoloistPage() {
   }, [isInitialized, initialize]);
 
   return (
-    <div className="h-full flex flex-col min-h-0">
+    <div className="h-full flex flex-col min-h-0 bg-[#2b2b2b]">
       {/* Content area with sidebar */}
       <div className="flex-1 flex min-h-0">
         {/* Page Sidebar - 25% width with all controls and insights */}
         <PageSidebar />
 
         {/* Week Grid - Vertical column of 7 days - no right border */}
-        <div className="w-[5.5rem] lg:w-[6rem] h-full flex-shrink-0 min-h-0 bg-neutral-50 dark:bg-neutral-800/50 overflow-y-auto py-2 px-1.5">
+        <div className="w-[6.5rem] lg:w-[7rem] h-full flex-shrink-0 min-h-0 bg-[#2b2b2b] overflow-y-auto py-2 px-3">
           <WeekGrid />
         </div>
 
         {/* Main content area - remaining width */}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 bg-[#2b2b2b]">
           {/* Chart Header - No borders */}
           <ChartHeader
             showActual={showActual}

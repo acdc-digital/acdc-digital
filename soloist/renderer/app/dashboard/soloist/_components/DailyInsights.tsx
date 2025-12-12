@@ -62,7 +62,7 @@ export function DailyInsights({ className }: DailyInsightsProps) {
   const borderColorClass = getBorderColorClass(score);
 
   return (
-    <div className={cn("border-b border-neutral-200 dark:border-neutral-700", className)}>
+    <div className={cn("", className)}>
       {/* Header with day info */}
       <div className="flex items-start gap-4 p-4">
         {/* Score box preview - compact with softer rounded edges, rem-based sizing */}
@@ -118,8 +118,8 @@ export function DailyInsights({ className }: DailyInsightsProps) {
         </div>
       </div>
 
-      {/* Recommendation section - no top border, keeps bottom border via StatsPanel */}
-      <div className="px-4 pb-4">
+      {/* Recommendation section - commented out for now */}
+      {/* <div className="px-4 pb-4">
         <div className="bg-neutral-100 dark:bg-neutral-800/60 rounded-sm p-3">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -135,7 +135,7 @@ export function DailyInsights({ className }: DailyInsightsProps) {
             }
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

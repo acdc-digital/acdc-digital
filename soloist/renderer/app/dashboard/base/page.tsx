@@ -79,8 +79,8 @@ export default function WaypointsPage() {
 
       {/* Content Panels */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Panel - Form */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Left Panel - Form (35% width) */}
+        <div className="w-[43%] flex-shrink-0 flex flex-col overflow-hidden">
           <BaselineSelfAnalysisForm
             ref={formRef}
             onBaselineComputed={setCurrentBaselineAnswerId}
@@ -89,7 +89,7 @@ export default function WaypointsPage() {
           />
         </div>
 
-        {/* Right Panel - Chat */}
+        {/* Right Panel - Chat (remaining width) */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <BaselineChatPanel
             userId={user?._id as Id<"users">}
