@@ -62,23 +62,24 @@ export function DailyInsights({ className }: DailyInsightsProps) {
   const borderColorClass = getBorderColorClass(score);
 
   return (
-    <div className={cn("h-[275px] border-b border-neutral-200 dark:border-neutral-700", className)}>
+    <div className={cn("border-b border-neutral-200 dark:border-neutral-700", className)}>
       {/* Header with day info */}
       <div className="flex items-start gap-4 p-4">
         {/* Score box preview - matches the attached image style */}
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-shrink-0">
           <div 
             className={cn(
-              "w-[120px] h-[80px] flex items-center justify-center border-2 border-dashed",
+              "w-24 lg:w-28 aspect-[3/2] flex items-center justify-center border-2 border-dashed",
               hasScore ? colorClass : "bg-neutral-200 dark:bg-neutral-700",
               hasScore ? borderColorClass : "border-neutral-400 dark:border-neutral-500"
             )}
           >
             {hasScore ? (
               <span className={cn(
-                "text-3xl font-bold",
+                "text-2xl lg:text-3xl font-bold",
                 score >= 60 ? "text-neutral-900" : "text-neutral-100"
               )}>
+
                 {score}
               </span>
             ) : (

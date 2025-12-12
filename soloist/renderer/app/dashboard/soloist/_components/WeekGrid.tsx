@@ -71,7 +71,7 @@ export function WeekGrid({ className }: WeekGridProps) {
       return (
         <div 
           key={idx} 
-          className="flex flex-col items-center justify-between py-3 px-2 border h-[100px] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60"
+          className="flex flex-col items-center justify-between py-0.5 px-0.5 lg:px-1 border flex-1 min-h-[1.1rem] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60 rounded-md"
         >
           <div className="text-[10px] font-medium text-neutral-400">—</div>
           <span className="text-xl font-bold text-neutral-400">?</span>
@@ -92,8 +92,8 @@ export function WeekGrid({ className }: WeekGridProps) {
         key={day.date || idx}
         title={`${day.date}: ${score ?? 'N/A'}`}
         className={cn(
-          "flex flex-col items-center justify-between py-3 px-2 border cursor-pointer transition-all duration-100",
-          isFutureDay ? "h-[130px] pb-4" : "h-[100px]",
+          "flex flex-col items-center justify-between border cursor-pointer transition-all duration-100 rounded-md flex-1",
+          isFutureDay ? "min-h-[1.5rem] py-0.5 px-0.5 lg:px-1 pb-1" : "min-h-[1.1rem] py-0.5 px-0.5 lg:px-1",
           colorClass,
           borderColorClass,
           isSelected && "ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900",
@@ -120,8 +120,8 @@ export function WeekGrid({ className }: WeekGridProps) {
         {day.isToday && <div className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-white/80" />}
         
         {/* Feedback buttons for future days */}
-        {isFutureDay && (
-          <div className="flex gap-2 mt-1">
+        {/* {isFutureDay && (
+          <div className="flex gap-2">
             <button className="p-0.5" type="button" aria-label="Forecast was correct">
               <ThumbsUp className="h-4 w-4 text-neutral-400 hover:text-green-500 transition-colors" />
             </button>
@@ -129,37 +129,15 @@ export function WeekGrid({ className }: WeekGridProps) {
               <ThumbsDown className="h-4 w-4 text-neutral-400 hover:text-rose-500 transition-colors" />
             </button>
           </div>
-        )}
+        )} */}
       </div>
     );
   };
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      {/* Row 1: Days 0-1 */}
-      <div className="grid grid-cols-2 gap-2">
-        {renderDayBox(weekData[0], 0)}
-        {renderDayBox(weekData[1], 1)}
-      </div>
-
-      {/* Row 2: Days 2-3 */}
-      <div className="grid grid-cols-2 gap-2">
-        {renderDayBox(weekData[2], 2)}
-        {renderDayBox(weekData[3], 3)}
-      </div>
-
-      {/* Row 3: Days 4-5 */}
-      <div className="grid grid-cols-2 gap-2">
-        {renderDayBox(weekData[4], 4)}
-        {renderDayBox(weekData[5], 5)}
-      </div>
-
-      {/* Row 4: Day 6 (single left-aligned) */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          {renderDayBox(weekData[6], 6)}
-        </div>
-      </div>
+    <div className={cn("flex flex-col h-full justify-between gap-1.5", className)}>
+      {/* All 7 days in vertical column */}
+      {weekData.map((day, idx) => renderDayBox(day, idx))}
     </div>
   );
 }

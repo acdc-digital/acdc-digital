@@ -6,7 +6,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { DateRangeSelector } from "./DateRangeSelector";
-import { WeekGrid } from "./WeekGrid";
+import DailyInsights from "./DailyInsights";
+import KeyInsights from "./KeyInsights";
 
 interface PageSidebarProps {
   className?: string;
@@ -17,23 +18,28 @@ export function PageSidebar({ className, children }: PageSidebarProps) {
   return (
     <aside
       className={cn(
-        "w-[20%] min-w-[330px] h-full flex-shrink-0",
+        "w-[25%] min-w-[320px] max-w-[450px] h-full flex-shrink-0 min-h-0",
         "border-r border-neutral-200 dark:border-neutral-700",
         "bg-neutral-50 dark:bg-neutral-800/50",
-        "overflow-y-auto",
+        "flex flex-col overflow-y-auto",
         className
       )}
     >
-      <div className="p-4 flex flex-col gap-4">
-        {/* Date Range Selector */}
+      {/* Date Range Selector */}
+      <div className="p-4 pb-0 flex-shrink-0">
         <DateRangeSelector />
-        
-        {/* Week Grid - 7 day boxes in 2-2-2-1 layout */}
-        <WeekGrid />
-        
-        {/* Additional sidebar content */}
-        {children}
       </div>
+      
+      {/* Daily Insights */}
+      <div className="flex-shrink-0">
+        <DailyInsights />
+      </div>
+      
+      {/* Key Insights - takes remaining space */}
+      <KeyInsights />
+      
+      {/* Additional sidebar content */}
+      {children}
     </aside>
   );
 }
