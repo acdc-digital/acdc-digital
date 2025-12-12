@@ -19,9 +19,9 @@ export function PageSidebar({ className, children }: PageSidebarProps) {
     <aside
       className={cn(
         "w-[25%] min-w-[320px] max-w-[450px] h-full flex-shrink-0 min-h-0",
-        "border-r border-neutral-200 dark:border-neutral-700",
-        "bg-neutral-50 dark:bg-neutral-800/50",
-        "flex flex-col overflow-y-auto",
+        "border-r border-neutral-700",
+        "bg-[#2b2b2b]",
+        "flex flex-col gap-4 overflow-y-auto",
         className
       )}
     >
@@ -31,7 +31,7 @@ export function PageSidebar({ className, children }: PageSidebarProps) {
       </div>
       
       {/* Daily Insights */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 px-4">
         <DailyInsights />
       </div>
       

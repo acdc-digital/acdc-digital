@@ -123,7 +123,7 @@ export function ForecastChart({
     if (active && payload && payload.length) {
       const data = payload[0]?.payload;
       return (
-        <div className="bg-neutral-900/95 border border-neutral-700 rounded-sm p-3 shadow-lg">
+        <div className="bg-[#2b2b2b] border border-neutral-700 rounded-sm p-3 shadow-lg">
           <p className="text-sm font-medium text-neutral-100 mb-1">
             {data?.fullDay}
           </p>
