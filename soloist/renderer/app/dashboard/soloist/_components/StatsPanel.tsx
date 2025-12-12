@@ -31,8 +31,8 @@ export function StatsPanel({ className }: StatsPanelProps) {
       {/* Key Insights for forecast */}
       <KeyInsights />
       
-      {/* Forecast Accuracy Metrics */}
-      <ForecastMetrics />
+      {/* Forecast Accuracy Metrics - Commented out for single column layout */}
+      {/* <ForecastMetrics /> */}
     </aside>
   );
 }

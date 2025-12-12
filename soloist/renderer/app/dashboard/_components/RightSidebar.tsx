@@ -137,12 +137,6 @@ export function RightSidebar({
               {title}
             </div>
           </div>
-          {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} className="flex-shrink-0">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close sidebar</span>
-            </Button>
-          )}
         </div>
 
         {/* Main content area: vertical scroll, no horizontal scroll */}

@@ -103,8 +103,10 @@ async function createWindow() {
   console.log('🖼️ __dirname:', __dirname);
 
   const win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 1260,
+    height: 665,
+    minWidth: 1260,
+    minHeight: 665,
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
     trafficLightPosition: process.platform === 'darwin' ? { x: 10, y: 10 } : undefined,
     icon: iconPath,
