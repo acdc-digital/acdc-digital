@@ -274,7 +274,7 @@ export default function Controls({
       <div className="flex bg-neutral-800/50 border border-neutral-600 rounded-lg p-1 gap-1">
         <button
           onClick={() => handleTabChange("log")}
-          className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-0 ${
+          className={`px-3 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-0 ${
             activeTab === "log"
               ? "bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500"
               : "text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50"
@@ -284,7 +284,7 @@ export default function Controls({
         </button>
         <button
           onClick={() => handleTabChange("feed")}
-          className={`px-3 py-1 text-xs font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-0 ${
+          className={`px-3 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-0 ${
             activeTab === "feed"
               ? "bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500"
               : "text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50"

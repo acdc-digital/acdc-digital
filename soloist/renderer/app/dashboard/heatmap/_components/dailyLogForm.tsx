@@ -16,12 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   AlertCircle,
   Loader2,
-  Settings2,
-  X,
-  Zap,
   Check,
-  FileText,
-  List,
 } from "lucide-react";
 import { useFeedStore } from "@/store/feedStore";
 import LongForm from "./LongForm";
@@ -29,12 +24,13 @@ import { addDays, format, subDays } from "date-fns";
 import { useConvex } from "convex/react";
 import { useBrowserEnvironment } from "@/utils/environment";
 import { TemplateField } from "./Templates";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// Tooltip imports - kept for future generator feature
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
 
 interface DailyLogFormData {
   overallMood: number;
@@ -53,8 +49,8 @@ interface DailyLogFormProps {
   onClose: () => void;
   date: string;
   hasActiveSubscription?: boolean;
-  showTemplates?: boolean;
-  onCustomize?: () => void;
+  editorMode: 'daily' | 'longform';
+  setEditorMode: (mode: 'daily' | 'longform') => void;
 }
 
 /**
@@ -62,13 +58,10 @@ interface DailyLogFormProps {
  * Server logic lives in `convex/dailyLogs.ts`.
  * Now supports customizable templates (managed from main page)!
  */
-export default function DailyLogForm({ onClose, date, hasActiveSubscription, showTemplates, onCustomize }: DailyLogFormProps) {
+export default function DailyLogForm({ onClose, date, hasActiveSubscription, editorMode, setEditorMode }: DailyLogFormProps) {
   console.log("DailyLogForm mounted", { date, hasActiveSubscription });
   const { isAuthenticated, isLoading: userLoading, userId } = useConvexUser();
   const isBrowser = useBrowserEnvironment();
-
-  // Editor mode: 'daily' for structured log, 'longform' for free writing
-  const [editorMode, setEditorMode] = useState<'daily' | 'longform'>('daily');
 
   // Templates integration
   const {
@@ -79,6 +72,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   // Simple field filtering without memoization to avoid React errors
   const stableFormFields = currentFormFields?.filter(field => field && field.id && field.type) || [];
 
+  // Generator feature is currently disabled
+  // TODO: Re-enable when generator feature is ready
+  /*
   // Check user settings for generator prerequisites
   const userAttributes = useQuery(
     api.userAttributes.getAttributes,
@@ -111,6 +107,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   if (!userInstructions?.trim()) {
     missingSettings.push("Custom Instructions");
   }
+  */
 
   /* ────────────────────────────────────────── */
   /* Feed store hooks                           */
@@ -131,7 +128,8 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   const scoreDailyLog    = useAction(api.score.scoreDailyLog);
   const generateFeed     = useAction(api.feed.generateFeedForDailyLog);
   const generateForecast = useAction(api.forecast.generateForecast);
-  const generateRandomLog = useAction(api.randomizer.generateRandomLog);
+  // Generator feature is currently disabled
+  // const generateRandomLog = useAction(api.randomizer.generateRandomLog);
   const convex = useConvex();
 
   // Create dynamic form data based on current template fields (simplified)
@@ -174,7 +172,8 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   /* Local state                               */
   /* ────────────────────────────────────────── */
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
+  // Generator feature is currently disabled
+  // const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -291,8 +290,9 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   };
 
   /* ────────────────────────────────────────── */
-  /* Random generation handler                 */
+  /* Random generation handler (DISABLED)      */
   /* ────────────────────────────────────────── */
+  /*
   const handleGenerateRandom = async () => {
     setError(null);
     setIsGenerating(true);
@@ -351,6 +351,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
       setIsGenerating(false);
     }
   };
+  */
 
   // Render field based on template field type
   const renderTemplateField = (field: TemplateField) => {
@@ -531,32 +532,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
   if (editorMode === 'longform') {
     return (
       <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-hidden">
-        {/* Mode Toggle Header */}
-        <div className="flex-shrink-0 px-5 py-2 flex items-center justify-between bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
-          <div className="flex items-center gap-1 bg-neutral-200 dark:bg-neutral-700 rounded-sm p-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setEditorMode('daily')}
-              className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-transparent text-xs px-2 py-1 h-6 transition-colors"
-            >
-              <List className="h-3 w-3 mr-1.5" />
-              Daily Log
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="bg-neutral-100 dark:bg-neutral-600 text-neutral-900 dark:text-white text-xs px-2 py-1 h-6 rounded-sm"
-              disabled
-            >
-              <FileText className="h-3 w-3 mr-1.5" />
-              Long Form
-            </Button>
-          </div>
-        </div>
-        {/* LongForm takes the rest of the space */}
+        {/* LongForm takes the full space - mode toggle is now in sidebar header */}
         <div className="flex-1 overflow-hidden">
           <LongForm onClose={onClose} date={date} />
         </div>
@@ -574,86 +550,10 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
         />
       </div>
 
-      {/* Header Controls */}
-      <div className="flex-shrink-0 px-5 py-2 flex items-center justify-between bg-neutral-100 dark:bg-[#2b2b2b] border-b border-neutral-300 dark:border-neutral-600">
-        {/* Mode Toggle */}
-        <div className="flex items-center gap-1 bg-neutral-200 dark:bg-neutral-700 rounded-sm p-0.5">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="bg-neutral-100 dark:bg-neutral-600 text-neutral-900 dark:text-white text-xs px-2 py-1 h-6 rounded-sm"
-            disabled
-          >
-            <List className="h-3 w-3 mr-1.5" />
-            Daily Log
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setEditorMode('longform')}
-            className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-transparent text-xs px-2 py-1 h-6 transition-colors"
-          >
-            <FileText className="h-3 w-3 mr-1.5" />
-            Long Form
-          </Button>
-        </div>
-
-        {/* Right side controls */}
-        <div className="flex items-center gap-3">
-          {/* Customize Button */}
-          {onCustomize && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onCustomize}
-              className="text-amber-600 hover:text-zinc-800 hover:bg-zinc-100 text-xs px-2 py-1 h-auto transition-colors duration-200"
-            >
-              {showTemplates ? (
-                <X className="h-3 w-3 mr-1.5" />
-              ) : (
-                <Settings2 className="h-3 w-3 mr-1.5" />
-              )}
-              Customize
-            </Button>
-          )}
-
-          {/* Generator Button */}
-          {hasActiveSubscription && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleGenerateRandom}
-                    disabled={isSubmitting || isGenerating || !settingsComplete}
-                    className="text-blue-600 hover:text-zinc-800 hover:bg-zinc-100 text-xs px-2 py-1 h-auto transition-colors duration-200 disabled:opacity-50 disabled:hover:bg-transparent"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
-                    ) : (
-                      <Zap className="h-3 w-3 mr-1.5" />
-                    )}
-                    Generator
-                  </Button>
-                </TooltipTrigger>
-                {!settingsComplete && (
-                  <TooltipContent>
-                    <p>Complete your settings first: {missingSettings.join(", ")}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-      </div>
+      {/* Mode toggle and Customize button are now in the sidebar header */}
 
       {/* Scrollable Form Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pt-1">
         <div className="px-5 py-5">
           <form
             id="daily-log-form"
@@ -702,7 +602,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
           <Button
             type="submit"
             form="daily-log-form"
-            disabled={isSubmitting || isGenerating}
+            disabled={isSubmitting}
             className={`${
               showSuccess
                 ? "bg-emerald-600 border-emerald-500 text-white"
@@ -729,7 +629,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, sho
             type="button"
             variant="ghost"
             onClick={onClose}
-            disabled={isSubmitting || isGenerating}
+            disabled={isSubmitting}
             className="h-8 px-4 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
           >
             Cancel

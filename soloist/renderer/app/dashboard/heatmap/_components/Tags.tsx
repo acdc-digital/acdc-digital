@@ -81,7 +81,7 @@ export function TagSelector({ onTagSelected, existingTags = [] }: TagSelectorPro
         <Button 
           variant="outline" 
           size="sm" 
-          className="h-7 gap-1 rounded-full px-2"
+          className="h-7 gap-1 rounded-full px-2 bg-transparent border border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700"
         >
           <Plus className="h-3.5 w-3.5" />
           <span className="text-xs">Tag</span>
