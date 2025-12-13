@@ -486,14 +486,14 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="overflow-y-auto p-4" style={{ height: 'calc(100vh - 64px - 56px)' }}>
+      <div className="overflow-y-auto p-1" style={{ height: 'calc(100vh - 64px - 56px)' }}>
         <div className="space-y-4">
           {/* daily summary */}
           {filteredMessages.length > 0 ? (
             filteredMessages.map((msg) => (
               <Card
                 key={msg._id}
-                className="transition-all duration-200 hover:shadow-md bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 shadow-sm"
+                className="transition-all duration-200 bg-transparent border-0 shadow-none"
               >
                 <CardContent className="pt-4">
                   <div className="prose prose-zinc dark:prose-invert max-w-none text-gray-900 dark:text-zinc-100 prose-headings:text-gray-900 dark:prose-headings:text-zinc-100 prose-strong:text-gray-900 dark:prose-strong:text-zinc-100 prose-code:text-gray-800 dark:prose-code:text-zinc-200 prose-code:bg-gray-100 dark:prose-code:bg-zinc-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
@@ -537,22 +537,22 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                         size="icon"
                         onClick={() => handleFeedback(msg._id, true)}
                         className={cn(
-                          "h-7 w-7 rounded-full",
-                          feedbackStatus[msg._id] === "liked" && "bg-green-100 text-green-700"
+                          "h-7 w-7 hover:bg-transparent",
+                          feedbackStatus[msg._id] === "liked" ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-500 dark:hover:text-neutral-400"
                         )}
                       >
-                        <ThumbsUp className="h-3 w-3" />
+                        <ThumbsUp className={cn("h-3.5 w-3.5", feedbackStatus[msg._id] === "liked" && "fill-neutral-400 dark:fill-neutral-500")} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleFeedback(msg._id, false)}
                         className={cn(
-                          "h-7 w-7 rounded-full",
-                          feedbackStatus[msg._id] === "disliked" && "bg-red-100 text-red-700"
+                          "h-7 w-7 hover:bg-transparent",
+                          feedbackStatus[msg._id] === "disliked" ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-500 dark:hover:text-neutral-400"
                         )}
                       >
-                        <ThumbsDown className="h-3 w-3" />
+                        <ThumbsDown className={cn("h-3.5 w-3.5", feedbackStatus[msg._id] === "disliked" && "fill-neutral-400 dark:fill-neutral-500")} />
                       </Button>
                     </div>
                     <div className="flex items-center">
@@ -564,7 +564,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                   </div>
                   
                   {/* Tags row */}
-                  <div className="w-full flex flex-wrap gap-2 mt-3 items-start">
+                  <div className="w-full flex flex-wrap gap-2 mt-1 items-start">
                     {feedTags[msg._id]?.map((tag) => (
                       <TagBadge 
                         key={tag.id} 
@@ -601,7 +601,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
               
               <Button 
                 onClick={handleCreateDailyLog}
-                className="border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-white hover:bg-neutral-300 dark:hover:bg-neutral-600 px-6 py-2 rounded-none transition-all duration-200 flex items-center gap-2"
+                className="border border-neutral-300 dark:border-neutral-600 bg-[#0071F8] hover:bg-[#0060d4] text-white px-6 py-2 rounded-none transition-all duration-200 flex items-center gap-2"
               >
                 <FileEdit className="h-4 w-4" />
                 Create Daily Log
@@ -631,7 +631,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
               <Button 
                 onClick={handleGenerateFeed} 
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg shadow-sm transition-all duration-200 flex items-center gap-2"
+                className="bg-[#0071F8] hover:bg-[#0060d4] disabled:bg-[#0071F8]/50 text-white px-6 py-2 rounded-none shadow-sm transition-all duration-200 flex items-center gap-2"
               >
                 {loading ? (
                   <>
@@ -656,7 +656,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
           {comments.length > 0 && (
             <div className="space-y-2 pb-10">
               {comments.map((comment) => (
-                <Card key={comment.id} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <Card key={comment.id} className="bg-transparent border-0 shadow-none">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2">
                       {comment.userImage && (

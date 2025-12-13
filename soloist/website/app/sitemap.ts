@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://soloist.app'
+  const baseUrl = 'https://soloist.acdc.digital'
   const currentDate = new Date()
 
   return [

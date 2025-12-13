@@ -44,7 +44,7 @@ import SoloistNewPage from "./soloist/page";
 import CanvasPage from "./canvas/page";
 import WaypointsPage from "./base/page";
 import HelpPage from "./help/page";
-import { Loader2, ArrowRightToLine } from "lucide-react";
+import { Loader2, ArrowRightToLine, Settings2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTemplates } from "@/hooks/useTemplates";
 import { ViewContainer, ViewsWrapper } from "@/components/ViewContainer";
@@ -243,6 +243,9 @@ export default function Dashboard() {
   const isCreatingNewTemplate = useDashboardStore((state) => state.isCreatingNewTemplate);
   const setIsCreatingNewTemplate = useDashboardStore((state) => state.setIsCreatingNewTemplate);
   
+  // Editor mode state for daily log / long form toggle
+  const [editorMode, setEditorMode] = useState<'daily' | 'longform'>('daily');
+  
   // Templates hook - pass selectedDate for per-day state management
   const {
     activeTemplate,
@@ -431,39 +434,82 @@ export default function Dashboard() {
     
     // Daily Log
     if (activeTab === "log") {
-      if (!selectedDate) {
-        return (
-          <div className="flex flex-col space-y-2">
-            <span className="font-semibold">Daily Log Form</span>
+      const parsed = selectedDate ? parseISO(selectedDate) : null;
+      const formatted = parsed ? format(parsed, "MMM d, yyyy") : null;
+      
+      return (
+        <div className="flex flex-col w-full">
+          {/* Row 1: Title/Date on left, Mode Toggle on right */}
+          <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col">
+              <span className="font-semibold">Daily Log Form</span>
+              {formatted && (
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {formatted}
+                </span>
+              )}
+            </div>
+            
+            {/* Mode Toggle - matches heatmap Controls style */}
+            <div className="flex bg-neutral-800/50 border border-neutral-600 rounded-lg py-1 px-1 gap-1">
+              <button
+                onClick={() => setEditorMode('daily')}
+                className={`px-2.5 py-1 text-xs font-medium rounded-sm focus:outline-none focus:ring-0 ${
+                  editorMode === 'daily'
+                    ? 'bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500'
+                    : 'text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50'
+                }`}
+              >
+                Daily Log
+              </button>
+              <button
+                onClick={() => setEditorMode('longform')}
+                className={`px-2.5 py-1 text-xs font-medium rounded-sm focus:outline-none focus:ring-0 ${
+                  editorMode === 'longform'
+                    ? 'bg-neutral-700 text-zinc-100 shadow-sm border border-neutral-500'
+                    : 'text-zinc-400 hover:text-zinc-100 hover:bg-neutral-700/50'
+                }`}
+              >
+                Notes
+              </button>
+            </div>
+          </div>
+          
+          {/* Row 2: Template Selector */}
+          <div className="mt-4 mb-1">
             <TemplateSelector
               userId={convexUserId || undefined}
-              selectedDate={selectedDate ? parseISO(selectedDate) : null}
+              selectedDate={parsed}
               onCreateNew={() => {
-                // Open templates in creation mode (without currentTemplate)
                 setIsCreatingNewTemplate(true);
                 setShowTemplates(true);
               }}
             />
           </div>
-        );
-      }
-      const parsed = parseISO(selectedDate);
-      const formatted = format(parsed, "MMM d, yyyy");
-      return (
-        <div className="flex flex-col space-y-1">
-          <span className="font-semibold">Daily Log Form</span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 pb-4">
-            {formatted}
-          </span>
-          <TemplateSelector
-            userId={convexUserId || undefined}
-            selectedDate={selectedDate ? parseISO(selectedDate) : null}
-            onCreateNew={() => {
-              // Open templates in creation mode (without currentTemplate)
-              setIsCreatingNewTemplate(true);
-              setShowTemplates(true);
+          
+          {/* Row 3: Customize button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (showTemplates) {
+                setShowTemplates(false);
+                setIsCreatingNewTemplate(false);
+              } else {
+                setIsCreatingNewTemplate(false);
+                setShowTemplates(true);
+              }
             }}
-          />
+            className="w-fit text-amber-600 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-xs px-2 py-1 h-auto transition-colors duration-200"
+          >
+            {showTemplates ? (
+              <X className="h-3 w-3 mr-1.5" />
+            ) : (
+              <Settings2 className="h-3 w-3 mr-1.5" />
+            )}
+            Customize
+          </Button>
         </div>
       );
     }
@@ -618,11 +664,8 @@ export default function Dashboard() {
                   <DailyLogForm
                     date={selectedDate}
                     hasActiveSubscription={hasActiveSubscription}
-                    showTemplates={showTemplates}
-                    onCustomize={() => {
-                      setIsCreatingNewTemplate(false);
-                      setShowTemplates(!showTemplates);
-                    }}
+                    editorMode={editorMode}
+                    setEditorMode={setEditorMode}
                     onClose={isBrowser === true ? () => setActiveTab("feed") : () => {
                       toggleSidebar();
                       updateDatePreserveTab(null);

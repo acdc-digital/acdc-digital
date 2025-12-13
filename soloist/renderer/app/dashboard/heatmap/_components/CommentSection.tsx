@@ -83,7 +83,7 @@ export function CommentSection({ onAddComment }: CommentSectionProps) {
         placeholder="Add a comment..."
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
-        className="min-h-[42px] resize-none text-sm pr-12"
+        className="min-h-[42px] resize-none text-sm pr-12 bg-neutral-100 dark:bg-neutral-700 border-neutral-200 dark:border-neutral-600 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none"
         onKeyDown={e => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -94,7 +94,7 @@ export function CommentSection({ onAddComment }: CommentSectionProps) {
       />
       <button
         type="submit"
-        className="absolute right-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-sm p-2 transition"
+        className="absolute right-4 bg-[#0071F8] hover:bg-[#0060d4] text-white rounded-md p-2 transition"
         disabled={!newComment.trim() || isSubmitting}
         tabIndex={0}
         aria-label="Post comment"

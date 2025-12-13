@@ -273,8 +273,8 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
         className={cn(
           "block h-4 w-7 rounded-full border transition-colors cursor-pointer",
           checked
-            ? "bg-emerald-600 border-emerald-600"
-            : "bg-zinc-200 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600"
+            ? "bg-blue-500 border-blue-500"
+            : "bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600"
         )}
       >
         <span
@@ -289,125 +289,123 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
 
   const FieldRow = ({ field }: { field: TemplateField }) => {
     return (
-      <Card className="border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors">
-        <CardContent className="p-3">
-          <div className="space-y-3">
-            {/* Field Label and Type Row */}
-            <div className="flex items-center gap-3">
+      <div className="bg-neutral-50 dark:bg-[#3a3a3a] border border-neutral-200 dark:border-neutral-600 p-3 hover:border-neutral-300 dark:hover:border-neutral-500 transition-colors">
+        <div className="space-y-3">
+          {/* Field Label and Type Row */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                value={field.label}
+                onChange={(e) => handleUpdateField(field.id, { label: e.target.value })}
+                placeholder="Enter question label"
+                className="text-sm border-0 shadow-none p-0 h-auto bg-transparent focus:outline-none focus-visible:outline-none focus-visible:ring-0 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500"
+              />
+            </div>
+            <div className="w-40">
+              <Select
+                value={field.type}
+                onValueChange={(value: FieldType) =>
+                  handleUpdateField(field.id, { type: value })
+                }
+              >
+                <SelectTrigger className="h-7 text-xs border-neutral-600 bg-neutral-100 dark:bg-neutral-800/50 text-neutral-700 dark:text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-none border-neutral-600 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-zinc-200">
+                  {fieldTypeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="rounded-none focus:bg-neutral-200 dark:focus:bg-neutral-700 focus:text-neutral-900 dark:focus:text-zinc-100">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={field.required || false}
+                onCheckedChange={(checked) =>
+                  handleUpdateField(field.id, { required: checked })
+                }
+                id={`required-${field.id}`}
+              />
+              <span className="text-xs text-neutral-600 dark:text-neutral-400">Required</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRemoveField(field.id)}
+              className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/20"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+
+          {/* Additional Controls Row */}
+          <div className="flex items-center gap-3 text-xs">
+            {(field.type === "textarea" || field.type === "text") && (
               <div className="flex-1">
                 <Input
-                  value={field.label}
-                  onChange={(e) => handleUpdateField(field.id, { label: e.target.value })}
-                  placeholder="Enter question label"
-                  className="text-sm border-0 shadow-none p-0 h-auto bg-transparent focus-visible:ring-0"
+                  value={field.placeholder || ""}
+                  onChange={(e) =>
+                    handleUpdateField(field.id, { placeholder: e.target.value })
+                  }
+                  placeholder="Placeholder text (optional)"
+                  className="h-7 text-xs border-neutral-300 dark:border-neutral-500 bg-neutral-100 dark:bg-[#666666] focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-none"
                 />
               </div>
-              <div className="w-40">
-                <Select
-                  value={field.type}
-                  onValueChange={(value: FieldType) =>
-                    handleUpdateField(field.id, { type: value })
-                  }
-                >
-                  <SelectTrigger className="h-7 text-xs border-zinc-300 dark:border-zinc-600 focus:ring-0">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fieldTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={field.required || false}
-                  onCheckedChange={(checked) =>
-                    handleUpdateField(field.id, { required: checked })
-                  }
-                  id={`required-${field.id}`}
-                />
-                <span className="text-xs text-zinc-600 dark:text-zinc-400">Required</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemoveField(field.id)}
-                className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
+            )}
 
-            {/* Additional Controls Row */}
-            <div className="flex items-center gap-3 text-xs">
-              {(field.type === "textarea" || field.type === "text") && (
-                <div className="flex-1">
+            {(field.type === "slider" || field.type === "number") && (
+              <div className="flex gap-2">
+                <div className="w-16">
                   <Input
-                    value={field.placeholder || ""}
+                    type="number"
+                    value={field.min || 0}
                     onChange={(e) =>
-                      handleUpdateField(field.id, { placeholder: e.target.value })
+                      handleUpdateField(field.id, { min: Number(e.target.value) })
                     }
-                    placeholder="Placeholder text (optional)"
-                    className="h-7 text-xs border-zinc-300 dark:border-zinc-600 focus:ring-0"
+                    placeholder="Min"
+                    className="h-7 text-xs border-neutral-300 dark:border-neutral-500 bg-neutral-100 dark:bg-[#666666] focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-none"
                   />
                 </div>
-              )}
-
-              {(field.type === "slider" || field.type === "number") && (
-                <div className="flex gap-2">
-                  <div className="w-16">
-                    <Input
-                      type="number"
-                      value={field.min || 0}
-                      onChange={(e) =>
-                        handleUpdateField(field.id, { min: Number(e.target.value) })
-                      }
-                      placeholder="Min"
-                      className="h-7 text-xs border-zinc-300 dark:border-zinc-600 focus:ring-0"
-                    />
-                  </div>
-                  <div className="w-16">
-                    <Input
-                      type="number"
-                      value={field.max || 10}
-                      onChange={(e) =>
-                        handleUpdateField(field.id, { max: Number(e.target.value) })
-                      }
-                      placeholder="Max"
-                      className="h-7 text-xs border-zinc-300 dark:border-zinc-600 focus:ring-0"
-                    />
-                  </div>
-                  {field.type === "number" && (
-                    <div className="w-16">
-                      <Input
-                        type="number"
-                        value={field.step || 1}
-                        onChange={(e) =>
-                          handleUpdateField(field.id, { step: Number(e.target.value) })
-                        }
-                        placeholder="Step"
-                        className="h-7 text-xs border-zinc-300 dark:border-zinc-600 focus:ring-0"
-                      />
-                    </div>
-                  )}
+                <div className="w-16">
+                  <Input
+                    type="number"
+                    value={field.max || 10}
+                    onChange={(e) =>
+                      handleUpdateField(field.id, { max: Number(e.target.value) })
+                    }
+                    placeholder="Max"
+                    className="h-7 text-xs border-neutral-300 dark:border-neutral-500 bg-neutral-100 dark:bg-[#666666] focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-none"
+                  />
                 </div>
-              )}
-            </div>
+                {field.type === "number" && (
+                  <div className="w-16">
+                    <Input
+                      type="number"
+                      value={field.step || 1}
+                      onChange={(e) =>
+                        handleUpdateField(field.id, { step: Number(e.target.value) })
+                      }
+                      placeholder="Step"
+                      className="h-7 text-xs border-neutral-300 dark:border-neutral-500 bg-neutral-100 dark:bg-[#666666] focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 rounded-none"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-zinc-900">
+    <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b]">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="px-4 py-3 border-b border-neutral-300 dark:border-neutral-600">
         <div className="space-y-2">
-          <Label htmlFor="template-name" className="text-sm font-medium">
+          <Label htmlFor="template-name" className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
             Template Name
           </Label>
           <Input
@@ -416,8 +414,8 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
             onChange={(e) => setTemplateName(e.target.value)}
             placeholder={isCreatingNew ? "Template name here..." : "Enter template name"}
             className={cn(
-              "text-sm focus:ring-0",
-              isCreatingNew && !templateName && "text-zinc-400 dark:text-zinc-500"
+              "text-sm focus:ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none focus:shadow-none bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 rounded-none",
+              isCreatingNew && !templateName && "text-neutral-400 dark:text-neutral-500"
             )}
           />
         </div>
@@ -429,18 +427,18 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
           {fields.length === 0 ? (
             /* Empty state for new templates */
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="mb-6 p-4 rounded-full bg-emerald-50 dark:bg-emerald-900/20">
-                <Plus className="h-8 w-8 text-emerald-600 dark:text-emerald-500" />
+              <div className="mb-6 p-4 rounded-full bg-blue-50 dark:bg-blue-900/20">
+                <Plus className="h-8 w-8 text-blue-500 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-2">
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
                 Start Building Your Template
               </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 max-w-sm">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6 max-w-sm">
                 Create custom fields to capture exactly what matters in your daily logs. Add rating scales, text areas, checkboxes, and more.
               </p>
               <Button
                 onClick={() => handleAddField("Custom Fields")}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-0"
+                className="bg-neutral-200 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 focus:ring-0 rounded-none"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Field
@@ -449,8 +447,13 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
           ) : (
             /* Existing fields display */
             <>
-              {Object.entries(groupedFields).map(([category, categoryFields]) => (
-                <div key={category} className="space-y-2">
+              {Object.entries(groupedFields).map(([category, categoryFields], index) => (
+                <div key={category} className="space-y-3">
+                  {/* Section separator */}
+                  {index > 0 && (
+                    <div className="w-[65%] h-px bg-neutral-300 dark:bg-neutral-600" />
+                  )}
+                  
                   {/* Editable Category Header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -459,7 +462,7 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
                           <Input
                             value={categoryNames[category] || category}
                             onChange={(e) => handleCategoryNameChange(category, e.target.value)}
-                            className="h-7 text-sm font-medium border-zinc-300 dark:border-zinc-600 focus:ring-0"
+                            className="h-7 text-sm font-medium border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 focus:ring-0 rounded-none"
                             onBlur={() => setEditingCategoryId(null)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
@@ -474,25 +477,27 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
                             onClick={() => setEditingCategoryId(null)}
                             className="h-6 w-6 p-0"
                           >
-                            <Check className="h-3 w-3 text-emerald-600" />
+                            <Check className="h-3 w-3 text-blue-500" />
                           </Button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            {categoryNames[category] || category}
-                            <span className="text-xs text-zinc-500 ml-2">
-                              ({categoryFields.length} field{categoryFields.length !== 1 ? 's' : ''})
-                            </span>
-                          </h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingCategoryId(category)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Edit3 className="h-3 w-3" />
-                          </Button>
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-medium text-neutral-900 dark:text-white">
+                              {categoryNames[category] || category}
+                            </h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingCategoryId(category)}
+                              className="h-6 w-6 p-0 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                            {categoryFields.length} field{categoryFields.length !== 1 ? 's' : ''}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -500,7 +505,7 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
                       variant="outline"
                       size="sm"
                       onClick={() => handleAddField(category)}
-                      className="h-7 text-xs focus:ring-0"
+                      className="h-7 text-xs focus:ring-0 border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 rounded-none"
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Field
@@ -517,35 +522,37 @@ export default function Templates({ onClose, onSaveTemplate, currentTemplate, te
               ))}
 
               {/* Add new category - only show when there are existing fields */}
-              <Card className="border-dashed border-2 border-zinc-300 dark:border-zinc-700">
-                <CardContent className="p-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleAddField("Custom Fields")}
-                    className="w-full h-10 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 focus:ring-0"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Custom Field
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="border-dashed border-2 border-neutral-300 dark:border-neutral-600 rounded-none p-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleAddField("Custom Fields")}
+                  className="w-full h-10 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 focus:ring-0"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Custom Field
+                </Button>
+              </div>
             </>
           )}
         </div>
       </ScrollArea>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="px-4 py-3 border-t border-neutral-300 dark:border-neutral-600">
         <div className="flex items-center gap-2">
           <Button
             onClick={handleSave}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-0"
+            className="h-8 px-6 text-sm font-medium bg-[#0071F8] hover:bg-[#0060d4] text-white border border-[#0071F8] focus:ring-0 focus:outline-none rounded-none"
           >
             <Save className="h-4 w-4 mr-2" />
             Save Template
           </Button>
-          <Button variant="outline" onClick={onClose} className="focus:ring-0">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="focus:ring-0 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+          >
             Cancel
           </Button>
         </div>
