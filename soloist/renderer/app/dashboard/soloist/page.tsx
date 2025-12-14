@@ -48,8 +48,8 @@ export default function SoloistPage() {
         {/* Page Sidebar - 25% width with all controls and insights */}
         <PageSidebar />
 
-        {/* Week Grid - Vertical column of 7 days - no right border */}
-        <div className="w-[6.5rem] lg:w-[7rem] h-full flex-shrink-0 min-h-0 bg-[#2b2b2b] overflow-y-auto py-2 px-3">
+        {/* Week Grid - Vertical column of 7 days - fixed width */}
+        <div className="w-[104px] max-w-[104px] h-full flex-shrink-0 min-h-0 bg-[#2b2b2b] overflow-y-auto py-2 px-3">
           <WeekGrid />
         </div>
 

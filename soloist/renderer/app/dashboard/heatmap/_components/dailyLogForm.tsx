@@ -549,6 +549,11 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, edi
           style={{ width: `${progress}%` }}
         />
       </div>
+      {/* Progress percentage
+      <div className="absolute top-2 right-5 z-10">
+        <span className="text-xs text-neutral-500 dark:text-neutral-400">{Math.round(progress)}%</span>
+      </div>
+      */}
 
       {/* Mode toggle and Customize button are now in the sidebar header */}
 

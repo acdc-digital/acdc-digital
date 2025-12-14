@@ -71,7 +71,7 @@ export function WeekGrid({ className }: WeekGridProps) {
       return (
         <div 
           key={idx} 
-          className="flex flex-col items-center justify-between py-0.5 px-0.5 lg:px-1 border flex-1 min-h-[1.1rem] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60 rounded-md"
+          className="flex flex-col items-center justify-between py-0.5 px-0.5 border h-[72px] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60 rounded-md"
         >
           <div className="text-[10px] font-medium text-neutral-400">—</div>
           <span className="text-xl font-bold text-neutral-400">?</span>
@@ -92,8 +92,8 @@ export function WeekGrid({ className }: WeekGridProps) {
         key={day.date || idx}
         title={`${day.date}: ${score ?? 'N/A'}`}
         className={cn(
-          "flex flex-col items-center justify-between border cursor-pointer transition-all duration-100 rounded-md flex-1",
-          isFutureDay ? "min-h-[1.5rem] py-0.5 px-0.5 lg:px-1 pb-1" : "min-h-[1.1rem] py-0.5 px-0.5 lg:px-1",
+          "flex flex-col items-center justify-between border cursor-pointer transition-all duration-100 rounded-md",
+          isFutureDay ? "h-[80px] py-0.5 px-0.5 pb-1" : "h-[72px] py-0.5 px-0.5",
           colorClass,
           borderColorClass,
           isSelected && "ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900",
@@ -135,7 +135,7 @@ export function WeekGrid({ className }: WeekGridProps) {
   };
 
   return (
-    <div className={cn("flex flex-col h-full justify-between gap-1.5", className)}>
+    <div className={cn("flex flex-col gap-1.5", className)}>
       {/* All 7 days in vertical column */}
       {weekData.map((day, idx) => renderDayBox(day, idx))}
     </div>
