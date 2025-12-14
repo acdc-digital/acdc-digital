@@ -9,7 +9,7 @@ import {
   PromptInputTextarea,
   PromptInputSubmit,
 } from "@/components/ai/prompt-input";
-import { User, Bot, Sparkles, MessageCircle, Trash2, Loader2 } from "lucide-react";
+import { Sparkles, MessageCircle, Loader2 } from "lucide-react";
 
 interface BaselineChatPanelProps {
   userId: Id<"users">;
@@ -99,31 +99,22 @@ export function BaselineChatPanel({
               {messages?.map((msg: { _id: Id<"baseline_chats">; role: "user" | "assistant" | "system"; content: string; createdAt: number }) => (
                 <div
                   key={msg._id}
-                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  {msg.role === "assistant" && (
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-900 dark:bg-white flex items-center justify-center">
-                      <Bot className="h-3.5 w-3.5 text-white dark:text-neutral-900" />
+                  {msg.role === "user" && (
+                    <div className="max-w-[80%] px-4 py-3 bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg rounded-tr-none">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <span className="text-xs mt-2 block text-neutral-500 dark:text-neutral-400">
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
                     </div>
                   )}
-                  <div
-                    className={`max-w-[80%] px-4 py-3 ${
-                      msg.role === "user"
-                        ? "bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg rounded-tr-none"
-                        : "bg-transparent text-neutral-700 dark:text-neutral-300 border border-white/40 rounded-lg rounded-tl-none"
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                    <span className={`text-xs mt-2 block ${msg.role === "user" ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-400 dark:text-neutral-500"}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  {msg.role === "user" && (
-                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-neutral-900 dark:bg-white flex items-center justify-center">
-                      <User className="h-3.5 w-3.5 text-white dark:text-neutral-900" />
+                  {msg.role === "assistant" && (
+                    <div className="w-full">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{msg.content}</p>
                     </div>
                   )}
                 </div>
