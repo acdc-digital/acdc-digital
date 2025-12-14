@@ -9,12 +9,10 @@ import { api } from "@/convex/_generated/api";
 import { useConvexUser } from "@/hooks/useConvexUser";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import {
   AlertCircle,
   Loader2,
   Check,
-  Clock,
   Save,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -72,9 +70,6 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
       setHasUnsavedChanges(true);
     }
   }, [title, content, isLoaded]);
-
-  // Format the display date
-  const displayDate = format(new Date(date), "EEEE, MMMM d, yyyy");
 
   // Word count
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
@@ -153,52 +148,17 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
   /* ────────────────────────────────────────── */
   return (
     <div className="flex flex-col h-full bg-neutral-100 dark:bg-[#2b2b2b] text-zinc-800 dark:text-zinc-100 overflow-hidden">
-      {/* Status Header */}
-      <div className="flex-shrink-0 px-5 py-2 border-b border-neutral-300 dark:border-neutral-600">
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">
-            {displayDate}
-          </span>
-          <div className="flex items-center gap-3">
-            {/* Save status indicator */}
-            {lastSaved && (
-              <span className="text-xs text-neutral-400 dark:text-neutral-500 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Saved {format(lastSaved, "h:mm a")}
-              </span>
-            )}
-            {hasUnsavedChanges && (
-              <span className="text-xs text-amber-500 dark:text-amber-400">
-                Unsaved changes
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Editor Area */}
       <div className="flex-1 overflow-y-auto">
         <form onSubmit={handleSubmit} className="h-full flex flex-col">
-          <div className="px-5 py-5 flex-1 flex flex-col space-y-4">
-            {/* Title Input */}
-            <div className="space-y-2">
-              <Input
-                type="text"
-                placeholder="Give your entry a title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="bg-transparent border-none text-lg font-medium text-neutral-900 dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:ring-0 focus:outline-none px-0 h-auto py-1"
-              />
-              <div className="h-px bg-neutral-200 dark:bg-neutral-600" />
-            </div>
-
+          <div className="px-5 py-5 flex-1 flex flex-col">
             {/* Content Textarea */}
             <div className="flex-1 relative">
               <Textarea
                 placeholder="Start writing... Let your thoughts flow freely. This is your space to explore ideas, reflect on experiences, or simply express how you're feeling."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full h-full min-h-[300px] bg-transparent border-none text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:ring-0 focus:outline-none resize-none text-base leading-relaxed px-0"
+                className="w-full h-full min-h-[300px] bg-transparent border-none text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none focus:ring-offset-0 resize-none text-base leading-relaxed px-0"
               />
             </div>
           </div>
@@ -206,7 +166,7 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
       </div>
 
       {/* Footer */}
-      <div className="flex-shrink-0 w-full border-t border-neutral-300 dark:border-neutral-600 bg-neutral-100 dark:bg-[#2b2b2b] px-5 py-3">
+      <div className="flex-shrink-0 w-full bg-neutral-100 dark:bg-[#2b2b2b] px-5 py-3">
         {/* Stats bar */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
