@@ -32,7 +32,7 @@ export function StripeCheckoutModal({
   const [error, setError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const { isAuthenticated, isLoading, userId } = useConvexUser();
-  const hasActiveSubscription = useQuery(api.userSubscriptions.hasActiveSubscription);
+  const hasActiveSubscription = useQuery(api.shared.users.userSubscriptions.hasActiveSubscription);
   const [stripeConfigured, setStripeConfigured] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const sessionCreatedRef = useRef(false);

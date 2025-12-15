@@ -31,9 +31,9 @@ interface PricingTier {
 
 export default function Pricing() {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const hasActiveSubscription = useQuery(api.userSubscriptions.hasActiveSubscription);
-  const isOnTeamsWaitlist = useQuery(api.waitlist.isOnWaitlist, { feature: "teams" });
-  const joinWaitlist = useMutation(api.waitlist.joinWaitlist);
+  const hasActiveSubscription = useQuery(api.shared.users.userSubscriptions.hasActiveSubscription);
+  const isOnTeamsWaitlist = useQuery(api.website.public.waitlist.isOnWaitlist, { feature: "teams" });
+  const joinWaitlist = useMutation(api.website.public.waitlist.joinWaitlist);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [signInFlow, setSignInFlow] = useState<"signIn" | "signUp">("signIn");

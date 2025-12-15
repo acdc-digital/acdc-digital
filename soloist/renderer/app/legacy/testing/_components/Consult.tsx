@@ -150,7 +150,7 @@ export default function Consult({ userId, selectedDay, selectedDateRange, sevenD
   // The weeklyLogsData based on selectedDateRange is primarily for historical logs.
   // We will now combine this with forecast data from sevenDayData for the AI.
   const historicalLogsData = useQuery(
-    api.dailyLogs.getLogsByDateRange,
+    api.renderer.heatmap.dailyLogs.getLogsByDateRange,
     userId && selectedDateRange.start && selectedDateRange.end
       ? {
           userId,
@@ -174,7 +174,7 @@ export default function Consult({ userId, selectedDay, selectedDateRange, sevenD
     }));
   }, [sevenDayData]);
   
-  const performAIConsultation = useAction(api.generator.generateDailyConsultation);
+  const performAIConsultation = useAction(api.renderer.soloist.generator.generateDailyConsultation);
 
   const handleGenerateConsultation = useCallback(async (forceRegenerate = false) => {
     const dateKey = selectedDay?.date;

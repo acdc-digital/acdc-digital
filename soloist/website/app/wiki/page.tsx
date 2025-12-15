@@ -15,7 +15,7 @@ export default function WikiPage() {
       description: "Get the current authenticated user (viewer)",
       parameters: [],
       returns: "User | null",
-      example: `const user = useQuery(api.users.viewer);`,
+      example: `const user = useQuery(api.shared.users.users.viewer);`,
       explanation: "This function checks who is currently logged into the app and returns their user information. If nobody is logged in, it returns null. It's commonly used to display user information in the UI or to check if someone is authenticated before showing certain features.",
     },
     {
@@ -24,7 +24,7 @@ export default function WikiPage() {
       description: "Get the current authenticated user",
       parameters: [],
       returns: "User | null",
-      example: `const user = useQuery(api.users.currentUser);`,
+      example: `const user = useQuery(api.shared.users.users.currentUser);`,
       explanation: "Similar to the viewer function, this retrieves information about whoever is currently signed in. It's useful when you need to access the logged-in user's details like their name, email, or profile picture anywhere in your application.",
     },
     {
@@ -33,7 +33,7 @@ export default function WikiPage() {
       description: "Get user profile information for the authenticated user",
       parameters: [],
       returns: "User",
-      example: `const profile = useQuery(api.users.getProfile);`,
+      example: `const profile = useQuery(api.shared.users.users.getProfile);`,
       explanation: "This function fetches the complete profile information for the person who is currently logged in. Unlike viewer or currentUser, this will throw an error if no one is authenticated, making it suitable for protected pages where you know someone must be logged in.",
     },
     {
@@ -42,7 +42,7 @@ export default function WikiPage() {
       description: "Get all users (admin function)",
       parameters: [],
       returns: "User[]",
-      example: `const users = useQuery(api.users.getAllUsers);`,
+      example: `const users = useQuery(api.shared.users.users.getAllUsers);`,
       explanation: "This retrieves a list of every user registered in the system. It's intended for administrative purposes, like viewing all users in an admin dashboard. In a production app, this should be restricted to admin users only with proper permission checks.",
     },
     {
@@ -53,7 +53,7 @@ export default function WikiPage() {
         { name: "email", type: "string", description: "User's email address" },
       ],
       returns: "User | null",
-      example: `const user = useQuery(api.users.getUserByEmailPublic, { email: "user@example.com" });`,
+      example: `const user = useQuery(api.shared.users.users.getUserByEmailPublic, { email: "user@example.com" });`,
       explanation: "This looks up a user by their email address and returns their public profile information if found. It's useful for checking whether someone has already signed up with a particular email or for finding users by email in features like invitations or mentions.",
     },
     {
@@ -62,7 +62,7 @@ export default function WikiPage() {
       description: "Get user's subscription status",
       parameters: [],
       returns: "{ hasActiveSubscription: boolean, subscriptionType: string | null, subscription: Subscription }",
-      example: `const status = useQuery(api.users.getUserSubscriptionStatus);`,
+      example: `const status = useQuery(api.shared.users.users.getUserSubscriptionStatus);`,
       explanation: "This checks whether the current user has an active paid subscription. It returns detailed information about their subscription status, which is useful for determining whether to show premium features or prompt them to upgrade their plan.",
     },
     {
@@ -73,7 +73,7 @@ export default function WikiPage() {
         { name: "id", type: "string", description: "User ID" },
       ],
       returns: "User | null",
-      example: `const user = useQuery(api.users.getUser, { id: "user_123" });`,
+      example: `const user = useQuery(api.shared.users.users.getUser, { id: "user_123" });`,
       explanation: "This retrieves a user's information using their unique ID. For security, it only allows users to access their own data - if you request someone else's ID, it returns null. This prevents users from viewing other people's private information.",
     },
     {
@@ -82,7 +82,7 @@ export default function WikiPage() {
       description: "Export all user data including profile, logs, attributes, and subscription",
       parameters: [],
       returns: "{ profile: User, dailyLogs: Log[], userAttributes: UserAttributes, subscription: Subscription, exportedAt: string, totalLogs: number }",
-      example: `const data = useQuery(api.users.exportUserData);`,
+      example: `const data = useQuery(api.shared.users.users.exportUserData);`,
       explanation: "This gathers all of the current user's data from across the entire system - their profile, all their daily mood logs, custom attributes, and subscription info - and packages it into a single export. This is useful for GDPR compliance, allowing users to download all their data, or for creating backups.",
     },
     {
@@ -418,7 +418,7 @@ export default function WikiPage() {
       description: "Get all payments for the authenticated user",
       parameters: [],
       returns: "Payment[]",
-      example: `const payments = useQuery(api.payments.getUserPayments);`,
+      example: `const payments = useQuery(api.shared.payments.payments.getUserPayments);`,
       explanation: "This retrieves the complete payment history for the current user, ordered from newest to oldest. It shows all their transactions, including successful payments, pending ones, and any failed attempts. Useful for displaying a billing history page.",
     },
     {
@@ -429,7 +429,7 @@ export default function WikiPage() {
         { name: "paymentId", type: "Id<'payments'>", description: "Payment document ID" },
       ],
       returns: "Payment | null",
-      example: `const payment = useQuery(api.payments.getPaymentById, { paymentId });`,
+      example: `const payment = useQuery(api.shared.payments.payments.getPaymentById, { paymentId });`,
       explanation: "This fetches detailed information about a specific payment. It includes a security check - users can only view their own payment records, not someone else's. If you try to access another user's payment, it returns null.",
     },
     {
@@ -514,7 +514,7 @@ export default function WikiPage() {
       description: "Check if current user has an active subscription",
       parameters: [],
       returns: "boolean",
-      example: `const isActive = useQuery(api.userSubscriptions.hasActiveSubscription);`,
+      example: `const isActive = useQuery(api.shared.users.userSubscriptions.hasActiveSubscription);`,
       explanation: "This is a simple yes/no check: does the current user have an active paid subscription? It checks both that the subscription status is 'active' or 'trialing' AND that it hasn't expired. Use this to control access to premium features or prompt users to upgrade.",
     },
     {
@@ -523,7 +523,7 @@ export default function WikiPage() {
       description: "Get current user's subscription details",
       parameters: [],
       returns: "Subscription | null",
-      example: `const subscription = useQuery(api.userSubscriptions.getCurrentSubscription);`,
+      example: `const subscription = useQuery(api.shared.users.userSubscriptions.getCurrentSubscription);`,
       explanation: "This retrieves the full subscription record for the current user, including details like when it expires, what status it's in, and the Stripe subscription ID. Returns null if the user doesn't have a subscription. Useful for displaying detailed subscription information in account settings.",
     },
     {
@@ -600,7 +600,7 @@ export default function WikiPage() {
         { name: "feature", type: "string", description: "Feature name" },
       ],
       returns: "boolean",
-      example: `const onWaitlist = useQuery(api.waitlist.isOnWaitlist, { feature: "ai-coach" });`,
+      example: `const onWaitlist = useQuery(api.website.public.waitlist.isOnWaitlist, { feature: "ai-coach" });`,
       explanation: "This checks whether the current user has already joined the waitlist for a specific feature. It's useful for showing different UI - if they're already on the waitlist, show 'You're on the list!' instead of a 'Join Waitlist' button.",
     },
     {
@@ -611,7 +611,7 @@ export default function WikiPage() {
         { name: "feature", type: "string", description: "Feature name" },
       ],
       returns: "{ totalCount: number, recentSignups: number }",
-      example: `const stats = useQuery(api.waitlist.getWaitlistStats, { feature: "ai-coach" });`,
+      example: `const stats = useQuery(api.website.public.waitlist.getWaitlistStats, { feature: "ai-coach" });`,
       explanation: "This provides statistics about a feature's waitlist - how many total people have signed up, and how many joined in the last 7 days. Great for showing social proof ('Join 247 others waiting for this feature!') or tracking interest over time.",
     },
     {
@@ -620,7 +620,7 @@ export default function WikiPage() {
       description: "Get all waitlist entries (admin only)",
       parameters: [],
       returns: "WaitlistEntry[]",
-      example: `const entries = useQuery(api.waitlist.getAllWaitlistEntries);`,
+      example: `const entries = useQuery(api.website.public.waitlist.getAllWaitlistEntries);`,
       explanation: "This retrieves every waitlist entry across all features. It's protected - only users with admin role can access it. Use this in admin dashboards to see who's interested in what features and plan development priorities accordingly.",
     },
     {

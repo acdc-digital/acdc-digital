@@ -42,11 +42,11 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Convex mutation
-  const saveLongFormEntry = useMutation(api.longForm.saveLongFormEntry);
+  const saveLongFormEntry = useMutation(api.renderer.heatmap.longForm.saveLongFormEntry);
 
   // Load existing entry for this date
   const existingEntry = useQuery(
-    api.longForm.getLongFormEntry,
+    api.renderer.heatmap.longForm.getLongFormEntry,
     userId ? { userId, date } : "skip"
   );
 

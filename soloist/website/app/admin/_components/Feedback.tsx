@@ -35,7 +35,7 @@ export function FeedbackModal({ children }: FeedbackModalProps) {
 
   // Get user authentication state and mutation
   const { userId, isAuthenticated } = useConvexUser();
-  const submitUserFeedback = useMutation(api.feedback.submitUserFeedback);
+  const submitUserFeedback = useMutation(api.shared.feedback.feedback.submitUserFeedback);
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => {

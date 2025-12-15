@@ -780,7 +780,7 @@ function SignOutButton() {
 import { api } from "@/convex/_generated/api";
 
 function UserProfile() {
-  const user = useQuery(api.users.viewer);
+  const user = useQuery(api.shared.users.users.viewer);
   
   if (!user) return <div>Loading...</div>;
   

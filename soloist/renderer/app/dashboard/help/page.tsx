@@ -49,7 +49,7 @@ export default function HelpPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { userId, isAuthenticated } = useConvexUser();
-  const submitUserFeedback = useMutation(api.feedback.submitUserFeedback);
+  const submitUserFeedback = useMutation(api.shared.feedback.feedback.submitUserFeedback);
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({

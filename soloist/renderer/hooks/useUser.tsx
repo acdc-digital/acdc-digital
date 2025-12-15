@@ -26,9 +26,9 @@ export function useUser() {
   }
 
   // When no user is signed in, skip the query to avoid errors
-  const user = useQuery(api.users.getUser, userId ? { id: userId } : "skip");
+  const user = useQuery(api.shared.users.users.getUser, userId ? { id: userId } : "skip");
   // Get the upsertion mutation
-  const upsertUser = useMutation(api.users.upsertUser);
+  const upsertUser = useMutation(api.shared.users.users.upsertUser);
   
   // Callback to ensure user document exists
   const ensureUserDocument = useCallback(async (name?: string, email?: string, image?: string) => {

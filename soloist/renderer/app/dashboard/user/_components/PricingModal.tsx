@@ -41,10 +41,10 @@ interface PricingModalProps {
 export function PricingModal({ open, onOpenChange }: PricingModalProps) {
   const { isAuthenticated, isLoading, userId } = useConvexUser();
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
-  const createCheckoutSession = useAction(api.payments.createCheckoutSession);
+  const createCheckoutSession = useAction(api.shared.payments.payments.createCheckoutSession);
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
   const [loading, setLoading] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);

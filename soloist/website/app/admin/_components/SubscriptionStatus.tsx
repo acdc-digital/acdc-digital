@@ -7,10 +7,10 @@ import { Loader2, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 
 export function SubscriptionStatus() {
   // Fetch current user's subscription
-  const subscription = useQuery(api.userSubscriptions.getCurrentSubscription);
+  const subscription = useQuery(api.shared.users.userSubscriptions.getCurrentSubscription);
   
   // Check if user has an active subscription
-  const hasActiveSubscription = useQuery(api.userSubscriptions.hasActiveSubscription);
+  const hasActiveSubscription = useQuery(api.shared.users.userSubscriptions.hasActiveSubscription);
   
   // While loading, show a spinner
   if (subscription === undefined) {

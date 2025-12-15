@@ -73,7 +73,7 @@ export default function Dashboard() {
 
   // Check subscription status (now works for both browser and desktop mode)
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && convexUserId ? {} : "skip"
   );
 
@@ -233,7 +233,7 @@ export default function Dashboard() {
 
   // Query for the daily log score (moved from renderSidebarTitle to fix Rules of Hooks)
   const dailyLogForScore = useQuery(
-    api.dailyLogs.getDailyLog,
+    api.renderer.heatmap.dailyLogs.getDailyLog,
     convexUserId && selectedDate ? { userId: convexUserId, date: selectedDate } : "skip"
   );
 
@@ -351,13 +351,13 @@ export default function Dashboard() {
 
   /*  Fetch daily logs (dashboard view only, skip for browser mode)       */
   const dailyLogs = useQuery(
-    api.dailyLogs.listDailyLogs,
+    api.renderer.heatmap.dailyLogs.listDailyLogs,
     isBrowser === false && currentView === "dashboard" && convexUserId ? { userId: convexUserId, year: selectedYear } : "skip"
   );
 
   /* Fetch all user tags for filtering (skip for browser mode) */
   const userTags = useQuery(
-    api.feed.getFeedTags,
+    api.renderer.heatmap.feed.getFeedTags,
     isBrowser === false && currentView === "dashboard" && convexUserId ? { userId: convexUserId } : "skip"
   );
 

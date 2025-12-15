@@ -46,13 +46,13 @@ export function BrowserNavbar() {
 
   // Get user details
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 
   // Check subscription status
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
 

@@ -142,7 +142,7 @@ export default function SoloistPage() {
 
   // Fetch forecast data - will run even with empty userId
   const forecastData = useQuery(
-    api.forecast.getSevenDayForecast,
+    api.renderer.soloist.forecast.getSevenDayForecast,
     userId
       ? {
           userId,
@@ -152,7 +152,7 @@ export default function SoloistPage() {
   );
 
   // Generate forecast mutation
-  const generateForecast = useAction(api.forecast.generateForecast);
+  const generateForecast = useAction(api.renderer.soloist.forecast.generateForecast);
 
   // Calculate average score safely
   const averageScore = (Array.isArray(forecastData) && forecastData.length > 0)

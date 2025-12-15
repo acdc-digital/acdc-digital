@@ -55,7 +55,7 @@ export default function Insights({ userId, sevenDayData, selectedDateRange }: In
   const weeklyInsightsCache = useTestingStore((state) => state.weeklyInsightsCache);
   const setWeeklyInsights = useTestingStore((state) => state.setWeeklyInsights);
 
-  const generateInsightsAction = useAction(api.generator.generateWeeklyInsights);
+  const generateInsightsAction = useAction(api.renderer.soloist.generator.generateWeeklyInsights);
 
   useEffect(() => {
     const fetchOrGetCachedInsights = async () => {

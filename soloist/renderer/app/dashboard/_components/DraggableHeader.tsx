@@ -17,7 +17,7 @@ const DraggableHeader: React.FC = () => {
   
   // Check subscription status for browser users
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isBrowser && isAuthenticated && userId ? {} : "skip"
   );
 

@@ -17,12 +17,12 @@ export function HeroHeader() {
   // Authentication and subscription state
   const { isAuthenticated, userId } = useConvexUser();
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
 
   // Email submission mutation
-  const submitEmail = useMutation(api.learnMore.submitEmail);
+  const submitEmail = useMutation(api.website.public.learnMore.submitEmail);
 
   // Determine if downloads should be enabled
   const downloadsEnabled = isAuthenticated && hasActiveSubscription === true;

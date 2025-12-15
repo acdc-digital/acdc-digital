@@ -77,14 +77,14 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
   const [allTags, setAllTags] = useState<Tag[]>([]);
 
   // Direct mutation to add a comment to a feed document
-  const updateFeedWithComment = useMutation(api.feed.addComment);
+  const updateFeedWithComment = useMutation(api.renderer.heatmap.feed.addComment);
   
   // New: Add tag mutation
-  const addTagToFeed = useMutation(api.feed.addTag);
-  const removeTagFromFeed = useMutation(api.feed.removeTag);
+  const addTagToFeed = useMutation(api.renderer.heatmap.feed.addTag);
+  const removeTagFromFeed = useMutation(api.renderer.heatmap.feed.removeTag);
 
   // New: feedback mutation
-  const submitFeedback = useMutation(api.feedback.submitFeedback);
+  const submitFeedback = useMutation(api.shared.feedback.feedback.submitFeedback);
 
   /* ───────────────────────────────────────────── */
   /* 1 Resolve the current user's stable ID        */
@@ -101,7 +101,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
   /* 2 Query feed messages for that user           */
   /* ───────────────────────────────────────────── */
   const feedMessagesData = useQuery(
-    api.feed.listFeedMessages,
+    api.renderer.heatmap.feed.listFeedMessages,
     userId ? { userId } : "skip" // Skip query when userId is not available
   );
   
@@ -114,13 +114,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
   /* 3 Check if daily log exists for this date     */
   /* ───────────────────────────────────────────── */
   const dailyLog = useQuery(
-    api.dailyLogs.getDailyLog,
+    api.renderer.heatmap.dailyLogs.getDailyLog,
     userId && selectedDate ? { userId, date: selectedDate } : "skip"
   );
 
   // Debugging: Get all logs for this user to compare
   const allUserLogs = useQuery(
-    api.dailyLogs.listAllUserLogs,
+    api.renderer.heatmap.dailyLogs.listAllUserLogs,
     userId ? { userId } : "skip"
   );
 
@@ -145,7 +145,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
   /* ───────────────────────────────────────────── */
   /* 4 Action to (re)generate feed for a log       */
   /* ───────────────────────────────────────────── */
-  const generateFeed = useAction(api.feed.generateFeedForDailyLog);
+  const generateFeed = useAction(api.renderer.heatmap.feed.generateFeedForDailyLog);
   
   // For debugging: Force reload
   const forceRefresh = () => {
@@ -242,13 +242,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
 
   // Query to get comments directly
   const fetchFeedComments = useQuery(
-    api.feed.getComments,
+    api.renderer.heatmap.feed.getComments,
     feedId ? { feedId: feedId as Id<"feed"> } : "skip"
   );
 
   // New: Query to get user's feedback for this feed item
   const userFeedback = useQuery(
-    api.feedback.getUserFeedback,
+    api.shared.feedback.feedback.getUserFeedback,
     feedId && userId ? { feedId: feedId as Id<"feed">, userId } : "skip"
   );
 
@@ -267,6 +267,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
 
   // Load comments when feedId changes or when fetchFeedComments updates
   useEffect(() => {
+    // Clear comments when there's no feedId (no feed for selected date)
+    if (!feedId) {
+      setComments([]);
+      setLocalComments([]);
+      return;
+    }
+    
     if (fetchFeedComments) {
       console.log("Got comments from backend:", fetchFeedComments);
       // Transform the data to match our Comment type
@@ -410,7 +417,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
 
   // New: Query to get tags for feed messages
   const feedTagsQuery = useQuery(
-    api.feed.getFeedTags,
+    api.renderer.heatmap.feed.getFeedTags,
     userId ? { userId } : "skip"
   );
   

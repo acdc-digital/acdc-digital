@@ -115,7 +115,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
 
   /* 2. Convex query (always called, key = "skip" if no user) */
   const queryResult = useQuery(
-    api.dailyLogs.listScores,
+    api.renderer.heatmap.dailyLogs.listScores,
     isAuthenticated && userId ? { userId } : "skip"
   ); // undefined while loading, then DailyLog[]
 

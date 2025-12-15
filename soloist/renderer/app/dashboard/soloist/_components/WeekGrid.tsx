@@ -92,14 +92,13 @@ export function WeekGrid({ className }: WeekGridProps) {
         key={day.date || idx}
         title={`${day.date}: ${score ?? 'N/A'}`}
         className={cn(
-          "flex flex-col items-center justify-between border cursor-pointer transition-all duration-100 rounded-md",
+          "flex flex-col items-center justify-between cursor-pointer transition-all duration-100 rounded-md",
           isFutureDay ? "h-[84px] py-0.5 px-0.5 pb-1" : "h-[80px] py-0.5 px-0.5",
           colorClass,
-          borderColorClass,
           isSelected && "ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900",
           day.isPast && "opacity-75 hover:opacity-100",
           day.isToday && "relative ring-1 ring-inset ring-white/50",
-          needsGen && "border-dashed border-neutral-500 bg-neutral-700/30"
+          needsGen && "border border-dashed border-neutral-500 bg-neutral-700/30"
         )}
         onClick={() => handleDayClick(idx)}
       >

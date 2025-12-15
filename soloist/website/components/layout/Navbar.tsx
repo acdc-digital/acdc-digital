@@ -41,17 +41,17 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Check if current user is admin
-  const isAdmin = useQuery(api.admin.isCurrentUserAdmin);
+  const isAdmin = useQuery(api.website.admin.admin.isCurrentUserAdmin);
 
   // Check if user has active subscription
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
 
   // Get user details
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 
