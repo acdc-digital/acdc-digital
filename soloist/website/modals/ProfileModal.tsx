@@ -42,12 +42,12 @@ export function ProfileModal({ open, onOpenChange }: ProfileModalProps) {
 
   // Get user details from Convex when authenticated
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 
   // Update profile mutation
-  const updateProfileMutation = useMutation(api.users.updateUserProfile);
+  const updateProfileMutation = useMutation(api.shared.users.users.updateUserProfile);
 
   // Update local state when user data loads
   useEffect(() => {

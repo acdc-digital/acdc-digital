@@ -36,7 +36,7 @@ export function Roadmap() {
   }, []);
   
   const { signIn } = useAuthActions();
-  const joinWaitlist = useMutation(api.waitlist.joinWaitlist);
+  const joinWaitlist = useMutation(api.website.public.waitlist.joinWaitlist);
 
   const handleWaitlistJoin = async (feature: string) => {
     try {

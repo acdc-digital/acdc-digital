@@ -47,21 +47,30 @@ export function ForecastChart({
     if (!weekData || weekData.length === 0) return [];
 
     return weekData.map((d, index) => {
-      // For now, using mock historical forecast data
-      // In production, this would come from stored forecasts
-      const historicalForecast = !d.isFuture ? (d.emotionScore ? d.emotionScore + Math.floor(Math.random() * 10) - 5 : null) : null;
+      // Use real historical forecast score from the data
+      const historicalForecast = (d as any).historicalForecastScore ?? null;
+      
+      // Find the last actual value to connect forecast line to actual line
+      // The last historical day (index 3) should have both Actual and Forecast values
+      // to create a continuous line
+      const isLastHistoricalDay = !d.isFuture && (index === weekData.length - 1 || weekData[index + 1]?.isFuture);
       
       return {
         name: d.shortDay || d.day.substring(0, 3),
         date: d.date,
         fullDay: d.day,
-        // Line 1: Actual score for past days
+        // Line 1: Actual score for past days (including the bridge point)
         Actual: !d.isFuture ? d.emotionScore : null,
-        // Line 2: Forecast score for future days
-        Forecast: d.isFuture ? d.emotionScore : null,
-        // Line 3: Historical forecast for comparison (past days only)
+        // Line 2: Forecast score - include the last actual day's score as bridge point
+        Forecast: d.isFuture 
+          ? d.emotionScore 
+          : (isLastHistoricalDay ? d.emotionScore : null),
+        // Line 3: Historical logs - actual log scores for all days where logs exist
+        HistoricalLog: (d as any).actualLogScore ?? null,
+        // Line 4: Historical forecast for comparison (previously stored predictions)
         HistoricalForecast: historicalForecast,
         isSelected: index === selectedDayIndex,
+        isFuture: d.isFuture,
       };
     });
   }, [weekData, selectedDayIndex]);
@@ -75,10 +84,58 @@ export function ForecastChart({
     return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
   }, [chartData]);
 
+  // Calculate dynamic Y-axis domain based on data values
+  const yAxisDomain = useMemo(() => {
+    const allScores = chartData
+      .flatMap(d => [d.Actual, d.Forecast, d.HistoricalLog, d.HistoricalForecast])
+      .filter((s): s is number => s !== null && s !== undefined);
+    
+    if (allScores.length === 0) return [0, 100];
+    
+    const minScore = Math.min(...allScores);
+    const maxScore = Math.max(...allScores);
+    const range = maxScore - minScore;
+    
+    // Add padding: at least 10 points or 20% of range on each side
+    const padding = Math.max(10, range * 0.2);
+    
+    // Calculate bounds, clamped to 0-100
+    const lowerBound = Math.max(0, Math.floor((minScore - padding) / 5) * 5); // Round down to nearest 5
+    const upperBound = Math.min(100, Math.ceil((maxScore + padding) / 5) * 5); // Round up to nearest 5
+    
+    // Ensure minimum range of 20 points for visibility
+    if (upperBound - lowerBound < 20) {
+      const midpoint = (minScore + maxScore) / 2;
+      return [
+        Math.max(0, Math.floor((midpoint - 10) / 5) * 5),
+        Math.min(100, Math.ceil((midpoint + 10) / 5) * 5)
+      ];
+    }
+    
+    return [lowerBound, upperBound];
+  }, [chartData]);
+
+  // Generate Y-axis ticks based on dynamic domain
+  const yAxisTicks = useMemo(() => {
+    const [min, max] = yAxisDomain;
+    const range = max - min;
+    const step = range <= 30 ? 5 : range <= 50 ? 10 : 20;
+    const ticks = [];
+    for (let i = min; i <= max; i += step) {
+      ticks.push(i);
+    }
+    // Ensure we have the max value
+    if (ticks[ticks.length - 1] !== max) {
+      ticks.push(max);
+    }
+    return ticks;
+  }, [yAxisDomain]);
+
   // Define colors
   const actualColor = "#6366f1"; // Indigo (Past/Actual)
   const forecastColor = "#f59e0b"; // Amber (Future/Forecast)
-  const historicalForecastColor = "#22c55e"; // Green (Historical Forecast)
+  const historicalLogColor = "#22c55e"; // Green (Historical Logs)
+  const historicalForecastColor = "#06b6d4"; // Cyan (Historical Forecast predictions)
 
   // Custom dot renderer for forecast line
   const renderForecastDot = (props: any): React.ReactElement<SVGElement> => {
@@ -132,7 +189,8 @@ export function ForecastChart({
             const colorClass = 
               entry.dataKey === "Actual" ? "bg-indigo-500" :
               entry.dataKey === "Forecast" ? "bg-amber-500" :
-              "bg-green-500";
+              entry.dataKey === "HistoricalLog" ? "bg-green-500" :
+              "bg-cyan-500"; // HistoricalForecast
             return (
               <div key={index} className="flex items-center gap-2 text-xs">
                 <span className={cn("w-2 h-2 rounded-full", colorClass)} />
@@ -195,13 +253,13 @@ export function ForecastChart({
               tick={{ fill: "#a3a3a3" }}
             />
             <YAxis
-              domain={[0, 100]}
+              domain={yAxisDomain}
               fontSize={12}
               tickLine={false}
               axisLine={false}
               dx={-5}
               tick={{ fill: "#a3a3a3" }}
-              ticks={[0, 50, 100]}
+              ticks={yAxisTicks}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -270,16 +328,31 @@ export function ForecastChart({
               />
             )}
 
-            {/* Line 3: Historical Forecast Comparison */}
+            {/* Line 3: Historical Logs - all actual log scores */}
+            {showHistorical && (
+              <Line
+                type="monotone"
+                dataKey="HistoricalLog"
+                stroke={historicalLogColor}
+                strokeWidth={2}
+                strokeDasharray="4 4"
+                dot={{ r: 4, fill: historicalLogColor, strokeWidth: 0 }}
+                activeDot={{ r: 6 }}
+                connectNulls
+                name="Historical Logs"
+              />
+            )}
+
+            {/* Line 4: Historical Forecast - previously stored predictions */}
             {showHistorical && (
               <Line
                 type="monotone"
                 dataKey="HistoricalForecast"
                 stroke={historicalForecastColor}
                 strokeWidth={2}
-                strokeDasharray="4 4"
-                dot={{ r: 4, fill: historicalForecastColor, strokeWidth: 0 }}
-                activeDot={{ r: 6 }}
+                strokeDasharray="2 2"
+                dot={{ r: 3, fill: historicalForecastColor, strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
                 connectNulls
                 name="Historical Forecast"
               />

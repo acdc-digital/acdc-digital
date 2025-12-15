@@ -99,12 +99,12 @@ export const BaselineSelfAnalysisForm = React.forwardRef<BaselineSelfAnalysisFor
     },
   });
 
-  const saveBaselineAnswers = useMutation(api.baseline.saveBaselineAnswers);
-  const computePrimaryBaseline = useMutation(api.baseline.computePrimaryBaseline);
-  const generateAnalysis = useAction(api.baselineChatActions.generateBaselineAnalysis);
-  const currentUser = useQuery(api.users.viewer);
-  const latestBaselineAnswers = useQuery(api.baseline.getLatestBaselineAnswers);
-  const computedBaseline = useQuery(api.baseline.getBaseline, { version: 1 });
+  const saveBaselineAnswers = useMutation(api.renderer.base.baseline.saveBaselineAnswers);
+  const computePrimaryBaseline = useMutation(api.renderer.base.baseline.computePrimaryBaseline);
+  const generateAnalysis = useAction(api.renderer.base.baselineChatActions.generateBaselineAnalysis);
+  const currentUser = useQuery(api.shared.users.users.viewer);
+  const latestBaselineAnswers = useQuery(api.renderer.base.baseline.getLatestBaselineAnswers);
+  const computedBaseline = useQuery(api.renderer.base.baseline.getBaseline, { version: 1 });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isComputing, setIsComputing] = React.useState(false);

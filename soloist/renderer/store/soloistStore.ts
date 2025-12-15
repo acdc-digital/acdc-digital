@@ -12,6 +12,7 @@ export interface DayData {
   shortDay?: string;
   formattedDate?: string;
   emotionScore: number | null;
+  actualLogScore?: number | null; // Always the actual log score (not forecast)
   isFuture: boolean;
   isPast?: boolean;
   isToday?: boolean;
@@ -19,6 +20,7 @@ export interface DayData {
   description?: string;
   details?: string;
   answers?: Record<string, unknown>;
+  historicalForecastScore?: number | null;
 }
 
 export interface SoloistState {
@@ -98,8 +100,8 @@ export const useSoloistStore = create<SoloistState>()(
       // Initialize the store with default date range
       initialize: () => {
         const today = new Date();
-        const defaultStart = addDays(today, -3); // 3 days before today
-        const defaultEnd = addDays(today, 3); // 3 days after today
+        const defaultStart = addDays(today, -3); // 3 days before today = 4 historical days
+        const defaultEnd = today; // End at today (4 historical days: start, start+1, start+2, today)
         const weekData = generateWeekData(defaultStart);
         
         set({ 

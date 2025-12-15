@@ -26,10 +26,10 @@ export default function WaypointsPage() {
   const isBrowser = useBrowserEnvironment();
 
   // Get current user
-  const user = useQuery(api.users.viewer);
+  const user = useQuery(api.shared.users.users.viewer);
   
   // Get latest baseline answers to persist chat on refresh
-  const latestBaselineAnswers = useQuery(api.baseline.getLatestBaselineAnswers);
+  const latestBaselineAnswers = useQuery(api.renderer.base.baseline.getLatestBaselineAnswers);
   
   // Set baseline answer ID when component mounts or when new answers are saved
   React.useEffect(() => {

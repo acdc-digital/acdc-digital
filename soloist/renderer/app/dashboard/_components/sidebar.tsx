@@ -141,13 +141,13 @@ export function Sidebar({ className }: SidebarProps) {
   
   // Get user details from Convex when authenticated (works for both browser and desktop)
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
   
   // Check subscription status (now works for both browser and desktop mode)
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
   

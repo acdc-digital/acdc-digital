@@ -7,7 +7,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Calendar } from "lucide-react";
+import { ChevronRight, Calendar, Check, X } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSoloistStore } from "@/store/soloistStore";
@@ -15,19 +15,28 @@ import { NavCalendar } from "@/app/legacy/testing/_components/navCalendar";
 
 interface DateRangeSelectorProps {
   onGenerateForecast?: () => Promise<void>;
+  error?: string | null;
 }
 
-export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps) {
+export function DateRangeSelector({ onGenerateForecast, error }: DateRangeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedDateRange, setSelectedDateRange] = useState<{
-    start: Date | null;
-    end: Date | null;
-  }>({
-    start: null,
-    end: null,
-  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [hadError, setHadError] = useState(false);
+  
+  // Use the store for date range state so it's accessible to parent components
+  const { selectedDateRange, setSelectedDateRange } = useSoloistStore();
+
+  // Track error state and reset isGenerated when error is dismissed
+  useEffect(() => {
+    if (error) {
+      setHadError(true);
+    } else if (hadError) {
+      // Error was dismissed, reset to allow regeneration
+      setIsGenerated(false);
+      setHadError(false);
+    }
+  }, [error, hadError]);
 
   // Initialize with default date range (last 4 days)
   useEffect(() => {
@@ -35,9 +44,9 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
       const today = new Date();
       const start = new Date(today);
       start.setDate(today.getDate() - 3);
-      setSelectedDateRange({ start, end: today });
+      setSelectedDateRange(start, today);
     }
-  }, []);
+  }, [selectedDateRange.start, selectedDateRange.end, setSelectedDateRange]);
 
   const [tempDate, setTempDate] = useState<Date | undefined>(
     selectedDateRange.start || undefined
@@ -59,10 +68,10 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
     const start = date;
     const end = addDays(start, 3);
 
-    setSelectedDateRange({ start, end });
+    setSelectedDateRange(start, end);
     setIsGenerated(false);
     setIsOpen(false);
-  }, []);
+  }, [setSelectedDateRange]);
 
   const handleGenerate = useCallback(async () => {
     if (onGenerateForecast) {
@@ -118,21 +127,33 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
             !selectedDateRange.start ||
             !selectedDateRange.end ||
             isGenerating ||
-            isGenerated
+            isGenerated ||
+            !!error
           }
           variant="outline"
           className={cn(
             "h-7 px-3 text-xs transition-all duration-200",
             "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
-            isGenerated && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700"
+            isGenerated && !error && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700",
+            error && "bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 border-rose-400 dark:border-rose-700"
           )}
           size="sm"
         >
-          {isGenerating
-            ? "Generating..."
-            : isGenerated
-              ? "✓ Generated"
-              : "Generate Forecast"}
+          {isGenerating ? (
+            "Generating..."
+          ) : error ? (
+            <span className="flex items-center gap-1">
+              <X className="h-3 w-3" />
+              Generated
+            </span>
+          ) : isGenerated ? (
+            <span className="flex items-center gap-1">
+              <Check className="h-3 w-3" />
+              Generated
+            </span>
+          ) : (
+            "Generate Forecast"
+          )}
         </Button>
       </div>
 
@@ -146,7 +167,7 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
           const today = new Date();
           const start = new Date(today);
           start.setDate(today.getDate() - 3);
-          setSelectedDateRange({ start, end: today });
+          setSelectedDateRange(start, today);
           setTempDate(start);
           setIsGenerated(false);
           setIsOpen(false);

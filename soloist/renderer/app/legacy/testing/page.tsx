@@ -210,7 +210,7 @@ export default function TestingPage() {
 
   // Fetch the main 7-day data (includes historical logs + future forecasts)
   const sevenDayResult = useQuery(
-    api.testing.getTestSevenDayForecast,
+    api.renderer.soloist.testing.getTestSevenDayForecast,
     userId && selectedDateRange.start && selectedDateRange.end
       ? {
           userId: userId as string,
@@ -246,7 +246,7 @@ export default function TestingPage() {
 
   // Fetch raw historical logs (might be redundant if already in sevenDayResult, but kept for now)
   const historicalLogs = useQuery(
-    api.dailyLogs.getLogsByDateRange,
+    api.renderer.heatmap.dailyLogs.getLogsByDateRange,
     userId && selectedDateRange.start && selectedDateRange.end
       ? {
           userId,
@@ -260,7 +260,7 @@ export default function TestingPage() {
   const displayData = formattedDisplayData;
 
   // Generate test forecast mutation
-  const generateForecast = useAction(api.forecast.generateForecast);
+  const generateForecast = useAction(api.renderer.soloist.forecast.generateForecast);
 
   const handleGenerateForecast = async () => {
     if (!userId || !selectedDateRange.start || !selectedDateRange.end) {
@@ -407,7 +407,7 @@ export default function TestingPage() {
 
   // Fetch feedback for the forecast dates
   const feedbackMap = useQuery(
-    api.forecast.getForecastFeedback,
+    api.renderer.soloist.forecast.getForecastFeedback,
     userId && displayData && Array.isArray(displayData)
       ? {
           userId: userId!, // non-null assertion since we guard for userId elsewhere
@@ -426,7 +426,7 @@ export default function TestingPage() {
   }, [feedbackMap]);
 
   // Submit feedback handler
-  const submitFeedback = useMutation(api.forecast.submitForecastFeedback);
+  const submitFeedback = useMutation(api.renderer.soloist.forecast.submitForecastFeedback);
   const handleFeedback = (date: string, feedback: "up" | "down") => {
     if (!userId) {
       setForecastError("Please ensure you're logged in to submit feedback");

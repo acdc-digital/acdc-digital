@@ -19,12 +19,12 @@ export function useTemplates({ userId, selectedDate }: UseTemplatesProps) {
 
   // Queries
   const templates = useQuery(
-    api.dailyLogTemplates.getUserDailyLogTemplates,
+    api.renderer.heatmap.dailyLogTemplates.getUserDailyLogTemplates,
     userId ? { userId } : "skip"
   );
 
   const activeTemplate = useQuery(
-    api.dailyLogTemplates.getActiveDailyLogTemplate,
+    api.renderer.heatmap.dailyLogTemplates.getActiveDailyLogTemplate,
     userId ? { userId } : "skip"
   );
 
@@ -38,10 +38,10 @@ export function useTemplates({ userId, selectedDate }: UseTemplatesProps) {
   });
 
   // Mutations
-  const saveTemplateMutation = useMutation(api.dailyLogTemplates.saveDailyLogTemplate);
-  const setActiveTemplateMutation = useMutation(api.dailyLogTemplates.setTemplateActive);
-  const deleteTemplateMutation = useMutation(api.dailyLogTemplates.deleteDailyLogTemplate);
-  const duplicateTemplateMutation = useMutation(api.dailyLogTemplates.duplicateDailyLogTemplate);
+  const saveTemplateMutation = useMutation(api.renderer.heatmap.dailyLogTemplates.saveDailyLogTemplate);
+  const setActiveTemplateMutation = useMutation(api.renderer.heatmap.dailyLogTemplates.setTemplateActive);
+  const deleteTemplateMutation = useMutation(api.renderer.heatmap.dailyLogTemplates.deleteDailyLogTemplate);
+  const duplicateTemplateMutation = useMutation(api.renderer.heatmap.dailyLogTemplates.duplicateDailyLogTemplate);
 
   // Ensure default template exists
   useEffect(() => {

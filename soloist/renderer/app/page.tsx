@@ -78,7 +78,7 @@ export default function LandingPage() {
 
   // Always call useQuery hook - use "skip" when not authenticated
   const hasActiveSubscription = useQuery(
-    api.userSubscriptions.hasActiveSubscription,
+    api.shared.users.userSubscriptions.hasActiveSubscription,
     isAuthenticated && userId ? {} : "skip"
   );
 
@@ -320,7 +320,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="email"
-                className="w-full px-3 py-1.5 border border-gray-600 dark:bg-[#191919] rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-1.5 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none"
                 type="email"
                 name="email"
                 placeholder="you@example.com"
@@ -334,7 +334,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="password"
-                className="w-full px-3 py-1.5 border border-gray-600 dark:bg-[#191919] rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-1.5 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none"
                 type="password"
                 name="password"
                 placeholder={step === "signUp" ? "Create a password" : "Enter your password"}
@@ -483,7 +483,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="reset-email"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none"
                 type="email"
                 name="email"
                 placeholder="you@example.com"
@@ -559,7 +559,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="reset-code"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono text-lg tracking-wider"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none text-center font-mono text-lg tracking-wider"
                 type="text"
                 name="code"
                 placeholder="Enter your code..."
@@ -575,7 +575,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="new-password"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none"
                 type="password"
                 name="newPassword"
                 placeholder="Create a new password"
@@ -651,7 +651,7 @@ export default function LandingPage() {
               </label>
               <input
                 id="code"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono text-lg tracking-wider"
+                className="w-full px-3 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg bg-white dark:bg-[#313131] text-gray-900 dark:text-white focus:outline-none text-center font-mono text-lg tracking-wider"
                 type="text"
                 name="code"
                 placeholder="Enter your code..."

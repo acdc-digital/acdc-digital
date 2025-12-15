@@ -27,11 +27,11 @@ export function BaselineChatPanel({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const messages = useQuery(
-    api.baselineChat.getChatMessages,
+    api.renderer.base.baselineChat.getChatMessages,
     baselineAnswerId ? { baselineAnswerId } : "skip"
   );
 
-  const chatWithAnalysis = useAction(api.baselineChatActions.chatWithAnalysis);
+  const chatWithAnalysis = useAction(api.renderer.base.baselineChatActions.chatWithAnalysis);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

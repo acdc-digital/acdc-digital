@@ -25,7 +25,7 @@ export function NewsletterSignup({
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const addEmail = useMutation(api.newsletter.addEmail);
+  const addEmail = useMutation(api.website.public.newsletter.addEmail);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

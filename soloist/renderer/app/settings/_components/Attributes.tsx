@@ -32,15 +32,15 @@ export default function Attributes() {
   
   // Get user details from Convex when authenticated
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 
   const attributesDoc = useQuery(
-    api.userAttributes.getAttributes,
+    api.shared.users.userAttributes.getAttributes,
     userId ? { userId } : "skip"
   );
-  const setAttributes = useMutation(api.userAttributes.setAttributes);
+  const setAttributes = useMutation(api.shared.users.userAttributes.setAttributes);
 
   const [form, setForm] = useState<AttributesForm>({
     name: attributesDoc?.attributes?.name || "",

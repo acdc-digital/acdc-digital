@@ -54,15 +54,15 @@ export function Admin() {
 
   // Only query admin data when authenticated
   const userSubscriptions = useQuery(
-    api.admin.getAllUserSubscriptions,
+    api.website.admin.admin.getAllUserSubscriptions,
     isAuthenticated ? {} : "skip"
   );
   const allUsers = useQuery(
-    api.admin.getAllUsers,
+    api.website.admin.admin.getAllUsers,
     isAuthenticated ? {} : "skip"
   );
   const isAdmin = useQuery(
-    api.admin.isCurrentUserAdmin,
+    api.website.admin.admin.isCurrentUserAdmin,
     isAuthenticated ? {} : "skip"
   );
   const [activeView, setActiveView] = useState<'overview' | 'users' | 'subscriptions' | 'analytics' | 'openai'>('overview');
@@ -71,7 +71,7 @@ export function Admin() {
 
   // Get user details
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 

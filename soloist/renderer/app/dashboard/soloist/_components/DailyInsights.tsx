@@ -69,9 +69,8 @@ export function DailyInsights({ className }: DailyInsightsProps) {
         <div className="flex flex-col flex-shrink-0">
           <div 
             className={cn(
-              "w-[4rem] h-[5rem] flex items-center justify-center border-2 border-dashed rounded-lg",
-              hasScore ? colorClass : "bg-neutral-200 dark:bg-neutral-700",
-              hasScore ? borderColorClass : "border-neutral-400 dark:border-neutral-500"
+              "w-[4rem] h-[5rem] flex items-center justify-center rounded-lg",
+              hasScore ? colorClass : "bg-neutral-200 dark:bg-neutral-700"
             )}
           >
             {hasScore ? (

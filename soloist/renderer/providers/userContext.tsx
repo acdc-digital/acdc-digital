@@ -57,7 +57,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useUpsertUser(authUser?.name, authUser?.email, authUser?.image);
 
   // Get the user from Convex
-  const convexUser = useQuery(api.users.viewer);
+  const convexUser = useQuery(api.shared.users.users.viewer);
 
   // Kick the store into loading state on first mount
   useEffect(() => {

@@ -493,7 +493,7 @@ export function SignupPaymentModal({
 
   // Get subscription status
   const subscriptionStatus = useQuery(
-    api.users.getUserSubscriptionStatus,
+    api.shared.users.users.getUserSubscriptionStatus,
     isAuthenticated ? {} : "skip"
   );
 

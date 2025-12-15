@@ -38,7 +38,7 @@ http.route({
       }
 
       // Check if payment exists and is completed
-      const payment = await ctx.runQuery(internal.payments.getBySessionId, {
+      const payment = await ctx.runQuery(internal.shared.payments.payments.getBySessionId, {
         sessionId,
       });
 
@@ -95,7 +95,7 @@ http.route({
         authUserId = userIdentity.subject;
         
         // Get the Convex user ID
-        const existingUser = await ctx.runQuery(internal.users.getUserByAuthId, {
+        const existingUser = await ctx.runQuery(internal.shared.users.users.getUserByAuthId, {
           authId: authUserId
         });
 
@@ -146,7 +146,7 @@ http.route({
 
       // Create initial payment record
       console.log("Creating payment record with userId:", userDocumentId);
-      await ctx.runMutation(internal.payments.create, {
+      await ctx.runMutation(internal.shared.payments.payments.create, {
         userId: userDocumentId,
         stripeSessionId: session.id,
         priceId,
@@ -189,7 +189,7 @@ http.route({
     
     try {
       // Pass the webhook payload to our internal action that handles Stripe events
-      const result = await ctx.runAction(internal.stripe.handleWebhookEvent, {
+      const result = await ctx.runAction(internal.shared.payments.stripe.handleWebhookEvent, {
         signature,
         payload: await request.text()
       });

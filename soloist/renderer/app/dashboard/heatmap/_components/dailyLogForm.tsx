@@ -77,12 +77,12 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, edi
   /*
   // Check user settings for generator prerequisites
   const userAttributes = useQuery(
-    api.userAttributes.getAttributes,
+    api.shared.users.userAttributes.getAttributes,
     userId ? { userId } : "skip"
   );
 
   const userInstructions = useQuery(
-    api.randomizer.getInstructions,
+    api.renderer.heatmap.randomizer.getInstructions,
     userId ? { userId } : "skip"
   );
 
@@ -120,16 +120,16 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, edi
 
   // Fetch existing log for the day
   const existingLog = useQuery(
-    api.dailyLogs.getDailyLog,
+    api.renderer.heatmap.dailyLogs.getDailyLog,
     userId ? { date: effectiveDate, userId } : "skip"
   );
 
-  const dailyLogMutation = useMutation(api.dailyLogs.dailyLog);
-  const scoreDailyLog    = useAction(api.score.scoreDailyLog);
-  const generateFeed     = useAction(api.feed.generateFeedForDailyLog);
-  const generateForecast = useAction(api.forecast.generateForecast);
+  const dailyLogMutation = useMutation(api.renderer.heatmap.dailyLogs.dailyLog);
+  const scoreDailyLog    = useAction(api.renderer.heatmap.score.scoreDailyLog);
+  const generateFeed     = useAction(api.renderer.heatmap.feed.generateFeedForDailyLog);
+  const generateForecast = useAction(api.renderer.soloist.forecast.generateForecast);
   // Generator feature is currently disabled
-  // const generateRandomLog = useAction(api.randomizer.generateRandomLog);
+  // const generateRandomLog = useAction(api.renderer.heatmap.randomizer.generateRandomLog);
   const convex = useConvex();
 
   // Create dynamic form data based on current template fields (simplified)
@@ -257,7 +257,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, edi
       const today = new Date(effectiveDate);
       const startDate = format(subDays(today, 3), 'yyyy-MM-dd');
       const endDate = format(today, 'yyyy-MM-dd');
-      const logs = await convex.query(api.forecast.getLogsForUserInRangeSimple, {
+      const logs = await convex.query(api.renderer.soloist.forecast.getLogsForUserInRangeSimple, {
         userId,
         startDate,
         endDate,

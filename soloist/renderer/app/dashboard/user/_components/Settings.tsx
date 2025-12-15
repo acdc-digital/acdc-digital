@@ -26,18 +26,18 @@ export default function Settings() {
 
   // Get user details from Convex when authenticated
   const user = useQuery(
-    api.users.viewer,
+    api.shared.users.users.viewer,
     isAuthenticated && userId ? {} : "skip"
   );
 
   // Fetch existing instructions
   const existingInstructions = useQuery(
-    api.randomizer.getInstructions,
+    api.renderer.heatmap.randomizer.getInstructions,
     userId ? { userId } : "skip"
   );
 
   // Save instructions mutation
-  const saveInstructionsMutation = useMutation(api.randomizer.saveInstructions);
+  const saveInstructionsMutation = useMutation(api.renderer.heatmap.randomizer.saveInstructions);
 
   // Update the local state when we get existing instructions
   useEffect(() => {

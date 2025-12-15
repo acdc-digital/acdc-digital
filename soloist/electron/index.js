@@ -104,9 +104,9 @@ async function createWindow() {
 
   const win = new BrowserWindow({
     width: 1260,
-    height: 665,
+    height: 760,
     minWidth: 1260,
-    minHeight: 665,
+    minHeight: 760,
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
     trafficLightPosition: process.platform === 'darwin' ? { x: 10, y: 10 } : undefined,
     icon: iconPath,
