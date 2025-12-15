@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/requireAdmin";
 
 // Add email to newsletter
 export const addEmail = mutation({
@@ -35,9 +36,12 @@ export const addEmail = mutation({
   },
 });
 
-// Get all newsletter emails (admin function)
+// Get all newsletter emails (admin only)
 export const getAllEmails = query({
   handler: async (ctx) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     return await ctx.db
       .query("newsletter")
       .order("desc")

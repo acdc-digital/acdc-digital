@@ -19,7 +19,7 @@ import { BouncingLogoCompact } from "@/components/features/BouncingLogoCompact";
 import { PrivacyPolicyModal } from "@/components/legal/privacyPolicy";
 import { TermsOfServiceModal } from "@/components/legal/termsOfService";
 import { NewsletterSignup } from "@/components/landing/NewsletterSignup";
-import { FeedbackModal } from "@/components/admin/Feedback";
+import { FeedbackModal } from "@/app/admin/_components/Feedback";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();

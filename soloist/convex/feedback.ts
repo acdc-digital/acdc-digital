@@ -3,6 +3,7 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/requireAdmin";
 
 /**
  * Submit feedback (thumbs up/down) for a feed item
@@ -170,7 +171,7 @@ export const submitUserFeedback = mutation({
 });
 
 /**
- * Get all user feedback (admin function)
+ * Get all user feedback (admin only)
  */
 export const getAllUserFeedback = query({
   args: {
@@ -195,6 +196,9 @@ export const getAllUserFeedback = query({
     createdAt: v.number(),
   })),
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const limit = args.limit || 100;
     
     const feedback = await ctx.db
@@ -244,7 +248,7 @@ export const getUserFeedbackHistory = query({
 });
 
 /**
- * Get feedback statistics (admin function)
+ * Get feedback statistics (admin only)
  */
 export const getFeedbackStats = query({
   args: {},
@@ -259,6 +263,9 @@ export const getFeedbackStats = query({
     registeredUserFeedbackCount: v.number(),
   }),
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const allFeedback = await ctx.db
       .query("userFeedback")
       .collect();

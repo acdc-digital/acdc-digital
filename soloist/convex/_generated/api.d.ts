@@ -33,6 +33,7 @@ import type * as generator from "../generator.js";
 import type * as historicalForecast from "../historicalForecast.js";
 import type * as http from "../http.js";
 import type * as learnMore from "../learnMore.js";
+import type * as lib_requireAdmin from "../lib/requireAdmin.js";
 import type * as longForm from "../longForm.js";
 import type * as manualSubscription from "../manualSubscription.js";
 import type * as newsletter from "../newsletter.js";
@@ -81,6 +82,7 @@ declare const fullApi: ApiFromModules<{
   historicalForecast: typeof historicalForecast;
   http: typeof http;
   learnMore: typeof learnMore;
+  "lib/requireAdmin": typeof lib_requireAdmin;
   longForm: typeof longForm;
   manualSubscription: typeof manualSubscription;
   newsletter: typeof newsletter;

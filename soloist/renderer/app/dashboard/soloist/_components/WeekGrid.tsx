@@ -71,9 +71,9 @@ export function WeekGrid({ className }: WeekGridProps) {
       return (
         <div 
           key={idx} 
-          className="flex flex-col items-center justify-between py-0.5 px-0.5 border h-[72px] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60 rounded-md"
+          className="flex flex-col items-center justify-between py-0.5 px-0.5 border h-[80px] bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 opacity-60 rounded-md"
         >
-          <div className="text-[10px] font-medium text-neutral-400">—</div>
+          <div className="text-[12px] font-medium text-neutral-400">—</div>
           <span className="text-xl font-bold text-neutral-400">?</span>
         </div>
       );
@@ -93,7 +93,7 @@ export function WeekGrid({ className }: WeekGridProps) {
         title={`${day.date}: ${score ?? 'N/A'}`}
         className={cn(
           "flex flex-col items-center justify-between border cursor-pointer transition-all duration-100 rounded-md",
-          isFutureDay ? "h-[80px] py-0.5 px-0.5 pb-1" : "h-[72px] py-0.5 px-0.5",
+          isFutureDay ? "h-[84px] py-0.5 px-0.5 pb-1" : "h-[80px] py-0.5 px-0.5",
           colorClass,
           borderColorClass,
           isSelected && "ring-2 ring-indigo-400 ring-offset-1 ring-offset-neutral-900",
@@ -117,7 +117,9 @@ export function WeekGrid({ className }: WeekGridProps) {
           </span>
           {score !== null && score > 0 && !needsGen && day.trend && <TrendIcon trend={day.trend} />}
         </div>
+        {/* White dot indicator for current day - disabled
         {day.isToday && <div className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-white/80" />}
+        */}
         
         {/* Feedback buttons for future days */}
         {/* {isFutureDay && (

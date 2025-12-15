@@ -122,8 +122,8 @@ export function DateRangeSelector({ onGenerateForecast }: DateRangeSelectorProps
           }
           variant="outline"
           className={cn(
-            "h-7 px-3 text-xs rounded-md transition-all duration-200",
-            "border-neutral-400 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
+            "h-7 px-3 text-xs transition-all duration-200",
+            "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-600",
             isGenerated && "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700"
           )}
           size="sm"

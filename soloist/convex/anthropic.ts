@@ -1,6 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
+import { requireAdmin, requireAuth } from "./lib/requireAdmin";
 
 // Model pricing in cents per 1M tokens (Claude 3.5 Haiku pricing as of Oct 2024)
 const PRICING = {
@@ -21,8 +22,9 @@ const PRICING = {
 
 /**
  * Track Anthropic API usage and calculate costs
+ * Internal mutation - should only be called from other Convex functions
  */
-export const trackUsage = mutation({
+export const trackUsage = internalMutation({
   args: {
     userId: v.string(),
     feature: v.string(),
@@ -60,13 +62,16 @@ export const trackUsage = mutation({
 });
 
 /**
- * Get comprehensive usage statistics for admin dashboard
+ * Get comprehensive usage statistics for admin dashboard (admin only)
  */
 export const getUsageStats = query({
   args: {
     timeRange: v.optional(v.number()), // Days to look back (default 30)
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const timeRange = args.timeRange || 30;
     const startDate = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
     
@@ -143,13 +148,16 @@ export const getUsageStats = query({
 });
 
 /**
- * Get recent usage records with user information
+ * Get recent usage records with user information (admin only)
  */
 export const getRecentUsage = query({
   args: {
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const limit = args.limit || 50;
     
     const usage = await ctx.db
@@ -179,7 +187,7 @@ export const getRecentUsage = query({
 });
 
 /**
- * Get usage statistics for a specific user
+ * Get usage statistics for a specific user (admin only)
  */
 export const getUserUsageStats = query({
   args: {
@@ -187,6 +195,9 @@ export const getUserUsageStats = query({
     timeRange: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const timeRange = args.timeRange || 30;
     const startDate = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
     
@@ -223,7 +234,7 @@ export const getUserUsageStats = query({
 });
 
 /**
- * Get cost trends over time for analytics
+ * Get cost trends over time for analytics (admin only)
  */
 export const getCostTrends = query({
   args: {
@@ -231,6 +242,9 @@ export const getCostTrends = query({
     interval: v.optional(v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly"))),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const timeRange = args.timeRange || 30;
     const interval = args.interval || "daily";
     const startDate = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
@@ -279,7 +293,7 @@ export const getCostTrends = query({
 });
 
 /**
- * Get top features by cost
+ * Get top features by cost (admin only)
  */
 export const getTopFeatures = query({
   args: {
@@ -287,6 +301,9 @@ export const getTopFeatures = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const timeRange = args.timeRange || 30;
     const limit = args.limit || 10;
     const startDate = Date.now() - (timeRange * 24 * 60 * 60 * 1000);
@@ -335,8 +352,9 @@ export const getTopFeatures = query({
 
 /**
  * Delete old usage records (for cleanup/privacy)
+ * Internal mutation - dangerous operation, should not be exposed to clients
  */
-export const cleanupOldUsage = mutation({
+export const cleanupOldUsage = internalMutation({
   args: {
     olderThanDays: v.number(),
   },

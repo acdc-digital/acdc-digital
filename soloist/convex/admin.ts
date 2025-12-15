@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { query, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError } from "convex/values";
+import { requireAdmin, requireAuth, isAdmin } from "./lib/requireAdmin";
 
 /**
  * Check if the current user is an admin
@@ -13,13 +14,7 @@ export const isCurrentUserAdmin = query({
   args: {},
   returns: v.boolean(),
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      return false;
-    }
-    
-    const user = await ctx.db.get(userId);
-    return user?.role === "admin";
+    return await isAdmin(ctx);
   },
 });
 
@@ -63,16 +58,8 @@ export const getAllUserSubscriptions = query({
     latestPaymentDate: v.optional(v.number()),
   })),
   handler: async (ctx) => {
-    // Check if user is admin
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new ConvexError("Not authenticated");
-    }
-    
-    const user = await ctx.db.get(userId);
-    if (user?.role !== "admin") {
-      throw new ConvexError("Unauthorized: admin access required");
-    }
+    // Require admin access
+    await requireAdmin(ctx);
     
     // Get all subscriptions with user and payment info
     const subscriptions = await ctx.db.query("userSubscriptions").collect();
@@ -130,16 +117,8 @@ export const getAllUsers = query({
     _creationTime: v.number(),
   })),
   handler: async (ctx) => {
-    // Check if user is admin
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new ConvexError("Not authenticated");
-    }
-    
-    const user = await ctx.db.get(userId);
-    if (user?.role !== "admin") {
-      throw new ConvexError("Unauthorized: admin access required");
-    }
+    // Require admin access
+    await requireAdmin(ctx);
     
     // Get all users
     const users = await ctx.db.query("users").collect();

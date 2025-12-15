@@ -106,7 +106,7 @@ export default function WaypointsPage() {
             type="button"
             onClick={() => formRef.current?.submitForm()}
             disabled={formState.isSubmitting || formState.isComputing}
-            className="h-8 px-6 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all"
+            className="h-8 px-6 text-sm bg-[#0071F8] hover:bg-[#0060d4] text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all"
           >
           {formState.isComputing ? (
             <>
@@ -131,7 +131,7 @@ export default function WaypointsPage() {
           <button
             type="button"
             onClick={() => formRef.current?.resetForm()}
-            className="h-8 px-4 text-sm border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all flex items-center gap-2"
+            className="h-8 px-4 text-sm bg-[#0071F8] hover:bg-[#0060d4] text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500 font-medium rounded-none transition-all flex items-center gap-2"
             title="Start Over"
           >
             <RefreshCcw className="h-4 w-4" />

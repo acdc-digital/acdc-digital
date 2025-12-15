@@ -112,7 +112,7 @@ Target forecast dates: ${targetDates.join(', ')}`;
       // Track Anthropic usage for cost monitoring
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.anthropic.trackUsage, {
+          await ctx.runMutation(internal.anthropic.trackUsage, {
             userId,
             feature: "forecast_generation",
             model: config.model,
@@ -323,7 +323,7 @@ ${contextString}`;
       // Track Anthropic usage for cost monitoring
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.anthropic.trackUsage, {
+          await ctx.runMutation(internal.anthropic.trackUsage, {
             userId,
             feature: "daily_consultation",
             model: config.model,
@@ -435,7 +435,7 @@ ${formattedSevenDayData}`;
         // Track Anthropic usage for cost monitoring
         if (jsonResponse.usage) {
           try {
-            await ctx.runMutation(api.anthropic.trackUsage, {
+            await ctx.runMutation(internal.anthropic.trackUsage, {
               userId,
               feature: "weekly_insights",
               model: config.model,
