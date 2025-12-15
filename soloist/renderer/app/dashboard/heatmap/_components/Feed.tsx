@@ -528,7 +528,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
                     </ReactMarkdown>
                   </div>
                 </CardContent>
-                <CardFooter className="flex flex-col text-xs text-gray-600 dark:text-zinc-400 pt-0">
+                <CardFooter className="flex flex-col text-xs text-gray-600 dark:text-zinc-400 pt-0 pb-2">
                   <div className="flex justify-between w-full items-center">
                     <div className="flex items-center gap-2">
                       <span className="text-xs mr-2">Was this helpful?</span>
@@ -601,7 +601,7 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
               
               <Button 
                 onClick={handleCreateDailyLog}
-                className="border border-neutral-300 dark:border-neutral-600 bg-[#0071F8] hover:bg-[#0060d4] text-white px-6 py-2 rounded-none transition-all duration-200 flex items-center gap-2"
+                className="bg-[#0071F8] hover:bg-[#0060d4] text-white px-6 py-2 rounded-none transition-all duration-200 flex items-center gap-2"
               >
                 <FileEdit className="h-4 w-4" />
                 Create Daily Log
@@ -657,25 +657,13 @@ export default function Feed({ onTagsUpdate }: FeedProps) {
             <div className="space-y-2 pb-10">
               {comments.map((comment) => (
                 <Card key={comment.id} className="bg-transparent border-0 shadow-none">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2">
-                      {comment.userImage && (
-                        <img
-                          src={comment.userImage}
-                          alt={comment.userName}
-                          className="h-8 w-8 rounded-full"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-zinc-100">{comment.userName}</p>
-                        <p className="text-sm text-gray-600 dark:text-zinc-400">
-                          {formatDistanceToNow(new Date(comment.createdAt), {
-                            addSuffix: true,
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="mt-2 text-gray-800 dark:text-zinc-200">{comment.content}</p>
+                  <CardContent className="p-6 pt-0">
+                    <p className="text-gray-800 dark:text-zinc-200">{comment.content}</p>
+                    <p className="text-xs text-gray-500 dark:text-zinc-500 mt-1">
+                      {formatDistanceToNow(new Date(comment.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </p>
                   </CardContent>
                 </Card>
               ))}

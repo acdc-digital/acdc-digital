@@ -48,16 +48,26 @@ import { SignInModal } from "@/modals/SignInModal";
 import { OpenAIDashboard } from "@/app/admin/_components/OpenAI";
 
 export function Admin() {
-  const userSubscriptions = useQuery(api.admin.getAllUserSubscriptions);
-  const allUsers = useQuery(api.admin.getAllUsers);
-  const isAdmin = useQuery(api.admin.isCurrentUserAdmin);
+  // Auth and user info for navbar - must be checked first
+  const { isAuthenticated, isLoading, userId } = useConvexUser();
+  const { signOut } = useAuthActions();
+
+  // Only query admin data when authenticated
+  const userSubscriptions = useQuery(
+    api.admin.getAllUserSubscriptions,
+    isAuthenticated ? {} : "skip"
+  );
+  const allUsers = useQuery(
+    api.admin.getAllUsers,
+    isAuthenticated ? {} : "skip"
+  );
+  const isAdmin = useQuery(
+    api.admin.isCurrentUserAdmin,
+    isAuthenticated ? {} : "skip"
+  );
   const [activeView, setActiveView] = useState<'overview' | 'users' | 'subscriptions' | 'analytics' | 'openai'>('overview');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-
-  // Auth and user info for navbar
-  const { isAuthenticated, isLoading, userId } = useConvexUser();
-  const { signOut } = useAuthActions();
 
   // Get user details
   const user = useQuery(
@@ -84,6 +94,35 @@ export function Admin() {
     link.click();
     document.body.removeChild(link);
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-pulse">
+            <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show access denied if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <Card className="w-96">
+          <CardHeader className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <CardTitle className="text-2xl text-red-600">Not Authenticated</CardTitle>
+            <CardDescription>Please sign in to access the admin dashboard.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   if (isAdmin === false) {
     return (

@@ -4,6 +4,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { requireAdmin } from "./lib/requireAdmin";
 
 /**
  * Join the waitlist for a specific feature
@@ -134,21 +135,13 @@ export const leaveWaitlist = mutation({
 });
 
 /**
- * Get all waitlist entries for admin purposes
+ * Get all waitlist entries for admin purposes (admin only)
  */
 export const getAllWaitlistEntries = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
-    // Check if user is admin
-    const user = await ctx.db.get(userId);
-    if (user?.role !== "admin") {
-      throw new Error("Admin access required");
-    }
+    // Require admin access
+    await requireAdmin(ctx);
 
     return await ctx.db.query("waitlist").collect();
   },

@@ -611,7 +611,7 @@ export default function DailyLogForm({ onClose, date, hasActiveSubscription, edi
             className={`${
               showSuccess
                 ? "bg-emerald-600 border-emerald-500 text-white"
-                : "border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                : "bg-[#0071F8] hover:bg-[#0060d4] text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
             } h-8 px-6 text-sm font-medium rounded-none transition-all disabled:opacity-50`}
           >
             {showSuccess ? (

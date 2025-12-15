@@ -1,6 +1,6 @@
 import { action, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { SCORING_PROMPT } from "./prompts";
 
 /**
@@ -181,7 +181,7 @@ export const scoreDailyLog = action({
       // Track usage if available
       if (completion.usage) {
         try {
-          await ctx.runMutation(api.anthropic.trackUsage, {
+          await ctx.runMutation(internal.anthropic.trackUsage, {
             userId,
             feature: "scoring",
             model: "claude-3-5-haiku-20241022",

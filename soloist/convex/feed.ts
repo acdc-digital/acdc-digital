@@ -3,7 +3,7 @@
 
 import { query, action, mutation } from "./_generated/server";
 import { v } from "convex/values"; // Fixed import for v
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { Id, Doc } from "./_generated/dataModel";
 import { FEED_SUMMARY_PROMPT, AI_CONFIG } from "./prompts";
 
@@ -112,7 +112,7 @@ export const generateFeedForDailyLog = action({
     // Track Anthropic usage for cost monitoring
     if (completion.usage) {
       try {
-        await ctx.runMutation(api.anthropic.trackUsage, {
+        await ctx.runMutation(internal.anthropic.trackUsage, {
           userId,
           feature: "feed_generation",
           model: config.model,

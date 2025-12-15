@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery, query, QueryCtx, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
+import { requireAdmin } from "./lib/requireAdmin";
 
 /**
  * Get the current authenticated user (viewer)
@@ -125,12 +126,14 @@ export const updateProfile = internalMutation({
 });
 
 /**
- * Get all users (admin function)
+ * Get all users (admin only)
  */
 export const getAllUsers = query({
   args: {},
   handler: async (ctx) => {
-    // Note: In a real app, you'd want to check if the user is an admin
+    // Require admin access
+    await requireAdmin(ctx);
+    
     const users = await ctx.db.query("users").collect();
     return users.map(user => ({
       _id: user._id,

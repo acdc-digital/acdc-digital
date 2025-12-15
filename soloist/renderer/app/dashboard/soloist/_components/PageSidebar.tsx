@@ -18,7 +18,7 @@ export function PageSidebar({ className, children }: PageSidebarProps) {
   return (
     <aside
       className={cn(
-        "w-[25%] min-w-[320px] max-w-[450px] h-full flex-shrink-0 min-h-0",
+        "w-[27%] min-w-[320px] max-w-[450px] h-full flex-shrink-0 min-h-0",
         "border-r border-neutral-700",
         "bg-[#2b2b2b]",
         "flex flex-col gap-4 overflow-y-auto",

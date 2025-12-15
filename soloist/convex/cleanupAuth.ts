@@ -1,15 +1,17 @@
 /**
  * Emergency authentication cleanup utilities
  * Use these to clear corrupted auth data after demo removal
+ *
+ * SECURITY: All functions are internal-only to prevent public access
  */
 
-import { mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
- * List all users to see what needs cleanup
+ * List all users to see what needs cleanup (internal only)
  */
-export const listAllUsers = query({
+export const listAllUsers = internalQuery({
   args: {},
   returns: v.any(),
   handler: async (ctx) => {
@@ -24,9 +26,9 @@ export const listAllUsers = query({
 });
 
 /**
- * List all authAccounts to see what's corrupted
+ * List all authAccounts to see what's corrupted (internal only)
  */
-export const listAllAuthAccounts = query({
+export const listAllAuthAccounts = internalQuery({
   args: {},
   returns: v.any(),
   handler: async (ctx) => {
@@ -40,9 +42,9 @@ export const listAllAuthAccounts = query({
 });
 
 /**
- * Count auth-related records for diagnostics
+ * Count auth-related records for diagnostics (internal only)
  */
-export const countAuthRecords = query({
+export const countAuthRecords = internalQuery({
   args: {},
   returns: v.object({
     users: v.number(),
@@ -71,10 +73,10 @@ export const countAuthRecords = query({
 });
 
 /**
- * Clear ALL authentication data (nuclear option)
+ * Clear ALL authentication data (nuclear option) (internal only)
  * WARNING: This will log everyone out and require re-authentication
  */
-export const clearAllAuthData = mutation({
+export const clearAllAuthData = internalMutation({
   args: {},
   returns: v.object({
     deletedAccounts: v.number(),
@@ -109,9 +111,9 @@ export const clearAllAuthData = mutation({
 });
 
 /**
- * Delete a specific user and all their auth data
+ * Delete a specific user and all their auth data (internal only)
  */
-export const deleteUserAndAuthData = mutation({
+export const deleteUserAndAuthData = internalMutation({
   args: { email: v.string() },
   returns: v.object({
     success: v.boolean(),
@@ -166,9 +168,9 @@ export const deleteUserAndAuthData = mutation({
 });
 
 /**
- * Clear only orphaned auth records (accounts/sessions without matching users)
+ * Clear only orphaned auth records (accounts/sessions without matching users) (internal only)
  */
-export const clearOrphanedAuthData = mutation({
+export const clearOrphanedAuthData = internalMutation({
   args: {},
   returns: v.object({
     deletedAccounts: v.number(),
@@ -202,10 +204,10 @@ export const clearOrphanedAuthData = mutation({
 });
 
 /**
- * NUCLEAR: Delete ALL auth data and start fresh
+ * NUCLEAR: Delete ALL auth data and start fresh (internal only)
  * This will log everyone out and clear all authentication state
  */
-export const nukeAllAuthData = mutation({
+export const nukeAllAuthData = internalMutation({
   args: {},
   returns: v.object({
     deletedUsers: v.number(),
