@@ -12,11 +12,12 @@ import {
   Settings,
   ChartSpline,
   Activity,
-  MessageCircleQuestion,
+  TableOfContents,
   User,
   Download,
   LucideIcon,
   Zap,
+  TrafficCone,
 } from "lucide-react";
 import { HeatmapIcon } from "@/components/icons/HeatmapIcon";
 
@@ -286,6 +287,17 @@ export function Sidebar({ className }: SidebarProps) {
     setSidebarOpen(false);
     
     console.log("Canvas action clicked");
+  };
+
+  const handleRoadmap = () => {
+    // Switch to Roadmap view
+    transitionTo("roadmap");
+    
+    // Close the right sidebar if it's open
+    const { setSidebarOpen } = useFeedStore.getState();
+    setSidebarOpen(false);
+    
+    console.log("Roadmap action clicked");
   };
 
   const handleWaypoints = () => {
@@ -566,11 +578,43 @@ export function Sidebar({ className }: SidebarProps) {
 
             {/* Help */}
             <ActivityBarItem
-              icon={MessageCircleQuestion}
-              label="Help"
+              icon={TableOfContents}
+              label="Guide"
               onClick={handleGoTohelp}
               iconSize="large"
             />
+
+            {/* Feedback */}
+            <div
+              className="w-full px-2.5 py-1.5 flex flex-col items-center gap-1 cursor-pointer"
+              onClick={handleRoadmap}
+            >
+              <div
+                className={cn(
+                  "w-full p-2 flex items-center justify-center relative transition-all duration-200 rounded-md",
+                  "hover:bg-white/10",
+                  currentView === "roadmap" && "bg-white/15 border border-white/20"
+                )}
+                title="Feedback"
+              >
+                <TrafficCone
+                  className={cn(
+                    "h-5.5 w-5.5 transition-colors",
+                    currentView === "roadmap" ? "text-foreground" : "text-muted-foreground"
+                  )}
+                />
+              </div>
+              <span
+                className={cn(
+                  "text-[10px] font-medium leading-none transition-colors",
+                  currentView === "roadmap"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                Service
+              </span>
+            </div>
 
             {/* Create New Log - Icon only - COMMENTED OUT: Cleaning up sidebar navigation */}
             {/* <div
