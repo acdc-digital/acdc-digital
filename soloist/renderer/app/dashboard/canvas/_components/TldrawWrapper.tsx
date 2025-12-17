@@ -7,9 +7,12 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Tldraw, Editor } from "tldraw";
 import { useTheme } from "next-themes";
 import "tldraw/tldraw.css";
-import { CanvasControls } from "./CanvasControls";
 
-export default function TldrawWrapper() {
+interface TldrawWrapperProps {
+  onEditorMount?: (editor: Editor) => void;
+}
+
+export default function TldrawWrapper({ onEditorMount }: TldrawWrapperProps) {
   const [editor, setEditor] = useState<Editor | null>(null);
   const { resolvedTheme } = useTheme();
 
@@ -17,7 +20,9 @@ export default function TldrawWrapper() {
     setEditor(editor);
     // Start with the draw tool by default
     editor.setCurrentTool("draw");
-  }, []);
+    // Notify parent of editor instance
+    onEditorMount?.(editor);
+  }, [onEditorMount]);
 
   // Sync tldraw's color scheme with the app's theme
   useEffect(() => {
@@ -27,14 +32,8 @@ export default function TldrawWrapper() {
   }, [editor, resolvedTheme]);
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Top controls */}
-      <CanvasControls editor={editor} />
-      
-      {/* Clean canvas area */}
-      <div className="flex-1 min-h-0 [&_.tl-background]:!bg-neutral-400/30 dark:[&_.tl-background]:!bg-neutral-700/10">
-        <Tldraw hideUi onMount={handleMount} />
-      </div>
+    <div className="w-full h-full [&_.tl-background]:!bg-neutral-400/30 dark:[&_.tl-background]:!bg-neutral-700/10">
+      <Tldraw hideUi onMount={handleMount} />
     </div>
   );
 }

@@ -5,7 +5,11 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import { Editor } from "tldraw";
 import { CanvasHeader } from "./_components/CanvasHeader";
+import { SessionSidebar } from "./_components/SessionSidebar";
+import { CanvasControls } from "./_components/CanvasControls";
+import { CanvasFooter } from "./_components/CanvasFooter";
 
 // Dynamically import TldrawWrapper with SSR disabled
 const TldrawWrapper = dynamic(
@@ -21,15 +25,28 @@ const TldrawWrapper = dynamic(
 );
 
 export default function CanvasPage() {
+  const [editor, setEditor] = React.useState<Editor | null>(null);
+
   return (
-    <div className="h-full w-full flex flex-col">
-      {/* Header */}
-      {/* <CanvasHeader className="px-4 pt-4 pb-0 shrink-0" /> */}
-      
-      {/* Canvas with left/right margins */}
-      <div className="flex-1 px-4 pt-4 pb-4 min-h-0">
-        <div className="h-full w-full rounded-lg overflow-hidden border border-neutral-300 dark:border-neutral-600">
-          <TldrawWrapper />
+    <div className="h-full w-full flex">
+      {/* Left Sidebar - Session Manager */}
+      <SessionSidebar />
+
+      {/* Main Canvas Area */}
+      <div className="flex-1 flex flex-col min-w-0 p-4 gap-3">
+        {/* Controls Header - Distinct container */}
+        <div className="shrink-0">
+          <CanvasControls editor={editor} />
+        </div>
+        
+        {/* Canvas - Distinct container */}
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border border-neutral-300 dark:border-neutral-600">
+          <TldrawWrapper onEditorMount={setEditor} />
+        </div>
+
+        {/* Footer - Individual buttons */}
+        <div className="shrink-0">
+          <CanvasFooter editor={editor} />
         </div>
       </div>
     </div>
