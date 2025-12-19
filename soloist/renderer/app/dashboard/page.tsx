@@ -169,6 +169,23 @@ export default function Dashboard() {
     updateDatePreserveTab,
   } = useFeedStore();
   
+  // Track if we've set the initial tab based on today's log status
+  const hasSetInitialTab = React.useRef(false);
+  
+  // Query for today's daily log (for initial tab selection)
+  const todayKey = React.useMemo(() => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }, []);
+  
+  const todaysDailyLog = useQuery(
+    api.renderer.heatmap.dailyLogs.getDailyLog,
+    convexUserId && todayKey ? { userId: convexUserId, date: todayKey } : "skip"
+  );
+  
   console.log("Dashboard feed state:", {
     sidebarOpen,
     selectedDate,
@@ -181,12 +198,7 @@ export default function Dashboard() {
     if (isBrowser === true && currentView === "dashboard") {
       // Set today as selected date if none selected
       if (!selectedDate) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, "0");
-        const dd = String(today.getDate()).padStart(2, "0");
-        const dateKey = `${yyyy}-${mm}-${dd}`;
-        updateDatePreserveTab(dateKey);
+        updateDatePreserveTab(todayKey);
       }
       
       // Always keep sidebar open in browser mode
@@ -194,36 +206,40 @@ export default function Dashboard() {
         setSidebarOpen(true);
       }
       
-      // Default to log tab, unless we already have a feed for today
-      if (activeTab !== "log" && activeTab !== "feed") {
-        setActiveTab("log");
+      // Default to log tab if no log exists for today, otherwise feed tab
+      // Only set default tab on initial load (when todaysDailyLog query has resolved)
+      if (todaysDailyLog !== undefined && !hasSetInitialTab.current) {
+        hasSetInitialTab.current = true;
+        // If no log exists for today, default to log tab
+        const hasLogForToday = todaysDailyLog !== null;
+        setActiveTab(hasLogForToday ? "feed" : "log");
       }
     }
-  }, [isBrowser, currentView, selectedDate, sidebarOpen, activeTab, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
+  }, [isBrowser, currentView, selectedDate, sidebarOpen, todayKey, todaysDailyLog, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
 
-// Desktop mode: Set today as default selected date and open feed
+// Desktop mode: Set today as default selected date and open sidebar
+  // Default to log tab if no log exists for today, otherwise feed tab
   useEffect(() => {
     if (isBrowser === false && currentView === "dashboard") {
-      let updated = false;
-
       // Set today as selected date if none selected
       if (!selectedDate) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, "0");
-        const dd = String(today.getDate()).padStart(2, "0");
-        const dateKey = `${yyyy}-${mm}-${dd}`;
-        updateDatePreserveTab(dateKey);
-        updated = true;
+        updateDatePreserveTab(todayKey);
       }
-      // Open sidebar and set to feed tab on first load
+      
+      // Open sidebar on first load
       if (!sidebarOpen) {
         setSidebarOpen(true);
-        setActiveTab("feed");
-        updated = true;
+      }
+      
+      // Set default tab based on whether a log exists for today
+      // Only set once when todaysDailyLog query has resolved
+      if (todaysDailyLog !== undefined && !hasSetInitialTab.current) {
+        hasSetInitialTab.current = true;
+        const hasLogForToday = todaysDailyLog !== null;
+        setActiveTab(hasLogForToday ? "feed" : "log");
       }
     }
-  }, [isBrowser, currentView, selectedDate, sidebarOpen, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
+  }, [isBrowser, currentView, selectedDate, sidebarOpen, todayKey, todaysDailyLog, updateDatePreserveTab, setSidebarOpen, setActiveTab]);
 
   // Tag filtering state from dashboard store
   const availableTags = useDashboardStore((state) => state.availableTags);

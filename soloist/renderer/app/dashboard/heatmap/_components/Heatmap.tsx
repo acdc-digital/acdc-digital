@@ -143,6 +143,9 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
   /* 6. UI state hooks (hover + feed selection) */
   const [hover, setHover] = React.useState<string | null>(null);
   const [isResizing, setIsResizing] = React.useState(false);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const todayCellRef = React.useRef<HTMLDivElement>(null);
+  const hasScrolledToToday = React.useRef(false);
   const {
     selectedDate,
     setSelectedDate,
@@ -176,6 +179,39 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
     };
   }, []);
 
+  /* 8. Auto-scroll to center today's date on initial load */
+  React.useEffect(() => {
+    // Only scroll once when ready and we haven't scrolled yet
+    if (ready && !hasScrolledToToday.current && todayCellRef.current && scrollContainerRef.current) {
+      hasScrolledToToday.current = true;
+      
+      // Small delay to ensure layout is complete
+      requestAnimationFrame(() => {
+        if (todayCellRef.current && scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const todayCell = todayCellRef.current;
+          
+          // Calculate the scroll position to center today's cell
+          const containerHeight = container.clientHeight;
+          const cellOffsetTop = todayCell.offsetTop;
+          const cellHeight = todayCell.offsetHeight;
+          
+          // Target scroll position: place today's cell in the center of the container
+          const targetScrollTop = cellOffsetTop - (containerHeight / 2) + (cellHeight / 2);
+          
+          // Clamp to valid scroll range
+          const maxScroll = container.scrollHeight - containerHeight;
+          const clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScroll));
+          
+          container.scrollTo({
+            top: clampedScrollTop,
+            behavior: 'smooth'
+          });
+        }
+      });
+    }
+  }, [ready, todayKey]);
+
   /* For debugging */
   React.useEffect(() => {
     console.log(`Calendar dates generated: ${allDates.length}`);
@@ -204,7 +240,10 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
       </div>
 
       {/* Calendar grid - THIS is the only scrollable section */}
-      <div className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto scrollbar-hide">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 min-h-0 border border-neutral-700 bg-neutral-900/20 rounded-md overflow-y-auto scrollbar-hide"
+      >
         <div className="grid gap-1 p-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(32px, 1fr))' }}>
           {allDates.map((d) => {
             const key = buildDateKey(d);
@@ -221,6 +260,7 @@ export default function Heatmap({ year: y, onSelectDate }: HeatmapProps) {
             return (
               <div
                 key={key}
+                ref={isToday ? todayCellRef : undefined}
                 onClick={() => !isFuture && click(key)}
                 className={`
                   flex items-center justify-center
