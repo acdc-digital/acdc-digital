@@ -1,0 +1,45 @@
+Callout
+Highlight important information with styled callout boxes.
+Callout elements are meant to draw attention to important information or provide additional context to the user.
+
+Variants with titles
+Note
+The note callout is a subtle callout used to provide supplementary information or tips. It helps users gain additional insights without distracting from the main content.
+
+Info
+The info callout is a blue callout designed to capture more attention from the user than a simple note. It highlights important information that users should be aware of.
+
+Tip
+The tip callout is used to offer helpful advice or recommendations. It provides users with useful suggestions or shortcuts that can enhance their experience.
+
+Warning
+The warning callout is an orange callout used to alert users about potential issues or cautionary details. It draws attention to situations that require careful consideration.
+
+Danger
+The danger callout is a red callout intended to warn users of critical errors or urgent issues. Its striking appearance ensures users address these problems immediately.
+
+Source:
+
+<Callout variant="note" title="Note"> ... </Callout>
+<Callout variant="info" title="Info"> ... </Callout>
+<Callout variant="tip" title="Tip"> ... </Callout>
+<Callout variant="warning" title="Warning"> ... </Callout>
+<Callout variant="danger" title="Danger"> ... </Callout>
+
+Callouts without titles
+Titles are optional. When omitted, the icon is shown next to the body text.
+
+Use a simple note without a title when you want to keep the focus on the body copy while still providing emphasis.
+
+For important warnings that don't need a heading, omit the title to keep the callout compact.
+
+Source:
+
+<Callout variant="info">
+  Use a simple note without a title when you want to keep the focus on the body
+  copy while still providing emphasis.
+</Callout>
+<Callout variant="warning">
+  For important warnings that don't need a heading, omit the title to keep the
+  callout compact.
+</Callout>

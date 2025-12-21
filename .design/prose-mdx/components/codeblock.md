@@ -1,0 +1,48 @@
+Code block
+Syntax-highlighted code with line numbers and titles.
+You can add code blocks with line numbers and a title using Markdown syntax like this:
+
+Markdown syntax
+
+```js showLineNumbers title="Code block title"
+const x = "Hello world"
+```
+You can also use the React component if you prefer:
+
+MDX syntax
+
+<CodeBlock language="js" title="Code block title" showLineNumbers>
+    {`const x = "Hello world"`}
+</CodeBlock>
+Here's how a code block without a title looks like:
+
+const x = "Code block without a title"
+
+Code highlighting
+Prose UI code blocks are highlighted server-side using Shiki. Check out the list of languages supported by Shiki.
+
+Since code highlighting happens server-side (the CodeBlock is a server component), all languages supported by Shiki are built-in. You don't need to configure them separately.
+
+Customizing highlighter theme colors
+To customize the highlighter theme colors we recommend that you override the following css variables:
+
+CSS Variable
+--p-color-text-syntax1
+--p-color-text-syntax2
+--p-color-text-syntax3
+--p-color-text-syntax4
+Fine-tuning code highlighting
+If you'd like more granular control, you can modify syntax token colors for the code block component. Below are all the available CSS variables and their default values:
+
+Variable	Default value
+--p-code-block-color-text	var(--p-color-text)
+--p-code-block-color-constant	var(--p-color-text-syntax1)
+--p-code-block-color-string	var(--p-color-text-syntax2)
+--p-code-block-color-comment	var(--p-color-text-muted)
+--p-code-block-color-keyword	var(--p-color-text-syntax3)
+--p-code-block-color-parameter	var(--p-color-text)
+--p-code-block-color-function	var(--p-color-text-syntax4)
+--p-code-block-color-string-expression	var(--p-color-text-syntax2)
+--p-code-block-color-punctuation	var(--p-color-text)
+--p-code-block-color-link	var(--p-color-text-syntax2)
+To learn more about Prose UI design system and CSS variables check out the styling page.
