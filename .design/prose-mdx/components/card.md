@@ -1,0 +1,89 @@
+Card
+Highlight navigation, related reading, and key resources.
+Use cards to highlight navigation targets, related reading, or key callouts directly inside your MDX content.
+
+Track progress
+
+Keep an eye on open issues and see what's shipping next.
+
+<Card title="Track progress" icon="panel-left-close" href="https://github.com/vrepsys/prose-ui/issues">
+  Keep an eye on open issues and see what's shipping next.
+</Card>
+
+Horizontal layout
+Add the horizontal prop when you want the icon and content to line up on a single row.
+
+Horizontal card
+
+This layout works well when cards appear in a column grid or next to tables.
+
+<Card title="Horizontal card" icon="scroll-text" horizontal>
+  This layout works well when cards appear in a column grid or next to tables.
+</Card>
+
+Custom CTA and arrows
+Set the cta text to add a small call to action and control whether an arrow is shown with the arrow prop. Arrows show automatically for external links, so the manual override is useful for internal links or button-less layouts. You can also change the icon color or pass a JSX icon directly if you need more control.
+
+Custom icon color
+
+Icons accept Lucide names as strings or JSX components. Use the color prop to match a brand or category.
+
+<Card title="Custom icon color" icon="sparkles" color="#f97316">
+  Icons accept Lucide names as strings or JSX components. Use the `color` prop to match a brand or
+  category.
+</Card>
+
+Read the docs
+
+Explore the repository to browse the source, open issues, or contribute improvements.
+
+Visit GitHub
+<Card
+  title="Read the docs"
+  icon="book-open"
+  href="https://github.com/vrepsys/prose-ui"
+  cta="Visit GitHub"
+  horizontal
+  arrow="true"
+/>
+
+Cards grid
+Use the Cards component to lay out multiple cards in a responsive grid. By default, it renders 3 columns and collapses to a single column on small screens.
+
+Docs
+
+Start with the Prose UI documentation.
+
+Visit
+Components
+
+Browse the available MDX-ready components.
+
+Open
+Styling
+
+Learn how to theme and adjust typography tokens.
+
+Open
+<Cards>
+  <Card title="Docs" icon="book-open" href="/docs" cta="Visit" arrow="true">...</Card>
+  <Card title="Components" icon="panel-left-close" href="/docs/components/overview" cta="Open" arrow="true">...</Card>
+  <Card title="Styling" icon="sparkles" href="/docs/styling" cta="Open" arrow="true">...</Card>
+</Cards>
+
+Custom column count
+Control the number of columns with the columns prop. On narrow viewports, the layout still stacks into a single column.
+
+Two columns
+
+Set columns={2} to force a two-column layout on wider screens.
+
+Responsive stacking
+
+On small screens, the grid collapses to one column automatically.
+
+<Cards columns={2}>
+  <Card title="Two columns" icon="divide">...</Card>
+  <Card title="Responsive stacking" icon="smartphone">...</Card>
+</Cards>
+

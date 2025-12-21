@@ -1,0 +1,97 @@
+# Styling
+Customize Prose UI with flexible, token-based styling.
+Prose UI styles MDX content using CSS classes and variables defined in the prose-ui.css file.
+
+To customize Prose UI styles, identify the CSS variable responsible for the style you want to modify. You can do this by inspecting the CSS in your browser or reviewing the variables defined in the prose-ui.css file.
+
+Styling is organized around a design system, with its CSS variables (design tokens) grouped into three categories:
+
+Core variables
+Color variables for light and dark modes
+Component-specific variables
+Opt out of Prose styles
+If you need certain elements inside a .prose-ui container to keep their own styles, add the not-prose class. Prose UI will skip those elements and their children.
+
+Keep a section unstyled inside Prose UI
+
+<article className="prose-ui space-y-6">
+  <h1>Styled heading</h1>
+  <p>Regular prose content.</p>
+  <div className="not-prose">
+    <h1>Page title outside Prose UI</h1>
+    <button className="btn-primary">Custom button</button>
+  </div>
+</article>
+Core Variables
+Core variables are reused in component-specific variables to ensure a consistent look and feel. For example, you can override the fonts to make Prose UI use Vercel's Geist font family:
+
+Override fonts
+
+:root {
+  --p-font-family: var(--font-geist-sans);
+  --p-font-family-heading: var(--font-geist-sans);
+  --p-font-family-mono: var(--font-geist-mono);
+}
+Other core variables include spacing, font sizes, and border radius:
+
+Core variables
+
+:root {
+  --p-font-size: 1rem;
+  --p-font-size-sm: 0.875rem;
+  --p-font-height: 1.75rem;
+  --p-font-height-sm: 1.25rem;
+  --p-font-weight-normal: 400;
+  --p-font-weight-medium: 500;
+  --p-font-weight-semi-bold: 600;
+  --p-font-weight-bold: 700;
+  --p-border-radius: 4px;
+  --p-content-gap: 1.5rem;
+}
+Color Variables
+Color variables are divided into light and dark mode categories. Prose UI uses OKLCH color values for most colors. Here's how you can override colors for both modes:
+
+Override text and background colors
+
+:root {
+  --p-color-text-strong: #000;
+  --p-color-text: #000;
+  --p-color-text-muted: oklch(0.5 0 0);
+  --p-color-text-accent: oklch(0.54 0.22 143.88);
+  --p-color-bg: #fff;
+  --p-color-bg-surface1: oklch(0.97 0 0);
+  --p-color-bg-surface2: oklch(0.97 0 0);
+  --p-color-border: oklch(0 0 0 / 10%);
+}
+:is(.dark) {
+  --p-color-text-strong: #fff;
+  --p-color-text: oklch(0.922 0 0);
+  --p-color-text-muted: oklch(0.708 0 0);
+  --p-color-text-accent: oklch(0.78 0.1 155.05);
+  --p-color-bg: oklch(0.225 0 0);
+  --p-color-bg-surface2: oklch(0.165 0 0);
+  --p-color-border: oklch(1 0 0 / 7%);
+}
+Component Variables
+Component variables are specific to individual components. For example, you can override the styles for the callout component:
+
+Override callout styles
+
+:root {
+  --p-callout-color-text: var(--p-color-text);
+  --p-callout-font-size: var(--p-font-size-sm);
+  --p-callout-font-weight: var(--p-font-weight-medium);
+  --p-callout-font-height: var(--p-font-height-sm);
+  --p-callout-note-color-text: var(--p-color-text-note);
+  --p-callout-note-color-bg: var(--p-color-bg-note);
+}
+Or customize code blocks:
+
+Override code block styles
+
+:root {
+  --p-code-block-color-bg: var(--p-color-bg-surface2);
+  --p-code-block-color-text: var(--p-color-text);
+  --p-code-block-font-size: var(--p-font-size-sm);
+  --p-inline-code-color-bg: var(--p-color-bg-surface2);
+}

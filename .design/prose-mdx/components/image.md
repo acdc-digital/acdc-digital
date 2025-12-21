@@ -1,0 +1,74 @@
+Image
+Optimized images with zoom, alignment, and captions.
+For local images, Prose UI calculates image dimensions at build time and passes them to the rendered HTML, preventing layout shift. In Next.js, images are also converted to use the Next.js Image component for additional optimizations.
+
+Use simple Markdown syntax if you don't need to resize, align, or add a caption on it.
+
+Local image with markdown syntax
+
+![Abstract art](/img/demo-image.png)
+Abstract art
+Image location
+Images are retrieved from the public folder of your project by default, but this can be configured by passing the imageDir option when initializing the Remark plugins.
+
+Images with external URLs
+External images are converted into simple img tags because the dimensions of the image are not known in advance.
+
+External image
+
+![Photo of Saturn from Cassini orbiter](https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg)
+Photo of Saturn from Cassini orbiter
+Image dimensions
+To set image dimensions, use the width and height properties on the Image component. The values for width and height are in pixels.
+
+If you set only the width, Prose UI will calculate the height automatically to maintain the image's proportions. The same applies if you set only the height.
+
+The example below sets the width of the image to 400 pixels. The height will be automatically calculated to preserve the image's aspect ratio.
+
+Set the width of an image
+
+<Image width={400} src="/img/demo-image-03.png" alt="Abstract art"/>
+Abstract art
+Alignment and caption
+Use the Frame component to control alignment and add captions to images. Below are examples of different alignments:
+
+<Frame align="left">
+   <Image width={200} src="/img/demo-image-01.png" alt="Abstract art"/>
+   <Caption>Left aligned image</Caption>
+</Frame>
+<Frame align="center">
+   <Image width={200} src="/img/demo-image-01.png" alt="Abstract art"/>
+   <Caption>Center aligned image</Caption>
+</Frame>
+<Frame align="right">
+   <Image width={200} src="/img/demo-image-03.png" alt="Abstract art"/>
+   <Caption>Right aligned image</Caption>
+</Frame>
+
+Abstract art
+Left aligned image
+Abstract art
+Center aligned image
+Abstract art
+Right aligned image
+Zoom on click
+Standalone images zoom on click by default. Inline images skip zoom so text flows naturally. Toggle either behavior with the zoom prop on Image.
+
+Inline image with zoom enabled
+
+Zoom me: <Image src="/img/demo-inline-image.svg" width={80} zoom alt="Abstract art" /> inside a sentence.
+Zoom me: Abstract art inside a sentence.
+
+Inline images
+By default, images added using Markdown syntax or the Image component are inline and will appear inside a paragraph tag unless wrapped in a Frame.
+
+Inline image, resized
+
+Here's an example <Image src="/img/demo-inline-image.svg" width={100} alt="Abstract art" /> of a resized inline image within a paragraph.
+Here's an example Abstract art of a resized inline image within a paragraph.
+
+Inline image with Markdown syntax
+
+Here's an example ![Alt text](/img/demo-inline-image.svg) of a Markdown image within a paragraph.
+Here's an example Alt text of a Markdown image within a paragraph.
+
