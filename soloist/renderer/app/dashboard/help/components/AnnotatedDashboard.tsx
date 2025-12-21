@@ -32,12 +32,23 @@ const annotations: Annotation[] = [
   { id: 11, label: "Mood Sliders", targetX: "62%", targetY: "40%", side: "overlay", anchor: "feature-sliders" },
 ];
 
-function MarginAnnotation({ annotation, index }: { annotation: Annotation; index: number }) {
-  // Use the targetY directly for vertical positioning (left/right) or targetX for horizontal (top)
+// Export annotations for use in other components
+export { annotations };
+export type { Annotation };
+
+interface MarginAnnotationProps {
+  annotation: Annotation;
+  index: number;
+  isSelected?: boolean;
+  onSelect?: (id: number) => void;
+}
+
+function MarginAnnotation({ annotation, index, isSelected, onSelect }: MarginAnnotationProps) {
   const topPosition = annotation.targetY;
 
   return (
-    <div
+    <button
+      onClick={() => onSelect?.(annotation.id)}
       className="absolute group z-10 flex items-center gap-2"
       style={{
         top: topPosition,
@@ -48,20 +59,27 @@ function MarginAnnotation({ annotation, index }: { annotation: Annotation; index
       }}
       title={annotation.label}
     >
-      {/* Circle with number */}
-      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent text-white text-sm font-bold border-2 border-white/70">
+      <span className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold border-2 transition-all group-hover:scale-110 group-hover:border-white group-hover:bg-white/10 ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-transparent border-white/70'}`}>
         {annotation.id}
       </span>
-    </div>
+    </button>
   );
 }
 
-function TopAnnotation({ annotation, onImageSwitch }: { annotation: Annotation; onImageSwitch?: () => void }) {
+interface TopAnnotationProps {
+  annotation: Annotation;
+  onImageSwitch?: () => void;
+  isSelected?: boolean;
+  onSelect?: (id: number) => void;
+}
+
+function TopAnnotation({ annotation, onImageSwitch, isSelected, onSelect }: TopAnnotationProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (annotation.switchesImage && onImageSwitch) {
       onImageSwitch();
     }
+    onSelect?.(annotation.id);
   };
 
   return (
@@ -76,20 +94,25 @@ function TopAnnotation({ annotation, onImageSwitch }: { annotation: Annotation; 
       aria-label={`Learn about ${annotation.label}`}
       title={annotation.label}
     >
-      {/* Circle with number */}
-      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent text-white text-sm font-bold border-2 border-white/70 transition-all group-hover:scale-110 group-hover:border-white group-hover:bg-white/10">
+      <span className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold border-2 transition-all group-hover:scale-110 group-hover:border-white group-hover:bg-white/10 ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-transparent border-white/70'}`}>
         {annotation.id}
       </span>
-      {/* Arrow pointing down */}
       <span className="text-white/70 text-xs mt-0.5 group-hover:text-white transition-colors">↓</span>
     </button>
   );
 }
 
-function OverlayAnnotation({ annotation }: { annotation: Annotation }) {
+interface OverlayAnnotationProps {
+  annotation: Annotation;
+  isSelected?: boolean;
+  onSelect?: (id: number) => void;
+}
+
+function OverlayAnnotation({ annotation, isSelected, onSelect }: OverlayAnnotationProps) {
   return (
-    <div
-      className="absolute z-20 flex items-center"
+    <button
+      onClick={() => onSelect?.(annotation.id)}
+      className="absolute group z-20 flex items-center"
       style={{
         left: annotation.targetX,
         top: annotation.targetY,
@@ -97,20 +120,23 @@ function OverlayAnnotation({ annotation }: { annotation: Annotation }) {
       }}
       title={annotation.label}
     >
-      {/* Circle with number */}
       <span 
-        className="flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold border-2 border-white/70"
-        style={{ backgroundColor: '#2B2B2B' }}
+        className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold border-2 transition-all group-hover:scale-110 group-hover:border-white ${isSelected ? 'bg-blue-600 border-blue-400' : 'border-white/70'}`}
+        style={{ backgroundColor: isSelected ? undefined : '#2B2B2B' }}
       >
         {annotation.id}
       </span>
-      {/* Arrow pointing right */}
-      <span className="text-white/70 text-xs ml-0.5">→</span>
-    </div>
+      <span className="text-white/70 text-xs ml-0.5 group-hover:text-white transition-colors">→</span>
+    </button>
   );
 }
 
-export function AnnotatedDashboard() {
+interface AnnotatedDashboardProps {
+  selectedFeature?: number | null;
+  onSelectFeature?: (id: number | null) => void;
+}
+
+export function AnnotatedDashboard({ selectedFeature, onSelectFeature }: AnnotatedDashboardProps) {
   const [showNotesImage, setShowNotesImage] = useState(false);
   
   const leftAnnotations = annotations.filter(a => a.side === "left");
@@ -119,6 +145,11 @@ export function AnnotatedDashboard() {
   const overlayAnnotations = annotations.filter(a => a.side === "overlay");
 
   const toggleImage = () => setShowNotesImage(prev => !prev);
+
+  const handleSelect = (id: number) => {
+    // Toggle off if clicking the same one, otherwise select
+    onSelectFeature?.(selectedFeature === id ? null : id);
+  };
 
   return (
     <div className="my-4">
@@ -129,6 +160,8 @@ export function AnnotatedDashboard() {
             key={annotation.id} 
             annotation={annotation} 
             onImageSwitch={annotation.switchesImage ? toggleImage : undefined}
+            isSelected={selectedFeature === annotation.id}
+            onSelect={handleSelect}
           />
         ))}
       </div>
@@ -138,7 +171,13 @@ export function AnnotatedDashboard() {
         {/* Left margin annotations */}
         <div className="hidden sm:block relative w-9 flex-shrink-0">
           {leftAnnotations.map((annotation, index) => (
-            <MarginAnnotation key={annotation.id} annotation={annotation} index={index} />
+            <MarginAnnotation 
+              key={annotation.id} 
+              annotation={annotation} 
+              index={index}
+              isSelected={selectedFeature === annotation.id}
+              onSelect={handleSelect}
+            />
           ))}
         </div>
 
@@ -154,14 +193,25 @@ export function AnnotatedDashboard() {
           />
           {/* Overlay annotations on the image */}
           {overlayAnnotations.map((annotation) => (
-            <OverlayAnnotation key={annotation.id} annotation={annotation} />
+            <OverlayAnnotation 
+              key={annotation.id} 
+              annotation={annotation}
+              isSelected={selectedFeature === annotation.id}
+              onSelect={handleSelect}
+            />
           ))}
         </div>
 
         {/* Right margin annotations */}
         <div className="hidden sm:block relative w-12 flex-shrink-0">
           {rightAnnotations.map((annotation, index) => (
-            <MarginAnnotation key={annotation.id} annotation={annotation} index={index} />
+            <MarginAnnotation 
+              key={annotation.id} 
+              annotation={annotation} 
+              index={index}
+              isSelected={selectedFeature === annotation.id}
+              onSelect={handleSelect}
+            />
           ))}
         </div>
       </div>
@@ -169,31 +219,73 @@ export function AnnotatedDashboard() {
       {/* Mobile: show numbers in a row below */}
       <div className="flex sm:hidden flex-wrap justify-center gap-2 mt-4">
         {annotations.sort((a, b) => a.id - b.id).map((annotation) => (
-          annotation.switchesImage ? (
-            <button
-              key={annotation.id}
-              onClick={toggleImage}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-white text-sm font-bold border-2 border-white/70 hover:border-white hover:bg-white/10 transition-all"
-              title={annotation.label}
-            >
-              {annotation.id}
-            </button>
-          ) : (
-            <div
-              key={annotation.id}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-transparent text-white text-sm font-bold border-2 border-white/70"
-              title={annotation.label}
-            >
-              {annotation.id}
-            </div>
-          )
+          <button
+            key={annotation.id}
+            onClick={() => {
+              if (annotation.switchesImage) {
+                toggleImage();
+              }
+              handleSelect(annotation.id);
+            }}
+            className={`flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold border-2 hover:border-white hover:bg-white/10 transition-all ${selectedFeature === annotation.id ? 'bg-blue-600 border-blue-400' : 'bg-transparent border-white/70'}`}
+            title={annotation.label}
+          >
+            {annotation.id}
+          </button>
         ))}
       </div>
 
       {/* Caption */}
       <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-3">
-        Click any numbered circle to jump to its explanation below
+        Click any numbered circle to see its explanation below
       </p>
+    </div>
+  );
+}
+
+// ============================================
+// Feature Badges Component
+// ============================================
+interface FeatureBadgesProps {
+  selectedFeature?: number | null;
+  onSelectFeature?: (id: number | null) => void;
+}
+
+export function FeatureBadges({ selectedFeature, onSelectFeature }: FeatureBadgesProps) {
+  const handleSelect = (id: number) => {
+    onSelectFeature?.(selectedFeature === id ? null : id);
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2 mt-4 mb-6">
+      {annotations.sort((a, b) => a.id - b.id).map((annotation) => (
+        <button
+          key={annotation.id}
+          onClick={() => handleSelect(annotation.id)}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all hover:scale-105 ${
+            selectedFeature === annotation.id 
+              ? 'bg-blue-600 text-white border border-blue-400' 
+              : 'bg-zinc-700/50 text-zinc-300 border border-zinc-600 hover:bg-zinc-600/50 hover:text-white'
+          }`}
+        >
+          <span className={`flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
+            selectedFeature === annotation.id 
+              ? 'bg-white/20' 
+              : 'bg-zinc-600'
+          }`}>
+            {annotation.id}
+          </span>
+          {annotation.label}
+        </button>
+      ))}
+      {selectedFeature && (
+        <button
+          onClick={() => onSelectFeature?.(null)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700 hover:text-zinc-300 transition-all"
+        >
+          Show All
+        </button>
+      )}
     </div>
   );
 }

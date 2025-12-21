@@ -135,13 +135,16 @@ interface SectionProps {
   title?: string;
   children: React.ReactNode;
   className?: string;
+  titleClassName?: string;
 }
 
-export function Section({ title, children, className = "" }: SectionProps) {
+export function Section({ title, children, className = "", titleClassName = "" }: SectionProps) {
+  const defaultMargin = className.includes('mb-') ? '' : 'mb-4';
+  const defaultTitleMargin = titleClassName.includes('mb-') ? '' : 'mb-4';
   return (
-    <section className={`mb-8 ${className}`}>
+    <section className={`${defaultMargin} ${className}`}>
       {title && (
-        <h2 className="text-2xl font-bold text-zinc-100 mb-4">{title}</h2>
+        <h2 className={`text-xl font-bold text-zinc-100 ${defaultTitleMargin} ${titleClassName}`}>{title}</h2>
       )}
       {children}
     </section>

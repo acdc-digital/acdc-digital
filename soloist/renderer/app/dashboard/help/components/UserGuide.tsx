@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { AnnotatedDashboard, FeatureSection } from "./AnnotatedDashboard";
+import React, { useState } from "react";
+import { AnnotatedDashboard, FeatureSection, FeatureBadges } from "./AnnotatedDashboard";
 import {
   Callout,
   Subtitle,
@@ -17,75 +17,136 @@ import {
   List,
   ListItem,
 } from "./GuideComponents";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+// Feature content data - maps feature IDs to their content
+const featureContent: Record<number, { id: string; title: string; content: string }> = {
+  1: {
+    id: "feature-sidebar",
+    title: "Heatmap View",
+    content: "The sidebar provides quick access to all main views: Heatmap (calendar view), Base (daily feed), Soloist (forecasting), Canvas (notes), Guide (this page), and Service (settings). Click any icon to switch between views."
+  },
+  2: {
+    id: "feature-year-nav",
+    title: "Base View",
+    content: "Navigate between years using the arrow buttons or dropdown. View historical data from previous years or plan ahead for the future."
+  },
+  3: {
+    id: "feature-filters",
+    title: "Soloist View",
+    content: "Filter your heatmap view by specific criteria like mood ranges, tags, or date ranges. Useful for analyzing patterns in specific contexts."
+  },
+  4: {
+    id: "feature-view-toggle",
+    title: "Canvas View",
+    content: "Switch between Log view (create/edit entries) and Feed view (browse your daily summaries and AI-generated insights)."
+  },
+  5: {
+    id: "feature-stats",
+    title: "Guide View",
+    content: "Quick overview showing your total number of logs and average mood score. Track your consistency and overall well-being at a glance."
+  },
+  6: {
+    id: "feature-heatmap",
+    title: "Service View",
+    content: "The main calendar view showing your entire year. Each cell represents a day, color-coded by your mood score. Click any day to view or edit that day's log."
+  },
+  7: {
+    id: "feature-legend",
+    title: "Score Legend",
+    content: "Reference guide for the color-coding system. Hover over any color to highlight all days in that score range. Scores range from 0-9 (red/crisis) to 90-100 (indigo/exceptional)."
+  },
+  8: {
+    id: "feature-log-form",
+    title: "View Toggle",
+    content: "The form panel for creating or editing daily entries. Switch between Daily Log (structured data) and Notes (freeform text) tabs."
+  },
+  9: {
+    id: "feature-templates",
+    title: "Daily Log Form",
+    content: "Choose from preset templates or create custom ones. Templates pre-configure which sliders and fields appear, tailored to different tracking needs."
+  },
+  10: {
+    id: "feature-sliders",
+    title: "Template Selector",
+    content: "Rate different aspects of your day on a 0-10 scale. Default categories include Overall Mood, Work Satisfaction, Personal Life, and Work-Life Balance. Customize these in your template."
+  },
+  11: {
+    id: "feature-wellness",
+    title: "Mood Sliders",
+    content: "Track basic wellness metrics like hours of sleep and exercise. These factors correlate with mood and help Solomon provide better insights."
+  },
+};
 
 export function UserGuide() {
+  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
+
   return (
     <div className="text-zinc-100">
       {/* Header */}
-      <h1 className="text-4xl font-bold mb-2">Welcome to Soloist</h1>
-      <Subtitle>Your personal mood tracking and forecasting companion</Subtitle>
-
-      <p className="text-zinc-300 mb-8">
-        Soloist is a mood tracking and forecasting application that helps you understand your emotional patterns and predict future well-being. By logging your daily experiences, Soloist creates personalized insights that empower you to take control of your mental health.
-      </p>
+      <h1 className="text-4xl font-bold mb-0">Welcome to Soloist</h1>
+      
+      <Accordion type="single" collapsible className="mb-1">
+        <AccordionItem value="intro" className="border-zinc-700">
+          <AccordionTrigger className="text-lg text-zinc-400 hover:text-zinc-300">
+            Your personal mood tracking and forecasting companion
+          </AccordionTrigger>
+          <AccordionContent className="text-zinc-300 pt-0">
+            Soloist is a mood tracking and forecasting application that helps you understand your emotional patterns and predict future well-being. By logging your daily experiences, Soloist creates personalized insights that empower you to take control of your mental health.
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Dashboard Overview */}
-      <Section title="Dashboard Overview">
+      <Section title="Dashboard Overview" titleClassName="mb-2">
         <p className="text-zinc-300 mb-4">
-          Explore the main dashboard interface. Click any numbered circle to jump to its explanation.
+          Explore the main dashboard interface. Click any numbered circle or badge to see its explanation.
         </p>
 
-        <AnnotatedDashboard />
+        <AnnotatedDashboard 
+          selectedFeature={selectedFeature}
+          onSelectFeature={setSelectedFeature}
+        />
 
-        <h3 className="text-xl font-semibold text-zinc-100 mt-8 mb-4">Interface Elements</h3>
+        {/* Feature Badges */}
+        <FeatureBadges 
+          selectedFeature={selectedFeature}
+          onSelectFeature={setSelectedFeature}
+        />
 
-        <FeatureSection id="feature-sidebar" number={1} title="Navigation Sidebar">
-          The sidebar provides quick access to all main views: Heatmap (calendar view), Base (daily feed), Soloist (forecasting), Canvas (notes), Guide (this page), and Service (settings). Click any icon to switch between views.
-        </FeatureSection>
-
-        <FeatureSection id="feature-year-nav" number={2} title="Year Navigation">
-          Navigate between years using the arrow buttons or dropdown. View historical data from previous years or plan ahead for the future.
-        </FeatureSection>
-
-        <FeatureSection id="feature-filters" number={3} title="Filter Controls">
-          Filter your heatmap view by specific criteria like mood ranges, tags, or date ranges. Useful for analyzing patterns in specific contexts.
-        </FeatureSection>
-
-        <FeatureSection id="feature-view-toggle" number={4} title="View Toggle">
-          Switch between Log view (create/edit entries) and Feed view (browse your daily summaries and AI-generated insights).
-        </FeatureSection>
-
-        <FeatureSection id="feature-stats" number={5} title="Stats Summary">
-          Quick overview showing your total number of logs and average mood score. Track your consistency and overall well-being at a glance.
-        </FeatureSection>
-
-        <FeatureSection id="feature-heatmap" number={6} title="Heatmap Calendar">
-          The main calendar view showing your entire year. Each cell represents a day, color-coded by your mood score. Click any day to view or edit that day&apos;s log.
-        </FeatureSection>
-
-        <FeatureSection id="feature-legend" number={7} title="Score Legend">
-          Reference guide for the color-coding system. Hover over any color to highlight all days in that score range. Scores range from 0-9 (red/crisis) to 90-100 (indigo/exceptional).
-        </FeatureSection>
-
-        <FeatureSection id="feature-log-form" number={8} title="Daily Log Form">
-          The form panel for creating or editing daily entries. Switch between Daily Log (structured data) and Notes (freeform text) tabs.
-        </FeatureSection>
-
-        <FeatureSection id="feature-templates" number={9} title="Template Selector">
-          Choose from preset templates or create custom ones. Templates pre-configure which sliders and fields appear, tailored to different tracking needs.
-        </FeatureSection>
-
-        <FeatureSection id="feature-sliders" number={10} title="Mood Sliders">
-          Rate different aspects of your day on a 0-10 scale. Default categories include Overall Mood, Work Satisfaction, Personal Life, and Work-Life Balance. Customize these in your template.
-        </FeatureSection>
-
-        <FeatureSection id="feature-wellness" number={11} title="Wellness Tracking">
-          Track basic wellness metrics like hours of sleep and exercise. These factors correlate with mood and help Solomon provide better insights.
-        </FeatureSection>
-
-        <FeatureSection id="feature-selected-day" number={12} title="Selected Day Indicator">
-          The currently selected day is highlighted. Click any day on the heatmap to select it and load its data in the log form.
-        </FeatureSection>
+        {/* Feature Content - Show selected or all */}
+        <div className="mt-4">
+          {selectedFeature ? (
+            // Show only selected feature
+            <FeatureSection 
+              id={featureContent[selectedFeature].id} 
+              number={selectedFeature} 
+              title={featureContent[selectedFeature].title}
+            >
+              {featureContent[selectedFeature].content}
+            </FeatureSection>
+          ) : (
+            // Show all features
+            <>
+              <h3 className="text-xl font-semibold text-zinc-100 mb-4">Interface Elements</h3>
+              {Object.entries(featureContent).map(([id, feature]) => (
+                <FeatureSection 
+                  key={id}
+                  id={feature.id} 
+                  number={parseInt(id)} 
+                  title={feature.title}
+                >
+                  {feature.content}
+                </FeatureSection>
+              ))}
+            </>
+          )}
+        </div>
       </Section>
 
       <Divider />
