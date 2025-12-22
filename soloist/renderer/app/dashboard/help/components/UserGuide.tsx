@@ -81,10 +81,25 @@ const featureContent: Record<number, { id: string; title: string; content: strin
     title: "Mood Sliders",
     content: "Track basic wellness metrics like hours of sleep and exercise. These factors correlate with mood and help Solomon provide better insights."
   },
+  12: {
+    id: "feature-assessment",
+    title: "Assessment Form",
+    content: "Complete your baseline self-assessment to help Solomon understand your emotional patterns. This form captures your typical mood ranges, triggers, and coping strategies."
+  },
+  13: {
+    id: "feature-waypoint-actions",
+    title: "Waypoint Actions",
+    content: "Manage your waypoints and milestones. Create new waypoints, edit existing ones, or mark them as complete to track your personal growth journey."
+  },
+  14: {
+    id: "feature-save-progress",
+    title: "Save Progress",
+    content: "Save your current progress on the assessment form. Your responses are preserved so you can continue where you left off at any time."
+  },
 };
 
 export function UserGuide() {
-  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
+  const [selectedFeature, setSelectedFeature] = useState<number | null>(1);
 
   return (
     <div className="text-zinc-100">

@@ -491,41 +491,45 @@ export default function Dashboard() {
             </div>
           </div>
           
-          {/* Row 2: Template Selector */}
-          <div className="mt-4 mb-1">
-            <TemplateSelector
-              userId={convexUserId || undefined}
-              selectedDate={parsed}
-              onCreateNew={() => {
-                setIsCreatingNewTemplate(true);
-                setShowTemplates(true);
-              }}
-            />
-          </div>
+          {/* Row 2: Template Selector - Hidden in Notes mode */}
+          {editorMode === 'daily' && (
+            <div className="mt-4 mb-1">
+              <TemplateSelector
+                userId={convexUserId || undefined}
+                selectedDate={parsed}
+                onCreateNew={() => {
+                  setIsCreatingNewTemplate(true);
+                  setShowTemplates(true);
+                }}
+              />
+            </div>
+          )}
           
-          {/* Row 3: Customize button */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              if (showTemplates) {
-                setShowTemplates(false);
-                setIsCreatingNewTemplate(false);
-              } else {
-                setIsCreatingNewTemplate(false);
-                setShowTemplates(true);
-              }
-            }}
-            className="w-fit text-amber-600 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-xs px-2 py-1 h-auto transition-colors duration-200"
-          >
-            {showTemplates ? (
-              <X className="h-3 w-3 mr-1.5" />
-            ) : (
-              <Settings2 className="h-3 w-3 mr-1.5" />
-            )}
-            Customize
-          </Button>
+          {/* Row 3: Customize button - Hidden in Notes mode */}
+          {editorMode === 'daily' && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (showTemplates) {
+                  setShowTemplates(false);
+                  setIsCreatingNewTemplate(false);
+                } else {
+                  setIsCreatingNewTemplate(false);
+                  setShowTemplates(true);
+                }
+              }}
+              className="w-fit text-amber-600 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-xs px-2 py-1 h-auto transition-colors duration-200"
+            >
+              {showTemplates ? (
+                <X className="h-3 w-3 mr-1.5" />
+              ) : (
+                <Settings2 className="h-3 w-3 mr-1.5" />
+              )}
+              Customize
+            </Button>
+          )}
         </div>
       );
     }

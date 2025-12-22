@@ -4,13 +4,14 @@
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Sparkles, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getColorClass } from "@/lib/scoreColors";
 import { 
   useSelectedDay, 
   useSelectedDateRange,
+  useWeekData,
   type DayData 
 } from "@/store/soloistStore";
 
@@ -36,6 +37,26 @@ function getBorderColorClass(score: number | null | undefined): string {
 export function DailyInsights({ className }: DailyInsightsProps) {
   const selectedDay = useSelectedDay();
   const selectedDateRange = useSelectedDateRange();
+  const weekData = useWeekData();
+
+  // Check if the selected day is actually today (current calendar date)
+  const isActuallyToday = useMemo(() => {
+    if (!selectedDay) return false;
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return selectedDay.date === todayStr;
+  }, [selectedDay]);
+
+  // Calculate average score for the week (only from days with scores)
+  const averageScore = useMemo(() => {
+    if (!weekData || weekData.length === 0) return null;
+    const scoresWithValues = weekData
+      .filter(day => day.emotionScore !== null && day.emotionScore !== undefined && day.emotionScore > 0)
+      .map(day => day.emotionScore as number);
+    if (scoresWithValues.length === 0) return null;
+    const sum = scoresWithValues.reduce((acc, score) => acc + score, 0);
+    return Math.round(sum / scoresWithValues.length);
+  }, [weekData]);
 
   // No day selected state
   if (!selectedDay) {
@@ -54,32 +75,36 @@ export function DailyInsights({ className }: DailyInsightsProps) {
     );
   }
 
+  // Determine what to display: Today's score or Average
+  const showAverage = !isActuallyToday;
+  const displayScore = showAverage ? averageScore : selectedDay.emotionScore;
+  const displayLabel = showAverage ? "Average" : "Today";
+  
   const score = selectedDay.emotionScore;
-  const hasScore = score !== null && score !== undefined && score > 0;
+  const hasScore = displayScore !== null && displayScore !== undefined && displayScore > 0;
   const isNoLog = !selectedDay.isFuture && !hasScore;
   const isForecast = selectedDay.isFuture;
-  const colorClass = getColorClass(score);
-  const borderColorClass = getBorderColorClass(score);
+  const colorClass = getColorClass(displayScore);
+  const borderColorClass = getBorderColorClass(displayScore);
 
   return (
     <div className={cn("", className)}>
       {/* Header with day info */}
       <div className="flex items-start gap-4 p-4">
-        {/* Score box preview - compact with softer rounded edges, rem-based sizing */}
+        {/* Score box preview - square with equal dimensions */}
         <div className="flex flex-col flex-shrink-0">
           <div 
             className={cn(
-              "w-[4rem] h-[5rem] flex items-center justify-center rounded-lg",
+              "w-[4rem] h-[4rem] flex items-center justify-center rounded-lg",
               hasScore ? colorClass : "bg-neutral-200 dark:bg-neutral-700"
             )}
           >
             {hasScore ? (
               <span className={cn(
                 "text-lg font-bold",
-                score >= 60 ? "text-neutral-900" : "text-neutral-100"
+                displayScore !== null && displayScore >= 60 ? "text-neutral-900" : "text-neutral-100"
               )}>
-
-                {score}
+                {displayScore}
               </span>
             ) : (
               <span className="text-2xl font-medium text-neutral-400 dark:text-neutral-500">—</span>
@@ -94,16 +119,16 @@ export function DailyInsights({ className }: DailyInsightsProps) {
         {/* Day details */}
         <div className="flex-1">
           <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            {isNoLog ? "No log for today" : selectedDay.day}
+            {displayLabel}
           </h3>
           <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
-            {isNoLog 
-              ? "No entry for today. Log your day to see your real score."
+            {showAverage 
+              ? selectedDay.formattedDate
               : selectedDay.formattedDate
             }
           </p>
           
-          {isNoLog && (
+          {!showAverage && isNoLog && (
             <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1 cursor-pointer hover:underline">
               Log your day to see your emotional score.
             </p>

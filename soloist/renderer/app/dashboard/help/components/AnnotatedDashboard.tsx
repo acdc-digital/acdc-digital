@@ -16,7 +16,7 @@ interface Annotation {
 const annotations: Annotation[] = [
   // Left side annotations - positioned to align with sidebar icons
   { id: 1, label: "Heatmap View", targetX: "12%", targetY: "10%", side: "left", anchor: "feature-sidebar" },
-  { id: 2, label: "Base View", targetX: "8%", targetY: "18%", side: "left", anchor: "feature-year-nav" },
+  { id: 2, label: "Base View", targetX: "8%", targetY: "18%", side: "left", anchor: "feature-year-nav", switchesImage: true },
   { id: 3, label: "Soloist View", targetX: "8%", targetY: "26%", side: "left", anchor: "feature-filters" },
   { id: 4, label: "Canvas View", targetX: "8%", targetY: "35%", side: "left", anchor: "feature-stats" },
   { id: 5, label: "Guide View", targetX: "8%", targetY: "44%", side: "left", anchor: "feature-heatmap" },
@@ -29,7 +29,12 @@ const annotations: Annotation[] = [
   { id: 10, label: "Template Selector", targetX: "87%", targetY: "5%", side: "top", anchor: "feature-templates", switchesImage: true },
 
   // Overlay annotation - positioned on the image
-  { id: 11, label: "Mood Sliders", targetX: "62%", targetY: "40%", side: "overlay", anchor: "feature-sliders" },
+  { id: 11, label: "Mood Sliders", targetX: "60%", targetY: "40%", side: "overlay", anchor: "feature-sliders" },
+
+  // Base View specific annotations (only visible when #2 is selected)
+  { id: 12, label: "Assessment Form", targetX: "25%", targetY: "5%", side: "top", anchor: "feature-assessment" },
+  { id: 13, label: "Waypoint Actions", targetX: "65%", targetY: "5%", side: "top", anchor: "feature-waypoint-actions" },
+  { id: 14, label: "Save Progress", targetX: "95%", targetY: "96%", side: "right", anchor: "feature-save-progress" },
 ];
 
 // Export annotations for use in other components
@@ -45,6 +50,7 @@ interface MarginAnnotationProps {
 
 function MarginAnnotation({ annotation, index, isSelected, onSelect }: MarginAnnotationProps) {
   const topPosition = annotation.targetY;
+  const isRightSide = annotation.side === "right";
 
   return (
     <button
@@ -59,6 +65,9 @@ function MarginAnnotation({ annotation, index, isSelected, onSelect }: MarginAnn
       }}
       title={annotation.label}
     >
+      {isRightSide && (
+        <span className="text-white/70 text-xs group-hover:text-white transition-colors">←</span>
+      )}
       <span className={`flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold border-2 transition-all group-hover:scale-110 group-hover:border-white group-hover:bg-white/10 ${isSelected ? 'bg-blue-600 border-blue-400' : 'bg-transparent border-white/70'}`}>
         {annotation.id}
       </span>
@@ -68,23 +77,14 @@ function MarginAnnotation({ annotation, index, isSelected, onSelect }: MarginAnn
 
 interface TopAnnotationProps {
   annotation: Annotation;
-  onImageSwitch?: () => void;
   isSelected?: boolean;
   onSelect?: (id: number) => void;
 }
 
-function TopAnnotation({ annotation, onImageSwitch, isSelected, onSelect }: TopAnnotationProps) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (annotation.switchesImage && onImageSwitch) {
-      onImageSwitch();
-    }
-    onSelect?.(annotation.id);
-  };
-
+function TopAnnotation({ annotation, isSelected, onSelect }: TopAnnotationProps) {
   return (
     <button
-      onClick={handleClick}
+      onClick={() => onSelect?.(annotation.id)}
       className="absolute group z-10 flex flex-col items-center"
       style={{
         left: annotation.targetX,
@@ -136,30 +136,74 @@ interface AnnotatedDashboardProps {
   onSelectFeature?: (id: number | null) => void;
 }
 
+// Map feature IDs to their corresponding images
+const featureImageMap: Record<number, string> = {
+  1: "/Group-01.svg",  // Heatmap View
+  2: "/Group-03.svg",  // Base View
+  3: "/Group-04.svg",  // Soloist View
+  4: "/Group-05.svg",  // Canvas View
+  10: "/Group-02.svg", // Template Selector (Notes view)
+  // Base View specific features (12, 13, 14) should keep showing Base View image
+  12: "/Group-03.svg", // Assessment Form (Base View)
+  13: "/Group-03.svg", // Waypoint Actions (Base View)
+  14: "/Group-03.svg", // Save Progress (Base View)
+};
+
+// Get the image for a selected feature
+function getImageForFeature(selectedFeature: number | null | undefined): string {
+  if (selectedFeature && featureImageMap[selectedFeature]) {
+    return featureImageMap[selectedFeature];
+  }
+  return "/Group-01.svg"; // Default to main heatmap
+}
+
+// Get alt text for the current image
+function getAltForFeature(selectedFeature: number | null | undefined): string {
+  if (selectedFeature === 2 || selectedFeature === 12 || selectedFeature === 13 || selectedFeature === 14) return "Soloist Base View";
+  if (selectedFeature === 3) return "Soloist Forecast View";
+  if (selectedFeature === 4) return "Soloist Canvas View";
+  if (selectedFeature === 10) return "Soloist Notes View";
+  return "Soloist Dashboard Overview";
+}
+
 export function AnnotatedDashboard({ selectedFeature, onSelectFeature }: AnnotatedDashboardProps) {
-  const [showNotesImage, setShowNotesImage] = useState(false);
-  
   const leftAnnotations = annotations.filter(a => a.side === "left");
   const rightAnnotations = annotations.filter(a => a.side === "right");
   const topAnnotations = annotations.filter(a => a.side === "top");
   const overlayAnnotations = annotations.filter(a => a.side === "overlay");
-
-  const toggleImage = () => setShowNotesImage(prev => !prev);
 
   const handleSelect = (id: number) => {
     // Toggle off if clicking the same one, otherwise select
     onSelectFeature?.(selectedFeature === id ? null : id);
   };
 
+  // Features 12, 13, 14 belong to Base View - show them when any Base View feature is selected
+  const isBaseViewActive = selectedFeature === 2 || selectedFeature === 12 || selectedFeature === 13 || selectedFeature === 14;
+  const isSoloistViewActive = selectedFeature === 3;
+  const isCanvasViewActive = selectedFeature === 4;
+  // Hide annotations based on active view:
+  // - Base View: hide 8-11, show 12-14
+  // - Soloist View: hide 8-14
+  // - Canvas View: hide 8-14
+  // - Default: hide 12-14
+  let hideAnnotations: number[] = [];
+  if (isSoloistViewActive || isCanvasViewActive) {
+    hideAnnotations = [8, 9, 10, 11, 12, 13, 14];
+  } else if (isBaseViewActive) {
+    hideAnnotations = [8, 9, 10, 11];
+  } else {
+    hideAnnotations = [12, 13, 14];
+  }
+  const shouldHide = (id: number) => hideAnnotations.includes(id);
+
   return (
     <div className="my-4">
       {/* Top margin for annotations */}
       <div className="hidden sm:block relative h-10 w-full">
-        {topAnnotations.map((annotation) => (
+        {topAnnotations.filter(a => !shouldHide(a.id)).map((annotation) => (
           <TopAnnotation 
             key={annotation.id} 
             annotation={annotation} 
-            onImageSwitch={annotation.switchesImage ? toggleImage : undefined}
             isSelected={selectedFeature === annotation.id}
             onSelect={handleSelect}
           />
@@ -184,15 +228,15 @@ export function AnnotatedDashboard({ selectedFeature, onSelectFeature }: Annotat
         {/* Image container */}
         <div className="relative flex-1 rounded-lg overflow-hidden shadow-xl" style={{ backgroundColor: '#2B2B2B' }}>
           <Image
-            src={showNotesImage ? "/soloist-notes_v2.svg" : "/soloist-main_v2.svg"}
-            alt={showNotesImage ? "Soloist Notes View" : "Soloist Dashboard Overview"}
+            src={getImageForFeature(selectedFeature)}
+            alt={getAltForFeature(selectedFeature)}
             width={1200}
             height={750}
             className="w-full h-auto"
             priority
           />
           {/* Overlay annotations on the image */}
-          {overlayAnnotations.map((annotation) => (
+          {overlayAnnotations.filter(a => !shouldHide(a.id)).map((annotation) => (
             <OverlayAnnotation 
               key={annotation.id} 
               annotation={annotation}
@@ -204,7 +248,7 @@ export function AnnotatedDashboard({ selectedFeature, onSelectFeature }: Annotat
 
         {/* Right margin annotations */}
         <div className="hidden sm:block relative w-12 flex-shrink-0">
-          {rightAnnotations.map((annotation, index) => (
+          {rightAnnotations.filter(a => !shouldHide(a.id)).map((annotation, index) => (
             <MarginAnnotation 
               key={annotation.id} 
               annotation={annotation} 
@@ -214,25 +258,6 @@ export function AnnotatedDashboard({ selectedFeature, onSelectFeature }: Annotat
             />
           ))}
         </div>
-      </div>
-
-      {/* Mobile: show numbers in a row below */}
-      <div className="flex sm:hidden flex-wrap justify-center gap-2 mt-4">
-        {annotations.sort((a, b) => a.id - b.id).map((annotation) => (
-          <button
-            key={annotation.id}
-            onClick={() => {
-              if (annotation.switchesImage) {
-                toggleImage();
-              }
-              handleSelect(annotation.id);
-            }}
-            className={`flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold border-2 hover:border-white hover:bg-white/10 transition-all ${selectedFeature === annotation.id ? 'bg-blue-600 border-blue-400' : 'bg-transparent border-white/70'}`}
-            title={annotation.label}
-          >
-            {annotation.id}
-          </button>
-        ))}
       </div>
 
       {/* Caption */}

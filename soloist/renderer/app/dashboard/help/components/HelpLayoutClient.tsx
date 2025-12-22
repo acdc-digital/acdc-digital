@@ -15,7 +15,7 @@ export function HelpLayoutClient({ children }: HelpLayoutClientProps) {
   return (
     <div className="h-full flex">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 border-r border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
+      <aside className="w-60 flex-shrink-0 border-r border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
         <div className="sticky top-0 p-6">
           <div className="flex items-center gap-2 mb-6">
             <BookOpen className="h-5 w-5 text-blue-600" />

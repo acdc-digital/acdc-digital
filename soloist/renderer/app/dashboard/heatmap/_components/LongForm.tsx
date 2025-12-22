@@ -192,7 +192,7 @@ export default function LongForm({ onClose, date, entryId }: LongFormProps) {
             className={`${
               showSuccess
                 ? "bg-emerald-600 border-emerald-500 text-white"
-                : "border border-neutral-300 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-700/75 text-neutral-600 dark:text-neutral-300 hover:border-neutral-400 dark:hover:border-neutral-500"
+                : "bg-[#0073FF] border-[#0073FF] text-white hover:bg-[#0066E6] hover:border-[#0066E6]"
             } h-8 px-6 text-sm font-medium rounded-none transition-all disabled:opacity-50`}
           >
             {showSuccess ? (

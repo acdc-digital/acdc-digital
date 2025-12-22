@@ -298,7 +298,19 @@ export const BaselineSelfAnalysisForm = React.forwardRef<BaselineSelfAnalysisFor
       {/* Scrollable Form Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {/* Form Content - continuous list */}
-        <div className="px-5 py-5 space-y-6">
+        <div className="px-5 py-6 space-y-4">
+          {/* Header */}
+          <div className="pb-0">
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              Baseline Assessment &amp; Self-Analysis
+            </h2>
+          </div>
+
+          {/* Section Divider */}
+          <div className="py-0 -ml-5">
+            <div className="w-1/2 h-px bg-white/20" />
+          </div>
+          
           {/* Emotional Landscape */}
           <div className="space-y-5">
             <div className="pb-1">
