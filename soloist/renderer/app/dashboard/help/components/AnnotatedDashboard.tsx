@@ -142,6 +142,7 @@ const featureImageMap: Record<number, string> = {
   2: "/Group-03.svg",  // Base View
   3: "/Group-04.svg",  // Soloist View
   4: "/Group-05.svg",  // Canvas View
+  5: "/Group-06.svg",  // Guide View
   10: "/Group-02.svg", // Template Selector (Notes view)
   // Base View specific features (12, 13, 14) should keep showing Base View image
   12: "/Group-03.svg", // Assessment Form (Base View)
@@ -162,6 +163,7 @@ function getAltForFeature(selectedFeature: number | null | undefined): string {
   if (selectedFeature === 2 || selectedFeature === 12 || selectedFeature === 13 || selectedFeature === 14) return "Soloist Base View";
   if (selectedFeature === 3) return "Soloist Forecast View";
   if (selectedFeature === 4) return "Soloist Canvas View";
+  if (selectedFeature === 5) return "Soloist Guide View";
   if (selectedFeature === 10) return "Soloist Notes View";
   return "Soloist Dashboard Overview";
 }
