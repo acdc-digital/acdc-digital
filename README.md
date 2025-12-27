@@ -35,8 +35,9 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
     <td align="center"><img src="public/smnb.png" alt="SMNB" width="325"><br><b>SMNB</b> — Sentiment analysis for ticker charts</td>
   </tr>
 </table>
+<br>
 
-### Migrate to Nextjs 16 & React 19 - Security Update December 2025
+### Notice: Migrate to Nextjs 16 & React 19 - Security Update December 2025
 
 | Project | Next.js | React | Status | Last Updated |
 |---------|---------|-------|--------|--------------|
