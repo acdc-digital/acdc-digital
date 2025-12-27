@@ -37,7 +37,7 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 </table>
 <br>
 
-### Notice: Migrate to Nextjs 16 & React 19 - Security Update December 2025
+#### Notice: Migrate to Nextjs 16 & React 19 - Security Update December 2025
 
 | Project | Next.js | React | Status | Last Updated |
 |---------|---------|-------|--------|--------------|
