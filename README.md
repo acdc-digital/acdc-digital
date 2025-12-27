@@ -29,6 +29,15 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 
 ---
 
+<table>
+  <tr>
+    <td><img src="public/soloist.png" alt="Soloist" width="400"></td>
+    <td><img src="public/smnb.png" alt="SMNB" width="400"></td>
+  </tr>
+</table>
+
+---
+
 ### Migrate to Nextjs 16 & React 19 - Security Update December 2025
 
 | Project | Next.js | React | Status | Last Updated |
