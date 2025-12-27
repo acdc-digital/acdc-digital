@@ -32,7 +32,7 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 <table>
   <tr>
     <td align="left"><a href="https://soloist.acdc.digital"><b>Soloist</b></a><br><img src="public/soloist.png" alt="Soloist" width="350"><br><sub>Mood tracking for taking control of today, tomorrow</sub></td>
-    <td align="center"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
+    <td align="left"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
   </tr>
 </table>
 <br>
