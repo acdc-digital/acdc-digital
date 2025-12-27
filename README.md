@@ -31,7 +31,7 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 
 <table>
   <tr>
-    <td align="center"><img src="public/soloist.png" alt="Soloist" width="325"><br><b>Soloist</b> — Mood tracking for taking control of today, tomorrow</td>
+    <td align="left"><img src="public/soloist.png" alt="Soloist" width="325"><br><b>Soloist</b> — Mood tracking for taking control of today, tomorrow</td>
     <td align="center"><img src="public/smnb.png" alt="SMNB" width="325"><br><b>SMNB</b> — Sentiment analysis for ticker charts</td>
   </tr>
 </table>
