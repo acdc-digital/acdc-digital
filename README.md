@@ -49,9 +49,24 @@ Through thoughtful and creative design, we turn ideas into intelligent systems &
 
 > All projects updated to address [CVE-2025-66478](https://vercel.link/CVE-2025-66478) - React Server Components vulnerability.
 
+#### 🤖 Agent Skills: AI-Powered Development Workflows
+
+We use [Agent Skills](https://agentskills.io)—an open standard for extending AI agent capabilities—to maintain consistent, high-quality code across all projects. Our skills are loaded on-demand by GitHub Copilot to provide specialized guidance.
+
+| Skill | Purpose | Capabilities |
+|-------|---------|--------------|
+| **convex-development** | Backend patterns | Queries, mutations, actions, schema design, real-time subscriptions |
+| **nextjs-patterns** | Frontend architecture | App Router, Server/Client Components, Convex integration |
+| **tailwind-design** | Visual design system | Brand guidelines, component patterns, shadcn/ui integration |
+| **monorepo-navigation** | Codebase exploration | Project structure, file organization, cross-project relationships |
+| **git-workflow** | Version control | Commit conventions, branching strategy, CI/CD patterns |
+
+> Skills enable **progressive disclosure**—only loading detailed instructions when relevant to the current task, keeping AI context efficient and responses accurate.
+
 ---
 
 #### Our playbook is simple:
+Make products that make bridging the gap from work to life easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure.
 
 ### 🎯 Featured Projects
 

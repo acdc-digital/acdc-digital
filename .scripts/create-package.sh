@@ -133,6 +133,11 @@ if [[ -z "$CUSTOM_DESCRIPTION" ]]; then
     CUSTOM_DESCRIPTION="$PACKAGE_NAME package - part of ACDC Digital workspace"
 fi
 
+# Fetch latest Next.js version
+print_status "Fetching latest Next.js version..."
+NEXT_VERSION=$(npm show next version 2>/dev/null || echo "16.1.1")
+print_status "Using Next.js version: $NEXT_VERSION"
+
 print_status "Creating new package: $PACKAGE_NAME"
 print_status "Directory: $PACKAGE_DIR"
 print_status "Dev port: $DEV_PORT"
@@ -178,7 +183,7 @@ cat > "$PACKAGE_DIR/package.json" << EOF
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.541.0",
-    "next": "15.2.3",
+    "next": "^$NEXT_VERSION",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.1",
@@ -191,7 +196,7 @@ cat > "$PACKAGE_DIR/package.json" << EOF
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.2.3",
+    "eslint-config-next": "^$NEXT_VERSION",
     "prettier": "^3.5.3",
     "tailwindcss": "^4",
     "typescript": "^5"
@@ -680,6 +685,23 @@ if [[ "$SKIP_INSTALL" == false ]]; then
     cd "$WORKSPACE_ROOT"
 else
     print_warning "Skipping dependency installation (--no-install flag)"
+fi
+
+# Update VS Code settings to add folder icon association
+VSCODE_SETTINGS="$WORKSPACE_ROOT/.vscode/settings.json"
+if [[ -f "$VSCODE_SETTINGS" ]]; then
+    print_status "Adding folder icon association to VS Code settings..."
+    if command -v jq >/dev/null 2>&1; then
+        # Use jq to add the folder association
+        tmp_file=$(mktemp)
+        jq --arg pkg "$PACKAGE_NAME" '.["material-icon-theme.folders.associations"][$pkg] = "app"' "$VSCODE_SETTINGS" > "$tmp_file"
+        mv "$tmp_file" "$VSCODE_SETTINGS"
+        print_success "Folder icon association added for '$PACKAGE_NAME'"
+    else
+        print_warning "jq not installed - manually add \"$PACKAGE_NAME\": \"app\" to .vscode/settings.json folder associations"
+    fi
+else
+    print_warning "VS Code settings not found - folder icon association not configured"
 fi
 
 print_success "Package '$PACKAGE_NAME' created successfully!"

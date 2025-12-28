@@ -25,6 +25,7 @@
     "smnb": "app",
     "aura": "app",
     "soloist": "app",
+    "elvato": "app",
     "lifeOS": "app",
     ".agents": "robot",
     "projects": "project"
