@@ -27,56 +27,9 @@
 
 Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others. Adaptive intelligence should enhance the human experience, not just feel human.
 
----
-
-<table>
-  <tr>
-    <td align="left"><a href="https://soloist.acdc.digital"><b>Soloist</b></a><br><img src="public/soloist.png" alt="Soloist" width="350"><br><sub>Mood tracking for taking control of today, tomorrow</sub></td>
-    <td align="left"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
-  </tr>
-</table>
-<br>
-
-#### Notice: Migrate to Nextjs 16 & React 19 - Security Update December 2025
-
-| Project | Next.js | React | Status | Last Updated |
-|---------|---------|-------|--------|--------------|
-| **acdc-digital** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
-| **Soloist/renderer** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
-| **Soloist/website** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
-| **Soloist/demo** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
-| **Soloist/marketing** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
-
-> All projects updated to address [CVE-2025-66478](https://vercel.link/CVE-2025-66478) - React Server Components vulnerability.
-
-#### 🤖 Agent Skills: AI-Powered Development Workflows
-
-We use [Agent Skills](https://agentskills.io)—an open standard for extending AI agent capabilities—to maintain consistent, high-quality code across all projects. Our skills are loaded on-demand by GitHub Copilot to provide specialized guidance.
-
-| Skill | Purpose | Capabilities |
-|-------|---------|--------------|
-| **convex-development** | Backend patterns | Queries, mutations, actions, schema design, real-time subscriptions |
-| **nextjs-patterns** | Frontend architecture | App Router, Server/Client Components, Convex integration |
-| **tailwind-design** | Visual design system | Brand guidelines, component patterns, shadcn/ui integration |
-| **monorepo-navigation** | Codebase exploration | Project structure, file organization, cross-project relationships |
-| **git-workflow** | Version control | Commit conventions, branching strategy, CI/CD patterns |
-
-> Skills enable **progressive disclosure**—only loading detailed instructions when relevant to the current task, keeping AI context efficient and responses accurate.
+Our playbook is simple, make products that make bridging the gap from work to life easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure.
 
 ---
-
-#### Our playbook is simple:
-Make products that make bridging the gap from work to life easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure.
-
-### 🎯 Featured Projects
-
-| Project | Description |
-|---------|-------------|
-| **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today.
-| **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading.
-| **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting.
-
-> **78+ intelligent agents** power our products behind the scenes—coordinating tasks, analyzing data, and delivering personalized experiences across all projects.
 
 ## ACDC.digital - Full Service Digital Studio
 
@@ -105,6 +58,52 @@ ACDC.digital is a **full-service digital studio** focused on making products tha
 | **Soloist** | 12+ | Data analysis, predictive modeling, mood forecasting |
 | **SMNB** | 18+ | Content aggregation, duplicate detection, smart threading |
 | **AURA** | 15+ | Document formatting, real-time collaboration, version control |
+
+### 🎯 Featured Projects
+
+| Project | Description |
+|---------|-------------|
+| **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today.
+| **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading.
+| **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting.
+
+> **78+ intelligent agents** power our products behind the scenes—coordinating tasks, analyzing data, and delivering personalized experiences across all projects.
+
+<table>
+  <tr>
+    <td align="left"><a href="https://soloist.acdc.digital"><b>Soloist</b></a><br><img src="public/soloist.png" alt="Soloist" width="350"><br><sub>Mood tracking for taking control of today, tomorrow</sub></td>
+    <td align="left"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
+  </tr>
+</table>
+<br>
+
+#### 🤖 Agent Skills: AI-Powered Development Workflows
+
+We use [Agent Skills](https://agentskills.io)—an open standard for extending AI agent capabilities—to maintain consistent, high-quality code across all projects. Our skills are loaded on-demand by GitHub Copilot to provide specialized guidance.
+
+| Skill | Purpose | Capabilities |
+|-------|---------|--------------|
+| **convex-development** | Backend patterns | Queries, mutations, actions, schema design, real-time subscriptions |
+| **nextjs-patterns** | Frontend architecture | App Router, Server/Client Components, Convex integration |
+| **tailwind-design** | Visual design system | Brand guidelines, component patterns, shadcn/ui integration |
+| **monorepo-navigation** | Codebase exploration | Project structure, file organization, cross-project relationships |
+| **git-workflow** | Version control | Commit conventions, branching strategy, CI/CD patterns |
+
+> Skills enable **progressive disclosure**—only loading detailed instructions when relevant to the current task, keeping AI context efficient and responses accurate.
+
+#### Notice: Migrate to Nextjs 16 & React 19 - Security Update December 2025
+
+| Project | Next.js | React | Status | Last Updated |
+|---------|---------|-------|--------|--------------|
+| **acdc-digital** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/renderer** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/website** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/demo** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+| **Soloist/marketing** | 16.0.7 | 19.2.1 | ✅ Patched | Dec 2025 |
+
+> All projects updated to address [CVE-2025-66478](https://vercel.link/CVE-2025-66478) - React Server Components vulnerability.
+
+---
 
 ⚡⚡⚡
 
