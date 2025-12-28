@@ -33,7 +33,7 @@ The playbook is simple, make products where bridging the gap from work to life b
 
 ## The ACDC.digital Lab - Full Service Digital Studio
 
-ACDC.digital is a **full-service digital studio** focused on making products that bridge the gap from work to life. We build intuitive tools that help people stay organized, make better decisions, and find balance in their daily routines. Our approach combines thoughtful design with intelligent automation—creating experiences that feel personal and effortless.
+**The Lab** is focused on making products that bridge the gap from work to life. We're building intuitive tools that help people stay organized, make better decisions, and find balance in their daily routines. Our approach combines thoughtful design with intelligent automation—creating experiences that feel personal and effortless. Our current objective involves elevating an E-commerce brand through iterative solutions.
 
 #### **What We Do:**
 - **Product Design**: Human-centered interfaces that make complex features feel simple and natural.
@@ -58,6 +58,7 @@ ACDC.digital is a **full-service digital studio** focused on making products tha
 | **Soloist** | 12+ | Data analysis, predictive modeling, mood forecasting |
 | **SMNB** | 18+ | Content aggregation, duplicate detection, smart threading |
 | **AURA** | 15+ | Document formatting, real-time collaboration, version control |
+| **Elvato** | 0+ | E-Commerce, brand-overhaul, version control, SEO, marketplace enhancements |
 
 ### 🎯 Featured Projects
 
