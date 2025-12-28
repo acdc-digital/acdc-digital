@@ -25,9 +25,9 @@
 
 ---
 
-Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others through the use of technology. Adaptive intelligence should enhance the human experience, not just feel human.
+Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others through the use of technology. Adaptive intelligence should enhance the human experience, not just mimic humans.
 
-Our playbook is simple, make products that make bridging the gap from work to life easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure.
+The playbook is simple, make products where bridging the gap from work to life becomes easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure. Currently, our lab is focused on projects which demonstrate these values. Our current stage of development involves elevating brand recognition through variuous channels.
 
 ---
 
