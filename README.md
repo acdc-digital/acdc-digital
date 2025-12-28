@@ -25,7 +25,7 @@
 
 ---
 
-Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others. Adaptive intelligence should enhance the human experience, not just feel human.
+Through thoughtful and creative design, we turn ideas into intelligent systems & algorithms. We build adaptive infrastructure that analyzes, learns, and evolves with the purpose of enhancing how we can understand ourselves and interact with others through the use of technology. Adaptive intelligence should enhance the human experience, not just feel human.
 
 Our playbook is simple, make products that make bridging the gap from work to life easier. We're doing this through the development of human-centered design, intelligent automation, and scalable infrastructure.
 
