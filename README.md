@@ -66,6 +66,7 @@ The playbook is simple, make products where bridging the gap from work to life b
 |---------|-------------|
 | **Soloist** | Personal mood tracking and forecasting app. AI-powered insights help you understand patterns, predict your emotional landscape, and take control of tomorrow—today.
 | **SMNB** | Smart news management and content curation. Cut through the noise with intelligent aggregation, duplicate detection, and personalized threading.
+| **Elvato** | Pure-play Lighting e-Tailer. Headless Ecommerce with brand overhaul, marketplace enhancements, and SEO optimization.
 | **AURA** | Collaborative document editing reimagined. Real-time co-authoring with auto-styling, version control, and seamless formatting.
 
 > **78+ intelligent agents** power our products behind the scenes—coordinating tasks, analyzing data, and delivering personalized experiences across all projects.
@@ -74,6 +75,7 @@ The playbook is simple, make products where bridging the gap from work to life b
   <tr>
     <td align="left"><a href="https://soloist.acdc.digital"><b>Soloist</b></a><br><img src="public/soloist.png" alt="Soloist" width="350"><br><sub>Mood tracking for taking control of today, tomorrow</sub></td>
     <td align="left"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
+    <td align="left"><a href="https://elvato.com"><b>Elvato</b></a><br><img src="public/README-v2.svg" alt="Elvato" width="350"><br><sub>Pure-play Lighting e-Tailer. Headless Ecommerce.</sub></td>
   </tr>
 </table>
 <br>
