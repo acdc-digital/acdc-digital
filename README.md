@@ -75,7 +75,9 @@ The playbook is simple, make products where bridging the gap from work to life b
   <tr>
     <td align="left"><a href="https://soloist.acdc.digital"><b>Soloist</b></a><br><img src="public/soloist.png" alt="Soloist" width="350"><br><sub>Mood tracking for taking control of today, tomorrow</sub></td>
     <td align="left"><b>SMNB</b><br><img src="public/smnb.png" alt="SMNB" width="350"><br><sub>Sentiment analysis for ticker charts</sub></td>
-    <td align="left"><a href="https://elvato-webv2.com"><b>Elvato</b></a><br><img src="public/elvato.png" alt="Elvato" width="350"><br><sub>Pure-play Lighting e-Tailer. Headless Ecommerce.</sub></td>
+  </tr>
+  <tr>
+    <td align="left"><a href="https://elvato.com"><b>Elvato</b></a><br><img src="public/elvato-webv2.png" alt="Elvato" width="350"><br><sub>Pure-play Lighting e-Tailer. Headless Ecommerce.</sub></td>
   </tr>
 </table>
 <br>
